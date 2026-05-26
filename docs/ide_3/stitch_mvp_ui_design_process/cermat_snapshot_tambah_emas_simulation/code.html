@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cermat - Tambah Emas Simulation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-highest": "#e2e3df",
+                        "surface-dim": "#d9dad7",
+                        "secondary-fixed-dim": "#95d4b3",
+                        "on-primary-container": "#86af99",
+                        "surface-variant": "#e2e3df",
+                        "secondary": "#2c694e",
+                        "capacity-teal": "#0891B2",
+                        "on-secondary-container": "#316e52",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#b1f0ce",
+                        "on-tertiary-container": "#c2a35b",
+                        "on-primary-fixed-variant": "#274e3d",
+                        "surface-low": "#F3F4F1",
+                        "surface-container-high": "#e7e9e5",
+                        "outline-variant": "#c1c8c2",
+                        "on-primary-fixed": "#002114",
+                        "surface-card": "#FFFFFF",
+                        "primary": "#012d1d",
+                        "border-strong": "#C1C8C2",
+                        "on-background": "#1a1c1a",
+                        "on-tertiary-fixed-variant": "#5a4302",
+                        "on-secondary": "#ffffff",
+                        "background": "#f9faf6",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#f9faf6",
+                        "primary-fixed-dim": "#a5d0b9",
+                        "inverse-surface": "#2e312f",
+                        "tertiary-fixed": "#ffdf9b",
+                        "on-surface": "#1a1c1a",
+                        "tertiary-fixed-dim": "#e4c278",
+                        "surface-tint": "#3f6653",
+                        "on-error-container": "#93000a",
+                        "primary-dark": "#012D1D",
+                        "on-error": "#ffffff",
+                        "surface": "#f9faf6",
+                        "inverse-primary": "#a5d0b9",
+                        "secondary-container": "#aeeecb",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f0f1ed",
+                        "surface-container-low": "#f3f4f0",
+                        "tertiary": "#322400",
+                        "danger-rose": "#BE123C",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#c1ecd4",
+                        "surface-container": "#edeeea",
+                        "primary-container": "#274E3D",
+                        "gold-muted": "#9C8554",
+                        "on-secondary-fixed-variant": "#0e5138",
+                        "error-container": "#ffdad6",
+                        "accent-emerald-soft": "#86AF99",
+                        "warning-amber": "#D97706",
+                        "tertiary-container": "#4d3900",
+                        "on-secondary-fixed": "#002114",
+                        "outline": "#717973",
+                        "on-tertiary-fixed": "#251a00",
+                        "on-surface-variant": "#414844",
+                        "gold-palette": "#C9A961"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        "stack_md": "16px",
+                        "max-width": "1440px",
+                        "stack_xs": "4px",
+                        "stack_sm": "8px",
+                        "stack_lg": "24px",
+                        "margin": "40px",
+                        "stack_xl": "32px",
+                        "gutter": "32px"
+                    },
+                    fontFamily: {
+                        "label-xs": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-hero": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "metric-value": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "label-xs": ["12px", { lineHeight: "1.2", letterSpacing: "0.04em", fontWeight: "600" }],
+                        "headline-md": ["24px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "headline-lg": ["32px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "headline-hero": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "label-sm": ["14px", { lineHeight: "1.4", fontWeight: "500" }],
+                        "metric-value": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }]
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Gold Input Range Styling */
+        input[type=range].gold-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range].gold-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #9C8554;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        input[type=range].gold-slider::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e3df;
+            border-radius: 2px;
+        }
+        input[type=range].gold-slider:focus { outline: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline h-16 flat no shadows">
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary tracking-tight">Cermat</div>
+<div class="flex items-center gap-stack_md">
+<span class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline-variant hidden md:block">Local-only storage</span>
+<button class="bg-surface dark:bg-surface text-primary dark:text-inverse-primary font-label-sm text-label-sm px-stack_md py-stack_sm rounded border border-outline-variant hover:bg-surface-container-low transition-colors flex items-center gap-stack_xs">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                .xlsx Download
+            </button>
+</div>
+</header>
+<div class="flex flex-1 pt-16 h-[calc(100vh-16px)]">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-16 bottom-0 w-64 flex flex-col pt-stack_lg pb-stack_md bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline hidden md:flex z-40">
+<div class="px-stack_lg pb-stack_lg mb-stack_md border-b border-outline-variant/50">
+<div class="font-headline-md text-headline-md text-primary truncate">Personal Vault</div>
+<div class="font-label-xs text-label-xs text-on-surface-variant mt-stack_xs">Local-only storage</div>
+</div>
+<div class="flex flex-col gap-stack_xs flex-1">
+<a class="bg-secondary-container dark:bg-primary-container text-on-secondary-container dark:text-on-primary-container rounded-lg mx-2 flex items-center gap-stack_md px-stack_md py-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm">Snapshot</span>
+</a>
+<a class="text-on-surface-variant dark:text-outline-variant mx-2 flex items-center gap-stack_md px-stack_md py-3 hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">track_changes</span>
+<span class="font-label-sm text-label-sm">Goals</span>
+</a>
+<a class="text-on-surface-variant dark:text-outline-variant mx-2 flex items-center gap-stack_md px-stack_md py-3 hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">calculate</span>
+<span class="font-label-sm text-label-sm">Simulator</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 flex flex-col md:flex-row relative h-full overflow-hidden bg-surface">
+<!-- Left Panel: Input Area (Simulation) -->
+<div class="w-full md:w-[45%] h-full overflow-y-auto border-r border-outline-variant bg-surface-bright flex flex-col relative z-10 shadow-[20px_0_40px_rgba(0,0,0,0.03)]">
+<!-- OJK Disclaimer Banner -->
+<div class="bg-surface-container-low border-b border-outline-variant px-stack_lg py-stack_sm flex items-start gap-stack_sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] mt-[2px]">info</span>
+<p class="font-label-xs text-label-xs text-on-surface-variant leading-relaxed">
+                        Data is processed locally on your device. Cermat is not affiliated with Otoritas Jasa Keuangan (OJK). Simulation results are estimates based on input parameters.
+                    </p>
+</div>
+<div class="p-stack_lg md:p-margin flex-1 flex flex-col">
+<!-- Header -->
+<div class="mb-stack_xl">
+<div class="flex items-center gap-stack_sm mb-stack_xs text-on-tertiary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider">Simulasi</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-stack_xs">Tambah Emas</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Convert liquid cash into gold. Monitor the impact on your Safe Haven ratio and available liquidity.</p>
+</div>
+<!-- Input Card -->
+<div class="bg-surface-card border border-outline-variant rounded-xl p-stack_lg shadow-sm mb-stack_xl relative overflow-hidden">
+<!-- Decorative top accent -->
+<div class="absolute top-0 left-0 w-full h-1 bg-gold-muted opacity-80"></div>
+<div class="flex justify-between items-end mb-stack_md">
+<label class="font-label-sm text-label-sm text-on-surface font-semibold">Jumlah Pembelian (Gram)</label>
+<div class="text-right">
+<span class="font-label-xs text-label-xs text-on-surface-variant block mb-1">Estimasi Harga (Antam)</span>
+<span class="font-label-sm text-label-sm text-primary">Rp 1.150.000 / gr</span>
+</div>
+</div>
+<!-- Big Input -->
+<div class="relative mb-stack_lg group">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-stack_md px-stack_md font-headline-md text-headline-md text-primary text-center focus:border-gold-muted focus:ring-1 focus:ring-gold-muted outline-none transition-all" id="gold-input" type="text" value="50"/>
+<div class="absolute right-stack_md top-1/2 -translate-y-1/2 font-label-sm text-label-sm text-on-surface-variant">gram</div>
+</div>
+<!-- Slider -->
+<div class="mb-stack_lg px-2">
+<input class="gold-slider" id="gold-slider" max="200" min="1" type="range" value="50"/>
+<div class="flex justify-between mt-stack_sm font-label-xs text-label-xs text-on-surface-variant">
+<span>1g</span>
+<span>100g</span>
+<span>200g</span>
+</div>
+</div>
+<!-- Cost Calculation Box -->
+<div class="bg-surface-low rounded-lg p-stack_md flex justify-between items-center border border-outline-variant/50">
+<div>
+<div class="font-label-xs text-label-xs text-on-surface-variant mb-1">Total Biaya (Dipotong dari Modal Siap)</div>
+<div class="font-metric-value text-metric-value text-primary" id="total-cost">Rp 57.500.000</div>
+</div>
+<span class="material-symbols-outlined text-outline">arrow_forward</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="mt-auto flex gap-stack_md">
+<button class="flex-1 py-stack_md px-stack_lg border border-outline-variant text-on-surface-variant font-label-sm text-label-sm rounded-lg hover:bg-surface-container-low transition-colors text-center">Batalkan</button>
+<button class="flex-1 py-stack_md px-stack_lg bg-[#1B4332] text-white font-label-sm text-label-sm rounded-lg hover:bg-opacity-90 transition-colors shadow-sm text-center flex justify-center items-center gap-2">
+                            Simpan Perubahan
+                            <span class="material-symbols-outlined text-[16px]">check</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Panel: Proyeksi Dashboard (Results) -->
+<div class="w-full md:w-[55%] h-full overflow-y-auto bg-surface-container-lowest p-stack_lg md:p-margin relative">
+<div class="mb-stack_xl">
+<div class="inline-flex items-center gap-stack_xs bg-surface-container px-3 py-1 rounded-full mb-stack_md">
+<span class="w-2 h-2 rounded-full bg-warning-amber animate-pulse"></span>
+<span class="font-label-xs text-label-xs text-on-surface-variant">Live Projection Active</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary">Proyeksi Portofolio</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Dampak simulasi terhadap aset lancar Anda.</p>
+</div>
+<!-- Bento Grid for Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack_md mb-stack_xl">
+<!-- Modal Siap (Drops) -->
+<div class="bg-surface-card border border-outline-variant rounded-xl p-stack_md shadow-[0_4px_12px_rgba(0,0,0,0.03)] relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-stack_md opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-stack_xs">Modal Siap (Likuid)</div>
+<div class="flex items-center gap-stack_md mb-stack_sm">
+<div class="font-metric-value text-metric-value text-primary line-through opacity-50 text-[18px]">Rp 450M</div>
+<span class="material-symbols-outlined text-outline-variant text-[16px]">arrow_right_alt</span>
+<div class="font-metric-value text-metric-value text-primary" id="proj-liquid">Rp 392.5M</div>
+</div>
+<div class="flex items-center gap-1 text-danger-rose font-label-xs text-label-xs bg-error-container/30 w-fit px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[14px]">trending_down</span>
+<span id="delta-liquid">-Rp 57.5M</span>
+</div>
+</div>
+<!-- Emas (Increases) -->
+<div class="bg-surface-card border border-gold-muted/50 rounded-xl p-stack_md shadow-[0_4px_12px_rgba(0,0,0,0.03)] relative overflow-hidden group bg-gradient-to-br from-surface-card to-[#FDFBF7]">
+<div class="absolute top-0 right-0 p-stack_md opacity-10 group-hover:opacity-20 transition-opacity text-gold-muted">
+<span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">monetization_on</span>
+</div>
+<div class="font-label-sm text-label-sm text-gold-muted font-semibold mb-stack_xs">Aset Emas</div>
+<div class="flex items-center gap-stack_md mb-stack_sm">
+<div class="font-metric-value text-metric-value text-primary opacity-50 text-[18px]">Rp 150M</div>
+<span class="material-symbols-outlined text-outline-variant text-[16px]">arrow_right_alt</span>
+<div class="font-metric-value text-metric-value text-primary" id="proj-gold">Rp 207.5M</div>
+</div>
+<div class="flex items-center gap-1 text-[#1B4332] font-label-xs text-label-xs bg-primary-fixed/30 w-fit px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span id="delta-gold">+Rp 57.5M</span>
+</div>
+</div>
+</div>
+<!-- Net Worth & Ratios -->
+<div class="bg-surface-card border border-outline-variant rounded-xl p-stack_lg shadow-sm">
+<div class="flex justify-between items-center mb-stack_lg border-b border-outline-variant pb-stack_md">
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Net Worth (Stabil)</div>
+<div class="font-metric-value text-metric-value text-primary mt-1">Rp 2.850.000.000</div>
+</div>
+<div class="text-right">
+<div class="font-label-xs text-label-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">Transfer Internal</div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-stack_sm">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Rasio Safe Haven (Emas / Total Likuid)</span>
+<div class="flex items-center gap-2">
+<span class="font-label-xs text-label-xs text-on-surface-variant line-through">25%</span>
+<span class="material-symbols-outlined text-outline-variant text-[14px]">arrow_forward</span>
+<span class="font-label-sm text-label-sm text-gold-muted font-bold" id="proj-ratio">34.5%</span>
+</div>
+</div>
+<!-- Visual Bar -->
+<div class="w-full h-3 bg-surface-container-highest rounded-full overflow-hidden flex">
+<!-- Existing Gold -->
+<div class="h-full bg-gold-muted/60 transition-all duration-300 w-[25%] relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Emas Saat Ini (25%)</div>
+</div>
+<!-- Added Gold (Delta) -->
+<div class="h-full bg-[#9C8554] transition-all duration-300 w-[9.5%] border-l border-surface-card relative group" id="bar-added">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">+9.5% Tambahan</div>
+</div>
+<!-- Remaining Cash -->
+<div class="h-full bg-secondary-fixed-dim transition-all duration-300 flex-1 relative group">
+<div class="absolute -top-8 right-0 bg-inverse-surface text-inverse-on-surface text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Kas (65.5%)</div>
+</div>
+</div>
+<div class="flex justify-between mt-stack_sm font-label-xs text-label-xs text-on-surface-variant">
+<span>0%</span>
+<span>Target Ideal: 20-30%</span>
+<span>100%</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="w-full py-stack_md px-margin flex flex-col md:flex-row justify-between items-center gap-gutter bg-surface dark:bg-surface border-t border-outline-variant dark:border-outline z-50">
+<div class="font-label-xs text-label-xs text-on-surface-variant dark:text-outline-variant text-center md:text-left">
+            © 2024 Cermat. Data stays on your device. Not affiliated with OJK.
+        </div>
+<div class="flex gap-stack_md">
+<a class="font-label-xs text-label-xs text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-opacity" href="#">Privacy Policy</a>
+<a class="font-label-xs text-label-xs text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-opacity" href="#">Terms of Service</a>
+<a class="font-label-xs text-label-xs text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-inverse-primary transition-opacity" href="#">Disclaimer</a>
+</div>
+</footer>
+<script>
+        // Simple interactive script for the slider to update numbers visually
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('gold-slider');
+            const input = document.getElementById('gold-input');
+            const costDisplay = document.getElementById('total-cost');
+            const projLiquid = document.getElementById('proj-liquid');
+            const deltaLiquid = document.getElementById('delta-liquid');
+            const projGold = document.getElementById('proj-gold');
+            const deltaGold = document.getElementById('delta-gold');
+            const projRatio = document.getElementById('proj-ratio');
+            const barAdded = document.getElementById('bar-added');
+            
+            const pricePerGram = 1150000;
+            const baseLiquid = 450000000;
+            const baseGold = 150000000;
+            const totalLiquidPool = baseLiquid + baseGold; // 600M
+
+            function formatCurrency(num) {
+                if(num >= 1000000) {
+                    return 'Rp ' + (num / 1000000).toLocaleString('id-ID', {maximumFractionDigits: 1}) + 'M';
+                }
+                return 'Rp ' + num.toLocaleString('id-ID');
+            }
+
+            function updateSimulation(grams) {
+                const cost = grams * pricePerGram;
+                
+                // Update Inputs
+                input.value = grams;
+                slider.value = grams;
+                costDisplay.textContent = 'Rp ' + cost.toLocaleString('id-ID');
+
+                // Projections
+                const newLiquid = baseLiquid - cost;
+                const newGold = baseGold + cost;
+                
+                projLiquid.textContent = formatCurrency(newLiquid);
+                deltaLiquid.textContent = '-' + formatCurrency(cost);
+                
+                projGold.textContent = formatCurrency(newGold);
+                deltaGold.textContent = '+' + formatCurrency(cost);
+
+                // Ratio
+                const ratio = (newGold / totalLiquidPool) * 100;
+                projRatio.textContent = ratio.toFixed(1) + '%';
+                
+                // Update Bar (Base is 25%, added is dynamic)
+                const addedPercentage = ((cost) / totalLiquidPool) * 100;
+                barAdded.style.width = addedPercentage + '%';
+                barAdded.querySelector('div').textContent = '+' + addedPercentage.toFixed(1) + '% Tambahan';
+            }
+
+            slider.addEventListener('input', (e) => {
+                updateSimulation(parseInt(e.target.value));
+            });
+
+            input.addEventListener('input', (e) => {
+                let val = parseInt(e.target.value);
+                if(isNaN(val)) val = 0;
+                if(val > 200) val = 200;
+                updateSimulation(val);
+            });
+        });
+    </script>
+</body></html>

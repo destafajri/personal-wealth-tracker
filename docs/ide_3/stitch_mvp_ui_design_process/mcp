@@ -1,0 +1,43 @@
+## Stitch Instructions
+
+Get the images and code for the following Stitch project's screens:
+
+## Project
+Title: MVP UI Design Process
+ID: 14029457391703834427
+
+## Screens:
+1. personal-wealth-platform-mvp-en.md
+    ID: 3902322306033378358
+
+2. personal-wealth-platform-prd-en.md
+    ID: 3902322306033380604
+
+3. personal-wealth-platform-design-guidelines-en.md
+    ID: 3902322306033380208
+
+4. Cermat — Snapshot (Debt & Gadai Entry Simulation)
+    ID: 13ff62d506a94113a3d9fc2aa59e10f7
+
+5. Cermat — Beranda
+    ID: 8a222953c5764a1d93e559417cae7fd6
+
+6. Design System
+    ID: asset-stub-assets-d9ffc266e7f346d68fe86a03e7a25403-1779784740329
+
+7. Cermat — Snapshot (Add Gadai Simulation State)
+    ID: 9f4cebef73e1495e89ebeed9d97e4a05
+
+8. Cermat — Snapshot (Tambah Emas Simulation)
+    ID: c03a9ca9fee641ac85b2b2cdf0bb10ff
+
+9. Cermat — Snapshot (Multiple Gadai Simulation)
+    ID: d8dd9eb26f05441f92a6e5563fe71c4f
+
+10. Cermat — Snapshot (Add Cicilan Simulation)
+    ID: 50d4f93fa1b84fe7ad575c95ae005f40
+
+11. Cermat — Snapshot (Synced & Simulated)
+    ID: 1224001d15ee4917ae68511e8a543cfe
+
+Use a utility like `curl -L` to download the hosted URLs.

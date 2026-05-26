@@ -1,0 +1,245 @@
+<!DOCTYPE html><html lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Cermat - Private Financial Tool</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#717973",
+                    "surface-low": "#F3F4F1",
+                    "on-tertiary-fixed-variant": "#5a4302",
+                    "primary-container": "#274E3D",
+                    "border-strong": "#C1C8C2",
+                    "surface-container-high": "#e7e9e5",
+                    "surface-card": "#FFFFFF",
+                    "on-surface-variant": "#414844",
+                    "capacity-teal": "#0891B2",
+                    "on-primary-fixed": "#002114",
+                    "on-primary-fixed-variant": "#274e3d",
+                    "on-secondary-fixed-variant": "#0e5138",
+                    "on-primary-container": "#86af99",
+                    "surface-dim": "#d9dad7",
+                    "primary": "#012d1d",
+                    "secondary-fixed": "#b1f0ce",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e2e3df",
+                    "primary-fixed": "#c1ecd4",
+                    "on-surface": "#1a1c1a",
+                    "on-secondary-fixed": "#002114",
+                    "on-primary": "#ffffff",
+                    "surface": "#f9faf6",
+                    "danger-rose": "#BE123C",
+                    "warning-amber": "#D97706",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#95d4b3",
+                    "surface-variant": "#e2e3df",
+                    "outline-variant": "#c1c8c2",
+                    "tertiary-container": "#4d3900",
+                    "tertiary-fixed": "#ffdf9b",
+                    "primary-dark": "#012D1D",
+                    "tertiary-fixed-dim": "#e4c278",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#316e52",
+                    "secondary": "#2c694e",
+                    "on-tertiary-fixed": "#251a00",
+                    "on-error": "#ffffff",
+                    "surface-container": "#edeeea",
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#1a1c1a",
+                    "inverse-on-surface": "#f0f1ed",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#a5d0b9",
+                    "accent-emerald-soft": "#86AF99",
+                    "on-tertiary-container": "#c2a35b",
+                    "gold-muted": "#9C8554",
+                    "secondary-container": "#aeeecb",
+                    "tertiary": "#322400",
+                    "surface-tint": "#3f6653",
+                    "primary-fixed-dim": "#a5d0b9",
+                    "background": "#f9faf6",
+                    "inverse-surface": "#2e312f",
+                    "surface-container-low": "#f3f4f0",
+                    "surface-bright": "#f9faf6",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack_xl": "32px",
+                    "stack_sm": "8px",
+                    "margin": "40px",
+                    "stack_xs": "4px",
+                    "gutter": "32px",
+                    "stack_lg": "24px",
+                    "stack_md": "16px",
+                    "max-width": "1440px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-hero": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-xs": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "metric-value": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-sm": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-md": [
+                            "Plus Jakarta Sans"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-hero": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-xs": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "0.04em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "metric-value": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopNavBar (JSON Injected) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin bg-surface h-16 border-b border-outline-variant">
+<div class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+            Cermat
+        </div>
+<!-- Search bar hidden per JSON. No nav structure per landing page rule. -->
+</header>
+<!-- Main Entry Content -->
+<main class="flex-grow flex flex-col items-center justify-center px-margin pt-32 pb-stack_xl max-w-[1000px] mx-auto w-full">
+<!-- Hero Section -->
+<div class="text-center md:text-left w-full mb-stack_xl">
+<h1 class="font-headline-hero text-headline-hero text-primary mb-stack_md max-w-[800px]">
+                Aman gak kalau gw <br class="hidden md:block">
+<span class="text-outline">[KPR / Gadai / Cicil]</span>?
+            </h1>
+<h2 class="font-headline-lg text-headline-lg text-on-surface-variant mb-stack_sm">
+                Berapa max utang yang aman?
+            </h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[600px] mt-stack_md">
+                Cek dalam 10 menit. Tanpa daftar. Tanpa cloud.
+            </p>
+</div>
+<!-- Action Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack_md w-full">
+<!-- Primary Action Card -->
+<div class="bg-surface-card border border-outline-variant rounded-xl p-stack_lg flex flex-col items-start gap-stack_md hover:bg-surface-container-low transition-colors cursor-pointer group shadow-sm hover:shadow">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed mb-stack_xs">
+<span class="material-symbols-outlined">edit_document</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">MULAI DARI SNAPSHOT</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                    Isi data kamu sendiri (5–10 menit)
+                </p>
+<button class="mt-stack_sm bg-primary text-on-primary px-stack_md py-stack_sm rounded-lg font-label-sm text-label-sm group-hover:bg-primary-dark transition-colors inline-flex items-center gap-2">
+                    [ Mulai <span class="material-symbols-outlined text-[16px]">arrow_forward</span> ]
+                </button>
+</div>
+<!-- Secondary Action Card -->
+<div class="bg-surface-card border border-outline-variant rounded-xl p-stack_lg flex flex-col items-start gap-stack_md hover:bg-surface-container-low transition-colors cursor-pointer group shadow-sm hover:shadow">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant mb-stack_xs">
+<span class="material-symbols-outlined">science</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary">COBA DENGAN DATA CONTOH</h3>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                    Skip dulu, lihat tools-nya.
+                </p>
+<button class="mt-stack_sm bg-surface-container-high text-on-surface px-stack_md py-stack_sm rounded-lg font-label-sm text-label-sm group-hover:bg-surface-variant border border-outline-variant transition-colors inline-flex items-center gap-2">
+                    [ Coba <span class="material-symbols-outlined text-[16px]">arrow_forward</span> ]
+                </button>
+</div>
+</div>
+<!-- Trust Anchor Panel -->
+<div class="mt-stack_xl p-stack_md bg-surface-container-low border border-outline-variant rounded-lg flex items-start gap-stack_md text-left w-full">
+<span class="material-symbols-outlined text-primary mt-1" style="font-variation-settings: 'FILL' 1;">lock</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">
+<strong class="text-primary font-bold">100% client-side</strong> · Data kamu tetap di komputer kamu sendiri. Cermat adalah kalkulator dan alat bantu visualisasi. Bukan saran investasi atau perencanaan keuangan profesional.
+            </p>
+</div>
+</main>
+<!-- Footer (JSON Injected) -->
+<footer class="w-full py-stack_md px-margin flex flex-col md:flex-row justify-between items-center gap-gutter bg-surface border-t border-outline-variant mt-auto">
+<div class="font-label-xs text-label-xs text-on-surface-variant">
+            © 2024 Cermat. Data stays on your device. Not affiliated with OJK.
+        </div>
+<div class="flex gap-stack_lg">
+<a class="font-label-xs text-label-xs text-on-surface-variant hover:text-primary transition-opacity" href="#">Privacy Policy</a>
+<a class="font-label-xs text-label-xs text-on-surface-variant hover:text-primary transition-opacity" href="#">Terms of Service</a>
+<a class="font-label-xs text-label-xs text-on-surface-variant hover:text-primary transition-opacity" href="#">Disclaimer</a>
+</div>
+</footer>
+</body></html>
