@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "persona-project-manager": {
+      "source": "googleworkspace/cli",
+      "sourceType": "github",
+      "skillPath": "skills/persona-project-manager/SKILL.md",
+      "computedHash": "791594e1b7fcabfb2cd0acc32bb3d76c2e10c7521a351f4db328c4231a031cd3"
+    },
+    "product-brainstorming": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "skillPath": "product-management/skills/product-brainstorming/SKILL.md",
+      "computedHash": "37ee877a45c2dba5a5f68d51bed1593d421ece51db81fcf14f7ffb22ce74710e"
+    },
+    "typescript-advanced-types": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/javascript-typescript/skills/typescript-advanced-types/SKILL.md",
+      "computedHash": "8cbf2bf600f392d7260e476e3202932a876e2281cda3b15a8b6a5a43f383252d"
+    },
+    "ui-ux-pro-max": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
+      "computedHash": "0a413bf988d06481f69bb81df2070741c3ba12dd9f1be2706d57f259c905992d"
+    }
+  }
+}

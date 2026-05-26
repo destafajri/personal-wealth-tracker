@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zenith Wealth - Cashflow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "gold-tertahan": "#475569",
+                      "on-primary-container": "#798098",
+                      "surface-container": "#122131",
+                      "surface": "#051424",
+                      "on-tertiary-fixed-variant": "#564500",
+                      "on-tertiary": "#3c2f00",
+                      "on-error-container": "#ffdad6",
+                      "status-safe": "#10B981",
+                      "on-secondary": "#263143",
+                      "on-secondary-fixed-variant": "#3c475a",
+                      "outline": "#909097",
+                      "surface-container-high": "#1c2b3c",
+                      "on-primary": "#283044",
+                      "inverse-on-surface": "#233143",
+                      "on-surface-variant": "#c6c6cd",
+                      "tertiary": "#e8c444",
+                      "error": "#ffb4ab",
+                      "surface-dim": "#051424",
+                      "primary-fixed": "#dae2fd",
+                      "secondary": "#bcc7de",
+                      "on-tertiary-fixed": "#231b00",
+                      "on-tertiary-container": "#4e3e00",
+                      "on-secondary-container": "#aeb9d0",
+                      "error-container": "#93000a",
+                      "secondary-fixed-dim": "#bcc7de",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "outline-variant": "#45464d",
+                      "tertiary-fixed-dim": "#e8c344",
+                      "surface-variant": "#273647",
+                      "inverse-surface": "#d4e4fa",
+                      "surface-container-highest": "#273647",
+                      "on-error": "#690005",
+                      "status-warning": "#F59E0B",
+                      "background": "#051424",
+                      "surface-container-lowest": "#010f1f",
+                      "inverse-primary": "#565e74",
+                      "status-info": "#3B82F6",
+                      "secondary-fixed": "#d8e3fb",
+                      "secondary-container": "#3e495d",
+                      "primary-fixed-dim": "#bec6e0",
+                      "status-danger": "#EF4444",
+                      "primary": "#bec6e0",
+                      "tertiary-container": "#cba829",
+                      "primary-container": "#0f172a",
+                      "on-primary-fixed": "#131b2e",
+                      "on-secondary-fixed": "#111c2d",
+                      "on-surface": "#d4e4fa",
+                      "gold-cadangan": "#D4AF37",
+                      "on-background": "#d4e4fa",
+                      "surface-tint": "#bec6e0",
+                      "surface-bright": "#2c3a4c",
+                      "surface-container-low": "#0d1c2d",
+                      "tertiary-fixed": "#ffe081"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "table-row-height": "40px",
+                      "panel-split": "45/55",
+                      "header-height": "64px",
+                      "gutter": "1.5rem",
+                      "container-padding": "2rem"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-caps": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "hero-value-mobile": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "tabular-data": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "hero-value": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "hero-value-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "tabular-data": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "hero-value": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low border-r border-outline-variant h-full w-[280px] hidden md:flex flex-col py-6 z-40">
+<div class="px-container-padding mb-8">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">Zenith Wealth</h1>
+<div class="flex items-center gap-2 mt-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">cloud_off</span>
+<span class="text-label-caps font-label-caps">Local-Only Mode</span>
+</div>
+<div class="mt-2 text-tabular-data font-tabular-data text-on-surface-variant">Canonical File</div>
+</div>
+<ul class="flex-1 space-y-2 px-4">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance</span>
+<span class="text-label-caps font-label-caps">Aset</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary-container text-on-secondary-container font-bold border-r-2 border-tertiary scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="text-label-caps font-label-caps">Cashflow</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance_wallet</span>
+<span class="text-label-caps font-label-caps">Utang &amp; Gadai</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">trending_up</span>
+<span class="text-label-caps font-label-caps">Akumulasi</span>
+</a>
+</li>
+</ul>
+<div class="px-4 mt-auto space-y-2">
+<a class="flex items-center gap-3 px-4 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+<span class="text-label-caps font-label-caps">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">help_outline</span>
+<span class="text-label-caps font-label-caps">Support</span>
+</a>
+</div>
+</nav>
+<div class="flex-1 flex flex-col h-full relative">
+<!-- TopAppBar -->
+<header class="bg-surface-container border-b border-outline-variant fixed top-0 w-full h-[64px] z-50 flex justify-between items-center px-container-padding md:w-[calc(100%-280px)]">
+<div class="flex-1"></div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-bright transition-colors p-2 rounded-full hidden md:flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">sync</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-bright transition-colors p-2 rounded-full hidden md:flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance_wallet</span>
+</button>
+<button class="border border-outline text-primary px-4 py-2 rounded-lg text-tabular-data font-tabular-data hover:bg-surface-bright transition-colors">Import .xlsx</button>
+<button class="bg-tertiary text-on-tertiary px-4 py-2 rounded-lg text-tabular-data font-tabular-data hover:opacity-90 transition-opacity font-bold">Export .xlsx</button>
+</div>
+</header>
+<!-- Main Content Layout -->
+<main class="flex-1 overflow-y-auto mt-[64px] pb-24 md:pb-0 flex flex-col md:flex-row">
+<!-- Left Panel: Input (45%) -->
+<section class="w-full md:w-[45%] border-r border-outline-variant bg-background overflow-y-auto custom-scrollbar p-6">
+<div class="mb-8">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-2">Cashflow</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Kelola arus kas bulanan kamu dengan presisi.</p>
+</div>
+<!-- Penghasilan -->
+<div class="bg-surface-container rounded-xl p-6 mb-6">
+<h3 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-status-info" style="font-variation-settings: 'FILL' 1;">arrow_downward</span>
+                        Penghasilan
+                    </h3>
+<div class="space-y-4">
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Gaji Bersih</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-lg h-table-row-height px-3 focus:border-tertiary focus:ring-1 focus:ring-tertiary outline-none" type="text" value="Rp 25.000.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Penghasilan Lainnya</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-lg h-table-row-height px-3 focus:border-tertiary focus:ring-1 focus:ring-tertiary outline-none" type="text" value="Rp 5.000.000"/>
+</div>
+<!-- Special Component: Estimasi Dividen -->
+<div class="border-l-2 border-tertiary pl-4 mt-6">
+<div class="flex justify-between items-center mb-2">
+<label class="text-label-caps font-label-caps text-on-surface flex items-center gap-2">
+                                    Estimasi Dividen Saham
+                                    <span class="bg-surface-bright text-tertiary px-2 py-0.5 rounded text-[10px] font-bold tracking-wider">ESTIMASI</span>
+</label>
+<div class="flex items-center gap-2">
+<span class="text-[10px] text-on-surface-variant">Auto</span>
+<button class="w-8 h-4 bg-tertiary rounded-full relative">
+<div class="w-3 h-3 bg-surface absolute right-0.5 top-0.5 rounded-full"></div>
+</button>
+</div>
+</div>
+<input class="bg-surface-bright border border-outline-variant text-tabular-data font-tabular-data text-on-surface-variant rounded-lg h-table-row-height px-3 w-full opacity-70 cursor-not-allowed" disabled="" type="text" value="Rp 2.500.000"/>
+<p class="text-[10px] text-on-surface-variant mt-1">Berdasarkan rata-rata yield 5% dari total portofolio saham.</p>
+</div>
+</div>
+</div>
+<!-- Pengeluaran Tetap -->
+<div class="bg-surface-container rounded-xl p-6 mb-6">
+<h3 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-status-warning" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+                        Pengeluaran Tetap
+                    </h3>
+<div class="space-y-4">
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Sewa/KPR</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-lg h-table-row-height px-3 focus:border-tertiary outline-none" type="text" value="Rp 8.000.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Listrik &amp; Air</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-lg h-table-row-height px-3 focus:border-tertiary outline-none" type="text" value="Rp 1.500.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Cicilan Lainnya</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-lg h-table-row-height px-3 focus:border-tertiary outline-none" type="text" value="Rp 3.000.000"/>
+</div>
+<button class="w-full border border-outline-variant text-primary py-2 rounded-lg text-tabular-data font-tabular-data hover:bg-surface-bright transition-colors flex items-center justify-center gap-2 mt-4">
+<span class="material-symbols-outlined text-[16px]">add</span> Tambah Baris
+                        </button>
+</div>
+</div>
+<!-- Pengeluaran Variabel -->
+<div class="bg-surface-container rounded-xl p-6">
+<h3 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-status-danger" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+                        Pengeluaran Variabel
+                    </h3>
+<div class="space-y-4">
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Makan &amp; Minum</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-lg h-table-row-height px-3 focus:border-tertiary outline-none" type="text" value="Rp 4.000.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Transportasi</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-lg h-table-row-height px-3 focus:border-tertiary outline-none" type="text" value="Rp 1.000.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Hiburan</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-lg h-table-row-height px-3 focus:border-tertiary outline-none" type="text" value="Rp 2.000.000"/>
+</div>
+</div>
+</div>
+<div class="mt-8 text-center text-[10px] text-on-surface-variant flex items-center justify-center gap-1 opacity-70">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">lock</span>
+                    100% client-side · Data kamu tetap di komputer kamu sendiri
+                </div>
+</section>
+<!-- Right Panel: Dashboard (55%) -->
+<section class="w-full md:w-[55%] bg-background p-6 overflow-y-auto">
+<div class="max-w-4xl mx-auto space-y-6">
+<!-- Net Worth Hero -->
+<div class="bg-surface-container rounded-xl p-8 border border-outline-variant">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">Net Worth</div>
+<div class="text-hero-value font-hero-value text-on-surface">Rp 4.582.000.000</div>
+</div>
+<!-- Row A: Health Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container rounded-xl p-6 border-l-4 border-status-safe">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">Savings Rate</div>
+<div class="text-headline-lg font-headline-lg text-on-surface flex items-baseline gap-2">
+                                45% <span class="text-tabular-data font-tabular-data text-status-safe bg-status-safe/10 px-2 py-0.5 rounded">Sehat</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-xl p-6 border-l-4 border-status-warning">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">Debt Service Ratio (DSR)</div>
+<div class="text-headline-lg font-headline-lg text-on-surface flex items-baseline gap-2">
+                                12.4% <span class="text-tabular-data font-tabular-data text-status-warning bg-status-warning/10 px-2 py-0.5 rounded">Waspada</span>
+</div>
+</div>
+</div>
+<!-- Row B: Runway & Modal -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container rounded-xl p-6">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">Runway</div>
+<div class="text-headline-lg font-headline-lg text-on-surface">18 <span class="text-body-md font-body-md text-on-surface-variant">Bulan</span></div>
+</div>
+<div class="bg-surface-container rounded-xl p-6">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">Modal Siap Distribusi</div>
+<div class="text-headline-lg font-headline-lg text-on-surface">Rp 150.000.000</div>
+</div>
+</div>
+<!-- Row C: Stacked Bar -->
+<div class="bg-surface-container rounded-xl p-6">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-4">Alokasi Aset (Safe Haven vs Produktif)</div>
+<div class="w-full h-8 bg-surface-bright rounded-full overflow-hidden flex">
+<div class="bg-gold-cadangan h-full w-[30%]"></div>
+<div class="bg-status-info h-full w-[70%]"></div>
+</div>
+<div class="flex justify-between mt-2 text-tabular-data font-tabular-data">
+<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-gold-cadangan block"></span> Safe Haven (30%)</div>
+<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-status-info block"></span> Produktif (70%)</div>
+</div>
+</div>
+<!-- Row D: Allocation Donut (Placeholder representation) -->
+<div class="bg-surface-container rounded-xl p-6 flex justify-between items-center">
+<div>
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">Cashflow Breakdown</div>
+<ul class="space-y-2 mt-4">
+<li class="flex items-center gap-2 text-tabular-data font-tabular-data"><span class="w-3 h-3 rounded-full bg-status-safe block"></span> Tabungan &amp; Investasi (45%)</li>
+<li class="flex items-center gap-2 text-tabular-data font-tabular-data"><span class="w-3 h-3 rounded-full bg-status-warning block"></span> Kebutuhan Tetap (35%)</li>
+<li class="flex items-center gap-2 text-tabular-data font-tabular-data"><span class="w-3 h-3 rounded-full bg-status-danger block"></span> Pengeluaran Variabel (20%)</li>
+</ul>
+</div>
+<div class="w-32 h-32 rounded-full border-8 border-surface-bright relative">
+<!-- Pseudo donut chart segments via CSS borders is complex, using simple circles for structural rep -->
+<div class="absolute inset-0 border-8 border-t-status-safe border-r-status-safe border-b-status-warning border-l-status-danger rounded-full transform rotate-45 opacity-80"></div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-surface-container-highest border-t border-outline-variant fixed bottom-0 w-full md:hidden z-50 flex justify-around items-center px-4 py-2 shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance</span>
+<span class="text-label-caps-mobile font-label-caps-mobile mt-1">Aset</span>
+</a>
+<a class="flex flex-col items-center justify-center text-tertiary font-bold bg-secondary-container rounded-xl p-2 scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="text-label-caps-mobile font-label-caps-mobile mt-1">Cashflow</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance_wallet</span>
+<span class="text-label-caps-mobile font-label-caps-mobile mt-1">Utang</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">track_changes</span>
+<span class="text-label-caps-mobile font-label-caps-mobile mt-1">Target</span>
+</a>
+</nav>
+</div>
+</body></html>

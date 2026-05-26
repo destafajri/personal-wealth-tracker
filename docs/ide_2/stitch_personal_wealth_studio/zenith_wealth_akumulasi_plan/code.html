@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zenith Wealth - Akumulasi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#3e495d",
+                      "gold-tertahan": "#475569",
+                      "tertiary-fixed": "#ffe081",
+                      "secondary": "#bcc7de",
+                      "inverse-primary": "#565e74",
+                      "on-background": "#d4e4fa",
+                      "outline": "#909097",
+                      "on-surface": "#d4e4fa",
+                      "tertiary-fixed-dim": "#e8c344",
+                      "secondary-fixed": "#d8e3fb",
+                      "on-primary": "#283044",
+                      "on-error": "#690005",
+                      "primary-container": "#0f172a",
+                      "tertiary-container": "#cba829",
+                      "surface-container-lowest": "#010f1f",
+                      "on-tertiary": "#3c2f00",
+                      "background": "#051424",
+                      "tertiary": "#e8c444",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary-fixed": "#111c2d",
+                      "on-tertiary-fixed": "#231b00",
+                      "surface-tint": "#bec6e0",
+                      "on-tertiary-fixed-variant": "#564500",
+                      "surface-container-high": "#1c2b3c",
+                      "inverse-on-surface": "#233143",
+                      "error": "#ffb4ab",
+                      "primary-fixed": "#dae2fd",
+                      "on-primary-container": "#798098",
+                      "surface-container-highest": "#273647",
+                      "primary": "#bec6e0",
+                      "on-secondary-fixed-variant": "#3c475a",
+                      "on-tertiary-container": "#4e3e00",
+                      "surface-dim": "#051424",
+                      "primary-fixed-dim": "#bec6e0",
+                      "gold-cadangan": "#D4AF37",
+                      "surface": "#051424",
+                      "status-warning": "#F59E0B",
+                      "status-danger": "#EF4444",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "status-safe": "#10B981",
+                      "outline-variant": "#45464d",
+                      "surface-variant": "#273647",
+                      "surface-container": "#122131",
+                      "on-secondary-container": "#aeb9d0",
+                      "on-surface-variant": "#c6c6cd",
+                      "on-secondary": "#263143",
+                      "inverse-surface": "#d4e4fa",
+                      "surface-bright": "#2c3a4c",
+                      "secondary-fixed-dim": "#bcc7de",
+                      "error-container": "#93000a",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-container-low": "#0d1c2d",
+                      "status-info": "#3B82F6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "table-row-height": "40px",
+                      "panel-split": "45/55",
+                      "header-height": "64px",
+                      "container-padding": "2rem",
+                      "gutter": "1.5rem"
+              },
+              "fontFamily": {
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "hero-value": ["Plus Jakarta Sans"],
+                      "tabular-data": ["Plus Jakarta Sans"],
+                      "label-caps": ["Plus Jakarta Sans"],
+                      "hero-value-mobile": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                      "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                      "hero-value": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                      "tabular-data": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                      "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                      "hero-value-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                      "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for terminal feel */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #273647; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3e495d; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased overflow-x-hidden selection:bg-tertiary-container selection:text-on-tertiary-container">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant fixed top-0 w-full h-[64px] flex justify-between items-center px-container-padding z-50">
+<div class="font-headline-md text-headline-md font-bold text-on-surface flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">terminal</span>
+            Zenith Wealth
+        </div>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center gap-2 border border-outline-variant px-4 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors font-tabular-data text-tabular-data">
+<span class="material-symbols-outlined text-[18px]">database</span>
+                Import .xlsx
+            </button>
+<button class="flex items-center gap-2 bg-tertiary text-on-tertiary px-4 py-2 rounded hover:opacity-90 transition-opacity font-tabular-data text-tabular-data font-bold">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                Export .xlsx
+            </button>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-on-surface-variant ml-2">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Web) -->
+<nav class="bg-surface-container dark:bg-surface-container border-r border-outline-variant h-full w-64 fixed left-0 top-0 hidden lg:flex flex-col p-4 space-y-4 z-40 pt-[80px]">
+<div class="mb-6 px-4">
+<div class="font-headline-md text-headline-md font-bold text-on-surface">Bayu</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]">lock</span> Local Data Only
+            </div>
+</div>
+<div class="flex flex-col space-y-1 w-full">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all rounded font-tabular-data text-tabular-data" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span> Aset
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all rounded font-tabular-data text-tabular-data" href="#">
+<span class="material-symbols-outlined">payments</span> Cashflow
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all rounded font-tabular-data text-tabular-data" href="#">
+<span class="material-symbols-outlined">request_quote</span> Utang &amp; Gadai
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold font-tabular-data text-tabular-data" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">trending_up</span> Akumulasi
+            </a>
+</div>
+<div class="mt-auto pb-4">
+<button class="w-full border border-tertiary text-tertiary px-4 py-3 rounded flex items-center justify-center gap-2 hover:bg-tertiary hover:text-on-tertiary transition-colors font-label-caps text-label-caps uppercase tracking-wider">
+<span class="material-symbols-outlined text-[16px]">add</span> Mulai Baru
+            </button>
+</div>
+</nav>
+<!-- BottomNavBar (Mobile) -->
+<nav class="bg-surface-container-highest dark:bg-surface-container-highest border-t border-outline-variant lg:hidden fixed bottom-0 w-full flex justify-around items-center px-4 py-2 z-50 rounded-t-xl shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-high rounded transition-colors w-[64px]" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-label-caps text-label-caps-mobile mt-1">Aset</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-high rounded transition-colors w-[64px]" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-caps text-label-caps-mobile mt-1">Cashflow</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-high rounded transition-colors w-[64px]" href="#">
+<span class="material-symbols-outlined">request_quote</span>
+<span class="font-label-caps text-label-caps-mobile mt-1">Utang</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-tertiary-container text-on-tertiary-container rounded-full p-2 scale-90 duration-150 w-[64px]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">flag</span>
+<span class="font-label-caps text-label-caps-mobile mt-1 font-bold">Target</span>
+</a>
+</nav>
+<!-- Main Layout: 45/55 Split -->
+<main class="pt-[64px] lg:pl-[256px] pb-[80px] lg:pb-0 min-h-screen flex flex-col lg:flex-row w-full">
+<!-- Left Panel: Akumulasi Input & List (45%) -->
+<section class="w-full lg:w-[45%] flex flex-col border-r border-outline-variant bg-background min-h-[calc(100vh-64px)] overflow-y-auto">
+<div class="p-container-padding flex flex-col gap-8 flex-grow">
+<!-- Header Section -->
+<div class="flex flex-col gap-4">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider mb-1">Modal Siap Distribusi</span>
+<h1 class="font-hero-value-mobile text-hero-value-mobile lg:font-hero-value lg:text-hero-value text-tertiary tracking-tight">
+                            Rp 200.000.000
+                        </h1>
+</div>
+<div class="bg-surface-container p-4 rounded border border-outline-variant flex flex-col gap-3">
+<div class="flex justify-between items-end">
+<div class="flex flex-col">
+<span class="font-tabular-data text-tabular-data text-on-surface-variant">Target Total Akumulasi</span>
+<span class="font-headline-md text-headline-md text-on-surface">Rp 4.250.000.000</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-tabular-data text-tabular-data text-on-surface-variant">Progress</span>
+<span class="font-headline-md text-headline-md text-status-safe">36%</span>
+</div>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden flex">
+<div class="h-full bg-tertiary w-[36%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Controls -->
+<div class="flex items-center justify-between border-b border-outline-variant pb-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">Distribusi Emiten</h2>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-1 bg-surface py-1.5 px-3 rounded border border-outline-variant font-tabular-data text-tabular-data text-on-surface-variant hover:text-on-surface hover:border-on-surface-variant transition-colors">
+                            Sort: Progress <span class="material-symbols-outlined text-[16px]">arrow_drop_down</span>
+</button>
+<button class="flex items-center gap-2 bg-surface py-1.5 px-3 rounded border border-outline-variant font-tabular-data text-tabular-data text-on-surface-variant hover:text-on-surface hover:border-on-surface-variant transition-colors">
+                            Filter: Bobot Off-Target <span class="material-symbols-outlined text-[16px]">check_box_outline_blank</span>
+</button>
+</div>
+</div>
+<!-- Emiten List (Condensed Density) -->
+<div class="flex flex-col gap-3">
+<!-- Card 1: BBRI -->
+<div class="bg-surface border border-outline-variant rounded p-3 flex flex-col gap-2 hover:border-tertiary-fixed-dim transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 left-0 h-full w-1 bg-status-danger opacity-80"></div>
+<div class="flex justify-between items-center pl-2">
+<div class="flex items-center gap-3">
+<span class="font-headline-md text-headline-md text-on-surface">BBRI</span>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded font-tabular-data text-tabular-data text-[12px]">540 / 1,600 lot</span>
+</div>
+<span class="font-tabular-data text-tabular-data text-status-danger font-bold">33%</span>
+</div>
+<div class="flex justify-between items-center pl-2">
+<span class="font-tabular-data text-tabular-data text-on-surface-variant">Cost for next 10% (160 lot)</span>
+<span class="font-tabular-data text-tabular-data text-on-surface">Rp 82.400.000</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mt-1 pl-2">
+<div class="h-full bg-status-danger w-[33%] rounded-full"></div>
+</div>
+</div>
+<!-- Card 2: BBCA -->
+<div class="bg-surface border border-outline-variant rounded p-3 flex flex-col gap-2 hover:border-tertiary-fixed-dim transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 left-0 h-full w-1 bg-status-warning opacity-80"></div>
+<div class="flex justify-between items-center pl-2">
+<div class="flex items-center gap-3">
+<span class="font-headline-md text-headline-md text-on-surface">BBCA</span>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded font-tabular-data text-tabular-data text-[12px]">360 / 1,000 lot</span>
+</div>
+<span class="font-tabular-data text-tabular-data text-status-warning font-bold">36%</span>
+</div>
+<div class="flex justify-between items-center pl-2">
+<span class="font-tabular-data text-tabular-data text-on-surface-variant">Cost for next 10% (100 lot)</span>
+<span class="font-tabular-data text-tabular-data text-on-surface">Rp 98.500.000</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mt-1 pl-2">
+<div class="h-full bg-status-warning w-[36%] rounded-full"></div>
+</div>
+</div>
+<!-- Card 3: BMRI -->
+<div class="bg-surface border border-outline-variant rounded p-3 flex flex-col gap-2 hover:border-tertiary-fixed-dim transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 left-0 h-full w-1 bg-status-warning opacity-80"></div>
+<div class="flex justify-between items-center pl-2">
+<div class="flex items-center gap-3">
+<span class="font-headline-md text-headline-md text-on-surface">BMRI</span>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded font-tabular-data text-tabular-data text-[12px]">720 / 2,000 lot</span>
+</div>
+<span class="font-tabular-data text-tabular-data text-status-warning font-bold">36%</span>
+</div>
+<div class="flex justify-between items-center pl-2">
+<span class="font-tabular-data text-tabular-data text-on-surface-variant">Cost for next 10% (200 lot)</span>
+<span class="font-tabular-data text-tabular-data text-on-surface">Rp 124.000.000</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mt-1 pl-2">
+<div class="h-full bg-status-warning w-[36%] rounded-full"></div>
+</div>
+</div>
+<!-- Card 4: ASII -->
+<div class="bg-surface border border-outline-variant rounded p-3 flex flex-col gap-2 hover:border-tertiary-fixed-dim transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 left-0 h-full w-1 bg-status-safe opacity-80"></div>
+<div class="flex justify-between items-center pl-2">
+<div class="flex items-center gap-3">
+<span class="font-headline-md text-headline-md text-on-surface">ASII</span>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded font-tabular-data text-tabular-data text-[12px]">1,200 / 2,500 lot</span>
+</div>
+<span class="font-tabular-data text-tabular-data text-status-safe font-bold">48%</span>
+</div>
+<div class="flex justify-between items-center pl-2">
+<span class="font-tabular-data text-tabular-data text-on-surface-variant">Cost for next 10% (250 lot)</span>
+<span class="font-tabular-data text-tabular-data text-on-surface">Rp 130.000.000</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mt-1 pl-2">
+<div class="h-full bg-status-safe w-[48%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Saran Panel (Sticky Bottom-ish inside left panel) -->
+<div class="p-container-padding pt-0 mt-auto">
+<div class="border-l-4 border-status-info bg-surface-container p-4 rounded-r flex flex-col gap-4 shadow-lg border-y border-r border-y-outline-variant border-r-outline-variant">
+<div class="flex gap-3">
+<span class="text-xl">💡</span>
+<div class="flex flex-col gap-1">
+<h3 class="font-tabular-data text-tabular-data font-bold text-on-surface">Saran berdasarkan modal tersedia</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                                Modal kamu (Rp 200jt) bisa cover <strong>10% akumulasi BBRI + BMRI + BBCA</strong> — atau full <strong>30% akumulasi BMRI</strong> untuk mengejar ketertinggalan bobot.
+                            </p>
+</div>
+</div>
+<div class="flex gap-3 pl-8">
+<button class="bg-surface-bright border border-outline-variant text-on-surface px-4 py-2 rounded font-tabular-data text-tabular-data hover:bg-surface-container-highest transition-colors">
+                            Lihat Opsi A (Spread)
+                        </button>
+<button class="bg-surface-bright border border-outline-variant text-on-surface px-4 py-2 rounded font-tabular-data text-tabular-data hover:bg-surface-container-highest transition-colors">
+                            Lihat Opsi B (Fokus)
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Panel: Sticky Dashboard (55%) -->
+<section class="w-full lg:w-[55%] bg-surface-dim p-container-padding overflow-y-auto lg:h-[calc(100vh-64px)] relative">
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Row A: High-level Metrics -->
+<div class="col-span-12 grid grid-cols-3 gap-4">
+<div class="bg-surface-container border border-outline-variant p-4 rounded flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Total Aset Aktif</span>
+<span class="font-headline-lg text-headline-lg-mobile lg:font-headline-lg lg:text-headline-lg text-on-surface">Rp 1.52B</span>
+</div>
+<div class="bg-surface-container border border-outline-variant p-4 rounded flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Total Kewajiban</span>
+<span class="font-headline-lg text-headline-lg-mobile lg:font-headline-lg lg:text-headline-lg text-on-surface">Rp 450M</span>
+</div>
+<div class="bg-surface-container border border-outline-variant p-4 rounded flex flex-col gap-1">
+<span class="font-label-caps text-label-caps text-tertiary">Net Worth</span>
+<span class="font-headline-lg text-headline-lg-mobile lg:font-headline-lg lg:text-headline-lg text-tertiary">Rp 1.07B</span>
+</div>
+</div>
+<!-- Row B: Allocation Chart / Visualizer -->
+<div class="col-span-12 bg-surface border border-outline-variant p-6 rounded flex flex-col gap-6 min-h-[240px]">
+<div class="flex justify-between items-center border-b border-outline-variant pb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface">Komposisi Portfolio Saat Ini</h3>
+<span class="bg-surface-container-highest px-2 py-1 rounded font-tabular-data text-tabular-data text-on-surface-variant text-[12px]">Live Sync</span>
+</div>
+<!-- Minimalist visual representation of chart -->
+<div class="flex flex-col gap-4 flex-grow justify-center">
+<div class="w-full h-8 flex rounded overflow-hidden opacity-90">
+<div class="bg-[#3B82F6] w-[45%]" title="Saham: 45%"></div>
+<div class="bg-tertiary w-[30%]" title="Kas: 30%"></div>
+<div class="bg-status-safe w-[15%]" title="Obligasi: 15%"></div>
+<div class="bg-gold-cadangan w-[10%]" title="Emas: 10%"></div>
+</div>
+<div class="flex justify-between font-tabular-data text-tabular-data text-on-surface-variant px-2">
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#3B82F6]"></div> Saham (45%)</div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-tertiary"></div> Kas (30%)</div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-status-safe"></div> Obligasi (15%)</div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-gold-cadangan"></div> Emas (10%)</div>
+</div>
+</div>
+</div>
+<!-- Row C: Detailed Top Holdings Table -->
+<div class="col-span-12 bg-surface border border-outline-variant rounded overflow-hidden">
+<div class="p-4 border-b border-outline-variant bg-surface-container">
+<h3 class="font-headline-md text-headline-md text-on-surface">Top 5 Holdings (Real-time)</h3>
+</div>
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant">
+<th class="p-3 font-normal">Aset</th>
+<th class="p-3 font-normal text-right">Unit / Lot</th>
+<th class="p-3 font-normal text-right">Avg Price</th>
+<th class="p-3 font-normal text-right">Market Value</th>
+<th class="p-3 font-normal text-right">P/L</th>
+</tr>
+</thead>
+<tbody class="font-tabular-data text-tabular-data text-on-surface">
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors h-table-row-height">
+<td class="p-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#3B82F6]"></span> BMRI
+                                    </td>
+<td class="p-3 text-right">720</td>
+<td class="p-3 text-right text-on-surface-variant">6,200</td>
+<td class="p-3 text-right">Rp 446.400.000</td>
+<td class="p-3 text-right text-status-safe">+12.4%</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors bg-surface-container-lowest h-table-row-height">
+<td class="p-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#3B82F6]"></span> BBRI
+                                    </td>
+<td class="p-3 text-right">540</td>
+<td class="p-3 text-right text-on-surface-variant">5,150</td>
+<td class="p-3 text-right">Rp 278.100.000</td>
+<td class="p-3 text-right text-status-warning">-2.1%</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors h-table-row-height">
+<td class="p-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span> RDN BCA
+                                    </td>
+<td class="p-3 text-right">-</td>
+<td class="p-3 text-right text-on-surface-variant">-</td>
+<td class="p-3 text-right">Rp 200.000.000</td>
+<td class="p-3 text-right text-on-surface-variant">-</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors bg-surface-container-lowest h-table-row-height">
+<td class="p-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-status-safe"></span> FR0082
+                                    </td>
+<td class="p-3 text-right">1,500</td>
+<td class="p-3 text-right text-on-surface-variant">101.5</td>
+<td class="p-3 text-right">Rp 152.250.000</td>
+<td class="p-3 text-right text-status-safe">+4.2%</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors h-table-row-height">
+<td class="p-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-gold-cadangan"></span> Emas Antam
+                                    </td>
+<td class="p-3 text-right">100 gr</td>
+<td class="p-3 text-right text-on-surface-variant">1,100,000</td>
+<td class="p-3 text-right">Rp 115.000.000</td>
+<td class="p-3 text-right text-status-safe">+8.5%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

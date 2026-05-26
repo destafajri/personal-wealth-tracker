@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zenith Wealth - Utang &amp; Gadai</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#3e495d",
+                        "gold-tertahan": "#475569",
+                        "tertiary-fixed": "#ffe081",
+                        "secondary": "#bcc7de",
+                        "inverse-primary": "#565e74",
+                        "on-background": "#d4e4fa",
+                        "outline": "#909097",
+                        "on-surface": "#d4e4fa",
+                        "tertiary-fixed-dim": "#e8c344",
+                        "secondary-fixed": "#d8e3fb",
+                        "on-primary": "#283044",
+                        "on-error": "#690005",
+                        "primary-container": "#0f172a",
+                        "tertiary-container": "#cba829",
+                        "surface-container-lowest": "#010f1f",
+                        "on-tertiary": "#3c2f00",
+                        "background": "#051424",
+                        "tertiary": "#e8c444",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#111c2d",
+                        "on-tertiary-fixed": "#231b00",
+                        "surface-tint": "#bec6e0",
+                        "on-tertiary-fixed-variant": "#564500",
+                        "surface-container-high": "#1c2b3c",
+                        "inverse-on-surface": "#233143",
+                        "error": "#ffb4ab",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary-container": "#798098",
+                        "surface-container-highest": "#273647",
+                        "primary": "#bec6e0",
+                        "on-secondary-fixed-variant": "#3c475a",
+                        "on-tertiary-container": "#4e3e00",
+                        "surface-dim": "#051424",
+                        "primary-fixed-dim": "#bec6e0",
+                        "gold-cadangan": "#D4AF37",
+                        "surface": "#051424",
+                        "status-warning": "#F59E0B",
+                        "status-danger": "#EF4444",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "status-safe": "#10B981",
+                        "outline-variant": "#45464d",
+                        "surface-variant": "#273647",
+                        "surface-container": "#122131",
+                        "on-secondary-container": "#aeb9d0",
+                        "on-surface-variant": "#c6c6cd",
+                        "on-secondary": "#263143",
+                        "inverse-surface": "#d4e4fa",
+                        "surface-bright": "#2c3a4c",
+                        "secondary-fixed-dim": "#bcc7de",
+                        "error-container": "#93000a",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-low": "#0d1c2d",
+                        "status-info": "#3B82F6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "table-row-height": "40px",
+                        "panel-split": "45/55",
+                        "header-height": "64px",
+                        "container-padding": "2rem",
+                        "gutter": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "hero-value": ["Plus Jakarta Sans"],
+                        "tabular-data": ["Plus Jakarta Sans"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "hero-value-mobile": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "hero-value": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "tabular-data": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "hero-value-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #0F172A; color: #d4e4fa; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .icon-fill { font-variation-settings: 'FILL' 1; }
+        
+        /* Split layout core setup */
+        .app-container { display: flex; height: 100vh; overflow: hidden; padding-top: 64px; }
+        @media (min-width: 1024px) {
+            .app-container { padding-left: 256px; /* SideNav width */ }
+            .panel-left { width: 45%; border-right: 1px solid #45464d; overflow-y: auto; }
+            .panel-right { width: 55%; overflow-y: auto; background-color: #122131; }
+        }
+        @media (max-width: 1023px) {
+            .app-container { flex-direction: column; padding-top: 64px; padding-bottom: 72px; /* BottomNav height */ overflow-y: auto;}
+            .panel-left, .panel-right { width: 100%; height: auto; overflow: visible;}
+            .panel-right { order: -1; } /* Dashboard on top for mobile */
+        }
+
+        /* Scrollbar styling for a cleaner look */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #273647; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3e495d; }
+    </style>
+</head>
+<body class="bg-primary-container font-body-md text-body-md antialiased selection:bg-tertiary-container selection:text-on-tertiary-container">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface text-tertiary dark:text-tertiary fixed top-0 w-full h-[64px] border-b border-outline-variant flat no shadows flex justify-between items-center px-container-padding w-full h-header-height z-50">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Trigger (hidden on desktop) -->
+<button class="lg:hidden text-on-surface hover:text-tertiary transition-colors">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+</button>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">Zenith Wealth</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center gap-2 border border-outline-variant hover:bg-surface-container-high transition-colors px-4 py-2 rounded-DEFAULT text-on-surface-variant font-tabular-data text-tabular-data">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                Import .xlsx
+            </button>
+<button class="hidden md:flex items-center gap-2 bg-tertiary text-on-tertiary hover:opacity-90 transition-colors px-4 py-2 rounded-DEFAULT font-tabular-data text-tabular-data font-bold">
+<span class="material-symbols-outlined text-[18px]">upload</span>
+                Export .xlsx
+            </button>
+<div class="flex gap-2 text-on-surface-variant">
+<button class="hover:text-tertiary transition-colors p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined icon-fill">database</span>
+</button>
+<button class="hover:text-tertiary transition-colors p-2 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined icon-fill">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="bg-surface-container dark:bg-surface-container text-tertiary dark:text-tertiary font-label-caps text-label-caps h-full w-64 fixed left-0 top-0 bg-surface-container border-r border-outline-variant flat no shadows hidden lg:flex flex-col h-screen p-4 space-y-4 pt-[80px] z-40">
+<div class="mb-8 px-2">
+<div class="text-on-surface font-bold text-[16px] mb-1">Bayu</div>
+<div class="text-on-surface-variant text-[12px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lock</span> Local Data Only
+            </div>
+</div>
+<div class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Aset</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Cashflow</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold transition-all opacity-80 scale-95" href="#">
+<span class="material-symbols-outlined icon-fill">request_quote</span>
+<span>Utang &amp; Gadai</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span>Akumulasi</span>
+</a>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant">
+<button class="w-full bg-tertiary text-on-tertiary hover:opacity-90 transition-colors py-3 rounded-DEFAULT font-bold flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                Mulai Baru
+            </button>
+</div>
+</nav>
+<!-- Main Content Area (Split Layout) -->
+<main class="app-container">
+<!-- Left Panel: Input Data -->
+<div class="panel-left p-6 lg:p-8 flex flex-col gap-6 relative">
+<div class="flex justify-between items-end mb-2">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Data Kewajiban</h1>
+<p class="text-on-surface-variant mt-1">Kelola pencatatan utang dan gadai.</p>
+</div>
+<button class="text-tertiary hover:text-tertiary-fixed transition-colors flex items-center gap-1 font-tabular-data text-tabular-data font-bold">
+<span class="material-symbols-outlined text-[18px]">add_circle</span> Tambah Data
+                </button>
+</div>
+<!-- Expanded Panel: Gadai Emas -->
+<div class="bg-surface-container rounded-xl border border-outline-variant overflow-hidden">
+<div class="p-4 border-b border-outline-variant bg-surface-container-highest flex justify-between items-center cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gold-cadangan">diamond</span>
+<h2 class="font-headline-md text-[18px] font-bold text-on-surface">Gadai Emas (Pegadaian)</h2>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_less</span>
+</div>
+<div class="p-5 space-y-6">
+<!-- Emas Kamu Section -->
+<div>
+<div class="flex justify-between items-center mb-3">
+<h3 class="font-tabular-data text-tabular-data text-on-surface-variant uppercase tracking-wider">Status Fisik Emas</h3>
+<div class="bg-status-safe/10 text-status-safe px-2 py-1 rounded-full flex items-center gap-1 font-label-caps text-[10px]">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                Aman (Rasio Tertahan: 29%)
+                            </div>
+</div>
+<div class="grid grid-cols-3 gap-4 mb-4">
+<div class="bg-surface-container-high p-3 rounded-lg border border-outline-variant">
+<div class="text-on-surface-variant text-[12px] mb-1">Total Cadangan</div>
+<div class="font-headline-md text-[20px] text-on-surface">70.06 <span class="text-[14px] text-on-surface-variant font-normal">g</span></div>
+</div>
+<div class="bg-surface-container-high p-3 rounded-lg border border-outline-variant relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-status-warning"></div>
+<div class="text-on-surface-variant text-[12px] mb-1">Tertahan</div>
+<div class="font-headline-md text-[20px] text-on-surface">20.49 <span class="text-[14px] text-on-surface-variant font-normal">g</span></div>
+</div>
+<div class="bg-surface-container-high p-3 rounded-lg border border-outline-variant">
+<div class="text-on-surface-variant text-[12px] mb-1">Free/Aman</div>
+<div class="font-headline-md text-[20px] text-status-safe">49.57 <span class="text-[14px] text-on-surface-variant font-normal">g</span></div>
+</div>
+</div>
+<!-- Progress Bar for Gold -->
+<div class="w-full h-3 bg-surface-container-high rounded-full overflow-hidden flex">
+<div class="bg-status-safe h-full" style="width: 71%;" title="Free (71%)"></div>
+<div class="bg-status-warning h-full" style="width: 29%;" title="Tertahan (29%)"></div>
+</div>
+<div class="flex justify-between text-[11px] text-on-surface-variant mt-1 px-1">
+<span>0g</span>
+<span>Total 70.06g</span>
+</div>
+</div>
+<hr class="border-outline-variant"/>
+<!-- Piutang Gadai Section -->
+<div>
+<div class="flex justify-between items-center mb-3">
+<h3 class="font-tabular-data text-tabular-data text-on-surface-variant uppercase tracking-wider">Detail Piutang Gadai</h3>
+<div class="bg-status-warning/10 text-status-warning px-2 py-1 rounded-full flex items-center gap-1 font-label-caps text-[10px]">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                                Kemampuan Bayar Tipis
+                            </div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+<div>
+<div class="text-on-surface-variant text-[12px]">Pokok Pinjaman</div>
+<div class="font-tabular-data text-[16px] text-on-surface">Rp 18.000.000</div>
+</div>
+<div>
+<div class="text-on-surface-variant text-[12px]">Bunga / Bulan</div>
+<div class="font-tabular-data text-[16px] text-status-danger">1.5%</div>
+</div>
+<div>
+<div class="text-on-surface-variant text-[12px]">Sisa Tempo</div>
+<div class="font-tabular-data text-[16px] text-on-surface">4 Bulan</div>
+</div>
+<div>
+<div class="text-on-surface-variant text-[12px]">Total Beban</div>
+<div class="font-tabular-data text-[16px] text-status-danger">Rp 19.080.000</div>
+</div>
+</div>
+<div class="mt-4 bg-surface-container-low p-3 rounded-lg border-l-2 border-status-warning flex justify-between items-center">
+<div>
+<div class="text-[12px] text-on-surface-variant">Estimasi Defisit Cashflow Bulanan</div>
+<div class="font-tabular-data text-status-warning font-bold">Rp 250.000 / bln</div>
+</div>
+<button class="text-[12px] border border-outline-variant px-3 py-1.5 rounded hover:bg-surface-container transition-colors text-on-surface">Simulasi Pelunasan</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Collapsed Panel: Utang Konsumsi -->
+<div class="bg-surface-container rounded-xl border border-outline-variant overflow-hidden opacity-75 hover:opacity-100 transition-opacity">
+<div class="p-4 flex justify-between items-center cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">credit_card</span>
+<div>
+<h2 class="font-headline-md text-[18px] font-bold text-on-surface">Utang Konsumsi</h2>
+<p class="text-[12px] text-on-surface-variant">Kartu Kredit, Paylater</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="text-right hidden sm:block">
+<div class="text-[12px] text-on-surface-variant">Total Saldo</div>
+<div class="font-tabular-data text-on-surface font-bold">Rp 4.500.000</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Collapsed Panel: Utang Jangka Panjang -->
+<div class="bg-surface-container rounded-xl border border-outline-variant overflow-hidden opacity-75 hover:opacity-100 transition-opacity">
+<div class="p-4 flex justify-between items-center cursor-pointer">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">home_work</span>
+<div>
+<h2 class="font-headline-md text-[18px] font-bold text-on-surface">Utang Jangka Panjang</h2>
+<p class="text-[12px] text-on-surface-variant">KPR, KPM</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="text-right hidden sm:block">
+<div class="text-[12px] text-on-surface-variant">Total Saldo</div>
+<div class="font-tabular-data text-on-surface font-bold">Rp 450.000.000</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Saran Panel (Opinionated Advice) -->
+<div class="mt-auto bg-surface-container-high border-l-4 border-status-info p-4 rounded-r-lg">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-status-info mt-0.5">info</span>
+<div>
+<h4 class="font-bold text-on-surface text-[14px] mb-1">Rekomendasi Tindakan</h4>
+<p class="text-[12px] text-on-surface-variant leading-relaxed">
+                            Defisit cashflow dari piutang gadai berisiko menggerus tabungan. Pertimbangkan untuk melikuidasi 10g emas 'Free' untuk menutupi sebagian pokok pinjaman dan mengurangi beban bunga bulanan.
+                        </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Dashboard (Sticky) -->
+<div class="panel-right p-6 lg:p-8 lg:sticky top-[64px] h-[calc(100vh-64px)] overflow-y-auto">
+<div class="mb-6 flex justify-between items-end">
+<h2 class="font-headline-md text-headline-md text-on-surface">Health Dashboard</h2>
+<span class="text-[12px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-status-safe">sync</span> Live Sync
+                </span>
+</div>
+<div class="grid grid-cols-12 gap-4 lg:gap-6">
+<!-- Row A: Hero Metrics -->
+<!-- DAR (Debt-to-Asset Ratio) Highlighted -->
+<div class="col-span-6 lg:col-span-4 bg-surface-container p-5 rounded-xl border border-tertiary-container/50 shadow-[0_0_15px_rgba(203,168,41,0.1)] relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-10">
+<span class="material-symbols-outlined text-[64px] text-tertiary">account_balance</span>
+</div>
+<div class="text-[12px] font-label-caps text-on-surface-variant mb-2">Debt-to-Asset (DAR)</div>
+<div class="font-hero-value text-[32px] lg:text-[40px] text-tertiary mb-1">24.5%</div>
+<div class="flex items-center gap-1 text-[11px] text-status-safe bg-status-safe/10 inline-flex px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px]">check</span> Ideal (&lt; 30%)
+                    </div>
+</div>
+<!-- DER (Debt-to-Equity Ratio) Highlighted -->
+<div class="col-span-6 lg:col-span-4 bg-surface-container p-5 rounded-xl border border-outline-variant relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-10">
+<span class="material-symbols-outlined text-[64px]">pie_chart</span>
+</div>
+<div class="text-[12px] font-label-caps text-on-surface-variant mb-2">Debt-to-Equity (DER)</div>
+<div class="font-hero-value text-[32px] lg:text-[40px] text-on-surface mb-1">0.32</div>
+<div class="flex items-center gap-1 text-[11px] text-status-warning bg-status-warning/10 inline-flex px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px]">warning</span> Watch (&gt; 0.3)
+                    </div>
+</div>
+<!-- DSR (Debt Service Ratio) -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container p-5 rounded-xl border border-outline-variant">
+<div class="text-[12px] font-label-caps text-on-surface-variant mb-2">Debt Service (DSR)</div>
+<div class="font-hero-value text-[32px] lg:text-[40px] text-on-surface mb-1">18%</div>
+<div class="flex items-center gap-1 text-[11px] text-status-safe bg-status-safe/10 inline-flex px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[12px]">check</span> Aman (&lt; 30%)
+                    </div>
+</div>
+<!-- Row B: Summary Stats -->
+<div class="col-span-6 bg-surface-container p-4 rounded-lg border border-outline-variant flex items-center justify-between">
+<div>
+<div class="text-[11px] text-on-surface-variant uppercase tracking-wider mb-1">Total Utang</div>
+<div class="font-tabular-data text-[18px] text-on-surface font-bold">Rp 472.500.000</div>
+</div>
+<div class="h-10 w-10 rounded-full bg-status-danger/10 flex items-center justify-center text-status-danger">
+<span class="material-symbols-outlined">trending_down</span>
+</div>
+</div>
+<div class="col-span-6 bg-surface-container p-4 rounded-lg border border-outline-variant flex items-center justify-between">
+<div>
+<div class="text-[11px] text-on-surface-variant uppercase tracking-wider mb-1">Beban Bunga / Bln</div>
+<div class="font-tabular-data text-[18px] text-status-danger font-bold">Rp 3.120.000</div>
+</div>
+<div class="h-10 w-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">calendar_today</span>
+</div>
+</div>
+<!-- Row C: Visualizations Placeholder (Mocking Chart) -->
+<div class="col-span-12 bg-surface-container p-5 rounded-xl border border-outline-variant">
+<div class="flex justify-between items-center mb-4">
+<div class="text-[12px] font-label-caps text-on-surface-variant">Komposisi Kewajiban</div>
+<button class="text-[12px] text-tertiary flex items-center gap-1">Detail <span class="material-symbols-outlined text-[14px]">arrow_forward</span></button>
+</div>
+<!-- Simple CSS bar chart representation -->
+<div class="space-y-3">
+<div>
+<div class="flex justify-between text-[11px] mb-1">
+<span class="text-on-surface">KPR (Jangka Panjang)</span>
+<span class="text-on-surface-variant">95%</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 95%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[11px] mb-1">
+<span class="text-on-surface">Gadai Emas</span>
+<span class="text-on-surface-variant">4%</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-gold-cadangan h-full" style="width: 4%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[11px] mb-1">
+<span class="text-on-surface">Kartu Kredit</span>
+<span class="text-on-surface-variant">1%</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-status-danger h-full" style="width: 1%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Minor Metrics -->
+<div class="col-span-4 bg-surface-container p-4 rounded-lg border border-outline-variant text-center">
+<div class="text-[10px] text-on-surface-variant uppercase mb-1">Aset Likuid</div>
+<div class="font-tabular-data text-[14px] text-on-surface">Rp 85Jt</div>
+</div>
+<div class="col-span-4 bg-surface-container p-4 rounded-lg border border-outline-variant text-center">
+<div class="text-[10px] text-on-surface-variant uppercase mb-1">Rasio Likuiditas</div>
+<div class="font-tabular-data text-[14px] text-status-warning">1.2x</div>
+</div>
+<div class="col-span-4 bg-surface-container p-4 rounded-lg border border-outline-variant text-center">
+<div class="text-[10px] text-on-surface-variant uppercase mb-1">Jatuh Tempo</div>
+<div class="font-tabular-data text-[14px] text-on-surface">12 Hari</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container-highest dark:bg-surface-container-highest text-tertiary dark:text-tertiary font-label-caps text-label-caps-mobile fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-highest border-t border-outline-variant shadow-lg lg:hidden fixed bottom-0 w-full flex justify-around items-center px-4 py-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="mt-1 text-[10px]">Aset</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="mt-1 text-[10px]">Cashflow</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-tertiary-container text-on-tertiary-container rounded-full p-2 scale-90 duration-150 relative" href="#">
+<span class="material-symbols-outlined icon-fill">request_quote</span>
+<span class="absolute -bottom-4 text-[10px] font-bold">Utang</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-container-high rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">flag</span>
+<span class="mt-1 text-[10px]">Target</span>
+</a>
+</nav>
+</body></html>

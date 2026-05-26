@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zenith Wealth - Terminal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary": "#bcc7de",
+                        "inverse-on-surface": "#233143",
+                        "on-error": "#690005",
+                        "on-secondary": "#263143",
+                        "status-info": "#3B82F6",
+                        "on-surface": "#d4e4fa",
+                        "secondary-fixed": "#d8e3fb",
+                        "on-error-container": "#ffdad6",
+                        "surface-container": "#122131",
+                        "surface-container-high": "#1c2b3c",
+                        "surface": "#051424",
+                        "on-tertiary-fixed": "#231b00",
+                        "status-warning": "#F59E0B",
+                        "outline": "#909097",
+                        "on-background": "#d4e4fa",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-secondary-fixed": "#111c2d",
+                        "error-container": "#93000a",
+                        "primary-container": "#0f172a",
+                        "background": "#051424",
+                        "inverse-primary": "#565e74",
+                        "outline-variant": "#45464d",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "status-safe": "#10B981",
+                        "on-tertiary-container": "#4e3e00",
+                        "tertiary-fixed": "#ffe081",
+                        "secondary-container": "#3e495d",
+                        "on-surface-variant": "#c6c6cd",
+                        "on-tertiary-fixed-variant": "#564500",
+                        "surface-container-low": "#0d1c2d",
+                        "status-danger": "#EF4444",
+                        "surface-bright": "#2c3a4c",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary": "#283044",
+                        "inverse-surface": "#d4e4fa",
+                        "secondary-fixed-dim": "#bcc7de",
+                        "tertiary-container": "#cba829",
+                        "gold-cadangan": "#D4AF37",
+                        "on-secondary-fixed-variant": "#3c475a",
+                        "tertiary-fixed-dim": "#e8c344",
+                        "primary": "#bec6e0",
+                        "error": "#ffb4ab",
+                        "surface-variant": "#273647",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-lowest": "#010f1f",
+                        "on-tertiary": "#3c2f00",
+                        "gold-tertahan": "#475569",
+                        "surface-dim": "#051424",
+                        "on-secondary-container": "#aeb9d0",
+                        "on-primary-container": "#798098",
+                        "tertiary": "#e8c444",
+                        "surface-tint": "#bec6e0",
+                        "surface-container-highest": "#273647"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "table-row-height": "40px",
+                        "panel-split": "45/55",
+                        "gutter": "1.5rem",
+                        "header-height": "64px",
+                        "container-padding": "2rem"
+                    },
+                    fontFamily: {
+                        "hero-value": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "hero-value-mobile": ["Plus Jakarta Sans"],
+                        "label-caps": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "tabular-data": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "hero-value": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+                        "hero-value-mobile": ["32px", { lineHeight: "40px", fontWeight: "700" }],
+                        "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "tabular-data": ["14px", { lineHeight: "20px", fontWeight: "500" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .split-layout { grid-template-columns: 45% 55%; }
+        @media (max-width: 768px) { .split-layout { grid-template-columns: 1fr; } }
+        
+        /* Custom animation for the soft nudge */
+        @keyframes subtle-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        .animate-nudge {
+            animation: subtle-bounce 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex overflow-hidden font-body-md text-body-md selection:bg-tertiary selection:text-on-tertiary">
+<!-- JSON Component: SideNavBar (Desktop) -->
+<nav class="h-full w-[280px] hidden md:flex flex-col bg-surface-container-low border-r border-outline-variant flex-shrink-0 z-40 relative">
+<div class="py-6 px-6 flex flex-col h-full">
+<!-- Brand Area -->
+<div class="mb-10 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">terminal</span>
+</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-bold text-primary text-[18px]">Canonical File</h1>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-status-safe"></span>
+<span class="text-label-caps font-label-caps text-on-surface-variant">Local-Only Mode</span>
+</div>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex flex-col gap-1 flex-1">
+<!-- Active Tab: Aset -->
+<a class="flex items-center gap-3 px-4 py-2.5 rounded bg-secondary-container text-on-secondary-container font-bold border-r-2 border-tertiary scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">account_balance</span>
+<span class="text-tabular-data font-tabular-data">Aset</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-tabular-data font-tabular-data">Cashflow</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="text-tabular-data font-tabular-data">Utang &amp; Gadai</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="text-tabular-data font-tabular-data">Akumulasi</span>
+</a>
+</div>
+<!-- Footer Links -->
+<div class="mt-auto border-t border-outline-variant pt-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-tabular-data font-tabular-data">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+<span class="text-tabular-data font-tabular-data">Support</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Application Area -->
+<main class="flex-1 flex flex-col relative h-screen">
+<!-- JSON Component: TopAppBar -->
+<header class="fixed md:absolute top-0 w-full md:w-auto md:left-0 md:right-0 h-[64px] z-50 bg-surface-container border-b border-outline-variant flex justify-between items-center px-container-padding transition-colors">
+<!-- Brand / Mobile Menu trigger -->
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined md:hidden text-on-surface">menu</span>
+<span class="text-headline-md font-headline-md font-bold text-on-surface tracking-tight md:hidden">Zenith Wealth</span>
+<span class="text-headline-md font-headline-md font-bold text-on-surface tracking-tight hidden md:block">Zenith Wealth</span>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded hover:bg-surface-bright transition-colors flex items-center justify-center text-on-surface-variant hidden md:flex">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</button>
+<button class="w-10 h-10 rounded hover:bg-surface-bright transition-colors flex items-center justify-center text-on-surface-variant hidden md:flex">
+<span class="material-symbols-outlined">sync</span>
+</button>
+<!-- Secondary Action (Ghost) -->
+<button class="hidden md:flex items-center gap-2 px-4 py-1.5 rounded border border-outline text-tabular-data font-tabular-data text-on-surface hover:bg-surface-bright transition-colors">
+                    Import .xlsx
+                </button>
+<!-- Primary Action (Disabled State as requested) -->
+<button class="flex items-center gap-2 px-4 py-1.5 rounded bg-surface-variant text-on-surface-variant border border-outline-variant opacity-50 cursor-not-allowed text-tabular-data font-tabular-data" disabled="">
+                    Export .xlsx
+                </button>
+<!-- Profile Placeholder -->
+<div class="w-8 h-8 rounded-full bg-surface-bright border border-outline-variant ml-2 overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">person</span>
+</div>
+</div>
+</header>
+<!-- Content Canvas (45/55 Split) -->
+<div class="flex-1 mt-[64px] grid split-layout overflow-y-auto pb-[80px] md:pb-0">
+<!-- Left Panel: Input Area (45%) -->
+<section class="border-r border-outline-variant p-gutter flex flex-col bg-background">
+<header class="mb-8">
+<h2 class="text-headline-md font-headline-md text-on-surface">Input Data</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mt-1">Terminal mode active. Enter canonical values.</p>
+</header>
+<!-- The Empty State Nudge -->
+<div class="mt-12 flex flex-col items-center justify-center text-center p-8 border border-dashed border-tertiary rounded-lg bg-surface-container-lowest relative overflow-hidden group">
+<div class="absolute inset-0 bg-tertiary opacity-5"></div>
+<span class="material-symbols-outlined text-tertiary text-4xl mb-4 animate-nudge" style="font-variation-settings: 'FILL' 1;">
+                        arrow_upward
+                    </span>
+<h3 class="text-tabular-data font-tabular-data text-tertiary font-bold mb-2 tracking-wide uppercase">
+                        Mulai dari sini
+                    </h3>
+<p class="text-body-md font-body-md text-on-surface-variant">
+                        Isi yang paling gampang dulu. Data langsung tersimpan lokal.
+                    </p>
+<button class="mt-6 px-6 py-2 bg-tertiary text-on-tertiary rounded text-tabular-data font-tabular-data font-bold hover:bg-tertiary-container transition-colors shadow-sm">
+                        + Tambah Entri Pertama
+                    </button>
+</div>
+<!-- Ghost table rows to imply structure -->
+<div class="mt-8 flex flex-col gap-2 opacity-30 pointer-events-none">
+<div class="h-table-row-height w-full bg-surface-container rounded border border-outline-variant"></div>
+<div class="h-table-row-height w-full bg-surface-container rounded border border-outline-variant"></div>
+<div class="h-table-row-height w-full bg-surface-container rounded border border-outline-variant"></div>
+</div>
+</section>
+<!-- Right Panel: Dashboard (55%) -->
+<section class="p-gutter flex flex-col gap-6 bg-surface-dim">
+<header class="flex justify-between items-end mb-2">
+<div>
+<h2 class="text-label-caps font-label-caps text-on-surface-variant">LIVE DASHBOARD</h2>
+<p class="text-headline-md font-headline-md text-on-surface mt-1">Overview</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+<span class="text-label-caps font-label-caps text-outline-variant">Menunggu Data</span>
+</div>
+</header>
+<!-- Top Metrics Row -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Metric Card -->
+<div class="bg-surface-container p-5 rounded-lg border border-outline-variant flex flex-col">
+<span class="text-label-caps font-label-caps text-on-surface-variant mb-2">Total Aset</span>
+<div class="flex items-end gap-2 mt-auto">
+<span class="text-hero-value font-hero-value text-outline-variant">—</span>
+</div>
+</div>
+<!-- Metric Card -->
+<div class="bg-surface-container p-5 rounded-lg border border-outline-variant flex flex-col">
+<span class="text-label-caps font-label-caps text-on-surface-variant mb-2">Net Worth</span>
+<div class="flex items-end gap-2 mt-auto">
+<span class="text-hero-value font-hero-value text-outline-variant">—</span>
+</div>
+</div>
+</div>
+<!-- Chart Row -->
+<div class="bg-surface-container border border-outline-variant rounded-lg p-6 flex-1 flex flex-col min-h-[300px] justify-center items-center relative">
+<h3 class="absolute top-6 left-6 text-label-caps font-label-caps text-on-surface-variant">ALOKASI KELAS ASET</h3>
+<!-- Empty Donut Chart Visual -->
+<div class="w-48 h-48 rounded-full border-[3px] border-dashed border-outline-variant flex items-center justify-center relative">
+<div class="w-32 h-32 rounded-full bg-surface-dim absolute inset-0 m-auto"></div>
+<span class="material-symbols-outlined text-outline-variant text-3xl z-10 opacity-50">
+                            pie_chart
+                        </span>
+</div>
+<p class="text-tabular-data font-tabular-data text-outline-variant mt-6 text-center max-w-[200px]">
+                        Tambahkan aset untuk lihat alokasi
+                    </p>
+</div>
+</section>
+</div>
+</main>
+<!-- JSON Component: BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full md:hidden z-50 bg-surface-container-highest border-t border-outline-variant shadow-lg flex justify-around items-center px-4 py-2">
+<!-- Active Tab -->
+<a class="flex flex-col items-center justify-center text-tertiary font-bold bg-secondary-container rounded-xl p-2 w-16 scale-90 transition-all" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+<span class="text-[10px] font-label-caps leading-none tracking-wider">Aset</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 w-16 hover:bg-surface-bright rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">payments</span>
+<span class="text-[10px] font-label-caps leading-none tracking-wider">Cashflow</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 w-16 hover:bg-surface-bright rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+<span class="text-[10px] font-label-caps leading-none tracking-wider">Utang</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 w-16 hover:bg-surface-bright rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">track_changes</span>
+<span class="text-[10px] font-label-caps leading-none tracking-wider">Target</span>
+</a>
+</nav>
+</body></html>

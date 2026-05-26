@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zenith Wealth - Cashflow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#bcc7de",
+                      "inverse-on-surface": "#233143",
+                      "on-error": "#690005",
+                      "on-secondary": "#263143",
+                      "status-info": "#3B82F6",
+                      "on-surface": "#10B981", // Terminal green
+                      "secondary-fixed": "#d8e3fb",
+                      "on-error-container": "#ffdad6",
+                      "surface-container": "#0d1c2d", // Darker
+                      "surface-container-high": "#122131",
+                      "surface": "#051424", // Very dark
+                      "on-tertiary-fixed": "#231b00",
+                      "status-warning": "#F59E0B",
+                      "outline": "#45464d", // Dimmed
+                      "on-background": "#10B981", // Terminal green
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-secondary-fixed": "#111c2d",
+                      "error-container": "#93000a",
+                      "primary-container": "#0f172a",
+                      "background": "#020a12", // Almost black
+                      "inverse-primary": "#565e74",
+                      "outline-variant": "#273647",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "status-safe": "#10B981",
+                      "on-tertiary-container": "#4e3e00",
+                      "tertiary-fixed": "#ffe081",
+                      "secondary-container": "#3e495d",
+                      "on-surface-variant": "#047857", // Dimmer terminal green
+                      "on-tertiary-fixed-variant": "#564500",
+                      "surface-container-low": "#0a1624",
+                      "status-danger": "#EF4444",
+                      "surface-bright": "#1c2b3c",
+                      "primary-fixed": "#dae2fd",
+                      "on-primary": "#051424",
+                      "inverse-surface": "#10B981",
+                      "secondary-fixed-dim": "#bcc7de",
+                      "tertiary-container": "#cba829",
+                      "gold-cadangan": "#D4AF37",
+                      "on-secondary-fixed-variant": "#3c475a",
+                      "tertiary-fixed-dim": "#e8c344",
+                      "primary": "#10B981", // Terminal green
+                      "error": "#ffb4ab",
+                      "surface-variant": "#122131",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-container-lowest": "#010f1f",
+                      "on-tertiary": "#051424",
+                      "gold-tertahan": "#475569",
+                      "surface-dim": "#051424",
+                      "on-secondary-container": "#aeb9d0",
+                      "on-primary-container": "#798098",
+                      "tertiary": "#10B981", // Terminal green
+                      "surface-tint": "#bec6e0",
+                      "surface-container-highest": "#1c2b3c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0", // Square edges
+                      "lg": "0",
+                      "xl": "0",
+                      "full": "0"
+              },
+              "spacing": {
+                      "table-row-height": "40px",
+                      "panel-split": "45/55",
+                      "header-height": "64px",
+                      "gutter": "1.5rem",
+                      "container-padding": "2rem"
+              },
+              "fontFamily": {
+                      "hero-value": [
+                              "IBM Plex Mono"
+                      ],
+                      "headline-md": [
+                              "IBM Plex Mono"
+                      ],
+                      "hero-value-mobile": [
+                              "IBM Plex Mono"
+                      ],
+                      "label-caps": [
+                              "IBM Plex Mono"
+                      ],
+                      "body-md": [
+                              "IBM Plex Mono"
+                      ],
+                      "tabular-data": [
+                              "IBM Plex Mono"
+                      ],
+                      "headline-lg": [
+                              "IBM Plex Mono"
+                      ]
+              },
+              "fontSize": {
+                      "hero-value": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "hero-value-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "tabular-data": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+  /* Terminal style tweaks */
+  input {
+    background-color: transparent !important;
+    border: 1px solid #047857 !important;
+    color: #10B981 !important;
+  }
+  input:focus {
+    border-color: #10B981 !important;
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.5) !important;
+  }
+  .bg-surface-container {
+      border: 1px solid #047857;
+      background-color: rgba(5, 20, 36, 0.8) !important;
+  }
+</style>
+</head>
+<body class="bg-background text-on-background antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low border-r border-outline-variant h-full w-[280px] hidden md:flex flex-col py-6 z-40">
+<div class="px-container-padding mb-8">
+<h1 class="text-headline-md font-headline-md font-bold text-primary">&gt; ZENITH_WEALTH</h1>
+<div class="flex items-center gap-2 mt-4 text-on-surface">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">terminal</span>
+<span class="text-label-caps font-label-caps">Bayu · Local Data Only</span>
+</div>
+<div class="mt-2 text-tabular-data font-tabular-data text-on-surface-variant">/root/data/canonical.json</div>
+</div>
+<ul class="flex-1 space-y-2 px-4">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-none text-on-surface-variant hover:bg-surface-container-high transition-colors hover:text-on-surface" href="#">
+<span class="text-label-caps font-label-caps">[01] ASET</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-none bg-surface-container-high text-on-surface font-bold border-l-2 border-primary transition-transform" href="#">
+<span class="text-label-caps font-label-caps">&gt; [02] CASHFLOW</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-none text-on-surface-variant hover:bg-surface-container-high transition-colors hover:text-on-surface" href="#">
+<span class="text-label-caps font-label-caps">[03] UTANG &amp; GADAI</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-none text-on-surface-variant hover:bg-surface-container-high transition-colors hover:text-on-surface" href="#">
+<span class="text-label-caps font-label-caps">[04] AKUMULASI</span>
+</a>
+</li>
+</ul>
+<div class="px-4 mt-auto space-y-2">
+<div class="text-[10px] text-on-surface-variant px-4 py-2 opacity-50">
+  (c) 2024 Zenith. OS v1.0.4
+</div>
+</div>
+</nav>
+<div class="flex-1 flex flex-col h-full relative">
+<!-- TopAppBar -->
+<header class="bg-surface-container border-b border-outline-variant fixed top-0 w-full h-[64px] z-50 flex justify-between items-center px-container-padding md:w-[calc(100%-280px)]">
+<div class="flex-1"></div>
+<div class="flex items-center gap-4">
+<button class="border border-outline-variant text-primary px-4 py-2 rounded-none text-tabular-data font-tabular-data hover:bg-surface-bright transition-colors">IMPORT</button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-none text-tabular-data font-tabular-data hover:opacity-90 transition-opacity font-bold">EXPORT</button>
+</div>
+</header>
+<!-- Main Content Layout -->
+<main class="flex-1 overflow-y-auto mt-[64px] pb-24 md:pb-0 flex flex-col md:flex-row">
+<!-- Left Panel: Input (45%) -->
+<section class="w-full md:w-[45%] border-r border-outline-variant bg-background overflow-y-auto custom-scrollbar p-6">
+<div class="mb-8">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-2">CASHFLOW.EXE</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Monitoring incoming/outgoing streams.</p>
+</div>
+<!-- Penghasilan -->
+<div class="bg-surface-container rounded-none p-6 mb-6">
+<h3 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2 mb-4 uppercase">
+                        -- INFLOW
+                    </h3>
+<div class="space-y-4">
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Gaji Bersih</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-table-row-height px-3 outline-none" type="text" value="Rp 25.000.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Penghasilan Lainnya</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-table-row-height px-3 outline-none" type="text" value="Rp 5.000.000"/>
+</div>
+<!-- Dual-mode Dividend UI -->
+<div class="border-l-2 border-primary pl-4 mt-6">
+<div class="flex justify-between items-center mb-2">
+<label class="text-label-caps font-label-caps text-on-surface flex items-center gap-2">
+                                    Dividen Saham
+                                    <span class="bg-surface-bright text-primary px-2 py-0.5 rounded-none text-[10px] font-bold tracking-wider">MODE: AUTO</span>
+</label>
+<div class="flex items-center gap-2">
+<span class="text-[10px] text-on-surface-variant">Toggle Manual</span>
+<button class="w-8 h-4 border border-primary relative cursor-pointer">
+<div class="w-2 h-2 bg-primary absolute left-0.5 top-0.5"></div>
+</button>
+</div>
+</div>
+<!-- Mode A: Auto (Visible) -->
+<div id="dividen-auto">
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface-variant rounded-none h-table-row-height px-3 w-full opacity-70 cursor-not-allowed" disabled="" type="text" value="Rp 2.500.000"/>
+<p class="text-[10px] text-on-surface-variant mt-1">&gt; SYSTEM: Calc based on 5% yield of total portfolio.</p>
+</div>
+<!-- Mode B: Manual Override (Hidden but present in DOM) -->
+<div class="hidden" id="dividen-manual">
+<div class="space-y-2 mt-2">
+<div class="flex gap-2">
+<input class="flex-1 bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-8 px-2 text-xs outline-none" placeholder="Ticker (e.g. BBCA)" type="text"/>
+<input class="flex-1 bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-8 px-2 text-xs outline-none" placeholder="Amount" type="text"/>
+<button class="border border-primary text-primary px-2 h-8 text-xs hover:bg-surface-bright">+</button>
+</div>
+<div class="flex justify-between border-b border-outline-variant py-1">
+<span class="text-tabular-data text-on-surface text-xs">BBRI</span>
+<span class="text-tabular-data text-on-surface text-xs">Rp 1.000.000</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant py-1">
+<span class="text-tabular-data text-on-surface text-xs">TLKM</span>
+<span class="text-tabular-data text-on-surface text-xs">Rp 1.500.000</span>
+</div>
+<div class="flex justify-between pt-2">
+<span class="text-tabular-data text-on-surface font-bold text-xs">TOTAL</span>
+<span class="text-tabular-data text-primary font-bold text-xs">Rp 2.500.000</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pengeluaran Tetap -->
+<div class="bg-surface-container rounded-none p-6 mb-6">
+<h3 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2 mb-4 uppercase">
+                        -- OUTFLOW: FIXED
+                    </h3>
+<div class="space-y-4">
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Sewa/KPR</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-table-row-height px-3 outline-none" type="text" value="Rp 8.000.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Listrik &amp; Air</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-table-row-height px-3 outline-none" type="text" value="Rp 1.500.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Cicilan Lainnya</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-table-row-height px-3 outline-none" type="text" value="Rp 3.000.000"/>
+</div>
+<button class="w-full border border-dashed border-primary text-primary py-2 rounded-none text-tabular-data font-tabular-data hover:bg-surface-bright transition-colors flex items-center justify-center gap-2 mt-4">
+                        + INSERT_ROW
+                        </button>
+</div>
+</div>
+<!-- Pengeluaran Variabel -->
+<div class="bg-surface-container rounded-none p-6">
+<h3 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2 mb-4 uppercase">
+                        -- OUTFLOW: VARIABLE
+                    </h3>
+<div class="space-y-4">
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Makan &amp; Minum</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-table-row-height px-3 outline-none" type="text" value="Rp 4.000.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Transportasi</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-table-row-height px-3 outline-none" type="text" value="Rp 1.000.000"/>
+</div>
+<div class="flex flex-col">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1">Hiburan</label>
+<input class="bg-surface border border-outline-variant text-tabular-data font-tabular-data text-on-surface rounded-none h-table-row-height px-3 outline-none" type="text" value="Rp 2.000.000"/>
+</div>
+</div>
+</div>
+<div class="mt-8 text-center text-[10px] text-on-surface-variant flex items-center justify-center gap-1 opacity-70">
+                    &gt; SECURE_MODE: ENABLED. CLIENT_SIDE_EXECUTION_ONLY.
+                </div>
+</section>
+<!-- Right Panel: Dashboard (55%) -->
+<section class="w-full md:w-[55%] bg-background p-6 overflow-y-auto">
+<div class="max-w-4xl mx-auto space-y-6">
+<!-- Net Worth Hero -->
+<div class="bg-surface-container rounded-none p-8 border border-primary relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 pattern-diagonal-lines opacity-20"></div>
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2 relative z-10">NET_WORTH</div>
+<div class="text-hero-value font-hero-value text-on-surface relative z-10">Rp 4.582.000.000</div>
+</div>
+<!-- Row A: Health Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container rounded-none p-6 border-l-4 border-status-safe">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">SAVINGS_RATE</div>
+<div class="text-headline-lg font-headline-lg text-on-surface flex items-baseline gap-2">
+                                45% <span class="text-tabular-data font-tabular-data text-status-safe bg-status-safe/10 px-2 py-0.5 rounded-none border border-status-safe">SEHAT</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-none p-6 border-l-4 border-status-safe">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">DEBT_SERVICE_RATIO</div>
+<div class="text-headline-lg font-headline-lg text-on-surface flex items-baseline gap-2">
+                                12.4% <span class="text-tabular-data font-tabular-data text-status-safe bg-status-safe/10 px-2 py-0.5 rounded-none border border-status-safe">SEHAT</span>
+</div>
+</div>
+</div>
+<!-- Row B: Runway & Modal -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container rounded-none p-6">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">RUNWAY_MONTHS</div>
+<div class="text-headline-lg font-headline-lg text-on-surface">18</div>
+</div>
+<div class="bg-surface-container rounded-none p-6">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">LIQUID_CAPITAL</div>
+<div class="text-headline-lg font-headline-lg text-on-surface">Rp 150.000.000</div>
+</div>
+</div>
+<!-- Row C: Stacked Bar -->
+<div class="bg-surface-container rounded-none p-6">
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-4">ALLOCATION (SAFE:PROD)</div>
+<div class="w-full h-8 bg-surface border border-outline-variant flex">
+<div class="bg-on-surface-variant h-full w-[30%]"></div>
+<div class="bg-primary h-full w-[70%]"></div>
+</div>
+<div class="flex justify-between mt-2 text-tabular-data font-tabular-data">
+<div class="flex items-center gap-2"><span class="w-3 h-3 bg-on-surface-variant block"></span> SAFE_HAVEN [30%]</div>
+<div class="flex items-center gap-2"><span class="w-3 h-3 bg-primary block"></span> PRODUCTIVE [70%]</div>
+</div>
+</div>
+<!-- Row D: Allocation Donut (Placeholder representation) -->
+<div class="bg-surface-container rounded-none p-6 flex justify-between items-center">
+<div>
+<div class="text-label-caps font-label-caps text-on-surface-variant mb-2">CASHFLOW_BREAKDOWN</div>
+<ul class="space-y-2 mt-4">
+<li class="flex items-center gap-2 text-tabular-data font-tabular-data"><span class="w-3 h-3 bg-status-safe block"></span> TABUNGAN [45%]</li>
+<li class="flex items-center gap-2 text-tabular-data font-tabular-data"><span class="w-3 h-3 bg-status-warning block"></span> KEBUTUHAN_TETAP [35%]</li>
+<li class="flex items-center gap-2 text-tabular-data font-tabular-data"><span class="w-3 h-3 bg-status-danger block"></span> PENGELUARAN_VAR [20%]</li>
+</ul>
+</div>
+<div class="w-32 h-32 rounded-full border-[12px] border-surface relative">
+<!-- Proper circular donut rep via CSS -->
+<div class="absolute inset-[-12px] border-[12px] border-t-status-safe border-r-status-warning border-b-status-danger border-l-status-safe rounded-full transform rotate-45"></div>
+<div class="absolute inset-0 bg-surface-container rounded-full flex items-center justify-center text-xs text-on-surface">100%</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-surface-container-highest border-t border-outline-variant fixed bottom-0 w-full md:hidden z-50 flex justify-around items-center px-4 py-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2" href="#">
+<span class="text-label-caps font-label-caps">AST</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-primary bg-primary p-2 transition-all" href="#">
+<span class="text-label-caps font-label-caps font-bold">CSH</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2" href="#">
+<span class="text-label-caps font-label-caps">UTG</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2" href="#">
+<span class="text-label-caps font-label-caps">TGT</span>
+</a>
+</nav>
+</div>
+</body></html>

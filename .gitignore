@@ -1,0 +1,36 @@
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+.agents
+.claude
+skills-lock.json
