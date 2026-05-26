@@ -21,7 +21,9 @@ User input kondisi saat ini lewat form terpandu. Termasuk:
 
 - Aset standar: kas, emas (dengan IDR/gram live), deposito, RD, SBN, properti, kendaraan, dana pensiun
 - **Subsection saham per-emiten**: ticker + lots sekarang + lots target 100% + target bobot % + avg dividend yield + last dividend per lembar — dengan **harga IDX live** auto-fetched (Yahoo Finance pattern `BBCA.JK`)
-- Utang & pengeluaran (dengan sub-section Gadai)
+- Utang & pengeluaran — dua sub-modul terstruktur:
+  - **Cicilan Aktif** — satu row per utang amortisasi aktif (KPR / KPM / Bank-KTA / Pinjol / Paylater / KK / Lain) dengan sisa pokok + cicilan/bln + bunga + tenor sisa + jenis bunga (Anuitas/Flat/Floating/Revolving)
+  - **Gadai** — tracking gadai emas dengan gram, tempo, dan Rasio Tertahan
 - App menghitung **9 metric** (8 kesehatan + 1 kapasitas) dengan threshold hijau/kuning/merah dimana applicable.
 
 Power user lihat kedalaman per-emiten. User basic bisa biarkan section saham kosong. **Progressive disclosure** — field advanced collapsed by default.
@@ -42,7 +44,7 @@ Power user lihat kedalaman per-emiten. User basic bisa biarkan section saham kos
 | Wizard | Yang dijawab | Sample output |
 |---|---|---|
 | **"Max Utang Aman"** | Berdasarkan income + cicilan aktif, berapa max cicilan BARU yang masih masuk threshold "Sehat" (DSR <30%)? | *"Berdasarkan gaji Rp 18jt + cicilan aktif Rp 1.5jt, max cicilan baru biar DSR di zona Sehat: Rp 3.9jt/bln. Setara KPR ~Rp 480jt @ 15 tahun @ 7%, atau cicil mobil ~Rp 200jt @ 5 tahun @ 8%."* |
-| **"Lunasi Utang Sekarang"** | Kalau user lunasi utang spesifik (penuh atau sebagian) dari modal likuid, apa yang berubah? | Pilih utang → preview side-by-side: likuid turun, pokok utang turun, DSR turun, goal shift. |
+| **"Lunasi Utang Sekarang"** | Kalau user lunasi utang spesifik (penuh atau sebagian) dari modal likuid, apa yang berubah? | Pilih row utang dari Cicilan Aktif atau Gadai → preview side-by-side: likuid turun, pokok utang turun, DSR turun, goal shift. Untuk Anuitas/Flat: toggle tenor-lebih-cepat vs. cicilan-turun. Untuk Revolving (KK/Paylater/Pinjol): sisa pokok turun langsung. |
 | **"Modal Likuid Options"** | Auto-generated list opsi deployment dari Modal Siap Distribusi dengan preview dampak | *"Modal Siap Rp 52jt. Opsi yang dihitungkan: lunasi KK (Rp 8jt) → DSR −2pp; prepay KPR (Rp 20jt) → tenor mundur 14 bln; beli BBCA 30 lot (Rp 18jt) → bobot 15→18%; tambah RD → kontribusi Goal FI."* |
 
 Setiap wizard render **side-by-side**: *"Posisi Sekarang"* vs. *"Setelah Skenario"*, setiap metric diberi delta (▲ / ▼ / ●) dan flip threshold. **Proyeksi goal juga shift.**
@@ -89,7 +91,7 @@ Tidak bisa ditawar. Lihat PRD §9 (mitigasi risiko OJK).
 
 ## 3. Kenapa ini penting
 
-Orang dewasa Indonesia menghadapi sedikit tapi keputusan finansial besar, jarang, mostly tidak bisa di-undo setiap tahun — KPR, Gadai Emas, kendaraan kredit, mulai habit investasi, plan pendidikan anak, plan FI. Toolkit yang ada terfragmentasi:
+Orang dewasa Indonesia menghadapi sedikit tapi keputusan finansial besar, jarang, mostly tidak bisa di-undo setiap tahun — KPR, Gadai Emas, kendaraan kredit, mulai habit investasi, plan pendidikan anak, plan FI. Mereka juga bawa tumpukan utang berjalan (cicilan KPR/KPM, KK, paylater, pinjol) yang berinteraksi dengan setiap keputusan baru. Toolkit yang ada terfragmentasi:
 
 - **Stockbit / Bibit / Pluang** mengelola portfolio yang sudah ada; tidak simulasi keputusan baru
 - **Loan calculator** kasih angka cicilan in isolation; gak ngasih tau apakah keuangan *kamu* bisa absorb itu
@@ -119,14 +121,14 @@ Orang dewasa Indonesia menghadapi sedikit tapi keputusan finansial besar, jarang
 |---|---|---|
 | 1 | Project scaffold + design tokens + landing page | Deploy Vercel jalan; route styleguide render |
 | 2 | Backend price proxy (IDX via Yahoo + emas Pegadaian + USD/IDR) | Ketiga endpoint return cached response |
-| 3 | Form Snapshot — section basic + 9 metric (incl. Modal Siap Distribusi) | Semua metric compute live |
+| 3 | Form Snapshot — section basic + **tabel Cicilan Aktif row-based** + 9 metric (incl. Modal Siap Distribusi) | Semua metric compute live; multiple row utang bisa ditambah dengan perilaku per-jenis-bunga |
 | 4 | Form Snapshot — subsection saham per-emiten dengan harga live | Card per-emiten render; harga IDX live update |
 | 5 | Modul Goals — CRUD + bucket tagging + **FI auto-formula** | Multiple goal addable; FI target auto-compute dari pengeluaran × 300 |
 | 6 | **Wizard Keputusan** — "Mau KPR" + side-by-side dengan dampak goal | Wizard KPR tunjukkan shift DSR + goal |
 | 7 | **Wizard Keputusan** — "Mau Gadai" + "Mau cicil" + Custom | Keempat wizard keputusan fungsional |
 | 8 | **Wizard Kapasitas** — "Max Utang Aman" + "Lunasi Utang" | Keduanya compute live; output deskriptif |
 | 9 | **Wizard Kapasitas** — Panel "Modal Likuid Options" + Insight engine | Auto-generated options list jalan; ~50 string copy di-audit OJK |
-| 10 | Export xlsx (6-sheet: Ringkasan, Snapshot, Per-Emiten, Goals, Skenario, Kapasitas) + polish landing | Download bersih, buka di Excel/Sheets |
+| 10 | Export xlsx (7-sheet: Ringkasan, Snapshot, Per-Emiten, Cicilan-Aktif, Goals, Skenario, Kapasitas) + polish landing | Download bersih, buka di Excel/Sheets |
 | 11 | Pass microcopy, disclaimer OJK, edge state, mobile-tolerance | Lighthouse ≥85; ready to ship |
 
 **Kalau waktu ketat, drop urutan ini:**

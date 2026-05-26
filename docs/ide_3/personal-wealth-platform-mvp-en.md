@@ -21,7 +21,9 @@ User inputs current state via a guided form. Includes:
 
 - Standard assets: cash, gold (with live IDR/gram), deposito, RD, SBN, property, vehicles, pension
 - **Per-emiten stock subsection**: ticker + lots sekarang + lots target 100% + target bobot % + avg dividend yield + last dividend per lembar — with **live IDX prices** auto-fetched (Yahoo Finance via `BBCA.JK` pattern)
-- Liabilities and expenses (with Gadai sub-section for gold-pawn tracking)
+- Liabilities and expenses — two structured sub-modules:
+  - **Cicilan Aktif** — one row per active amortizing debt (KPR / KPM / Bank-KTA / Pinjol / Paylater / KK / Lain) with sisa pokok + cicilan/bln + bunga + tenor sisa + jenis bunga (Anuitas/Flat/Floating/Revolving)
+  - **Gadai** — gold-pawn tracking with grams, tempo, and Rasio Tertahan
 - App computes **9 metrics** (8 health + 1 capacity) with green/amber/red thresholds where applicable.
 
 Power users see per-emiten depth. Basic users can leave the stocks section empty and use only the cash/property/debt fields. **Progressive disclosure** — advanced fields collapsed by default.
@@ -42,7 +44,7 @@ Power users see per-emiten depth. Basic users can leave the stocks section empty
 | Wizard | What it answers | Sample output |
 |---|---|---|
 | **"Max Utang Aman"** | Given current income + cicilan aktif, what's the max NEW monthly cicilan that keeps DSR below "Waspada" threshold? | *"Berdasarkan gaji Rp 18jt + cicilan aktif Rp 1.5jt, max cicilan baru biar DSR di zona Sehat: Rp 3.9jt/bln. Setara KPR ~Rp 480jt @ 15 tahun @ 7%, atau cicil mobil ~Rp 200jt @ 5 tahun @ 8%."* |
-| **"Lunasi Utang Sekarang"** | If user pays off a specific debt (full or partial) from liquid capital, what changes? | Select debt → preview side-by-side: liquid drops, debt principal drops, DSR drops, goals shift. |
+| **"Lunasi Utang Sekarang"** | If user pays off a specific debt (full or partial) from liquid capital, what changes? | Select any debt row from Cicilan Aktif or Gadai → preview side-by-side: liquid drops, debt principal drops, DSR drops, goals shift. For Anuitas/Flat: toggle tenor-shortens vs. cicilan-reduces. For Revolving (KK/Paylater/Pinjol): sisa pokok drops directly. |
 | **"Modal Likuid Options"** | Auto-generated list of deployable actions from Modal Siap Distribusi with impact preview | *"Modal Siap Rp 52jt. Opsi yang dihitungkan: lunasi KK (Rp 8jt) → DSR −2pp; prepay KPR (Rp 20jt) → tenor mundur 14 bln; beli BBCA 30 lot (Rp 18jt) → bobot 15→18%; tambah RD → kontribusi Goal FI."* |
 
 Each wizard renders **side-by-side**: *"Posisi Sekarang"* vs. *"Setelah Skenario"*, every metric with delta (▲ / ▼ / ●) and threshold flip (Sehat → Waspada → Bahaya). **Goal projections also shift.**
@@ -89,7 +91,7 @@ Non-negotiable. See PRD §9 (OJK risk mitigation).
 
 ## 3. Why this matters
 
-Indonesian adults face a small number of large, mostly-irreversible financial decisions every year — KPR, Gadai Emas, vehicle financing, starting an investment habit, education planning, FI planning. The existing toolkit is fragmented:
+Indonesian adults face a small number of large, mostly-irreversible financial decisions every year — KPR, Gadai Emas, vehicle financing, starting an investment habit, education planning, FI planning. They also carry a stack of ongoing debts (KPR/KPM cicilan, KK, paylater, pinjol) that interact with every new decision. The existing toolkit is fragmented:
 
 - **Stockbit / Bibit / Pluang** manage existing portfolios; they don't simulate new decisions
 - **Loan calculators** give isolated cicilan numbers; they don't tell you whether *your* finances absorb them
@@ -119,14 +121,14 @@ Indonesian adults face a small number of large, mostly-irreversible financial de
 |---|---|---|
 | 1 | Project scaffold + design tokens + landing page | Vercel deploy works; styleguide route renders |
 | 2 | Price proxy backend (IDX via Yahoo + Pegadaian gold + USD/IDR) | All 3 endpoints return cached responses |
-| 3 | Snapshot form — basic sections + 9 metrics (incl. Modal Siap Distribusi) | All metrics compute live |
+| 3 | Snapshot form — basic sections + **Cicilan Aktif row-based table** + 9 metrics (incl. Modal Siap Distribusi) | All metrics compute live; multiple debt rows addable with per-jenis-bunga behavior |
 | 4 | Snapshot form — per-emiten Saham subsection with live prices | Per-emiten cards render; live IDX prices update |
 | 5 | Goals module — CRUD + bucket tagging + **FI auto-formula** | Multiple goals addable; FI target auto-computes from expenses × 300 |
 | 6 | **Decision wizards** — "Mau KPR" + side-by-side with goal impact | KPR wizard shows DSR + goal shift |
 | 7 | **Decision wizards** — "Mau Gadai" + "Mau cicil" + Custom | All 4 decision wizards functional |
 | 8 | **Capacity wizards** — "Max Utang Aman" + "Lunasi Utang" | Both compute live; descriptive output |
 | 9 | **Capacity wizards** — "Modal Likuid Options" panel + Insight engine | Auto-generated options list working; ~50 copy strings audited for OJK |
-| 10 | xlsx export (6-sheet: Ringkasan, Snapshot, Per-Emiten, Goals, Skenario, Kapasitas) + landing polish | Downloads clean, opens in Excel/Sheets |
+| 10 | xlsx export (7-sheet: Ringkasan, Snapshot, Per-Emiten, Cicilan-Aktif, Goals, Skenario, Kapasitas) + landing polish | Downloads clean, opens in Excel/Sheets |
 | 11 | Microcopy pass, OJK disclaimer, edge states, mobile-tolerance | Lighthouse ≥85; ready to ship |
 
 **If running tight, drop in this order:**

@@ -47,7 +47,7 @@ Cermat is that unified product.
 
 ### 1.3 Why now
 
-- Indonesian household debt-to-GDP rose meaningfully 2023–2025; KPR + paylater adoption surging
+- Indonesian household debt-to-GDP rose meaningfully 2023–2025; KPR + paylater + pinjol adoption surging — and they coexist in the same household
 - Gold volatility (2024–2026) made Gadai an active funding tool
 - Local fintech distrust persists after recurring data breaches
 - AI-assisted development makes a competent solo build feasible in days
@@ -100,7 +100,7 @@ Cermat is that unified product.
 │  STEP 1 — TRACK / SNAPSHOT (5–10 min)                                 │
 │     Input: cash, gold (live), per-emiten stocks (live IDX),           │
 │            RD, SBN, property, vehicles, pension                       │
-│            + expenses + debts (incl. Gadai)                           │
+│            + expenses + debts (Cicilan Aktif + Gadai)                 │
 │     Output: 9 metrics including Modal Siap Distribusi                 │
 │                                                                       │
 │  STEP 2 — PLAN / GOALS (2 min/goal)                                   │
@@ -146,7 +146,7 @@ Cermat is that unified product.
 | 11 | Tweaks tenor to 25 yr | DSR drops to 33%; FI shift becomes 2 years instead of 3 | Engaged, exploring |
 | 12 | Goes back, tries "Max Utang Aman" *(Capacity Wizard)* | Panel: *"Berdasarkan gaji + cicilan aktif, max cicilan baru biar DSR Sehat: Rp 3.9jt/bln. Setara KPR ~Rp 480jt @ 15 thn @ 7%."* | Reverse insight |
 | 13 | Tries "Modal Likuid Options" | Panel auto-generates: *"Modal Siap Rp 52jt. Opsi: lunasi KK → DSR −2pp; prepay KPR → tenor mundur 14 bln; beli BBCA 30 lot → bobot naik..."* | Discovery |
-| 14 | Clicks "Download .xlsx" | `cermat-snapshot-2026-05-26.xlsx` downloads — 6 sheets | Ownership |
+| 14 | Clicks "Download .xlsx" | `cermat-snapshot-2026-05-26.xlsx` downloads — 7 sheets | Ownership |
 | 15 | Closes tab | Nothing persists | Done |
 
 **Make-or-break moments:**
@@ -216,9 +216,14 @@ Organized into 4 collapsible groups in the left panel:
 - Kebutuhan Pokok
 - Lifestyle / Variabel
 
-#### 5.1.4 Utang (Total outstanding, IDR)
-- Sisa KPR, Sisa KPM, Kartu Kredit / Paylater, Utang Lain
-- **Gadai Pegadaian** sub-section (see §5.3)
+#### 5.1.4 Utang
+
+Two structured sub-modules. No flat outstanding fields — everything goes through one of these so DSR / DAR / prepay calcs have the data they need:
+
+- **Cicilan Aktif** — one row per amortizing debt: KPR / KPM / Pinjaman Bank-KTA / Pinjol / Paylater / KK / Lain (see §5.3.1)
+- **Gadai Pegadaian** — collateralized gold pawn (see §5.3.2)
+
+Both modules feed Total Utang (DAR) and Cicilan Aktif Total (DSR) aggregates in §5.4, and both expose selectable rows to the Lunasi Utang Wizard (§5.2.6) and Modal Options panel (§5.2.7).
 
 **Rules:** Empty = 0, inline editing, auto-format IDR, lenient parsing (`25jt`, `25 juta`, etc.).
 
@@ -277,13 +282,15 @@ If user already at >30% DSR: *"DSR kamu sudah di atas threshold sehat. Tidak ada
 
 #### 5.2.6 Wizard "Lunasi Utang Sekarang"
 
-**Inputs:** Select debt (KPR / KPM / KK / Gadai / Utang Lain). Full or Partial amount. Slider from 0 to min(debt_principal, Modal_Siap).
+**Inputs:** Select debt row from §5.3.1 Cicilan Aktif OR §5.3.2 Gadai. Full or Partial amount. Slider from 0 to min(debt_principal, Modal_Siap).
 **Computed:**
 - Kas reduced by repayment amount
-- Debt principal reduced
-- For KPR/KPM: cicilan reduced (tenor remains) OR tenor shortens (cicilan remains) — toggle
-- DSR shifts
-- Modal Siap Distribusi updates
+- Debt principal reduced (`sisa_pokok` on the selected row)
+- Recompute behavior **derived from `jenis_bunga`** on the selected row:
+  - **Anuitas / Flat / Floating**: toggle — tenor shortens (cicilan remains) OR cicilan reduced (tenor remains). Default: tenor shortens.
+  - **Revolving** (KK / Paylater / sebagian Pinjol): sisa pokok reduced directly; minimum-payment cicilan recalculated if user provided a `min_payment_pct`, else assumed unchanged.
+  - **Gadai**: see §5.3.2 — partial tebus reduces grams tertahan proportionally.
+- DSR + DAR shift; Modal Siap Distribusi updates
 **Output:** side-by-side metric impact + descriptive summary.
 > *"Lunasi Kartu Kredit Rp 8jt dari Modal Siap (Rp 52jt → Rp 44jt). DSR turun 33% → 31%, masih di zona Waspada tapi lebih dekat ke Sehat. Goal FI tidak terdampak."*
 
@@ -306,7 +313,55 @@ Each option is a clickable button that opens the relevant wizard with values pre
 
 **Insight copy rules apply** — never *"sebaiknya lunasi KK dulu"*, always *"opsi yang bisa dihitungkan"*.
 
-### 5.3 Gadai Module
+### 5.3 Active Debt Modules
+
+Two structured sub-modules — amortizing debt (§5.3.1) and collateralized gold pawn (§5.3.2). Both feed DSR + DAR (§5.4) and both expose selectable rows to the Lunasi Utang wizard (§5.2.6) and Modal Options panel (§5.2.7). All non-Gadai active debt routes through §5.3.1 — there are no flat "Sisa KPR" / "Sisa KPM" fields anywhere else in the app.
+
+#### 5.3.1 Cicilan Aktif
+
+Row-based table — one row per active amortizing debt. Each row:
+
+| Field | Definition | Manual / Auto |
+|---|---|---|
+| `tipe` | enum: `KPR` / `KPM` / `BANK_KTA` / `PINJOL` / `PAYLATER` / `KK` / `LAIN` | Manual |
+| `label` | string (e.g., "KPR BCA Bandung 2024") | Manual |
+| `sisa_pokok` | Outstanding principal (IDR) | Manual |
+| `cicilan_per_bulan` | Monthly installment (IDR) | Manual |
+| `suku_bunga` | Annual rate (%) | Manual |
+| `tenor_sisa_bulan` | Remaining tenor in months | Manual |
+| `jenis_bunga` | enum: `Anuitas` / `Flat` / `Floating` / `Revolving` | Manual |
+| `total_beban_sisa` | `cicilan_per_bulan × tenor_sisa_bulan` | Auto |
+| `tanggal_jatuh_tempo` | ISO date (optional, for sorting / payoff timeline) | Manual |
+
+**Aggregations:**
+- `Cicilan Aktif Total` (DSR numerator, §5.4) = Σ `cicilan_per_bulan` across all rows
+- `Utang Cicilan Total` = Σ `sisa_pokok` across all rows → combined with Gadai outstanding (§5.3.2) for **Total Utang** used in DAR + Net Worth + everywhere else
+
+**Display:** subsection in Snapshot left panel — collapsed row shows `tipe + label + sisa pokok + cicilan/bln`; expanded reveals bunga + tenor + jenis bunga. Quick-add buttons for common types (KPR, KPM, KK, Pinjol).
+
+**Per-`jenis_bunga` behavior:**
+
+| Jenis | §5.2.6 Lunasi behavior | §5.2.7 Modal Options behavior |
+|---|---|---|
+| **Anuitas / Flat** | Toggle: tenor mundur ATAU cicilan turun. Standard amortization recompute on the selected row. | *"Prepay X → tenor mundur ~N bulan ATAU cicilan turun ~Rp Y/bln"* |
+| **Floating** | Same as Anuitas, but proyeksi pakai current rate; badge: *"Bunga floating — proyeksi pakai rate sekarang"* | Same as Anuitas + floating badge |
+| **Revolving** (KK / Paylater / sebagian Pinjol) | `tenor_sisa_bulan` optional (auto-estimated months-to-clear at minimum payment if `suku_bunga` provided); prepay → reduces `sisa_pokok` directly, no tenor recompute | *"Lunasi X → sisa pokok turun Rp N; minimum payment ikut turun jika bank pakai % saldo"* |
+
+**Threshold:** no per-row threshold (aggregate DSR is the gate). Optional contextual line on the Snapshot UI: *"Cicilan terbesar: KPR Rp 4.2jt/bln (47% dari total cicilan)."*
+
+**Edge cases:**
+
+| Scenario | Behavior |
+|---|---|
+| Row with `cicilan_per_bulan = 0` and `tenor_sisa = 0` | Treated as paid-off, excluded from DSR. Banner: *"Row ini sudah lunas — hapus atau pindahkan ke Catatan."* |
+| Row with `suku_bunga` blank, `jenis_bunga = Revolving` | Still usable for §5.2.6 (sisa pokok reduction); §5.2.7 prepay-tenor-impact disabled with note: *"Isi suku bunga biar dampak prepay ke tenor terhitung."* |
+| Row marked `Floating` with no rate | Badge: *"Isi suku bunga sekarang biar proyeksi akurat"*; calcs fall back to last entered rate or system default. |
+| Row with `cicilan_per_bulan` > `sisa_pokok` (overpaying short-tenor) | Validation: warn — likely user input error. |
+| Sum of `cicilan_per_bulan` > Penghasilan | DSR > 100%, red display, copy: *"Total cicilan melebihi penghasilan — periksa data."* |
+
+**OJK copy guard (§9 applies):** descriptions describe state of each row; never prescribe *"sebaiknya lunasi pinjol dulu"* even though pinjol typically has higher rates. The Modal Options ranking convention is debt-reduction-then-asset-acquisition, not high-rate-first.
+
+#### 5.3.2 Gadai Module
 
 | Field | Definition |
 |---|---|
@@ -355,9 +410,10 @@ Single button: **"Download .xlsx"** in header.
 
 | Sheet | Purpose |
 |---|---|
-| `Ringkasan` | Hero: Net Worth, Modal Siap Distribusi, 9 metrics, allocation %, goal summary, Gadai status, timestamp |
+| `Ringkasan` | Hero: Net Worth, Modal Siap Distribusi, 9 metrics, allocation %, goal summary, Gadai + Cicilan Aktif status, timestamp |
 | `Snapshot` | Raw snapshot input |
 | `Per-Emiten` | One row per saham: lots, target, bobot, dividend, valuasi, progress |
+| `Cicilan-Aktif` | One row per active debt: tipe, label, sisa pokok, cicilan/bln, bunga, tenor sisa, jenis bunga, total beban sisa |
 | `Goals` | One row per goal: type, target, bucket, progress, monthly contribution needed, projected completion |
 | `Skenario` | Saved decision-wizard scenarios with inputs and before/after metric + goal deltas |
 | `Kapasitas` | Capacity wizard outputs: max safe debt, debt-repayment simulations, modal options ranked by impact |
@@ -464,6 +520,7 @@ If Pengeluaran Bulanan is not yet entered, FI goal creation is blocked with prom
 
 **`Snapshot`:** `section, label, value_idr, unit_or_currency`
 **`Per-Emiten`:** `ticker, lots_current, lots_target, price_live, valuasi, target_bobot, bobot_live, progress_pct, avg_dividend_yield, last_dividend, potential_dividend`
+**`Cicilan-Aktif`:** `cicilan_id, tipe, label, sisa_pokok, cicilan_per_bulan, suku_bunga, tenor_sisa_bulan, jenis_bunga, total_beban_sisa, tanggal_jatuh_tempo`
 **`Goals`:** `goal_id, goal_type, label, target_amount, target_date, fi_multiplier, bucket_json, current_progress, monthly_contribution_needed, status, projected_completion`
 **`Skenario`:** `scenario_id, scenario_label, wizard_type, input_json, before_metrics_json, after_metrics_json, before_goals_json, after_goals_json, created_at`
 **`Kapasitas`:** `output_id, wizard_type, computed_at, input_json, output_json` (stores max-utang results, lunasi-utang simulations, modal-options snapshots)
@@ -582,7 +639,7 @@ Modal Options panel must use *"Opsi yang bisa dihitungkan"*, never *"Rekomendasi
 - User runs **capacity wizard** + sees descriptive output in <2 min
 - All 9 metrics + per-emiten + goals + capacity outputs compute correctly across **15 test scenarios**
 - All ~60 Insight copy strings written, PM-reviewed, audited against §9
-- xlsx export downloads, opens in Excel + Google Sheets, contains 7 sheets
+- xlsx export downloads, opens in Excel + Google Sheets, contains 8 sheets
 - Lighthouse performance ≥85 with snapshot (25 stocks) + 5 goals + 2 scenarios + capacity outputs loaded
 - OJK §9 self-checklist passes
 - IDX live prices work for sample tickers (BBCA, BBRI, BMRI, ASII, BBNI) with proper cache
@@ -622,6 +679,9 @@ Modal Options panel must use *"Opsi yang bisa dihitungkan"*, never *"Rekomendasi
 13. **Snapshot-first or simulator-first?** — Recommend snapshot-first with "Coba dengan data contoh" escape.
 14. **Mobile investment** — Desktop-first, or invest because most Indonesians are on phones?
 15. **Sample data profile** — Conservative (Sari) or sophisticated (Bayu) for "Coba dengan data contoh"?
+16. **Cicilan Aktif required fields** — Spec currently requires `suku_bunga` + `tenor_sisa_bulan` + `jenis_bunga` for every row. Realistic for KPR/KPM (user has akad docs), tougher for Pinjol/Paylater (often opaque APR). Option: relax to "sisa + cicilan" minimum for `tipe ∈ {PINJOL, PAYLATER, KK}`, with §5.2.7 prepay-to-tenor projection disabled when bunga is missing. Confirm.
+17. **Revolving debt tenor estimation** — For KK/Paylater rows, do we auto-estimate `tenor_sisa_bulan` from sisa + minimum payment + bunga, or always require user to enter it? Auto-estimate is more accurate but adds a UX surprise ("kenapa tenor berubah pas saya isi bunga?").
+18. **Lunasi Utang ordering in Modal Options** — Spec says "debt-reduction-then-asset-acquisition, not high-rate-first." Confirm this convention is OJK-safe even when high-rate Pinjol sits next to low-rate KPR in the options list.
 
 ---
 
