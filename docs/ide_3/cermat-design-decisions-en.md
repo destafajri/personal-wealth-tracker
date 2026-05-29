@@ -2,7 +2,7 @@
 
 **Status:** Locked
 **Last updated:** 2026-05-26
-**Companion docs:** `personal-wealth-platform-prd-en.md`, `personal-wealth-platform-mvp-en.md`, `stitch_mvp_ui_design_process/personal_wealth_platform_design_guidelines_en.md`
+**Companion docs:** `personal-wealth-platform-prd-en.md`, `personal-wealth-platform-mvp-en.md`, `personal-wealth-platform-design-guidelines-en.md` *(canonical copies live at ide_3 root; the `stitch_mvp_ui_design_process/` versions are frozen Stitch-input snapshots — don't edit those)*
 
 ---
 

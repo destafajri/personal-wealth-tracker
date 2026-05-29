@@ -1,5 +1,7 @@
 # Cermat — Brief Konsep MVP
 
+> **⚠️ TERJEMAHAN — bisa tertinggal.** Canonical (sumber kebenaran) = `personal-wealth-platform-mvp-en.md`. Versi ID ini belum tentu sinkron dengan keputusan terbaru (2026-05-28).
+
 **Status:** Konsep
 **Update terakhir:** 2026-05-26
 **Nama brand kerja:** **Cermat** *(Bahasa Indonesia: hati-hati, teliti)*. Alternatif: *Hitungin*, *Tepat*, *Bobot*, *Sehat Finansial*. Final TBD.

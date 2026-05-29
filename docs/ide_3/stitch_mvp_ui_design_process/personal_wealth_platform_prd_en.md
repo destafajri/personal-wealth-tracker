@@ -1,5 +1,7 @@
 # Cermat — Product Requirements Document
 
+> **⚠️ FROZEN SNAPSHOT — do not edit.** Stitch-input archive. The maintained canonical PRD is `../personal-wealth-platform-prd-en.md`.
+
 **Status:** Draft
 **Last updated:** 2026-05-26
 **Owner:** TBD

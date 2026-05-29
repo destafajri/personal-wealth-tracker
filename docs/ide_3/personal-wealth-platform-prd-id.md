@@ -1,5 +1,7 @@
 # Cermat — Product Requirements Document
 
+> **⚠️ TERJEMAHAN — bisa tertinggal.** Canonical (sumber kebenaran) = `personal-wealth-platform-prd-en.md`. Keputusan 2026-05-28 (harga Yahoo spark/chart, cicilan total-burn, proyeksi goal, Allocation Discipline avg-pp, sheet `_meta`, stack Nuxt) sudah masuk di versi EN — versi ID ini belum tentu sinkron.
+
 **Status:** Draft
 **Update terakhir:** 2026-05-26
 **Owner:** TBD

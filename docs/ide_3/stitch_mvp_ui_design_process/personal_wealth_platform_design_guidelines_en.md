@@ -62,6 +62,8 @@ elevation:
 
 # Cermat — Complete Design Prompt for Stitch
 
+> **⚠️ FROZEN SNAPSHOT — do not edit.** Stitch-input archive. The maintained canonical design guidelines are `../personal-wealth-platform-design-guidelines-en.md`.
+
 > **How to use this document:** This is the complete brief for generating the Cermat web application UI in [Stitch](https://stitch.withgoogle.com/). The frontmatter above contains all design tokens. The sections below describe brand, layout, components, and screens to generate. Use the "Screens to Generate" section (§9) as your Stitch screen prompts.
 
 ---

@@ -1,5 +1,7 @@
 # Cermat — MVP Concept Brief
 
+> **⚠️ FROZEN SNAPSHOT — do not edit.** Stitch-input archive. The maintained canonical MVP brief is `../personal-wealth-platform-mvp-en.md`.
+
 **Status:** Concept
 **Last updated:** 2026-05-26
 **Working brand name:** **Cermat** *(Indonesian: careful, prudent, meticulous)*. Alternates: *Hitungin*, *Tepat*, *Bobot*, *Sehat Finansial*. Final TBD.

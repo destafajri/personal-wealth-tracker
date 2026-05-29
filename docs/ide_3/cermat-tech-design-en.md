@@ -15,7 +15,7 @@
 - **Compute:** Pure-TS `lib/finance/*` module — fully unit-testable, zero DOM. The dashboard is a thin render layer over these functions.
 - **Prices:** Nitro `/api/prices/*` endpoints proxy IDX (Yahoo), Pegadaian gold, USD/IDR with 15-min cache. Proxy never receives user portfolio data — only ticker symbols.
 - **Copy:** Centralized in `lib/copy/strings.ts`, scanned by a CI linter for OJK forbidden lemmas (`sebaiknya`, `disarankan`, `harus`, `rekomendasi`, etc.).
-- **Export:** Client-side `xlsx` (SheetJS) — 7-sheet workbook, generated and downloaded without ever leaving the browser.
+- **Export:** Client-side `xlsx` (SheetJS) — 7 visible sheets + hidden `_meta` (state JSON for Phase-2 round-trip), generated and downloaded without ever leaving the browser.
 - **Deploy:** Vercel, Nitro Vercel preset, edge-cache the 3 price endpoints.
 
 ---
@@ -215,8 +215,8 @@ cermat/
 ├── server/
 │   └── api/
 │       └── prices/
-│           ├── idx.get.ts        # ?ticker=BBCA.JK → Yahoo Finance
-│           ├── gold.get.ts       # Pegadaian (scrape or known endpoint)
+│           ├── idx.get.ts        # ?tickers=BBCA,BBRI → Yahoo v7 spark (batch); v8 chart fallback
+│           ├── gold.get.ts       # Pegadaian /gold/prices/savings (hargaJual = valuation)
 │           └── usdidr.get.ts     # Yahoo or BI
 │
 ├── public/
@@ -291,7 +291,8 @@ Three stores. Anything dashboard-renderable is **derived**, never stored.
 ```ts
 export const useSnapshotStore = defineStore('snapshot', () => {
   const penghasilan = ref<number>(0)
-  const pengeluaranBulanan = ref<number>(0)
+  // Cicilan is NOT stored here — it comes from cicilanAktif (Σ cicilan_per_bulan), avoiding double-count.
+  const pengeluaran = reactive<{ pokok: number; lifestyle: number }>({ pokok: 0, lifestyle: 0 })
 
   const asetLikuid = reactive<{
     kas: AssetRow[]      // Tabungan, Cash
@@ -308,7 +309,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
   const gadai = ref<GadaiRow | null>(null)       // §8.14.2
 
   // Mutations exposed as methods; no direct writes from components.
-  return { penghasilan, pengeluaranBulanan, asetLikuid, saham, emas,
+  return { penghasilan, pengeluaran, asetLikuid, saham, emas,
            asetNonLikuid, cicilanAktif, gadai,
            addCicilan, updateCicilan, removeCicilan, /* ... */ }
 })
@@ -318,9 +319,10 @@ export const useSnapshotStore = defineStore('snapshot', () => {
 
 ```ts
 export const useGoalsStore = defineStore('goals', () => {
-  const goals = ref<Goal[]>([])
+  const goals = ref<Goal[]>([])               // each Goal may carry monthlyAllocationIdr? (override; default = surplus ÷ N)
   const fiMultiplier = ref<240 | 300 | 360 | number>(300)
-  // …add/edit/remove + getter for FI goal's auto-computed target
+  const assumedAnnualReturnReal = ref<number>(0.05)  // global, REAL (inflation-baked); results carry ESTIMASI pill
+  // …add/edit/remove + getter for FI auto-target + projection via lib/finance/goals (§6.4)
 })
 ```
 
@@ -367,9 +369,11 @@ All metric formulas live as pure TypeScript functions. They take a snapshot-shap
 | DSR | `calcDsr(snap)` | percent (0–∞) | `null` if pengeluaran/penghasilan missing → render "—" |
 | DAR | `calcDar(snap, netWorth)` | percent | `null` if total aset = 0 |
 | Runway | `calcRunway(snap)` | months | `null` if pengeluaran missing |
+
+> **Total Pengeluaran (single definition, used by Runway + Savings Rate)** = `pengeluaran.pokok + pengeluaran.lifestyle + Σ cicilanAktif[].cicilan_per_bulan`. Cicilan is summed from the debt module, never re-entered under pengeluaran (PRD §5.1.3). DSR uses only the `Σ cicilan` component (`÷ penghasilan`), not Total Pengeluaran.
 | Savings Rate | `calcSavingsRate(snap)` | percent | `null` if penghasilan missing |
 | Safe Haven % | `calcSafeHaven(snap, netWorth)` | percent | `null` if no aset |
-| Allocation Discipline | `calcAllocationDiscipline(stocks)` | composite 0–100 (avg of \|actual − target\| across emiten, inverted to a score) | `null` if no stocks |
+| Allocation Discipline | `calcAllocationDiscipline(stocks)` | **avg pp drift** = `(1/n)·Σ \|bobot_live − bobot_target\|` (matches PRD §5.4 #7; lower = tighter). Zones: <5 Tight / 5–15 Drift / >15 Off-Plan | `null` if no stocks |
 | Goal Health | `calcGoalHealth(goals, snap)` | percent on-track | `null` if no goals |
 
 Thresholds live in `lib/finance/thresholds.ts`:
@@ -419,43 +423,138 @@ type WizardResult = {
 
 `<WizardDeltaTable :delta="result.delta" />` is the shared renderer of the 4-col table — every wizard uses it.
 
+### 6.4 Goal projection — `lib/finance/goals.ts`
+
+Single projection model, pure functions (PRD §5.8.2). Powers goal cards **and** wizard goal-deltas.
+
+```ts
+export function fiNumber(monthlyExpense: number, multiplier = 300): number  // PRD §5.8.1
+
+// surplus = penghasilan − totalPengeluaran (totalPengeluaran incl. Σ cicilan, §6.1)
+export function surplus(snap: SnapshotState): number
+
+// default per-goal contribution when user hasn't overridden: surplus ÷ active-goal count
+export function defaultAllocation(snap: SnapshotState, activeGoalCount: number): number
+
+// future-value projection → completion; date=null means unreachable at current inflow
+export function projectCompletion(args: {
+  current: number; monthlyInflow: number; target: number; annualReturnReal?: number
+}): { months: number; date: string | null }
+
+export function goalStatus(projectedDate: string | null, targetDate: string): 'on' | 'at-risk' | 'off'
+```
+
+- `annualReturnReal` default `0.05` (REAL, inflation-baked). Global (`useGoalsStore().assumedAnnualReturnReal`), user-editable; every projected figure carries the ESTIMASI pill.
+- `monthlyInflow` = `goal.monthlyAllocationIdr ?? defaultAllocation(snap, activeGoalCount)`.
+- `date: null` when `monthlyInflow ≤ 0` or growth can't reach target → card shows *"Belum tercapai dengan alokasi sekarang"* (descriptive).
+- **Wizard delta:** re-run `projectCompletion` against the cloned/mutated snapshot (lower surplus + lower bucket) → year-shift = *"FI mundur ~N tahun"*. Same pure fn, no special-casing.
+
 ---
 
 ## 7. Price Proxy — Nitro server routes
 
 ### 7.1 `/api/prices/idx`
 
-```ts
-// server/api/prices/idx.get.ts
-export default defineCachedEventHandler(async (event) => {
-  const ticker = getQuery(event).ticker as string
-  if (!/^[A-Z]{4}$/.test(ticker)) throw createError({ statusCode: 400, statusMessage: 'invalid ticker' })
+**Source confirmed (tested 2026-05-28):** Yahoo's old `/v7/finance/quote` endpoint is **dead** — returns `401 Unauthorized: "User is unable to access this feature"` without a crumb+cookie handshake. Two endpoints still work with **no auth, no key, free**, currency IDR:
 
-  const res = await $fetch<YahooQuote>(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${ticker}.JK`)
+- **Batch (primary):** `GET /v7/finance/spark?symbols=BBCA.JK,BBRI.JK,…` — many tickers in one call. Used for the whole per-emiten portfolio so a 25-stock snapshot is **one** request, not 25.
+- **Single / failover:** `GET /v8/finance/chart/{TICKER}.JK` → `result[0].meta.regularMarketPrice` (+ `chartPreviousClose` for day-change).
+- Hosts `query1` **and** `query2` both respond — default to query1, fail over to query2.
+
+```ts
+// server/api/prices/idx.get.ts  — batch contract: ?tickers=BBCA,BBRI,BMRI
+export default defineCachedEventHandler(async (event) => {
+  const tickers = String(getQuery(event).tickers ?? '')
+    .split(',').map(t => t.trim().toUpperCase()).filter(Boolean)
+  if (tickers.length === 0 || !tickers.every(t => /^[A-Z]{4}$/.test(t)))
+    throw createError({ statusCode: 400, statusMessage: 'invalid ticker(s)' })
+
+  const symbols = tickers.map(t => `${t}.JK`).join(',')
+  const url = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols}&interval=1d&range=1d`
+  const res = await $fetch<YahooSpark>(url, { headers: { 'user-agent': 'Mozilla/5.0' } })
+
+  const byTicker = new Map(res.spark.result.map(r => [r.symbol.replace('.JK', ''), r.response[0]?.meta]))
   return {
-    ticker,
-    price: res.quoteResponse.result[0]?.regularMarketPrice ?? null,
-    currency: 'IDR',
-    fetchedAt: new Date().toISOString()
+    prices: tickers.map(t => {
+      const m = byTicker.get(t)
+      return { ticker: t, price: m?.regularMarketPrice ?? null, prevClose: m?.chartPreviousClose ?? null,
+               currency: 'IDR', stale: !m, fetchedAt: new Date().toISOString() }
+    }),
+    missing: tickers.filter(t => !byTicker.get(t))
   }
-}, { maxAge: 60 * 15 /* 15 min */, swr: true, base: 'redis-or-memory' })
+}, { maxAge: 60 * 15 /* 15 min */, swr: true })
 ```
 
-**Edge-cached at Vercel** (Nitro `vercel-edge` preset) — single global cache across users; no per-user state.
+**Validation note:** IDX equity codes are exactly 4 uppercase letters (BBCA, TLKM, ANTM) — no digits — so `^[A-Z]{4}$` per ticker is correct, applied to each entry in the comma-separated list.
+
+**Edge-cached at Vercel** (Nitro `vercel-edge` preset) — single global cache across users, keyed on the sorted ticker list; no per-user state.
 
 ### 7.2 `/api/prices/gold`
 
-Pegadaian publishes daily harga emas; scrape the JSON endpoint or cached HTML. Cache 60 min (gold price doesn't move minute-to-minute for retail).
+**Confirmed source:** Pegadaian Tabungan Emas public JSON endpoint — `GET https://sahabat.pegadaian.co.id/gold/prices/savings`. No params, no cookies, no auth (plain GET works). Privacy-clean: the proxy sends *nothing* user-specific upstream.
+
+Response:
+```json
+{
+  "responseCode": "2000000100",
+  "data": {
+    "hargaBeli": "26540",   // price user pays to BUY 1 g
+    "hargaJual": "25340",   // buyback — price user RECEIVES selling 1 g
+    "tglBerlaku": "2026-05-28",
+    "isHargaBeliUp": true,
+    "isHargaJualUp": true
+  }
+}
+```
+
+```ts
+// server/api/prices/gold.get.ts
+export default defineCachedEventHandler(async () => {
+  const res = await $fetch<PegadaianGold>('https://sahabat.pegadaian.co.id/gold/prices/savings')
+  return {
+    hargaJual: Number(res.data.hargaJual),  // valuation price (buyback)
+    hargaBeli: Number(res.data.hargaBeli),
+    tglBerlaku: res.data.tglBerlaku,
+    stale: false,
+    fetchedAt: new Date().toISOString()
+  }
+}, { maxAge: 60 * 60 /* 60 min */, swr: true })
+```
+
+**Valuation rule:** gold holdings in Net Worth are valued at `hargaJual` (buyback) — that's the realizable amount if the user sold today, so it's the honest, conservative figure. `hargaBeli` is surfaced only where the user is *acquiring* gold (e.g. a future "mau nabung emas" wizard).
+
+Cache 60 min — Pegadaian moves the price at most once a day (`tglBerlaku`), so minute-level freshness is pointless for retail.
 
 ### 7.3 `/api/prices/usdidr`
 
-Yahoo `USDIDR=X` or Bank Indonesia API. 15-min cache.
+**Confirmed (tested 2026-05-28):** same Yahoo v8 chart endpoint as IDX — `GET /v8/finance/chart/USDIDR=X` → `result[0].meta.regularMarketPrice` (≈17.784), currency IDR. Free, no auth.
 
-### 7.4 Failure behavior
+```ts
+// server/api/prices/usdidr.get.ts
+export default defineCachedEventHandler(async () => {
+  const res = await $fetch<YahooChart>(
+    'https://query1.finance.yahoo.com/v8/finance/chart/USDIDR=X?interval=1d&range=1d',
+    { headers: { 'user-agent': 'Mozilla/5.0' } })
+  const m = res.chart.result[0]?.meta
+  return { rate: m?.regularMarketPrice ?? null, currency: 'IDR', stale: !m, fetchedAt: new Date().toISOString() }
+}, { maxAge: 60 * 15 /* 15 min */, swr: true })
+```
 
-Endpoint returns `{ price: null, stale: true, lastKnown?: number, fetchedAt }` instead of throwing. Client maps:
-- `null + stale=true` → STALE pill + manual override field (Screen 11)
-- `lastKnown` present → show old number with STALE pill
+> Supersedes PRD §8's `exchangerate.host` plan — that now requires an API key; Yahoo v8 keeps all three price sources on one provider/pattern (query1→query2 failover).
+
+### 7.4 Response contract & failure behavior
+
+**Common envelope:** every `/api/prices/*` response carries `{ stale: boolean, fetchedAt: string }`. There is **no single `value` field** — the payload is endpoint-specific (gold has two prices; idx is a list):
+
+| Endpoint | Payload |
+|---|---|
+| `idx` | `{ prices: [{ ticker, price, prevClose, currency, stale, fetchedAt }], missing: [] }` |
+| `gold` | `{ hargaJual, hargaBeli, tglBerlaku, stale, fetchedAt }` |
+| `usdidr` | `{ rate, currency, stale, fetchedAt }` |
+
+On upstream failure the handler returns the **last cached payload with `stale: true`** (value/rate/price = `null` if nothing cached) instead of throwing. Client maps:
+- `stale: true` + value present → show old number with STALE pill (Screen 11)
+- `stale: true` + `null` → STALE pill + manual override field
 - Hard 5xx → empty state + "Coba lagi" button
 
 ---
@@ -520,6 +619,7 @@ Component code uses utility classes (`bg-primary`, `text-danger-rose`, `rounded-
 | Goals | `useGoalsStore().goals` |
 | Skenario | last computed `WizardResult` (if any) |
 | Kapasitas | last computed Capacity wizard result (if any) |
+| `_meta` (hidden) | schema version + JSON-stringified state (snapshot + goals + scenarios) — per PRD §7; enables Phase-2 xlsx round-trip import. Cheap to keep now even though import is out of MVP scope. |
 
 Download triggered from `<TopNav>` button. Disabled until at least one asset exists (tooltip per spec §8.1).
 
@@ -633,7 +733,7 @@ These must be answered before code that depends on them:
 | 3 | Modal Siap formula — subtract 3–6 mo emergency buffer? | Day 3 (Modal Siap metric card) |
 | 4 | Mobile breakpoint — bottom-nav vs hamburger? | Day 11 (mobile polish) |
 | 5 | 9-metric "—" rules — explicit per-metric, or shared rule? | Day 3 (empty/partial states) |
-| 6 | IDX source — Yahoo confirmed? Goapi fallback? | Day 2 (price proxy) |
+| 6 | ~~IDX source — Yahoo confirmed?~~ **RESOLVED 2026-05-28** — Yahoo `/v7/quote` is dead; use `/v7/spark` (batch) + `/v8/chart` (single), free/no-auth, tested live. Goapi only if Yahoo blocks Vercel egress IPs. | ~~Day 2~~ done |
 | 7 | Per-emiten depth — lots+target+bobot+dividen only, or ladders? | Day 4 (Saham subsection) — MVP says no ladders, confirm |
 | 8 | Plausible analytics on `/` landing — yes/no? | Day 1 (landing wiring) |
 

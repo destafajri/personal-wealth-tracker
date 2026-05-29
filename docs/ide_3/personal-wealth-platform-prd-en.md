@@ -212,9 +212,11 @@ Organized into 4 collapsible groups in the left panel:
 **Non-Likuid:** Properti / Kendaraan / Dana Pensiun
 
 #### 5.1.3 Pengeluaran (Monthly, IDR)
-- Cicilan Aktif (total)
-- Kebutuhan Pokok
-- Lifestyle / Variabel
+- **Kebutuhan Pokok** (fixed) — manual
+- **Lifestyle / Variabel** — manual
+- **Cicilan Aktif (total)** — *auto, read-only*: `Σ cicilan_per_bulan` dari modul Cicilan Aktif (§5.3.1). **Tidak diinput manual di sini** — cicilan dientri sekali saja di §5.3.1 (hindari double-count).
+
+> **Total Pengeluaran** = Kebutuhan Pokok + Lifestyle + Cicilan (auto). Ini satu-satunya definisi "pengeluaran bulanan" di seluruh app — dipakai oleh **Runway** (total burn) dan **Savings Rate**. DSR memakai komponen Cicilan saja (`Σ cicilan ÷ penghasilan`), bukan Total Pengeluaran.
 
 #### 5.1.4 Utang
 
@@ -382,11 +384,11 @@ Threshold for Rasio Tertahan: <50% Aman · 50–70% Waspada · >70% Risiko Likui
 |---|---|---|---|
 | 1 | **Net Worth** | `Total Aset − Total Utang` | Negative red; positive green |
 | 2 | **DSR** | `Cicilan Aktif ÷ Penghasilan` | <30% Sehat · 30–40% Waspada · >40% Bahaya |
-| 3 | **Financial Runway** | `Aset Likuid ÷ Pengeluaran` (months) | Single ≥6 / 3–6 / <3; Dependents ≥12 / 9–12 / <9 |
-| 4 | **Savings Rate** | `(Income − Expense) ÷ Income` | ≥20% / 10–20% / <10% |
+| 3 | **Financial Runway** | `Aset Likuid ÷ Total Pengeluaran` (months) — **total burn** (Pokok + Lifestyle + Σ Cicilan); cicilan tetap dihitung penuh karena kreditur tidak ikut pause saat income berhenti | ≥6 bln Sehat · 3–6 Waspada · <3 Bahaya *(satu set threshold — tanpa cabang tanggungan)* |
+| 4 | **Savings Rate** | `(Penghasilan − Total Pengeluaran) ÷ Penghasilan` — Expense = Total Pengeluaran (termasuk cicilan) | ≥20% / 10–20% / <10% |
 | 5 | **DAR** | `Total Utang ÷ Total Aset Kotor` | <30% / 30–50% / >50% |
 | 6 | **Safe Haven Ratio** | `(Kas + Emas + RD + Deposito) ÷ Total Aset` | Posture: ≥60% Konservatif · 40–60% Seimbang · <40% Agresif |
-| 7 | **Allocation Discipline** | `Σ \|Bobot Live − Target Bobot\|` per saham | <5pp Tight · 5–15pp Drift · >15pp Off-Plan |
+| 7 | **Allocation Discipline** | **rata-rata** `(1/n)·Σ \|Bobot Live − Target Bobot\|` antar saham (satuan pp) — *average*, bukan sum, biar threshold pp tetap konsisten berapa pun jumlah emiten; satuan pp sama seperti drift-dot per-kartu (§5.7) | <5pp Tight · 5–15pp Drift · >15pp Off-Plan |
 | 8 | **Goal Health (composite)** | % of goals "On-Track" | ≥80% Sehat · 50–80% Mixed · <50% Off-Plan |
 | 9 | **Modal Siap Distribusi** | `Kas + Deposito + RD + Crypto Liquid` (default formula — see open question §11.4) | Capacity number, no threshold; companion note: *"Pertimbangkan keep dana darurat 3–6 bulan pengeluaran terpisah."* |
 
@@ -453,9 +455,10 @@ User adds goals. Each goal:
 | `target_date` | ISO date |
 | `bucket_asset_types` | array of asset types/IDs to tag |
 | `current_progress` | auto-computed sum of bucket asset values |
-| `monthly_contribution_needed` | auto = (target − current) ÷ months remaining |
-| `status` | derived: `ON_TRACK` / `OFF_TRACK` / `AT_RISK` (purely descriptive) |
-| `projected_completion_date` | auto, based on current bucket trajectory + monthly inflow |
+| `monthly_allocation_idr` | kontribusi bulanan ke goal ini. **Default = surplus ÷ jumlah goal aktif** (surplus = Penghasilan − Total Pengeluaran §5.1.3); user-editable. `Σ alokasi` semua goal ditampilkan vs surplus (warning deskriptif kalau over-budget). See §5.8.2. |
+| `monthly_contribution_needed` | auto = (target − current) ÷ months remaining — kontribusi yang *dibutuhkan* biar tepat waktu (beda dari `monthly_allocation_idr` yang rencana/aktual) |
+| `status` | derived: `ON_TRACK` / `AT_RISK` / `OFF_TRACK` — bandingkan `projected_completion_date` vs `target_date` (purely descriptive) |
+| `projected_completion_date` | auto — future-value: `current_progress` tumbuh dgn `monthly_allocation_idr` + asumsi return real (§5.8.2) sampai capai target |
 
 #### 5.8.1 Financial Independence — auto-formula
 
@@ -487,6 +490,37 @@ If Pengeluaran Bulanan is not yet entered, FI goal creation is blocked with prom
 **Insight copy rules apply:**
 - ✅ *"Goal FI projected selesai 2038 — 3 tahun lebih lambat dari target 2035."*
 - ❌ *"Untuk capai goal FI lebih cepat, tambah kontribusi ke RD X."*
+
+#### 5.8.2 Projection model (proyeksi penyelesaian goal)
+
+Satu model untuk semua goal — dipakai goal card **dan** delta wizard (sumber angka *"FI mundur 3 tahun"*).
+
+**Inflow (kapasitas → alokasi):**
+- **Surplus bulanan** = `Penghasilan − Total Pengeluaran` (§5.1.3) = kapasitas nabung total.
+- Tiap goal punya `monthly_allocation_idr`, **default = surplus ÷ jumlah goal aktif**, editable.
+- `Σ monthly_allocation_idr` ditampilkan vs surplus; kalau melebihi → warning **deskriptif**: *"Total alokasi goal (Rp 7jt) lebih besar dari surplus (Rp 6jt)."* (fakta, bukan saran).
+- **Kenapa default surplus, bukan input wajib:** biar wizard cascade otomatis — KPR → cicilan↑ → Total Pengeluaran↑ → surplus↓ → alokasi default↓ → proyeksi mundur, tanpa user ngapa-ngapain.
+
+**Asumsi return — satu knob global:**
+- `assumed_annual_return_real` (default **5%**, *real* / sudah dipotong inflasi), user-editable, ditandai **pill ESTIMASI** + disclaimer.
+- Default *real* (bukan nominal) supaya inflasi ke-handle diam-diam — penting buat FI horizon panjang (target hari-ini ≠ target 2050).
+- Goal berbasis kas (mis. DP rumah di deposito): user bisa turunin ke ~0.
+
+**Formula:**
+```
+surplus         = Penghasilan − Total Pengeluaran
+inflow_goal     = monthly_allocation_idr            (default surplus ÷ N goal aktif)
+projected_date  = future_value(current_progress, inflow_goal, return_real) capai target_amount
+status          = projected_date vs target_date → On-Track / At-Risk / Off-Track
+```
+
+**Wizard delta** (mis. Mau KPR): DP nyedot `current_progress` bucket + cicilan baru ngecilin surplus → `inflow_goal`↓ → `projected_date` mundur. Selisih tahun = *"FI mundur ~N tahun"*.
+
+**Unreachable:** kalau `inflow_goal ≤ 0` atau growth ga nyampe target → `projected_date = null`, card tampil *"Belum tercapai dengan alokasi sekarang"* (deskriptif, tanpa saran).
+
+**OJK:** semua deskriptif & berbasis asumsi yang user atur sendiri. ✅ *"Proyeksi selesai 2038 (asumsi return riil 5%, kontribusi Rp Xjt/bln)"* — ❌ NEVER *"kamu harus nabung lebih"*. Angka proyeksi **selalu** pakai ESTIMASI pill.
+
+**Out of scope (Phase 2+), sengaja dihindari di MVP:** return per-bucket (blended), rentang volatilitas (pesimis/ekspektasi/optimis), sequence-of-returns risk — nambah kompleksitas + permukaan risiko OJK tanpa nilai sepadan buat "kalkulator ilustrasi".
 
 ---
 
@@ -530,13 +564,15 @@ If Pengeluaran Bulanan is not yet entered, FI goal creation is blocked with prom
 
 ## 8. Live Price Integrations
 
+> **Stack note:** This section predates the tech design. The proxy *concept* (server-side, ticker-only, cached) is unchanged, but the implementation stack is **Nuxt 3 / Nitro / vue-echarts** (see `cermat-tech-design-en.md`), **not** Next.js / Recharts as some older phrasing below implies. Endpoints confirmed working 2026-05-28.
+
 | Data | Source | Cache TTL | Fallback |
 |---|---|---|---|
-| **IDX equities** | **Yahoo Finance via `BBCA.JK` pattern** (free, no key, 15-min delay) | 15 min | Cached + STALE badge per ticker + manual price field |
-| Emas (IDR/gram) | Pegadaian Sahabat scrape (`cheerio` server-side) | 1 hour | Manual override + STALE badge |
-| USD → IDR | exchangerate.host (free) | 1 hour | Last known + STALE badge |
+| **IDX equities** | **Yahoo v7 `spark` (batch) + v8 `chart`** (free, no key, ~15-min delay) — tech-design §7.1 | 15 min | Cached + STALE badge per ticker + manual price field |
+| Emas (IDR/gram) | Pegadaian Sahabat JSON `/gold/prices/savings` (no scrape needed) — tech-design §7.2 | 1 hour | Manual override + STALE badge |
+| USD → IDR | Yahoo v8 `chart` `USDIDR=X` — tech-design §7.3 | 15 min | Last known + STALE badge |
 
-**Privacy:** all calls proxied via Next.js Route Handlers. User IP never sent to upstream APIs. **Request payloads contain ONLY ticker symbols** — no portfolio context. Server can't tell who the user is or what they own.
+**Privacy:** all calls proxied via Nitro server routes (tech-design). User IP never sent to upstream APIs. **Request payloads contain ONLY ticker symbols** — no portfolio context. Server can't tell who the user is or what they own.
 
 **API contracts (sketch):**
 ```
@@ -550,7 +586,7 @@ GET /api/prices/forex?pair=USDIDR
 → { pair, rate, fetched_at, stale }
 ```
 
-Bundle size mitigation: lazy-load Recharts (~70KB) and SheetJS (~700KB) only when needed.
+Bundle size mitigation: lazy-load the chart lib (vue-echarts) and SheetJS (~700KB) only when needed.
 
 ---
 

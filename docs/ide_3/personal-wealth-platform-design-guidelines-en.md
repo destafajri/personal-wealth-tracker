@@ -785,10 +785,10 @@ Main app, Snapshot tab active. Show form filled with sample data, dashboard full
 - Form sections (left): Penghasilan, Aset Likuid, Aset Non-Likuid, Pengeluaran, Utang (Cicilan Aktif rows + Gadai panel)
 - Dashboard (right, sticky):
   - **Hero pair**: Net Worth + Modal Siap Distribusi (large tabular numbers, paired)
-  - 7 supporting metric cards in 3-column grid (DSR, Runway, Savings Rate, DAR, Safe Haven, Allocation Discipline, Goal Health)
+  - 6 supporting metric cards in 3-column grid (DSR, Runway, Savings Rate, DAR, Safe Haven, Allocation Discipline)
   - Allocation donut + Safe Haven stacked bar
   - Modal Likuid Options panel
-  - Goal cards summary
+  - Goal cards summary + **Goal Health composite chip** alongside it (Goal Health is a chip beside the Goals, NOT a 7th grid card — per PRD §5.4 + design-decisions §2.3)
 
 ---
 

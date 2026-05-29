@@ -111,7 +111,7 @@ Indonesian adults face a small number of large, mostly-irreversible financial de
 | **Two question modes** | "Aman gak kalau gw X?" (forward) AND "Apa yang bisa gw lakukan?" (reverse) — competitors only do the first |
 | **Depth for sophistication** | Per-emiten + live IDX prices = real fintech-grade depth, not a toy |
 | **Privacy-first** | No signup, no server-side user data, no bank linking |
-| **Shippable solo** | No auth, no user DB, client-side React + small price-proxy backend |
+| **Shippable solo** | No auth, no user DB, client-side SPA (Nuxt 3, per tech-design) + small price-proxy backend |
 
 ---
 
@@ -128,7 +128,7 @@ Indonesian adults face a small number of large, mostly-irreversible financial de
 | 7 | **Decision wizards** — "Mau Gadai" + "Mau cicil" + Custom | All 4 decision wizards functional |
 | 8 | **Capacity wizards** — "Max Utang Aman" + "Lunasi Utang" | Both compute live; descriptive output |
 | 9 | **Capacity wizards** — "Modal Likuid Options" panel + Insight engine | Auto-generated options list working; ~50 copy strings audited for OJK |
-| 10 | xlsx export (7-sheet: Ringkasan, Snapshot, Per-Emiten, Cicilan-Aktif, Goals, Skenario, Kapasitas) + landing polish | Downloads clean, opens in Excel/Sheets |
+| 10 | xlsx export (7 visible: Ringkasan, Snapshot, Per-Emiten, Cicilan-Aktif, Goals, Skenario, Kapasitas + hidden `_meta`) + landing polish | Downloads clean, opens in Excel/Sheets |
 | 11 | Microcopy pass, OJK disclaimer, edge states, mobile-tolerance | Lighthouse ≥85; ready to ship |
 
 **If running tight, drop in this order:**

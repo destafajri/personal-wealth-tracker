@@ -36,7 +36,7 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 | D0.1 | Brand name — "Cermat" final or alt? | D1 wordmark |
 | D0.2 | FI multiplier — fixed 300 or 240/300/360 dropdown? | D5 |
 | D0.3 | Modal Siap formula — subtract emergency buffer? | D3 |
-| D0.4 | IDX source — Yahoo confirmed? Goapi fallback? | D2 |
+| D0.4 | ✅ RESOLVED — Yahoo `/v7/spark`+`/v8/chart` (free, no-auth, tested 2026-05-28); Goapi only if Vercel egress blocked | D2 |
 | D0.5 | 9-metric "—" rules — per-metric or shared? | D3 |
 | D0.6 | Plausible analytics on `/` landing — yes/no? | D1 |
 
@@ -68,10 +68,10 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 
 **Goal:** Three cached price endpoints returning normalized JSON, with graceful stale fallback.
 
-- [ ] D2.1 — `server/api/prices/idx.get.ts` — Yahoo `{ticker}.JK`, zod-validate ticker, `defineCachedEventHandler` 15-min, SWR
+- [ ] D2.1 — `server/api/prices/idx.get.ts` — Yahoo `/v7/spark?symbols=…JK` (batch, `?tickers=BBCA,BBRI`), `/v8/chart` single/failover, query1→query2 hosts, zod-validate tickers, `defineCachedEventHandler` 15-min, SWR
 - [ ] D2.2 — `server/api/prices/gold.get.ts` — Pegadaian source, 60-min cache
-- [ ] D2.3 — `server/api/prices/usdidr.get.ts` — Yahoo `USDIDR=X`, 15-min cache
-- [ ] D2.4 — Uniform response shape `{ value, currency, stale, lastKnown?, fetchedAt }`; failures return `stale:true` not 5xx
+- [ ] D2.3 — `server/api/prices/usdidr.get.ts` — Yahoo v8 chart `USDIDR=X` → `meta.regularMarketPrice`, 15-min cache
+- [ ] D2.4 — Common envelope: every endpoint carries `{ stale, fetchedAt }`; payload endpoint-specific (idx `prices[]`, gold `hargaJual/Beli`, usdidr `rate`) — see tech-design §7.4; failures return `stale:true` not 5xx
 - [ ] D2.5 — `composables/usePrices.ts` — reactive client fetch + in-memory memo + STALE detection
 - [ ] D2.6 — `tests/` — Nitro handler tests with mocked `$fetch`: cache hit/miss, bad ticker 400, stale fallback
 
@@ -123,7 +123,7 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 **Goal:** Multi-goal CRUD with bucket tagging and the FI auto-computation.
 
 - [ ] D5.1 — `lib/types/goals.ts`; `stores/goals.ts` (list + fiMultiplier)
-- [ ] D5.2 — `lib/finance/goals.ts` — FI formula (expenses × multiplier), goal projection, contribution-needed, status (On/At-Risk/Off) (+ Vitest)
+- [ ] D5.2 — `lib/finance/goals.ts` — FI formula (expenses × multiplier), goal projection (future-value, real-return default 5%; inflow = surplus ÷ N default + manual allocation override), contribution-needed, status (On/At-Risk/Off) (+ Vitest)
 - [ ] D5.3 — `lib/finance/metrics.ts` — `calcGoalHealth(goals, snap)` (+ Vitest)
 - [ ] D5.4 — `pages/app/goals.vue` + `components/goals/GoalForm.vue` (type, target, date, bucket tags)
 - [ ] D5.5 — `components/goals/GoalCard.vue` (standard) + `FiGoalCard.vue` (multiplier dropdown per D0.2)
@@ -201,15 +201,15 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 
 ## Day 10 — xlsx export + landing polish
 
-**Goal:** A clean 7-sheet downloadable workbook + a polished landing.
+**Goal:** A clean 7-visible-sheet (+ hidden `_meta`) downloadable workbook + a polished landing.
 
-- [ ] D10.1 — `composables/useXlsx.ts` — SheetJS async; build sheets: Ringkasan, Snapshot, Per-Emiten, Cicilan-Aktif, Goals, Skenario, Kapasitas
+- [ ] D10.1 — `composables/useXlsx.ts` — SheetJS async; build sheets: Ringkasan, Snapshot, Per-Emiten, Cicilan-Aktif, Goals, Skenario, Kapasitas + hidden `_meta` (schema version + state JSON, per PRD §7)
 - [ ] D10.2 — Wire Download button in `TopNav` — disabled until ≥1 asset (tooltip "Tambahkan minimal 1 aset"); post-download toast (`download.confirm`)
 - [ ] D10.3 — Verify workbook opens cleanly in Excel + Google Sheets (number formats, no `#REF`)
 - [ ] D10.4 — Landing polish: spacing, copy, responsive hero; optional Plausible on `/` (D0.6)
 - [ ] D10.5 — `public/robots.txt` (disallow `/app/*`); favicon; meta tags
 
-**Done:** Download produces a clean 7-sheet file that opens in Excel/Sheets; landing polished; robots/meta set.
+**Done:** Download produces a clean file (7 visible sheets + hidden `_meta`) that opens in Excel/Sheets; landing polished; robots/meta set.
 **Depends on:** D3–D9.
 
 ---
