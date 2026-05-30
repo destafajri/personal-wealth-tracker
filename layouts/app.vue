@@ -3,6 +3,7 @@ import TopNav from '~/components/layout/TopNav.vue'
 import TabBar from '~/components/layout/TabBar.vue'
 import DashboardPanel from '~/components/layout/DashboardPanel.vue'
 import FooterDisclaimer from '~/components/layout/FooterDisclaimer.vue'
+import MetricExplainerModal from '~/components/dashboard/MetricExplainerModal.vue'
 </script>
 
 <template>
@@ -22,5 +23,6 @@ import FooterDisclaimer from '~/components/layout/FooterDisclaimer.vue'
       </div>
     </div>
     <FooterDisclaimer />
+    <MetricExplainerModal />
   </div>
 </template>

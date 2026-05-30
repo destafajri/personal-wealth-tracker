@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import { Info } from 'lucide-vue-next'
 import { computed } from 'vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import GadaiRowEditor from '~/components/snapshot/GadaiRow.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { useMetricExplainer } from '~/composables/useMetricExplainer'
 import { idr } from '~/lib/format/idr'
 import { percent } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
 import { zoneOf } from '~/lib/finance/thresholds'
 
 const snap = useSnapshotStore()
+const explainer = useMetricExplainer()
 
 const rows = computed(() => snap.gadai)
 
@@ -126,8 +129,16 @@ const zoneClass = computed(() => {
       v-if="rasioTertahan !== null"
       class="mt-3 flex items-center justify-between rounded-[var(--radius-input)] bg-[var(--color-surface-low)] px-3 py-2"
     >
-      <span class="text-xs font-medium text-[var(--color-text-secondary)]">
+      <span class="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
         {{ t('gadai.rasioTertahan') }}
+        <button
+          type="button"
+          aria-label="Penjelasan Rasio Tertahan"
+          class="inline-flex h-4 w-4 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
+          @click="explainer.open('rasioTertahan')"
+        >
+          <Info :size="13" />
+        </button>
       </span>
       <div class="flex items-center gap-2">
         <span class="tabular text-sm font-semibold text-[var(--color-text-primary)]">
