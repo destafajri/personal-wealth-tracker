@@ -8,11 +8,11 @@ export const copy = {
 
   'landing.cta.snapshot.label': 'Mulai dari Snapshot',
   'landing.cta.snapshot.body': 'Isi data kamu sendiri (5–10 menit).',
-  'landing.cta.snapshot.action': 'Mulai →',
+  'landing.cta.snapshot.action': 'Mulai',
 
   'landing.cta.demo.label': 'Coba dengan data contoh',
   'landing.cta.demo.body': 'Skip dulu, lihat tools-nya.',
-  'landing.cta.demo.action': 'Coba →',
+  'landing.cta.demo.action': 'Coba',
 
   'footer.disclaimer':
     '100% client-side. Data kamu tetap di komputer kamu. Cermat bukan penasihat keuangan atau produk berizin.',
