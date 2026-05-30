@@ -28,7 +28,7 @@ export const copy = {
   'nav.soon': 'Soon',
   'nav.download.label': 'Unduh xlsx',
   'nav.download.empty': 'Tambah minimal 1 aset dulu',
-  'nav.brand.subtitle': 'Cek keuangan kamu',
+  'nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
 
   // ----- snapshot page -----
   'snapshot.title': 'Snapshot',
@@ -63,20 +63,17 @@ export const copy = {
   'snapshot.row.fxStale': '≈ kurs belum kebaca',
   'snapshot.emas.help':
     'Isi gram di kategori yang sesuai. Estimasi rate per gram pakai sumber publik (Pegadaian Digital untuk digital, Antam 1gr × kadar/karat untuk fisik & perhiasan). Yang lagi digadai diisi per kontrak di seksi Gadai.',
-  'snapshot.emas.tertahanDerived':
-    'Tertahan: {grams} gram (dari {count} kontrak gadai)',
+  'snapshot.emas.tertahanDerived': 'Tertahan: {grams} gram (dari {count} kontrak gadai)',
   'snapshot.emas.tertahanZero': 'Belum ada gadai aktif.',
   'snapshot.emas.staleRate': 'Live rate belum kebaca.',
   'snapshot.emas.totalLabel': 'Total nilai emas',
   'snapshot.emas.subtotal': '{grams} g × {rate}/g = {value}',
-  'snapshot.emas.atHomeBreakdown':
-    '{available}g di tangan, {pawned}g digadai (total {total}g)',
+  'snapshot.emas.atHomeBreakdown': '{available}g di tangan, {pawned}g digadai (total {total}g)',
   'snapshot.emas.rateLine': 'Estimasi ~{rate}/g',
   'snapshot.emas.digital.label': 'Digital (Pegadaian / e-mas)',
   'snapshot.emas.digital.note': 'Pakai harga jual Pegadaian Digital langsung.',
   'snapshot.emas.fisik.label': 'Fisik (Antam batangan)',
-  'snapshot.emas.fisik.note':
-    'Estimasi pakai harga Antam 1gr × 0.93 (spread buyback ~7%).',
+  'snapshot.emas.fisik.note': 'Estimasi pakai harga Antam 1gr × 0.93 (spread buyback ~7%).',
   'snapshot.emas.perhiasan.label': 'Perhiasan',
   'snapshot.emas.perhiasan.note':
     'Estimasi pakai harga Antam dikali persentase kadar (18K/14K/10K).',
