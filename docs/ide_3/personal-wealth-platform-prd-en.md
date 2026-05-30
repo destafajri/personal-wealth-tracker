@@ -197,17 +197,19 @@ Organized into 4 collapsible groups in the left panel:
 
 #### 5.1.2 Aset (Likuid + Non-Likuid)
 
-**Likuid:**
+**Likuid** — every row carries an optional `currency` field (Day 3): IDR / USD / SGD / EUR / JPY / KRW. Foreign rows display `≈ Rp X` derived via live FX (`/api/prices/fx`, see §8 + tech-design §7.3). Stale rates show "≈ kurs belum kebaca" instead of an IDR figure, and the row contributes 0 to aggregates until rates load.
+
 | Type | Input | Auto-calc | Live source |
 |---|---|---|---|
-| Kas / Tabungan | Amount + currency (IDR/USD) | IDR if USD | USD→IDR |
-| Deposito | IDR | — | — |
-| Emas (Cadangan) | **Grams** | **IDR = grams × live gram price** | Pegadaian |
-| Emas (Tertahan) | **Grams pawned** | (See Gadai §5.3) | — |
+| Kas / Tabungan | Amount + currency (multi) | IDR via FX | Yahoo FX |
+| Deposito | Amount + currency (multi) | IDR via FX | Yahoo FX |
+| Reksa Dana | Amount + currency (multi) | IDR via FX | Yahoo FX |
+| SBN | Amount + currency (multi) | IDR via FX | Yahoo FX |
+| Crypto (manual) | Amount + currency (multi) | IDR via FX | Yahoo FX |
+| **Emas** | **Grams per category** (digital / fisik Antam / perhiasan 18K / 14K / 10K — Day 3 split) | **IDR per category × rate** (see §5.3.2 + tech-design §6.5) | Pegadaian (digital + Antam table) |
 | **Saham (per-emiten)** | See §5.7 | See §5.7 | Yahoo Finance |
-| Reksa Dana | Total IDR | — | Manual |
-| SBN | IDR | — | Manual |
-| Crypto | Coin + qty + price IDR | IDR = qty × price | Manual |
+
+**Non-Likuid** (properti / kendaraan / pensiun): IDR only — Indonesians typically hold these in rupiah; multi-currency would over-engineer.
 
 **Non-Likuid:** Properti / Kendaraan / Dana Pensiun
 
@@ -365,18 +367,48 @@ Row-based table — one row per active amortizing debt. Each row:
 
 #### 5.3.2 Gadai Module
 
+Multi-row table — one row per active gadai contract (Day-3 revision; original spec was single-row + gold-only). Each row carries a **jaminan kind** that determines which fields are active:
+
 | Field | Definition |
 |---|---|
-| Berat Cadangan Emas (gram) | Total owned |
-| Emas Tertahan (gram) | Currently pawned |
-| Piutang Gadai (IDR) | Outstanding principal |
-| Interest Rate (%/month) | Default 1.5% |
-| Tempo (months) | Loan term |
-| Total Beban (auto) | Pokok + Interest |
-| Defisit/bulan (auto) | (Total Beban / Tempo) − Kemampuan Bayar |
-| **Rasio Tertahan** | Gram Tertahan ÷ Gram Cadangan |
+| `label` | Free text (e.g., "Pegadaian Bandung 2024") |
+| `jaminan` | Enum: `emas:digital` / `emas:fisikAntam` / `emas:perhiasan18K` / `emas:perhiasan14K` / `emas:perhiasan10K` / `properti` / `kendaraan` |
+| `gramTertahan` | Grams pawned in this contract — **emas-* jaminan only**. Derived constraint: ≤ corresponding `emas.{cat}Gram` (warning if exceeded) |
+| `asetRefId` | Link to an existing `asetNonLikuid.properti[]` or `asetNonLikuid.kendaraan[]` row — **properti/kendaraan only**. User picks from a dropdown of already-entered aset rows; the aset stays in its place (still in Net Worth), only the piutang sits on utang side |
+| `piutangIdr` | Outstanding loan principal (IDR) |
+| `bungaPerBulanPercent` | Default 1.5 (Pegadaian standard for emas; user-editable for non-Pegadaian or non-emas contracts) |
+| `tempoBulan` | Loan term |
+| `tanggalJatuhTempo` | Optional ISO date |
+
+**Aggregates** (per Snapshot panel + dashboard):
+- `Total tertahan` = Σ `gramTertahan` across emas-jaminan rows only (gram-comparable)
+- `Total piutang` = Σ `piutangIdr` across all rows (any jaminan)
+- `Rasio Tertahan` = `(Σ pawned emas gram) ÷ (Σ owned emas gram across all 5 categories + pawned)` — null when user owns no emas at all
+
+**Cadangan emas** (the "at home" portion shown per category in EmasPanel) is **derived**, not stored: `emas.{cat}Gram − pawnedGramOf(snap, cat)`. The user inputs total ownership in each emas category once; pawning is a separate action that subtracts implicitly.
 
 Threshold for Rasio Tertahan: <50% Aman · 50–70% Waspada · >70% Risiko Likuidasi (descriptive — never *"sebaiknya tebus dulu"*).
+
+Properti / kendaraan UX guard: when the user picks `properti` jaminan but has no properti rows in `asetNonLikuid`, the row shows an empty-aset hint ("Belum ada properti di snapshot. Tambah dulu di Aset non-likuid → Properti.") instead of a broken dropdown. Same pattern for kendaraan and for empty emas categories (parallel UX across all jaminan kinds).
+
+#### 5.3.3 Utang Pribadi (informal debt)
+
+Day-3 addition (post-review). A separate sub-module for non-bank / informal debt — pinjam ke teman, keluarga, bos, atau pribadi — that doesn't fit Cicilan Aktif's amortization model (no fixed bunga, optional tenor, optional monthly payment).
+
+| Field | Definition |
+|---|---|
+| `label` | Free text (e.g., "Pinjam Bro Andi", "Utang ke bos") |
+| `sisaPokok` | Outstanding owed amount (IDR) |
+| `cicilanPerBulan` | Optional — if set, feeds DSR + Total Pengeluaran the same way as Cicilan Aktif rows |
+| `tempoBulan` | Optional |
+| `tanggalJatuhTempo` | Optional |
+
+**Contribution to metrics:**
+- **Total Utang** (Net Worth, DAR): `Σ sisaPokok`
+- **Total Pengeluaran** (Runway, Savings Rate): `Σ cicilanPerBulan` where set
+- **DSR numerator**: `Σ cicilanPerBulan` where set (treated identically to formal cicilan)
+
+No threshold; no bunga; no jenis_bunga. Pure liability tracker. The aggregate strip in the panel shows total pokok + total cicilan/bulan.
 
 ### 5.4 Metrics — Catalog (9 metrics)
 
@@ -390,7 +422,7 @@ Threshold for Rasio Tertahan: <50% Aman · 50–70% Waspada · >70% Risiko Likui
 | 6 | **Safe Haven Ratio** | `(Kas + Emas + RD + Deposito) ÷ Total Aset` | Posture: ≥60% Konservatif · 40–60% Seimbang · <40% Agresif |
 | 7 | **Allocation Discipline** | **rata-rata** `(1/n)·Σ \|Bobot Live − Target Bobot\|` antar saham (satuan pp) — *average*, bukan sum, biar threshold pp tetap konsisten berapa pun jumlah emiten; satuan pp sama seperti drift-dot per-kartu (§5.7) | <5pp Tight · 5–15pp Drift · >15pp Off-Plan |
 | 8 | **Goal Health (composite)** | % of goals "On-Track" | ≥80% Sehat · 50–80% Mixed · <50% Off-Plan |
-| 9 | **Modal Siap Distribusi** | `Kas + Deposito + RD + Crypto Liquid` (default formula — see open question §11.4) | Capacity number, no threshold; companion note: *"Pertimbangkan keep dana darurat 3–6 bulan pengeluaran terpisah."* |
+| 9 | **Modal Siap Distribusi** | `Kas + Deposito + RD + Crypto Liquid` (multi-currency rows converted to IDR via live FX, §8). **D0.3 closed (Day 3): no auto-subtract of emergency buffer.** Buffer surfaces as advisory copy only — user decides. | Capacity number, no threshold; companion note: *"Pertimbangkan keep dana darurat 3–6 bulan pengeluaran terpisah."* |
 
 **Layout:** Net Worth and Modal Siap Distribusi are **prominent absolute numbers** at the top of the dashboard (paired). Below them: 6 health metrics in a grid (DSR, Runway, Savings Rate, DAR, Safe Haven, Allocation Discipline). Goal Health composite shown alongside the Goal cards panel.
 
@@ -703,7 +735,7 @@ Modal Options panel must use *"Opsi yang bisa dihitungkan"*, never *"Rekomendasi
 1. **Brand name** — *Cermat* working. Alternates: *Hitungin*, *Tepat*, *Bobot*. Decision needed before design.
 2. **IDX live price source** — Yahoo Finance via `BBCA.JK` (recommended), Goapi.id (paid), or Stockbit unofficial (risky)?
 3. **FI formula multiplier** — Lock to 300 (4% safe withdrawal), or expose multiplier (240/300/360) as user-configurable?
-4. **Modal Siap Distribusi formula** — Cash + Deposito + RD + Crypto liquid? Or also subtract emergency-fund buffer (6× expenses)? Or let user tag which assets are "deployable"?
+4. ~~**Modal Siap Distribusi formula** — Cash + Deposito + RD + Crypto liquid? Or also subtract emergency-fund buffer (6× expenses)? Or let user tag which assets are "deployable"?~~ **Closed Day 3 (D0.3):** Kas + Deposito + RD + Crypto Liquid; no auto-subtract; emergency buffer surfaces as advisory copy only.
 5. **Capacity wizard scope** — Ship all 3 (Max Utang + Lunasi + Modal Options), or top 2 only?
 6. **Modal Options ranking** — How are options ordered in the panel? By "biggest metric improvement", by IDR amount, by user preference? *(Recommend: by category — debt reduction → asset acquisition — without "best to worst" framing to avoid prescriptive UX.)*
 7. **Max Utang Aman threshold** — Lock to DSR<30%, or let user pick the threshold (Sehat/Waspada)?

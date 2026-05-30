@@ -291,28 +291,82 @@ Three stores. Anything dashboard-renderable is **derived**, never stored.
 ```ts
 export const useSnapshotStore = defineStore('snapshot', () => {
   const penghasilan = ref<number>(0)
-  // Cicilan is NOT stored here — it comes from cicilanAktif (Σ cicilan_per_bulan), avoiding double-count.
+  // Cicilan is NOT stored under pengeluaran — it comes from cicilanAktif + utangPribadi
+  // (Σ cicilanPerBulan), avoiding double-count.
   const pengeluaran = reactive<{ pokok: number; lifestyle: number }>({ pokok: 0, lifestyle: 0 })
 
+  // AssetRow = { id, label, amount, currency? }. `amount` is in the row's currency
+  // (defaults to IDR). Likuid panels expose a Currency dropdown per row; non-likuid
+  // stays IDR-only by product decision.
   const asetLikuid = reactive<{
-    kas: AssetRow[]      // Tabungan, Cash
+    kas: AssetRow[]              // Tabungan, Cash (multi-currency)
     deposito: AssetRow[]
     reksaDana: AssetRow[]
     sbn: AssetRow[]
     cryptoManual: AssetRow[]
   }>({ kas: [], deposito: [], reksaDana: [], sbn: [], cryptoManual: [] })
 
-  const saham = ref<StockHolding[]>([])         // per-emiten
-  const emas = reactive({ cadanganGram: 0, tertahanGram: 0 })
+  const saham = ref<StockHolding[]>([])         // per-emiten (Day 4)
+
+  // EmasState splits into 5 categories, each with its own buyback rate (§6.2). Grams
+  // here = TOTAL ownership in that category (whether at home or pawned); pawned
+  // grams sit on gadai[].gramTertahan and are derived per-category in the UI.
+  const emas = reactive<EmasState>({
+    digitalGram: 0,
+    fisikAntamGram: 0,
+    perhiasan18KGram: 0,
+    perhiasan14KGram: 0,
+    perhiasan10KGram: 0,
+  })
+
   const asetNonLikuid = reactive<{ properti: AssetRow[], kendaraan: AssetRow[], pensiun: AssetRow[] }>(...)
-  const cicilanAktif = ref<CicilanRow[]>([])    // §8.14.1
-  const gadai = ref<GadaiRow | null>(null)       // §8.14.2
+  const cicilanAktif = ref<CicilanRow[]>([])    // §8.14.1 — formal amortized debt
+  const utangPribadi = ref<UtangPribadiRow[]>([])  // §5.3.3 — informal/non-bank debt
+  const gadai = ref<GadaiRow[]>([])             // §8.14.2 — multi-row with jaminan kind
 
   // Mutations exposed as methods; no direct writes from components.
-  return { penghasilan, pengeluaran, asetLikuid, saham, emas,
-           asetNonLikuid, cicilanAktif, gadai,
-           addCicilan, updateCicilan, removeCicilan, /* ... */ }
+  return { penghasilan, pengeluaran, asetLikuid, saham, emas, asetNonLikuid,
+           cicilanAktif, utangPribadi, gadai,
+           addCicilan, updateCicilan, removeCicilan,
+           addUtangPribadi, updateUtangPribadi, removeUtangPribadi,
+           addGadai, updateGadai, removeGadai, /* ... */ }
 })
+```
+
+**Row shapes** (in `lib/types/snapshot.ts`):
+
+```ts
+export type Currency = 'IDR' | 'USD' | 'SGD' | 'EUR' | 'JPY' | 'KRW'
+
+export interface AssetRow {
+  id: string; label: string
+  amount: number              // value in the row's currency
+  currency?: Currency         // default IDR if undefined
+}
+
+// Gadai: each row carries the jaminan kind. Emas-* uses gramTertahan; properti /
+// kendaraan reference an existing asetNonLikuid row via asetRefId (link, no duplicate).
+export type GadaiJaminanKind =
+  | 'emas:digital' | 'emas:fisikAntam' | 'emas:perhiasan18K'
+  | 'emas:perhiasan14K' | 'emas:perhiasan10K'
+  | 'properti' | 'kendaraan'
+
+export interface GadaiRow {
+  id: string; label: string
+  jaminan: GadaiJaminanKind
+  gramTertahan?: number       // emas:* only
+  asetRefId?: string          // properti/kendaraan only — links to asetNonLikuid row
+  piutangIdr: number          // outstanding loan amount
+  bungaPerBulanPercent: number; tempoBulan: number
+  tanggalJatuhTempo?: string
+}
+
+export interface UtangPribadiRow {
+  id: string; label: string
+  sisaPokok: number
+  cicilanPerBulan?: number    // optional — if set, feeds DSR + total burn
+  tempoBulan?: number; tanggalJatuhTempo?: string
+}
 ```
 
 ### 5.2 `stores/goals.ts`
@@ -331,24 +385,26 @@ export const useGoalsStore = defineStore('goals', () => {
 This store does NO writes. It exposes `computed` getters that wrap pure functions from `lib/finance/*`. Every dashboard component reads from here, never from `snapshot`/`goals` directly.
 
 ```ts
-export const useDerived = defineStore('derived', () => {
+export const useDerivedStore = defineStore('derived', () => {
   const snap = useSnapshotStore()
-  const goalsStore = useGoalsStore()
-  const prices = usePrices()  // composable returning reactive prices
+  const priceView = ref<PricesView | null>(null)
+
+  // Layout/dashboard pipes prices in via setPrices(). The store stays pure (no I/O,
+  // no Nuxt-bound composables inside the setup) — wizard code paths can stub it.
+  function setPrices(next: PricesView | null) { priceView.value = next }
 
   const netWorth = computed(() => calcNetWorth(snap.$state, prices.value))
-  const modalSiap = computed(() => calcModalSiap(snap.$state))
+  const modalSiap = computed(() => calcModalSiap(snap.$state, prices.value))
   const dsr = computed(() => calcDsr(snap.$state))
-  const dar = computed(() => calcDar(snap.$state, netWorth.value))
-  const runway = computed(() => calcRunway(snap.$state))
+  const dar = computed(() => calcDar(snap.$state, prices.value))
+  const runway = computed(() => calcRunway(snap.$state, prices.value))
   const savingsRate = computed(() => calcSavingsRate(snap.$state))
-  const safeHaven = computed(() => calcSafeHaven(snap.$state, netWorth.value))
-  const allocationDiscipline = computed(() => calcAllocationDiscipline(snap.saham))
-  const goalHealth = computed(() => calcGoalHealth(goalsStore.goals, snap.$state))
-
-  const all9 = computed(() => ({ netWorth, modalSiap, dsr, dar, runway, savingsRate,
-                                 safeHaven, allocationDiscipline, goalHealth }))
-  return { ...all9, all9 }
+  const safeHaven = computed(() => calcSafeHaven(snap.$state, prices.value))
+  const allocationDiscipline = computed(() => calcAllocationDiscipline(snap.saham, prices.value))
+  const goalHealth = computed<number | null>(() => null)  // wired in Day 5
+  // Per-category emas breakdown (digital/fisik/perhiasan18K/14K/10K + total IDR)
+  const emasBreakdown = computed(() => breakdownGoldIdr(snap.$state, prices.value))
+  // ...
 })
 ```
 
@@ -362,30 +418,37 @@ All metric formulas live as pure TypeScript functions. They take a snapshot-shap
 
 ### 6.1 9-metric formulas (canonical, from PRD §5.4)
 
-| Metric | Function | Returns | Empty-state |
+| Metric | Function | Returns | Empty-state (D0.5: per-metric) |
 |---|---|---|---|
-| Net Worth | `calcNetWorth(snap, prices)` | IDR (number, can be negative) | 0 if no input |
-| Modal Siap Distribusi | `calcModalSiap(snap)` | IDR (cash + deposito + RD + liquid crypto, optionally minus emergency buffer per open Q4) | 0 |
-| DSR | `calcDsr(snap)` | percent (0–∞) | `null` if pengeluaran/penghasilan missing → render "—" |
-| DAR | `calcDar(snap, netWorth)` | percent | `null` if total aset = 0 |
-| Runway | `calcRunway(snap)` | months | `null` if pengeluaran missing |
+| Net Worth | `calcNetWorth(snap, prices)` | IDR (number, can be negative) | 0 if no input; UI surfaces hint when totalAset = 0 + totalUtang = 0 |
+| Modal Siap Distribusi | `calcModalSiap(snap, prices)` | IDR. **D0.3 closed: no auto-subtract** of emergency buffer; companion advisory copy "Pertimbangkan keep dana darurat 3–6 bulan terpisah" surfaces in HeroPair. Multi-currency liquid rows converted via FX (§6.5). | 0; advisory always shown |
+| DSR | `calcDsr(snap)` | percent (0–∞) | `null` if penghasilan = 0 → render "—" + "Isi penghasilan dulu" |
+| DAR | `calcDar(snap, prices)` | percent | `null` if totalAset = 0 → "Isi aset dulu" |
+| Runway | `calcRunway(snap, prices)` | months | `null` if totalPengeluaran = 0 → "Isi pengeluaran dulu" |
+| Savings Rate | `calcSavingsRate(snap)` | percent | `null` if penghasilan = 0 → "Isi penghasilan dulu" |
+| Safe Haven % | `calcSafeHaven(snap, prices)` | percent | `null` if totalAset = 0 → "Isi aset dulu" |
+| Allocation Discipline | `calcAllocationDiscipline(stocks, prices)` | **avg pp drift** = `(1/n)·Σ \|bobot_live − bobot_target\|` (matches PRD §5.4 #7; lower = tighter). Zones: <5 Tight / 5–15 Drift / >15 Off-Plan | `null` if no stocks OR no stock has target → "Tambah saham + target bobot" (Day 4) |
+| Goal Health | `calcGoalHealth(goals, snap)` | percent on-track | `null` until Day 5 wires goals → "Bikin goal dulu (modul Plan)" |
 
-> **Total Pengeluaran (single definition, used by Runway + Savings Rate)** = `pengeluaran.pokok + pengeluaran.lifestyle + Σ cicilanAktif[].cicilan_per_bulan`. Cicilan is summed from the debt module, never re-entered under pengeluaran (PRD §5.1.3). DSR uses only the `Σ cicilan` component (`÷ penghasilan`), not Total Pengeluaran.
-| Savings Rate | `calcSavingsRate(snap)` | percent | `null` if penghasilan missing |
-| Safe Haven % | `calcSafeHaven(snap, netWorth)` | percent | `null` if no aset |
-| Allocation Discipline | `calcAllocationDiscipline(stocks)` | **avg pp drift** = `(1/n)·Σ \|bobot_live − bobot_target\|` (matches PRD §5.4 #7; lower = tighter). Zones: <5 Tight / 5–15 Drift / >15 Off-Plan | `null` if no stocks |
-| Goal Health | `calcGoalHealth(goals, snap)` | percent on-track | `null` if no goals |
+> **Total Pengeluaran (single definition, used by Runway + Savings Rate)** = `pengeluaran.pokok + pengeluaran.lifestyle + Σ cicilanAktif[].cicilanPerBulan + Σ utangPribadi[].cicilanPerBulan`. Cicilan is summed from the debt modules, never re-entered under pengeluaran (PRD §5.1.3). DSR uses only the `Σ cicilan` component (formal + informal) ÷ penghasilan, not Total Pengeluaran.
+>
+> **Total Utang (used by DAR + Net Worth)** = `Σ cicilanAktif[].sisaPokok + Σ utangPribadi[].sisaPokok + Σ gadai[].piutangIdr`.
 
-Thresholds live in `lib/finance/thresholds.ts`:
+Thresholds live in `lib/finance/thresholds.ts`. Left-inclusive on the "better" side (e.g., DSR < 30 sehat; 30 ≤ x < 40 waspada; ≥ 40 bahaya):
 
 ```ts
 export const thresholds = {
-  dsr:    { sehat: { max: 30 }, waspada: { min: 30, max: 40 }, bahaya: { min: 40 } },
-  rasioTertahan: { sehat: { max: 50 }, waspada: { min: 50, max: 70 }, bahaya: { min: 70 } },
-  // …
+  dsr:                  { direction: 'lower-better',  sehatBelow: 30, bahayaAtOrAbove: 40 },
+  dar:                  { direction: 'lower-better',  sehatBelow: 30, bahayaAtOrAbove: 50 },
+  runway:               { direction: 'higher-better', sehatAtOrAbove: 6, bahayaBelow: 3 },
+  savingsRate:          { direction: 'higher-better', sehatAtOrAbove: 20, bahayaBelow: 10 },
+  safeHaven:            { direction: 'higher-better', sehatAtOrAbove: 60, bahayaBelow: 40 },
+  allocationDiscipline: { direction: 'lower-better',  sehatBelow: 5, bahayaAtOrAbove: 15 },
+  goalHealth:           { direction: 'higher-better', sehatAtOrAbove: 80, bahayaBelow: 50 },
+  rasioTertahan:        { direction: 'lower-better',  sehatBelow: 50, bahayaAtOrAbove: 70 },
 } as const
 
-export function zoneOf(metric: keyof typeof thresholds, value: number): 'sehat' | 'waspada' | 'bahaya' {…}
+export function zoneOf(metric: MetricKey, value: number): 'sehat' | 'waspada' | 'bahaya' {…}
 ```
 
 ### 6.2 Amortization — `lib/finance/amortization.ts`
@@ -449,6 +512,42 @@ export function goalStatus(projectedDate: string | null, targetDate: string): 'o
 - `date: null` when `monthlyInflow ≤ 0` or growth can't reach target → card shows *"Belum tercapai dengan alokasi sekarang"* (descriptive).
 - **Wizard delta:** re-run `projectCompletion` against the cloned/mutated snapshot (lower surplus + lower bucket) → year-shift = *"FI mundur ~N tahun"*. Same pure fn, no special-casing.
 
+### 6.5 Emas valuation — `lib/finance/emas.ts`
+
+Five emas categories, each with its own buyback rate vs Antam 1g list price. Multipliers are midpoints of market bands (toko emas norms 2025–2026); surfaced as ESTIMASI copy alongside each input.
+
+```ts
+export const EMAS_VALUATION = {
+  fisikAntamSpread: 0.93,   // ~7% spread vs Antam list price
+  perhiasan18K:     0.595,  // ~57–62% Antam (kadar ~75%)
+  perhiasan14K:     0.455,  // ~43–48% Antam (kadar ~58.3%)
+  perhiasan10K:     0.375,  // ~35–40% Antam (kadar ~41.7%)
+} as const
+
+// Digital uses Pegadaian Digital `hargaJual` (already a buyback price), no multiplier.
+export function ratePerGram(cat: EmasCategory, prices?: PricesView): number
+export function totalGramOf(snap, cat)      // ownership total (at home + pawned)
+export function pawnedGramOf(snap, cat)     // sum of gadai rows whose jaminan matches cat
+export function availableGramOf(snap, cat)  // total − pawned (Runway numerator)
+export function totalGoldIdr(snap, prices)  // value of all owned emas
+export function cadanganGoldIdr(snap, prices)  // value of at-home portion only
+export function breakdownGoldIdr(snap, prices) // per-category IDR + total
+```
+
+Each `emas.{cat}Gram` field represents TOTAL ownership in that category. Pawned grams stay associated with the category via `gadai[].jaminan` so they value at their own rate (no generic-fisik-rate hack). The "Yang di tangan: Xg / Yg digadai" line per category in EmasPanel is derived, not stored.
+
+### 6.6 FX conversion — `lib/finance/fx.ts`
+
+Liquid asset rows may be denominated in IDR/USD/SGD/EUR/JPY/KRW (Currency type). FX rates are IDR-per-1-unit-of-base, fetched from `/api/prices/fx` (§7.4).
+
+```ts
+export function rateToIdr(currency, fx): number | null
+export function rowToIdr(row, fx): number          // 0 when rate stale; UI flags separately
+export function anyForeignStale(rows, fx): boolean // surface "kurs belum kebaca" hint
+```
+
+Stale-rate policy: when a row's FX rate is null, the row contributes 0 to aggregates (Net Worth, Modal Siap, etc.) but the entered amount stays visible in its native currency. Panels show "≈ kurs belum kebaca" beside the row so the user knows the IDR figure is provisional.
+
 ---
 
 ## 7. Price Proxy — Nitro server routes
@@ -489,72 +588,78 @@ export default defineCachedEventHandler(async (event) => {
 
 **Edge-cached at Vercel** (Nitro `vercel-edge` preset) — single global cache across users, keyed on the sorted ticker list; no per-user state.
 
-### 7.2 `/api/prices/gold`
+### 7.2 `/api/prices/gold` (savings + Antam table)
 
-**Confirmed source:** Pegadaian Tabungan Emas public JSON endpoint — `GET https://pegadaian.co.id/gold/prices/savings`. No params, no cookies, no auth (plain GET works). Privacy-clean: the proxy sends *nothing* user-specific upstream.
+**Two upstream sources, single endpoint.** The handler fetches both in parallel and combines into one payload — keeps client wiring simple while exposing the rates each emas category needs (§6.5).
 
-Response:
-```json
-{
-  "responseCode": "2000000100",
-  "data": {
-    "hargaBeli": "26540",   // price user pays to BUY 1 g
-    "hargaJual": "25340",   // buyback — price user RECEIVES selling 1 g
-    "tglBerlaku": "2026-05-28",
-    "isHargaBeliUp": true,
-    "isHargaJualUp": true
-  }
-}
-```
+| Upstream | Purpose |
+|---|---|
+| `GET https://pegadaian.co.id/gold/prices/savings` | Digital tabungan emas — `hargaJual` (sell-side) + `hargaBeli` (buy-side). Returns prices **per 0.01 gram** (smallest tabungan unit) — parser multiplies ×100 so every downstream consumer reads per-gram. |
+| `GET https://pegadaian.co.id/gold/prices/table?interval=7&isRequest=true` | Antam list prices per weight — we read `data.listAntam[berat=1.0].harga` as the canonical 1-gram reference (already per-gram). Used by fisik + perhiasan valuation × multipliers (§6.5). |
+
+No params, no cookies, no auth. Privacy-clean.
 
 ```ts
 // server/api/prices/gold.get.ts
 export default defineCachedEventHandler(async () => {
-  const res = await $fetch<PegadaianGold>('https://pegadaian.co.id/gold/prices/savings')
-  return {
-    hargaJual: Number(res.data.hargaJual),  // valuation price (buyback)
-    hargaBeli: Number(res.data.hargaBeli),
-    tglBerlaku: res.data.tglBerlaku,
-    stale: false,
-    fetchedAt: new Date().toISOString()
-  }
-}, { maxAge: 60 * 60 /* 60 min */, swr: true })
+  const now = new Date().toISOString()
+  const [savings, table] = await Promise.allSettled([
+    $fetch<PegadaianResponse>(PEGADAIAN_URL, { headers: { 'user-agent': 'Mozilla/5.0' }}),
+    $fetch<PegadaianTableResponse>(PEGADAIAN_TABLE_URL, { headers: { 'user-agent': 'Mozilla/5.0' }}),
+  ])
+  if (savings.status === 'rejected') return buildGoldStalePayload(now)
+  const tableRes = table.status === 'fulfilled' ? table.value : null
+  return parsePegadaianToGold(savings.value, tableRes, now)  // ×100 applied for savings
+}, { name: 'prices-gold-v2', maxAge: 60 * 60, swr: true })
 ```
 
-**Valuation rule:** gold holdings in Net Worth are valued at `hargaJual` (buyback) — that's the realizable amount if the user sold today, so it's the honest, conservative figure. `hargaBeli` is surfaced only where the user is *acquiring* gold (e.g. a future "mau nabung emas" wizard).
+Payload (all rates per 1 gram):
+```ts
+{ hargaJual, hargaBeli, antam1g, tglBerlaku, stale, fetchedAt }
+```
 
-Cache 60 min — Pegadaian moves the price at most once a day (`tglBerlaku`), so minute-level freshness is pointless for retail.
+- `hargaJual` = Pegadaian Digital buyback per gram → drives `emas.digitalGram` valuation
+- `antam1g` = Antam list price per gram → base for fisik (×0.93) + perhiasan (18K ×0.595 / 14K ×0.455 / 10K ×0.375)
+- `stale: true` if EITHER source returned null (Modal Siap / Net Worth display honesty)
 
-### 7.3 `/api/prices/usdidr`
+Cache 60 min — Pegadaian moves prices at most daily; minute-level freshness is pointless. `name` field bumped to `v2` to retire any pre-table cache entries on deploy.
 
-**Confirmed (tested 2026-05-28):** same Yahoo v8 chart endpoint as IDX — `GET /v8/finance/chart/USDIDR=X` → `result[0].meta.regularMarketPrice` (≈17.784), currency IDR. Free, no auth.
+### 7.3 `/api/prices/fx` (multi-currency)
+
+**Multi-currency liquid support (D0 follow-up, post-review).** Single endpoint fetches 5 Yahoo FX pairs in parallel: USDIDR, SGDIDR, EURIDR, JPYIDR, KRWIDR. Each pair = IDR per 1 unit of base currency. Same Yahoo v8 chart pattern as IDX, with per-pair failover (query1 → query2 hosts).
 
 ```ts
-// server/api/prices/usdidr.get.ts
-export default defineCachedEventHandler(async () => {
-  const res = await $fetch<YahooChart>(
-    'https://query1.finance.yahoo.com/v8/finance/chart/USDIDR=X?interval=1d&range=1d',
-    { headers: { 'user-agent': 'Mozilla/5.0' } })
-  const m = res.chart.result[0]?.meta
-  return { rate: m?.regularMarketPrice ?? null, currency: 'IDR', stale: !m, fetchedAt: new Date().toISOString() }
-}, { maxAge: 60 * 15 /* 15 min */, swr: true })
+// server/api/prices/fx.get.ts
+async function fetchPair(pair: FxPair): Promise<FxRateRow> {
+  try {
+    const payload = await failoverFetch(buildFxPath(pair), fetcher)
+    return parseChartToFxRate(payload, pair, now)
+  } catch { return buildFxStaleRow(pair, now) }
+}
+const rates = await Promise.all(FX_PAIRS.map(fetchPair))
+return { rates, missing: rates.filter(r => r.stale).map(r => r.pair) }
 ```
 
-> Supersedes PRD §8's `exchangerate.host` plan — that now requires an API key; Yahoo v8 keeps all three price sources on one provider/pattern (query1→query2 failover).
+One pair failing doesn't block others — only the failed pair is marked stale; the rest still serve. Cache 60 min, SWR.
 
-### 7.4 Response contract & failure behavior
+### 7.4 `/api/prices/usdidr` (legacy)
 
-**Common envelope:** every `/api/prices/*` response carries `{ stale: boolean, fetchedAt: string }`. There is **no single `value` field** — the payload is endpoint-specific (gold has two prices; idx is a list):
+The original USDIDR endpoint from Day 2 remains as a thin path-specific wrapper for backward compat (yahoo.ts still exports `parseChartToUsdIdr` aliased over `parseChartToFxRate`). New code paths use `/api/prices/fx` instead.
+
+### 7.5 Response contract & failure behavior
+
+**Common envelope:** every `/api/prices/*` response carries `{ stale: boolean, fetchedAt: string }`. There is **no single `value` field** — the payload is endpoint-specific:
 
 | Endpoint | Payload |
 |---|---|
 | `idx` | `{ prices: [{ ticker, price, prevClose, currency, stale, fetchedAt }], missing: [] }` |
-| `gold` | `{ hargaJual, hargaBeli, tglBerlaku, stale, fetchedAt }` |
-| `usdidr` | `{ rate, currency, stale, fetchedAt }` |
+| `gold` | `{ hargaJual, hargaBeli, antam1g, tglBerlaku, stale, fetchedAt }` |
+| `fx` | `{ rates: [{ pair, rate, stale, fetchedAt }], missing: [pair, …] }` |
+| `usdidr` | `{ rate, currency, stale, fetchedAt }` (legacy) |
 
 On upstream failure the handler returns the **last cached payload with `stale: true`** (value/rate/price = `null` if nothing cached) instead of throwing. Client maps:
 - `stale: true` + value present → show old number with STALE pill (Screen 11)
-- `stale: true` + `null` → STALE pill + manual override field
+- `stale: true` + `null` → STALE pill + manual override field / "kurs belum kebaca" hint (FX)
 - Hard 5xx → empty state + "Coba lagi" button
 
 ---

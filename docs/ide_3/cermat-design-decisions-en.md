@@ -143,12 +143,26 @@ Audit ~50 copy strings before Day 11 ship (MVP §4 Day 9 milestone).
 
 These can wait until coding starts but should be resolved before final polish:
 
-1. **Brand name lock** — *Cermat* is working title (MVP §6.1)
-2. **FI multiplier** — 300 fixed or expose 240/300/360 slider (MVP §6.3)
-3. **Modal Siap formula edge case** — subtract dana darurat 3–6 bln buffer? (PRD §11.4)
-4. **Mobile breakpoint behavior** — bottom-nav vs hamburger (§2.1 above)
-5. **9-metric: when do "—" / disabled states show?** (e.g., Pengeluaran empty → DSR/Savings/Runway show "—")
+1. ~~**Brand name lock**~~ — **Closed 2026-05-30:** *Cermat* final.
+2. **FI multiplier** — 300 fixed or expose 240/300/360 slider (MVP §6.3) — blocks Day 5.
+3. ~~**Modal Siap formula edge case** — subtract dana darurat 3–6 bln buffer? (PRD §11.4)~~ — **Closed Day 3 (D0.3):** no auto-subtract. Formula = Kas + Deposito + RD + Crypto Liquid only; emergency buffer is **advisory copy** alongside the figure ("Pertimbangkan keep dana darurat 3–6 bulan terpisah"). Rationale: prescriptive subtraction violates OJK descriptive-tone rule; user decides what counts as buffer.
+4. ~~**Mobile breakpoint behavior**~~ — **Closed 2026-05-30:** bottom-nav with 4 tabs (Track/Plan/Decide/Discover). Applied at Day 3 (app shell) and to be polished at Day 11.
+5. ~~**9-metric: when do "—" / disabled states show?**~~ — **Closed Day 3 (D0.5):** per-metric rule. Each metric defines its own prerequisite + hint copy (e.g., DSR null when penghasilan = 0, hint = "Isi penghasilan dulu"). Surfaces in MetricCard via `emptyHintKey` mapping. Avoids a single global gate that would hide all metrics until snapshot is "complete enough".
+
+## 7. Day-3 model decisions (post-review)
+
+Resolved during Day 3 implementation review, beyond the original Day-0 list:
+
+1. **Emas — 5 categories with per-category buyback rate.** Single `cadanganGram` field replaced with 5 fields: `digitalGram`, `fisikAntamGram`, `perhiasan18KGram`, `perhiasan14KGram`, `perhiasan10KGram`. Each category values at its own rate: digital uses Pegadaian Digital `hargaJual` directly; fisik = Antam 1g × 0.93 (buyback spread); perhiasan = Antam × 0.595 / 0.455 / 0.375 (18K / 14K / 10K kadar midpoints). New `/gold/prices/table` source added in parallel with `/savings`. Rationale: users hold emas across very different forms with very different liquidation values; lumping them under one rate would over- or under-estimate Net Worth by 30–50% depending on mix.
+
+2. **Gadai — multi-row, jaminan dropdown (7 options).** Original spec was single struct with gold-only fields. New shape: `GadaiRow[]` with `jaminan` enum (5 emas categories + `properti` + `kendaraan`). Properti / kendaraan rows reference an existing `asetNonLikuid` row via `asetRefId` (no duplicate). Per-category emas at-home grams are **derived** (`emas.{cat}Gram − pawnedGramOf(cat)`), not stored — user inputs total ownership once, pawning is implicit subtraction. Rationale: real users have 2+ gadai contracts, often across categories (e.g., emas + BPKB kendaraan); a single struct made the feature unusable.
+
+3. **Utang Pribadi — separate sub-module.** Informal / non-bank debt (pinjam ke teman, keluarga, bos) gets its own panel `utangPribadi: UtangPribadiRow[]`. Fields: label + sisaPokok + optional cicilanPerBulan/tempo. Feeds Total Utang (Net Worth, DAR) and — when cicilanPerBulan is set — DSR + Total Pengeluaran. Rationale: cramming this into Cicilan Aktif required relaxing too many required fields (no bunga, no jenis_bunga, no tenor) and confused users about which fields applied; cleaner as its own surface.
+
+4. **Multi-currency liquid assets — 6 currencies.** Every `asetLikuid` row carries optional `currency: IDR | USD | SGD | EUR | JPY | KRW`. New `/api/prices/fx` endpoint fetches Yahoo FX in parallel. Foreign rows display "≈ Rp X" derived; stale rates show "≈ kurs belum kebaca" + contribute 0 to aggregates. Non-likuid stays IDR-only by design. Rationale: Indonesian users with offshore work/family routinely hold USD/SGD/KRW; previously they had to convert manually with rates that drift.
+
+5. **Composable cache (gold) — no module-level cache.** The original `useGoldPrice` cached payload in a module-level variable that survived HMR; whenever the server schema evolved (e.g., when `antam1g` was added), the frontend pinned the old payload until full page reload (incognito reproduced the issue). Now every `useGoldPrice` / `useFxRates` call re-fetches; the server endpoints have their own SWR cache so network cost stays low.
 
 ---
 
-**Next step:** Move to code. This addendum + the kept Stitch HTML files + the design tokens from `cermat/DESIGN.md` are sufficient reference. Goals + remaining wizards extrapolate from established patterns.
+**Next step:** Update memory + push commits, then trigger Codex review. After Codex round, evaluate D0.2 (FI multiplier) before Day 5.
