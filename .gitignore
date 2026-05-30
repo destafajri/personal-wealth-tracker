@@ -20,6 +20,14 @@ dist/
 build/
 coverage/
 
+# Nuxt / Nitro
+.nuxt/
+.output/
+.data/
+.nitro/
+.cache/
+.vercel/
+
 # Python
 __pycache__/
 *.py[cod]

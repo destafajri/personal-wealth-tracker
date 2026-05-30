@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #1b4332;
+  --color-primary-dark: #012d1d;
+  --color-primary-container: #274e3d;
+  --color-accent-emerald: #2d6a4f;
+  --color-accent-emerald-soft: #86af99;
+  --color-warning-amber: #d97706;
+  --color-warning-amber-soft: #fde8c8;
+  --color-danger-rose: #be123c;
+  --color-danger-rose-soft: #fde2e8;
+  --color-gold: #c9a961;
+  --color-gold-muted: #9c8554;
+  --color-capacity-teal: #0891b2;
+  --color-surface: #f8f9f5;
+  --color-surface-card: #ffffff;
+  --color-surface-low: #f3f4f1;
+  --color-border: #e5e7eb;
+  --color-border-strong: #c1c8c2;
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  --radius-input: 4px;
+  --radius-card: 8px;
+  --radius-pill: 9999px;
+
+  --shadow-hero: 0 4px 12px rgba(0, 0, 0, 0.03);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
