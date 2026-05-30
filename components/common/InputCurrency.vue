@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, useId, watch } from 'vue'
 import { parseCurrency } from '~/lib/format/parse-currency'
 
 const props = withDefaults(
@@ -9,7 +9,7 @@ const props = withDefaults(
     ariaLabel?: string
     disabled?: boolean
   }>(),
-  { placeholder: '0', disabled: false },
+  { placeholder: '0', disabled: false, ariaLabel: undefined },
 )
 const emit = defineEmits<{ 'update:modelValue': [value: number | null] }>()
 
@@ -43,7 +43,7 @@ function onBlur() {
   else display.value = ''
 }
 
-const id = computed(() => `cur-${Math.random().toString(36).slice(2, 9)}`)
+const id = useId()
 </script>
 
 <template>
@@ -62,6 +62,6 @@ const id = computed(() => `cur-${Math.random().toString(36).slice(2, 9)}`)
       class="tabular w-full bg-transparent text-right text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] disabled:cursor-not-allowed disabled:opacity-50"
       @input="onInput"
       @blur="onBlur"
-    />
+    >
   </label>
 </template>

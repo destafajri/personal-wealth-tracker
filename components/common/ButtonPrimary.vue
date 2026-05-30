@@ -5,7 +5,7 @@ withDefaults(
     disabled?: boolean
     disabledReason?: string
   }>(),
-  { type: 'button', disabled: false },
+  { type: 'button', disabled: false, disabledReason: undefined },
 )
 </script>
 

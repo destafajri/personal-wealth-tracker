@@ -5,6 +5,7 @@ type Status = 'sehat' | 'waspada' | 'bahaya' | 'neutral'
 
 const props = withDefaults(defineProps<{ status?: Status; label?: string }>(), {
   status: 'neutral',
+  label: undefined,
 })
 
 const colorClass = computed(() => {

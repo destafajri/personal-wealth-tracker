@@ -1,5 +1,5 @@
 export function duration(totalMonths: number | null | undefined): string {
-  if (totalMonths === null || totalMonths === undefined || Number.isNaN(totalMonths)) return '—'
+  if (totalMonths === null || totalMonths === undefined || !Number.isFinite(totalMonths)) return '—'
   if (totalMonths < 1) return 'kurang dari 1 bulan'
 
   const months = Math.round(totalMonths)

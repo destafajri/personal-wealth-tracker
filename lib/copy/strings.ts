@@ -17,6 +17,13 @@ export const copy = {
   'footer.disclaimer':
     '100% client-side. Data kamu tetap di komputer kamu. Cermat bukan penasihat keuangan atau produk berizin.',
 
+  'banner.simulation.disclaimer':
+    'Hasil di sini cuma simulasi pakai data kamu. Cermat bukan penasihat keuangan atau produk berizin.',
+
+  'snapshot.placeholder.title': 'Snapshot keuangan kamu',
+  'snapshot.placeholder.body': 'Modul ini lagi dibangun. Coming soon.',
+  'snapshot.placeholder.back': '← Kembali ke beranda',
+
   'pill.live': 'LIVE',
   'pill.estimasi': 'ESTIMASI',
   'pill.stale': 'STALE',

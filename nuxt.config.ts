@@ -15,7 +15,8 @@ export default defineNuxtConfig({
   ],
 
   vite: {
-    plugins: [tailwindcss()],
+    // @tailwindcss/vite ships Vite 7 types while Nuxt 3.21 graph uses Vite 5 — cast to bridge
+    plugins: [tailwindcss() as never],
   },
 
   nitro: {
@@ -40,6 +41,6 @@ export default defineNuxtConfig({
 
   typescript: {
     strict: true,
-    typeCheck: false,
+    typeCheck: true,
   },
 })

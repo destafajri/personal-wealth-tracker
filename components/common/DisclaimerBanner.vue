@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Info } from 'lucide-vue-next'
+import { t } from '~/lib/copy/strings'
 
 withDefaults(defineProps<{ message?: string }>(), {
-  message:
-    'Hasil di sini cuma simulasi pakai data kamu. Cermat bukan penasihat keuangan atau produk berizin.',
+  message: () => t('banner.simulation.disclaimer'),
 })
 </script>
 

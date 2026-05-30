@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, useId, watch } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -10,7 +10,7 @@ const props = withDefaults(
     disabled?: boolean
     step?: number
   }>(),
-  { placeholder: '0', disabled: false, step: 1 },
+  { placeholder: '0', disabled: false, step: 1, ariaLabel: undefined },
 )
 const emit = defineEmits<{ 'update:modelValue': [value: number | null] }>()
 
@@ -38,7 +38,7 @@ function onInput(e: Event) {
   emit('update:modelValue', Number.isFinite(n) ? n : null)
 }
 
-const id = computed(() => `qty-${Math.random().toString(36).slice(2, 9)}`)
+const id = useId()
 </script>
 
 <template>
@@ -57,7 +57,7 @@ const id = computed(() => `qty-${Math.random().toString(36).slice(2, 9)}`)
       inputmode="decimal"
       class="tabular w-full bg-transparent text-right text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] disabled:cursor-not-allowed disabled:opacity-50"
       @input="onInput"
-    />
+    >
     <span class="ml-2 text-sm text-[var(--color-text-muted)]">{{ unit }}</span>
   </label>
 </template>
