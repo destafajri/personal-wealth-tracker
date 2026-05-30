@@ -51,6 +51,10 @@ const tokens = [
     </div>
 
     <h2 class="mt-10 text-lg font-semibold">Buttons</h2>
+    <p class="mt-1 text-xs text-[var(--color-text-muted)]">
+      Implemented: default · hover · disabled · transition. Deferred (Day 3+):
+      explicit active, focus-visible ring, loading state.
+    </p>
     <div class="mt-3 flex flex-wrap gap-3">
       <ButtonPrimary>Primary</ButtonPrimary>
       <ButtonPrimary disabled disabled-reason="Tambahkan minimal 1 aset">Disabled</ButtonPrimary>
@@ -60,6 +64,10 @@ const tokens = [
     </div>
 
     <h2 class="mt-10 text-lg font-semibold">Inputs</h2>
+    <p class="mt-1 text-xs text-[var(--color-text-muted)]">
+      Implemented: focus-within border, lenient currency parsing, hydration-safe id.
+      Deferred (Day 3+): error state, helper text slot, blur-validation feedback.
+    </p>
     <div class="mt-3 grid gap-3 sm:max-w-md">
       <InputCurrency v-model="currencyValue" aria-label="Penghasilan" />
       <InputQuantity v-model="goldGram" unit="gram" aria-label="Emas (gram)" />
