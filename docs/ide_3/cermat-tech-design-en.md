@@ -457,9 +457,9 @@ export function goalStatus(projectedDate: string | null, targetDate: string): 'o
 
 **Source confirmed (tested 2026-05-28):** Yahoo's old `/v7/finance/quote` endpoint is **dead** — returns `401 Unauthorized: "User is unable to access this feature"` without a crumb+cookie handshake. Two endpoints still work with **no auth, no key, free**, currency IDR:
 
-- **Batch (primary):** `GET /v7/finance/spark?symbols=BBCA.JK,BBRI.JK,…` — many tickers in one call. Used for the whole per-emiten portfolio so a 25-stock snapshot is **one** request, not 25.
-- **Single / failover:** `GET /v8/finance/chart/{TICKER}.JK` → `result[0].meta.regularMarketPrice` (+ `chartPreviousClose` for day-change).
-- Hosts `query1` **and** `query2` both respond — default to query1, fail over to query2.
+- **Batch (primary, used Day 2):** `GET /v7/finance/spark?symbols=BBCA.JK,BBRI.JK,…` — many tickers in one call. Used for the whole per-emiten portfolio so a 25-stock snapshot is **one** request, not 25.
+- **Per-ticker chart (documented for future use, NOT in Day 2 impl):** `GET /v8/finance/chart/{TICKER}.JK` → `result[0].meta.regularMarketPrice` (+ `chartPreviousClose` for day-change). Originally planned as per-ticker failover when spark partial-fails; deferred to Day 4 when Saham per-emiten panel exposes the partial-fail UX. See `cermat-11-day-plan-en.md` Day 2 deferred section.
+- Hosts `query1` **and** `query2` both respond — default to query1, fail over to query2. **This is the only failover layer implemented in Day 2.**
 
 ```ts
 // server/api/prices/idx.get.ts  — batch contract: ?tickers=BBCA,BBRI,BMRI

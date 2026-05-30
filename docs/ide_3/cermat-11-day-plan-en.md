@@ -68,7 +68,7 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 
 **Goal:** Three cached price endpoints returning normalized JSON, with graceful stale fallback.
 
-- [ ] D2.1 — `server/api/prices/idx.get.ts` — Yahoo `/v7/spark?symbols=…JK` (batch, `?tickers=BBCA,BBRI`), `/v8/chart` single/failover, query1→query2 hosts, zod-validate tickers, `defineCachedEventHandler` 15-min, SWR
+- [~] D2.1 — `server/api/prices/idx.get.ts` — _shipped:_ Yahoo `/v7/spark?symbols=…JK` (batch, `?tickers=BBCA,BBRI`), query1→query2 host failover, zod-validate tickers, `defineCachedEventHandler` 15-min, SWR. _Deferred:_ per-ticker `/v8/chart` failover for tickers missing from spark batch (see Day 2 deferred section).
 - [ ] D2.2 — `server/api/prices/gold.get.ts` — Pegadaian source, 60-min cache
 - [ ] D2.3 — `server/api/prices/usdidr.get.ts` — Yahoo v8 chart `USDIDR=X` → `meta.regularMarketPrice`, 15-min cache
 - [ ] D2.4 — Common envelope: every endpoint carries `{ stale, fetchedAt }`; payload endpoint-specific (idx `prices[]`, gold `hargaJual/Beli`, usdidr `rate`) — see tech-design §7.4; failures return `stale:true` not 5xx
