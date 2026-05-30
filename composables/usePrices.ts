@@ -1,10 +1,12 @@
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 import type { GoldPayload } from '~/lib/prices/pegadaian'
-import type { IdxPayload, UsdIdrPayload } from '~/lib/prices/yahoo'
+import type { FxPayload, IdxPayload, UsdIdrPayload } from '~/lib/prices/yahoo'
 
 const idxCache = new Map<string, IdxPayload>()
-let goldCache: GoldPayload | null = null
 let usdIdrCache: UsdIdrPayload | null = null
+// NOTE: no module-level cache for gold — that survived HMR and pinned stale payloads
+// when the server schema evolved (e.g., when antam1g was added). Each useGoldPrice()
+// call refreshes; /api/prices/gold has its own SWR cache so the network cost stays low.
 
 function idxKey(tickers: string[]): string {
   return [...tickers].sort().join(',')
@@ -49,7 +51,7 @@ export function useIdxPrices(tickers: Ref<string[]> | ComputedRef<string[]>) {
 }
 
 export function useGoldPrice() {
-  const data = ref<GoldPayload | null>(goldCache)
+  const data = ref<GoldPayload | null>(null)
   const error = ref<unknown>(null)
   const pending = ref(false)
 
@@ -57,7 +59,6 @@ export function useGoldPrice() {
     pending.value = true
     try {
       const fresh = await $fetch<GoldPayload>('/api/prices/gold')
-      goldCache = fresh
       data.value = fresh
       error.value = null
     } catch (e) {
@@ -67,9 +68,37 @@ export function useGoldPrice() {
     }
   }
 
-  if (!goldCache) void refresh()
+  void refresh()
 
   const isStale = computed(() => data.value?.stale ?? false)
+
+  return { data, error, pending, isStale, refresh }
+}
+
+// Aggregate FX rates: USD/SGD/EUR/JPY/KRW → IDR. Single network call; the server endpoint
+// (`/api/prices/fx`) fan-outs to Yahoo in parallel. No module-level cache — same reason
+// we dropped goldCache (stale-pin across HMR).
+export function useFxRates() {
+  const data = ref<FxPayload | null>(null)
+  const error = ref<unknown>(null)
+  const pending = ref(false)
+
+  async function refresh() {
+    pending.value = true
+    try {
+      const fresh = await $fetch<FxPayload>('/api/prices/fx')
+      data.value = fresh
+      error.value = null
+    } catch (e) {
+      error.value = e
+    } finally {
+      pending.value = false
+    }
+  }
+
+  void refresh()
+
+  const isStale = computed(() => (data.value?.rates ?? []).some((r) => r.stale))
 
   return { data, error, pending, isStale, refresh }
 }

@@ -40,6 +40,30 @@ export interface IdxPayload {
   missing: string[]
 }
 
+// FX pair = a 6-letter Yahoo ticker like `USDIDR`. We fetch base/IDR conversion rates
+// (rate = how many IDR per 1 unit of base currency).
+export type FxPair = 'USDIDR' | 'SGDIDR' | 'EURIDR' | 'JPYIDR' | 'KRWIDR'
+export const FX_PAIRS: readonly FxPair[] = [
+  'USDIDR',
+  'SGDIDR',
+  'EURIDR',
+  'JPYIDR',
+  'KRWIDR',
+]
+
+export interface FxRateRow {
+  pair: FxPair
+  rate: number | null // IDR per 1 unit of base currency
+  stale: boolean
+  fetchedAt: string
+}
+
+export interface FxPayload {
+  rates: FxRateRow[]
+  missing: FxPair[]
+}
+
+// Kept as type alias for backward compat with existing usdidr endpoint + tests.
 export interface UsdIdrPayload {
   rate: number | null
   currency: 'IDR'
@@ -87,8 +111,12 @@ export function buildSparkPath(tickers: string[]): string {
   return `/v7/finance/spark?symbols=${encodeURIComponent(symbols)}&interval=1d&range=1d`
 }
 
+export function buildFxPath(pair: FxPair): string {
+  return `/v8/finance/chart/${pair}=X?interval=1d&range=1d`
+}
+
 export function buildUsdIdrPath(): string {
-  return '/v8/finance/chart/USDIDR=X?interval=1d&range=1d'
+  return buildFxPath('USDIDR')
 }
 
 export function parseSparkToIdx(
@@ -138,17 +166,32 @@ export function buildIdxStalePayload(tickers: string[], now: string): IdxPayload
   }
 }
 
+export function parseChartToFxRate(
+  payload: YahooChartPayload,
+  pair: FxPair,
+  now: string,
+): FxRateRow {
+  const m = payload.chart?.result?.[0]?.meta
+  const rate = typeof m?.regularMarketPrice === 'number' ? m.regularMarketPrice : null
+  return { pair, rate, stale: rate === null, fetchedAt: now }
+}
+
 export function parseChartToUsdIdr(
   payload: YahooChartPayload,
   now: string,
 ): UsdIdrPayload {
-  const m = payload.chart?.result?.[0]?.meta
-  const rate = typeof m?.regularMarketPrice === 'number' ? m.regularMarketPrice : null
+  const row = parseChartToFxRate(payload, 'USDIDR', now)
+  return { rate: row.rate, currency: 'IDR', stale: row.stale, fetchedAt: row.fetchedAt }
+}
+
+export function buildFxStaleRow(pair: FxPair, now: string): FxRateRow {
+  return { pair, rate: null, stale: true, fetchedAt: now }
+}
+
+export function buildFxStalePayload(now: string): FxPayload {
   return {
-    rate,
-    currency: 'IDR',
-    stale: rate === null,
-    fetchedAt: now,
+    rates: FX_PAIRS.map((p) => buildFxStaleRow(p, now)),
+    missing: [...FX_PAIRS],
   }
 }
 

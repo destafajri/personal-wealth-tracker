@@ -8,8 +8,9 @@ const props = withDefaults(
     placeholder?: string
     ariaLabel?: string
     disabled?: boolean
+    prefix?: string // currency label rendered inside the input (e.g., 'Rp', '$', 'KRW')
   }>(),
-  { placeholder: '0', disabled: false, ariaLabel: undefined },
+  { placeholder: '0', disabled: false, ariaLabel: undefined, prefix: 'Rp' },
 )
 const emit = defineEmits<{ 'update:modelValue': [value: number | null] }>()
 
@@ -51,7 +52,7 @@ const id = useId()
     :for="id"
     class="relative flex h-12 items-center rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 transition-colors focus-within:border-[var(--color-primary)]"
   >
-    <span class="mr-2 text-sm text-[var(--color-text-secondary)]">Rp</span>
+    <span class="mr-2 text-sm text-[var(--color-text-secondary)]">{{ props.prefix }}</span>
     <input
       :id="id"
       :value="display"

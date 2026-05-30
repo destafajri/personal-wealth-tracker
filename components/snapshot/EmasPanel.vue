@@ -1,0 +1,260 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import InputQuantity from '~/components/common/InputQuantity.vue'
+import { useSnapshotStore } from '~/stores/snapshot'
+import { useDerivedStore } from '~/stores/derived'
+import { idr } from '~/lib/format/idr'
+import { EMAS_VALUATION, pawnedGramOf, type EmasCategory } from '~/lib/finance/emas'
+import { t } from '~/lib/copy/strings'
+import type { EmasState } from '~/lib/types/snapshot'
+
+const snap = useSnapshotStore()
+const derived = useDerivedStore()
+
+const digitalRate = computed(() => derived.priceView?.goldDigitalIdrPerGram ?? null)
+const antamRate = computed(() => derived.priceView?.goldAntam1gIdr ?? null)
+
+function effective(antam: number | null, mult: number): number | null {
+  return antam === null ? null : Math.round(antam * mult)
+}
+
+const fisikRate = computed(() => effective(antamRate.value, EMAS_VALUATION.fisikAntamSpread))
+const p18Rate = computed(() => effective(antamRate.value, EMAS_VALUATION.perhiasan18K))
+const p14Rate = computed(() => effective(antamRate.value, EMAS_VALUATION.perhiasan14K))
+const p10Rate = computed(() => effective(antamRate.value, EMAS_VALUATION.perhiasan10K))
+
+function rateLabel(rate: number | null): string {
+  return rate === null
+    ? t('snapshot.emas.staleRate')
+    : t('snapshot.emas.rateLine', { rate: idr(rate) })
+}
+
+const totalTertahan = computed(() =>
+  snap.gadai.reduce((s, g) => s + (g.gramTertahan || 0), 0),
+)
+const kontrakCount = computed(() => snap.gadai.length)
+
+const snapView = computed(() => ({
+  penghasilan: snap.penghasilan,
+  pengeluaran: snap.pengeluaran,
+  asetLikuid: snap.asetLikuid,
+  asetNonLikuid: snap.asetNonLikuid,
+  emas: snap.emas,
+  saham: snap.saham,
+  cicilanAktif: snap.cicilanAktif,
+  utangPribadi: snap.utangPribadi,
+  gadai: snap.gadai,
+}))
+
+function pawnedFor(cat: EmasCategory): number {
+  return pawnedGramOf(snapView.value, cat)
+}
+
+function breakdownLine(cat: EmasCategory, total: number): string {
+  const pawned = pawnedFor(cat)
+  if (pawned === 0 || total === 0) return ''
+  const available = Math.max(0, total - pawned)
+  return t('snapshot.emas.atHomeBreakdown', { available, pawned, total })
+}
+
+function field(key: keyof EmasState, value: number | null) {
+  snap.setEmas({ [key]: value ?? 0 } as Partial<EmasState>)
+}
+</script>
+
+<template>
+  <section
+    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
+  >
+    <header class="mb-3">
+      <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
+        {{ t('snapshot.section.emas') }}
+      </h3>
+      <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+        {{ t('snapshot.emas.help') }}
+      </p>
+    </header>
+
+    <div class="space-y-4">
+      <!-- Digital -->
+      <div>
+        <div class="flex items-baseline justify-between">
+          <span class="text-sm font-medium text-[var(--color-text-primary)]">
+            {{ t('snapshot.emas.digital.label') }}
+          </span>
+          <span class="tabular text-[11px] text-[var(--color-text-muted)]">
+            {{ rateLabel(digitalRate) }}
+          </span>
+        </div>
+        <p class="text-[11px] text-[var(--color-text-secondary)]">
+          {{ t('snapshot.emas.digital.note') }}
+        </p>
+        <div class="mt-2">
+          <InputQuantity
+            unit="gram"
+            :step="0.01"
+            :model-value="snap.emas.digitalGram || null"
+            @update:model-value="field('digitalGram', $event)"
+          />
+        </div>
+        <p
+          v-if="breakdownLine('digital', snap.emas.digitalGram)"
+          class="mt-1 text-[11px] text-[var(--color-text-muted)]"
+        >
+          {{ breakdownLine('digital', snap.emas.digitalGram) }}
+        </p>
+      </div>
+
+      <!-- Fisik Antam -->
+      <div>
+        <div class="flex items-baseline justify-between">
+          <span class="text-sm font-medium text-[var(--color-text-primary)]">
+            {{ t('snapshot.emas.fisik.label') }}
+          </span>
+          <span class="tabular text-[11px] text-[var(--color-text-muted)]">
+            {{ rateLabel(fisikRate) }}
+          </span>
+        </div>
+        <p class="text-[11px] text-[var(--color-text-secondary)]">
+          {{ t('snapshot.emas.fisik.note') }}
+        </p>
+        <div class="mt-2">
+          <InputQuantity
+            unit="gram"
+            :step="0.1"
+            :model-value="snap.emas.fisikAntamGram || null"
+            @update:model-value="field('fisikAntamGram', $event)"
+          />
+        </div>
+        <p
+          v-if="breakdownLine('fisikAntam', snap.emas.fisikAntamGram)"
+          class="mt-1 text-[11px] text-[var(--color-text-muted)]"
+        >
+          {{ breakdownLine('fisikAntam', snap.emas.fisikAntamGram) }}
+        </p>
+      </div>
+
+      <!-- Perhiasan group -->
+      <div class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3">
+        <div class="mb-2">
+          <span class="text-sm font-medium text-[var(--color-text-primary)]">
+            {{ t('snapshot.emas.perhiasan.label') }}
+          </span>
+          <p class="text-[11px] text-[var(--color-text-secondary)]">
+            {{ t('snapshot.emas.perhiasan.note') }}
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <div class="flex items-baseline justify-between">
+              <span class="text-xs font-medium text-[var(--color-text-secondary)]">
+                {{ t('snapshot.emas.perhiasan.18K.label') }}
+              </span>
+              <span class="tabular text-[11px] text-[var(--color-text-muted)]">
+                {{ rateLabel(p18Rate) }}
+              </span>
+            </div>
+            <p class="text-[11px] text-[var(--color-text-muted)]">
+              {{ t('snapshot.emas.perhiasan.18K.note') }}
+            </p>
+            <div class="mt-1">
+              <InputQuantity
+                unit="gram"
+                :step="0.1"
+                :model-value="snap.emas.perhiasan18KGram || null"
+                @update:model-value="field('perhiasan18KGram', $event)"
+              />
+            </div>
+            <p
+              v-if="breakdownLine('perhiasan18K', snap.emas.perhiasan18KGram)"
+              class="mt-1 text-[11px] text-[var(--color-text-muted)]"
+            >
+              {{ breakdownLine('perhiasan18K', snap.emas.perhiasan18KGram) }}
+            </p>
+          </div>
+
+          <div>
+            <div class="flex items-baseline justify-between">
+              <span class="text-xs font-medium text-[var(--color-text-secondary)]">
+                {{ t('snapshot.emas.perhiasan.14K.label') }}
+              </span>
+              <span class="tabular text-[11px] text-[var(--color-text-muted)]">
+                {{ rateLabel(p14Rate) }}
+              </span>
+            </div>
+            <p class="text-[11px] text-[var(--color-text-muted)]">
+              {{ t('snapshot.emas.perhiasan.14K.note') }}
+            </p>
+            <div class="mt-1">
+              <InputQuantity
+                unit="gram"
+                :step="0.1"
+                :model-value="snap.emas.perhiasan14KGram || null"
+                @update:model-value="field('perhiasan14KGram', $event)"
+              />
+            </div>
+            <p
+              v-if="breakdownLine('perhiasan14K', snap.emas.perhiasan14KGram)"
+              class="mt-1 text-[11px] text-[var(--color-text-muted)]"
+            >
+              {{ breakdownLine('perhiasan14K', snap.emas.perhiasan14KGram) }}
+            </p>
+          </div>
+
+          <div>
+            <div class="flex items-baseline justify-between">
+              <span class="text-xs font-medium text-[var(--color-text-secondary)]">
+                {{ t('snapshot.emas.perhiasan.10K.label') }}
+              </span>
+              <span class="tabular text-[11px] text-[var(--color-text-muted)]">
+                {{ rateLabel(p10Rate) }}
+              </span>
+            </div>
+            <p class="text-[11px] text-[var(--color-text-muted)]">
+              {{ t('snapshot.emas.perhiasan.10K.note') }}
+            </p>
+            <div class="mt-1">
+              <InputQuantity
+                unit="gram"
+                :step="0.1"
+                :model-value="snap.emas.perhiasan10KGram || null"
+                @update:model-value="field('perhiasan10KGram', $event)"
+              />
+            </div>
+            <p
+              v-if="breakdownLine('perhiasan10K', snap.emas.perhiasan10KGram)"
+              class="mt-1 text-[11px] text-[var(--color-text-muted)]"
+            >
+              {{ breakdownLine('perhiasan10K', snap.emas.perhiasan10KGram) }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="mt-4 flex items-baseline justify-between rounded-[var(--radius-input)] bg-[var(--color-primary-container)] px-3 py-2 text-[var(--color-surface-card)]"
+    >
+      <span class="text-xs font-medium uppercase tracking-wide">
+        {{ t('snapshot.emas.totalLabel') }}
+      </span>
+      <span class="tabular text-base font-semibold">
+        {{ idr(derived.emasBreakdown.total) }}
+      </span>
+    </div>
+
+    <p
+      class="mt-3 rounded-[var(--radius-input)] bg-[var(--color-surface-low)] px-3 py-2 text-xs text-[var(--color-text-secondary)]"
+    >
+      {{
+        kontrakCount === 0
+          ? t('snapshot.emas.tertahanZero')
+          : t('snapshot.emas.tertahanDerived', {
+              grams: totalTertahan,
+              count: kontrakCount,
+            })
+      }}
+    </p>
+  </section>
+</template>
