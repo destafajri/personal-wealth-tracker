@@ -159,8 +159,6 @@ export const copy = {
   'gadai.zone.bahaya': 'Risiko Likuidasi',
 
   // ----- dashboard / metrics -----
-  'dashboard.empty.title': 'Metrik kamu muncul di sini',
-  'dashboard.empty.body': 'Isi snapshot di kiri — 9 metrik akan keluar live di sini.',
   'metric.netWorth.label': 'Net Worth',
   'metric.modalSiap.label': 'Modal Siap Distribusi',
   'metric.modalSiap.advisory': 'Pertimbangkan keep dana darurat 3–6 bulan terpisah.',

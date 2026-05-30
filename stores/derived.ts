@@ -67,59 +67,11 @@ export const useDerivedStore = defineStore('derived', () => {
   // Day 5 will wire goalHealth. Returning null keeps the dashboard "—" state honest.
   const goalHealth = computed<number | null>(() => null)
 
-  // Convenience: does the snapshot have any meaningful VALUE? Reads numeric inputs
-  // directly — a row that exists with amount 0 / piutang 0 / grams 0 counts as still
-  // empty. Reading values (not totalAset) means a user who entered grams but is still
-  // waiting on price fetch doesn't see "empty" dashboard flicker either.
-  const anyAssetAmount = computed(() => {
-    const l = snap.asetLikuid
-    const n = snap.asetNonLikuid
-    const allRows = [
-      ...l.kas,
-      ...l.deposito,
-      ...l.reksaDana,
-      ...l.sbn,
-      ...l.cryptoManual,
-      ...n.properti,
-      ...n.kendaraan,
-      ...n.pensiun,
-    ]
-    return allRows.some((r) => (r.amount || 0) > 0)
-  })
-  const anySahamLot = computed(() => snap.saham.some((s) => (s.lot || 0) > 0))
-  const anyEmasGram = computed(() => {
-    const e = snap.emas
-    return (
-      e.digitalGram +
-        e.fisikAntamGram +
-        e.perhiasan18KGram +
-        e.perhiasan14KGram +
-        e.perhiasan10KGram >
-      0
-    )
-  })
-  const anyDebtValue = computed(
-    () =>
-      snap.cicilanAktif.some(
-        (c) => (c.sisaPokok || 0) > 0 || (c.cicilanPerBulan || 0) > 0,
-      ) ||
-      snap.utangPribadi.some(
-        (u) => (u.sisaPokok || 0) > 0 || (u.cicilanPerBulan || 0) > 0,
-      ) ||
-      snap.gadai.some(
-        (g) => (g.piutangIdr || 0) > 0 || (g.gramTertahan || 0) > 0,
-      ),
-  )
-  const isEmpty = computed(
-    () =>
-      snap.penghasilan === 0 &&
-      snap.pengeluaran.pokok === 0 &&
-      snap.pengeluaran.lifestyle === 0 &&
-      !anyAssetAmount.value &&
-      !anySahamLot.value &&
-      !anyEmasGram.value &&
-      !anyDebtValue.value,
-  )
+  // No `isEmpty` gate here. The Screen-10 all-empty visual is handled in DashboardPanel
+  // by always rendering HeroPair + MetricGrid; each MetricCard renders "—" + hint when
+  // its underlying value is null (per-metric rule, D0.5). TopNav.downloadDisabled
+  // separately gates on totalAset === 0 — that's the right "is there anything to
+  // export?" check.
 
   return {
     setPrices,
@@ -136,6 +88,5 @@ export const useDerivedStore = defineStore('derived', () => {
     allocationDiscipline,
     goalHealth,
     emasBreakdown,
-    isEmpty,
   }
 })
