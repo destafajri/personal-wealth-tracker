@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// PRD §5.4 layout: 6 health metrics under Hero pair. Goal Health (composite) is
+// shown alongside the Goal cards panel, NOT here — surfaces in Day 5.
 import MetricCard from '~/components/dashboard/MetricCard.vue'
 import { useDerivedStore } from '~/stores/derived'
 
@@ -48,13 +50,6 @@ const derived = useDerivedStore()
       empty-key="metric.empty.allocationDiscipline"
       :value="derived.allocationDiscipline"
       unit="pp"
-    />
-    <MetricCard
-      threshold-key="goalHealth"
-      label-key="metric.goalHealth.label"
-      empty-key="metric.empty.goalHealth"
-      :value="derived.goalHealth"
-      unit="percent"
     />
   </div>
 </template>

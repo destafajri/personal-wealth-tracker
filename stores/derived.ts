@@ -67,26 +67,27 @@ export const useDerivedStore = defineStore('derived', () => {
   // Day 5 will wire goalHealth. Returning null keeps the dashboard "—" state honest.
   const goalHealth = computed<number | null>(() => null)
 
-  // Convenience: does the snapshot have any meaningful input? Reads input fields
-  // directly — NOT totalAset — so a user who entered grams but is still waiting on
-  // price fetch doesn't see "empty" dashboard flicker.
-  const hasAnyAssetRow = computed(() => {
+  // Convenience: does the snapshot have any meaningful VALUE? Reads numeric inputs
+  // directly — a row that exists with amount 0 / piutang 0 / grams 0 counts as still
+  // empty. Reading values (not totalAset) means a user who entered grams but is still
+  // waiting on price fetch doesn't see "empty" dashboard flicker either.
+  const anyAssetAmount = computed(() => {
     const l = snap.asetLikuid
     const n = snap.asetNonLikuid
-    return (
-      l.kas.length +
-        l.deposito.length +
-        l.reksaDana.length +
-        l.sbn.length +
-        l.cryptoManual.length +
-        n.properti.length +
-        n.kendaraan.length +
-        n.pensiun.length +
-        snap.saham.length >
-      0
-    )
+    const allRows = [
+      ...l.kas,
+      ...l.deposito,
+      ...l.reksaDana,
+      ...l.sbn,
+      ...l.cryptoManual,
+      ...n.properti,
+      ...n.kendaraan,
+      ...n.pensiun,
+    ]
+    return allRows.some((r) => (r.amount || 0) > 0)
   })
-  const hasAnyEmas = computed(() => {
+  const anySahamLot = computed(() => snap.saham.some((s) => (s.lot || 0) > 0))
+  const anyEmasGram = computed(() => {
     const e = snap.emas
     return (
       e.digitalGram +
@@ -97,16 +98,27 @@ export const useDerivedStore = defineStore('derived', () => {
       0
     )
   })
+  const anyDebtValue = computed(
+    () =>
+      snap.cicilanAktif.some(
+        (c) => (c.sisaPokok || 0) > 0 || (c.cicilanPerBulan || 0) > 0,
+      ) ||
+      snap.utangPribadi.some(
+        (u) => (u.sisaPokok || 0) > 0 || (u.cicilanPerBulan || 0) > 0,
+      ) ||
+      snap.gadai.some(
+        (g) => (g.piutangIdr || 0) > 0 || (g.gramTertahan || 0) > 0,
+      ),
+  )
   const isEmpty = computed(
     () =>
       snap.penghasilan === 0 &&
       snap.pengeluaran.pokok === 0 &&
       snap.pengeluaran.lifestyle === 0 &&
-      !hasAnyAssetRow.value &&
-      !hasAnyEmas.value &&
-      snap.cicilanAktif.length === 0 &&
-      snap.utangPribadi.length === 0 &&
-      snap.gadai.length === 0,
+      !anyAssetAmount.value &&
+      !anySahamLot.value &&
+      !anyEmasGram.value &&
+      !anyDebtValue.value,
   )
 
   return {

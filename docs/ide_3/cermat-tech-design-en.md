@@ -428,7 +428,7 @@ All metric formulas live as pure TypeScript functions. They take a snapshot-shap
 | Savings Rate | `calcSavingsRate(snap)` | percent | `null` if penghasilan = 0 → "Isi penghasilan dulu" |
 | Safe Haven % | `calcSafeHaven(snap, prices)` | percent | `null` if totalAset = 0 → "Isi aset dulu" |
 | Allocation Discipline | `calcAllocationDiscipline(stocks, prices)` | **avg pp drift** = `(1/n)·Σ \|bobot_live − bobot_target\|` (matches PRD §5.4 #7; lower = tighter). Zones: <5 Tight / 5–15 Drift / >15 Off-Plan | `null` if no stocks OR no stock has target → "Tambah saham + target bobot" (Day 4) |
-| Goal Health | `calcGoalHealth(goals, snap)` | percent on-track | `null` until Day 5 wires goals → "Bikin goal dulu (modul Plan)" |
+| Goal Health | `calcGoalHealth(goals, snap)` | percent on-track | Wired in Day 5 alongside Goals panel — **NOT rendered in the Day-3 MetricGrid** (PRD §5.4 explicitly places Goal Health "alongside the Goal cards panel", not in the 6-card health grid) |
 
 > **Total Pengeluaran (single definition, used by Runway + Savings Rate)** = `pengeluaran.pokok + pengeluaran.lifestyle + Σ cicilanAktif[].cicilanPerBulan + Σ utangPribadi[].cicilanPerBulan`. Cicilan is summed from the debt modules, never re-entered under pengeluaran (PRD §5.1.3). DSR uses only the `Σ cicilan` component (formal + informal) ÷ penghasilan, not Total Pengeluaran.
 >

@@ -6,6 +6,7 @@ import InputQuantity from '~/components/common/InputQuantity.vue'
 import { t } from '~/lib/copy/strings'
 import {
   emasCategoryOfJaminan,
+  pawnedGramOf,
   totalGramOf,
 } from '~/lib/finance/emas'
 import { useSnapshotStore } from '~/stores/snapshot'
@@ -32,23 +33,28 @@ const jaminanOptions: { value: GadaiJaminanKind; labelKey: Parameters<typeof t>[
 const isEmas = computed(() => props.row.jaminan.startsWith('emas:'))
 const emasCat = computed(() => emasCategoryOfJaminan(props.row.jaminan))
 
-const ownedGram = computed(() => {
-  if (!emasCat.value) return 0
-  return totalGramOf(
-    {
-      penghasilan: snap.penghasilan,
-      pengeluaran: snap.pengeluaran,
-      asetLikuid: snap.asetLikuid,
-      asetNonLikuid: snap.asetNonLikuid,
-      emas: snap.emas,
-      saham: snap.saham,
-      cicilanAktif: snap.cicilanAktif,
-      utangPribadi: snap.utangPribadi,
-      gadai: snap.gadai,
-    },
-    emasCat.value,
-  )
-})
+const snapView = computed(() => ({
+  penghasilan: snap.penghasilan,
+  pengeluaran: snap.pengeluaran,
+  asetLikuid: snap.asetLikuid,
+  asetNonLikuid: snap.asetNonLikuid,
+  emas: snap.emas,
+  saham: snap.saham,
+  cicilanAktif: snap.cicilanAktif,
+  utangPribadi: snap.utangPribadi,
+  gadai: snap.gadai,
+}))
+
+const ownedGram = computed(() =>
+  emasCat.value ? totalGramOf(snapView.value, emasCat.value) : 0,
+)
+
+// Total grams pawned across ALL gadai rows of this emas category — catches the
+// cross-row overcommit case where each row stays individually under owned grams
+// but Σ exceeds. Row-level warning fires on every row contributing to the over.
+const totalPawnedInCategory = computed(() =>
+  emasCat.value ? pawnedGramOf(snapView.value, emasCat.value) : 0,
+)
 
 const emasJenisLabel = computed(() => {
   if (props.row.jaminan === 'emas:digital') return t('gadai.jaminan.emas.digital')
@@ -70,7 +76,7 @@ const overOwned = computed(
   () =>
     isEmas.value &&
     ownedGram.value > 0 &&
-    (props.row.gramTertahan ?? 0) > ownedGram.value,
+    totalPawnedInCategory.value > ownedGram.value,
 )
 
 // Non-emas: list of asetNonLikuid rows the user can link to.
@@ -160,7 +166,7 @@ const nonEmasEmptyMsgKey = computed<Parameters<typeof t>[0] | null>(() => {
         >
           {{
             t('gadai.warning.overOwned', {
-              pawned: row.gramTertahan ?? 0,
+              pawned: totalPawnedInCategory,
               owned: ownedGram,
             })
           }}

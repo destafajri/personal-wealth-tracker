@@ -194,30 +194,7 @@ export function calcAllocationDiscipline(
 
 // ----- 9. Goal Health — wired in Day 5; stubbed null here so derived store can wire it now.
 
-// ----- Empty-state hint keys (per-metric, D0.5) -----
-//
-// Maps a metric key to a copy-registry key. The dashboard reads this when the metric value
-// is null, to render "Isi X dulu" hint under the "—" placeholder.
-
-export type MetricKey =
-  | 'netWorth'
-  | 'modalSiap'
-  | 'dsr'
-  | 'dar'
-  | 'runway'
-  | 'savingsRate'
-  | 'safeHaven'
-  | 'allocationDiscipline'
-  | 'goalHealth'
-
-export const emptyHintKey: Record<MetricKey, string> = {
-  netWorth: 'metric.empty.netWorth',
-  modalSiap: 'metric.empty.modalSiap',
-  dsr: 'metric.empty.dsr',
-  dar: 'metric.empty.dar',
-  runway: 'metric.empty.runway',
-  savingsRate: 'metric.empty.savingsRate',
-  safeHaven: 'metric.empty.safeHaven',
-  allocationDiscipline: 'metric.empty.allocationDiscipline',
-  goalHealth: 'metric.empty.goalHealth',
-}
+// Empty-state hints (per-metric, D0.5) live as `metric.empty.{key}` strings in
+// `lib/copy/strings.ts`. Each MetricCard passes its own `emptyKey` literal directly —
+// there is no mapping layer in TS, so the registry stays the single source.
+// (See lib/finance/thresholds.ts for the canonical MetricKey type used by zoneOf.)
