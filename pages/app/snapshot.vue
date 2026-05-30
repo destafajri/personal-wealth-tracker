@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { t } from '~/lib/copy/strings'
 
-definePageMeta({ layout: 'default' })
+definePageMeta({ layout: 'default', ssr: false })
 useSeoMeta({ title: `${t('snapshot.placeholder.title')} — ${t('brand.name')}` })
 </script>
 

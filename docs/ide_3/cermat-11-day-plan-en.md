@@ -73,10 +73,15 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 - [ ] D2.3 — `server/api/prices/usdidr.get.ts` — Yahoo v8 chart `USDIDR=X` → `meta.regularMarketPrice`, 15-min cache
 - [ ] D2.4 — Common envelope: every endpoint carries `{ stale, fetchedAt }`; payload endpoint-specific (idx `prices[]`, gold `hargaJual/Beli`, usdidr `rate`) — see tech-design §7.4; failures return `stale:true` not 5xx
 - [ ] D2.5 — `composables/usePrices.ts` — reactive client fetch + in-memory memo + STALE detection
-- [ ] D2.6 — `tests/` — Nitro handler tests with mocked `$fetch`: cache hit/miss, bad ticker 400, stale fallback
+- [~] D2.6 — _partial_: pure-helper unit tests done (`tests/prices/{yahoo,pegadaian}.test.ts`, 23 cases). Handler + composable integration tests deferred — needs `@nuxt/test-utils` runtime setup.
 
 **Done:** all 3 endpoints return cached responses locally + on Vercel preview; bad ticker rejected; stale path verified.
 **Depends on:** D1. (D0.4)
+
+**Deferred from Codex review (handle when Day 4 Saham per-emiten lands):**
+- IDX chart fallback: per-ticker `/v8/finance/chart/{TICKER}.JK` retry for tickers missing from spark batch. Current impl = host-failover only (query1→query2). Spec §7.1 narrative mentions chart as failover, but reference code in tech-design itself is host-only — implementing per-ticker chart retry only becomes meaningful once Day-4 partial-fail UX needs it.
+- Handler integration tests (mocked `$fetch` / cache hit-miss / 400 / stale fallback) — same `@nuxt/test-utils` blocker as D2.6.
+- Composable tests (`useIdxPrices` / `useGoldPrice` / `useUsdIdr`) — same blocker.
 
 ---
 

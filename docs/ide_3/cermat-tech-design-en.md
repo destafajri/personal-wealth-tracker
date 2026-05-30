@@ -491,7 +491,7 @@ export default defineCachedEventHandler(async (event) => {
 
 ### 7.2 `/api/prices/gold`
 
-**Confirmed source:** Pegadaian Tabungan Emas public JSON endpoint — `GET https://sahabat.pegadaian.co.id/gold/prices/savings`. No params, no cookies, no auth (plain GET works). Privacy-clean: the proxy sends *nothing* user-specific upstream.
+**Confirmed source:** Pegadaian Tabungan Emas public JSON endpoint — `GET https://pegadaian.co.id/gold/prices/savings`. No params, no cookies, no auth (plain GET works). Privacy-clean: the proxy sends *nothing* user-specific upstream.
 
 Response:
 ```json
@@ -510,7 +510,7 @@ Response:
 ```ts
 // server/api/prices/gold.get.ts
 export default defineCachedEventHandler(async () => {
-  const res = await $fetch<PegadaianGold>('https://sahabat.pegadaian.co.id/gold/prices/savings')
+  const res = await $fetch<PegadaianGold>('https://pegadaian.co.id/gold/prices/savings')
   return {
     hargaJual: Number(res.data.hargaJual),  // valuation price (buyback)
     hargaBeli: Number(res.data.hargaBeli),
