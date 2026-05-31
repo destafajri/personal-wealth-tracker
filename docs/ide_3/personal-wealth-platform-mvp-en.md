@@ -166,7 +166,7 @@ Indonesian adults face a small number of large, mostly-irreversible financial de
 
 1. **Brand name** — *Cermat* is working. Alternates: *Hitungin*, *Tepat*, *Bobot*, *Sehat Finansial*. Decision needed before design.
 2. **IDX live price source** — Yahoo Finance via `BBCA.JK` (recommended), Goapi.id (paid), or Stockbit unofficial (risky)?
-3. **FI formula multiplier** — Lock to 300 (4% safe withdrawal), or expose multiplier slider for user (240/300/360)?
+3. ~~**FI formula multiplier** — Lock to 300 (4% safe withdrawal), or expose multiplier slider for user (240/300/360)?~~ **Closed 2026-05-31 (D0.2):** locked to `300`. No slider for MVP.
 4. **Modal Siap Distribusi formula** — Cash + Deposito + RD + Crypto liquid? Or also subtract emergency-fund buffer (6× expenses)?
 5. **Capacity wizard scope** — Ship all 3 (Max Utang + Lunasi + Modal Options), or only top 2?
 6. **Disclaimer copy** — Must be ironclad. Anchor: *"Cermat adalah kalkulator dan alat bantu visualisasi. Bukan saran investasi atau perencanaan keuangan profesional."*

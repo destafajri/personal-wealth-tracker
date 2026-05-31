@@ -500,8 +500,8 @@ Two structured panels live inside the Utang section — Cicilan Aktif (§8.14.1)
 │  Rp 970.000.000 / Rp 5.400.000.000   (FI Number)                    │
 │  [█████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 18%                            │
 │                                                                       │
-│  Asumsi: Pengeluaran bulanan Rp 18jt × [300▼] = Rp 5.4M             │
-│         ↑ multiplier dropdown (240 / 300 / 360 / custom)             │
+│  Asumsi: Pengeluaran bulanan Rp 18jt × 300 = Rp 5.4M                │
+│         ↑ multiplier fixed 300 (4% rule, Trinity baseline)           │
 │                                                                       │
 │  Bucket: RD + Saham + SBN + Deposito                                  │
 │  Kontribusi bulanan dibutuhkan: Rp 4.800.000                          │
@@ -511,7 +511,7 @@ Two structured panels live inside the Utang section — Cicilan Aktif (§8.14.1)
 
 - Status badge color: green ON_TRACK / amber AT_RISK / rose OFF_TRACK
 - Progress bar same accent-emerald-soft fill pattern as per-emiten cards
-- FI multiplier dropdown highlights formula explicitly (descriptive, not advice)
+- FI multiplier shown inline (`× 300`) highlights the formula explicitly (descriptive, not advice; D0.2 closed = no dropdown for MVP)
 
 ### 8.16 Wizard Launcher (Simulator tab)
 
@@ -812,12 +812,12 @@ Same as Screen 2 but Saham subsection in Aset Likuid is expanded, showing:
 
 Goals tab active. Show 3 goal cards:
 
-1. **Financial Independence** (special FI card with multiplier dropdown):
+1. **Financial Independence** (special FI card with multiplier formula inline):
    - Target: Rp 5.400.000.000 (auto: pengeluaran 18jt × 300)
    - Progress: 18% (Rp 970.000.000)
    - Status: On-Track
    - Bucket: RD + Saham + SBN + Deposito
-   - Multiplier dropdown visible: `[300 ▼]`
+   - Multiplier rendered as inline label: `× 300` (D0.2 closed — fixed, no dropdown)
 
 2. **DP Rumah Bandung 2028**:
    - Target: Rp 500.000.000, Date: 2028-03

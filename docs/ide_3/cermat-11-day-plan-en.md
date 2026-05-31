@@ -34,7 +34,7 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 | Task | Question | Blocks |
 |---|---|---|
 | D0.1 | Brand name — "Cermat" final or alt? | D1 wordmark |
-| D0.2 | FI multiplier — fixed 300 or 240/300/360 dropdown? | D5 |
+| D0.2 | ✅ RESOLVED — fixed `300` (4% rule, Trinity baseline); no dropdown for MVP | D5 |
 | D0.3 | Modal Siap formula — subtract emergency buffer? | D3 |
 | D0.4 | ✅ RESOLVED — Yahoo `/v7/spark`+`/v8/chart` (free, no-auth, tested 2026-05-28); Goapi only if Vercel egress blocked | D2 |
 | D0.5 | 9-metric "—" rules — per-metric or shared? | D3 |
@@ -131,12 +131,12 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 - [ ] D5.2 — `lib/finance/goals.ts` — FI formula (expenses × multiplier), goal projection (future-value, real-return default 5%; inflow = surplus ÷ N default + manual allocation override), contribution-needed, status (On/At-Risk/Off) (+ Vitest)
 - [ ] D5.3 — `lib/finance/metrics.ts` — `calcGoalHealth(goals, snap)` (+ Vitest)
 - [ ] D5.4 — `pages/app/goals.vue` + `components/goals/GoalForm.vue` (type, target, date, bucket tags)
-- [ ] D5.5 — `components/goals/GoalCard.vue` (standard) + `FiGoalCard.vue` (multiplier dropdown per D0.2)
+- [ ] D5.5 — `components/goals/GoalCard.vue` (standard) + `FiGoalCard.vue` (multiplier = fixed 300 per D0.2; show formula inline, no dropdown)
 - [ ] D5.6 — `components/dashboard/{GoalHealthChip,GoalSummaryCards}.vue` on dashboard
 - [ ] D5.7 — Bucket tagging: tag assets → progress auto-computes from tagged buckets
 
 **Done:** Multiple goals addable; FI target auto-computes from expenses × multiplier; Goal Health chip live; bucket-based progress correct.
-**Depends on:** D3 (expenses, assets). (D0.2)
+**Depends on:** D3 (expenses, assets).
 
 ---
 

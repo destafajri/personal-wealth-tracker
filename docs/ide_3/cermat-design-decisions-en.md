@@ -144,7 +144,7 @@ Audit ~50 copy strings before Day 11 ship (MVP §4 Day 9 milestone).
 These can wait until coding starts but should be resolved before final polish:
 
 1. ~~**Brand name lock**~~ — **Closed 2026-05-30:** *Cermat* final.
-2. **FI multiplier** — 300 fixed or expose 240/300/360 slider (MVP §6.3) — blocks Day 5.
+2. ~~**FI multiplier** — 300 fixed or expose 240/300/360 slider (MVP §6.3) — blocks Day 5.~~ — **Closed 2026-05-31 (D0.2):** fixed `300` (4% rule, Trinity baseline; monthly equivalent of 25× annual expenses). No dropdown for MVP. Rationale: (a) Cermat's primary audience (Indonesian adults new to FI literacy) needs one canonical number, not a knob they can't calibrate; (b) exposing 240/360 implies precision the underlying SWR doesn't have — both are debated even in stable USD/equity research, and Indonesia's higher inflation + different return profile makes the spread even fuzzier; (c) re-introducing the dropdown later is cheap (`nMultiplier` is 1 number in `FI = totalPengeluaran × n`). FiGoalCard renders the formula inline so the assumption is visible, not advice.
 3. ~~**Modal Siap formula edge case** — subtract dana darurat 3–6 bln buffer? (PRD §11.4)~~ — **Closed Day 3 (D0.3):** no auto-subtract. Formula = Kas + Deposito + RD + Crypto Liquid only; emergency buffer is **advisory copy** alongside the figure ("Pertimbangkan keep dana darurat 3–6 bulan terpisah"). Rationale: prescriptive subtraction violates OJK descriptive-tone rule; user decides what counts as buffer.
 4. ~~**Mobile breakpoint behavior**~~ — **Closed 2026-05-30:** bottom-nav with 4 tabs (Track/Plan/Decide/Discover). Applied at Day 3 (app shell) and to be polished at Day 11.
 5. ~~**9-metric: when do "—" / disabled states show?**~~ — **Closed Day 3 (D0.5):** per-metric rule. Each metric defines its own prerequisite + hint copy (e.g., DSR null when penghasilan = 0, hint = "Isi penghasilan dulu"). Surfaces in MetricCard via `emptyHintKey` mapping. Avoids a single global gate that would hide all metrics until snapshot is "complete enough".
@@ -165,4 +165,4 @@ Resolved during Day 3 implementation review, beyond the original Day-0 list:
 
 ---
 
-**Next step:** Update memory + push commits, then trigger Codex review. After Codex round, evaluate D0.2 (FI multiplier) before Day 5.
+**Next step:** Day-0 decisions all closed (D0.1 Cermat / D0.2 FI×300 / D0.3 Modal Siap no-subtract / D0.4 Yahoo / D0.5 per-metric "—" / D0.6 Plausible — Day 10). Day 4 (per-emiten saham) is next once Codex round-7 lands.

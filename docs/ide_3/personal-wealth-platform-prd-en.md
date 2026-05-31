@@ -734,7 +734,7 @@ Modal Options panel must use *"Opsi yang bisa dihitungkan"*, never *"Rekomendasi
 
 1. **Brand name** — *Cermat* working. Alternates: *Hitungin*, *Tepat*, *Bobot*. Decision needed before design.
 2. **IDX live price source** — Yahoo Finance via `BBCA.JK` (recommended), Goapi.id (paid), or Stockbit unofficial (risky)?
-3. **FI formula multiplier** — Lock to 300 (4% safe withdrawal), or expose multiplier (240/300/360) as user-configurable?
+3. ~~**FI formula multiplier** — Lock to 300 (4% safe withdrawal), or expose multiplier (240/300/360) as user-configurable?~~ **Closed 2026-05-31 (D0.2):** locked to `300`. Formula rendered inline on FiGoalCard so the assumption is visible; no dropdown for MVP.
 4. ~~**Modal Siap Distribusi formula** — Cash + Deposito + RD + Crypto liquid? Or also subtract emergency-fund buffer (6× expenses)? Or let user tag which assets are "deployable"?~~ **Closed Day 3 (D0.3):** Kas + Deposito + RD + Crypto Liquid; no auto-subtract; emergency buffer surfaces as advisory copy only.
 5. **Capacity wizard scope** — Ship all 3 (Max Utang + Lunasi + Modal Options), or top 2 only?
 6. **Modal Options ranking** — How are options ordered in the panel? By "biggest metric improvement", by IDR amount, by user preference? *(Recommend: by category — debt reduction → asset acquisition — without "best to worst" framing to avoid prescriptive UX.)*

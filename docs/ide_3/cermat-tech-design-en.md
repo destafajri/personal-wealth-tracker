@@ -149,7 +149,7 @@ cermat/
 │   │   └── PerEmitenCard.vue     # collapsed + expanded
 │   ├── goals/
 │   │   ├── GoalCard.vue          # standard variant
-│   │   ├── FiGoalCard.vue        # FI variant with multiplier dropdown
+│   │   ├── FiGoalCard.vue        # FI variant, multiplier fixed at 300 (D0.2)
 │   │   └── GoalForm.vue          # add/edit goal
 │   ├── dashboard/
 │   │   ├── HeroPair.vue          # Net Worth + Modal Siap, §8.11
@@ -838,7 +838,7 @@ These must be answered before code that depends on them:
 | # | Question | Blocks |
 |---|---|---|
 | 1 | Brand name lock — "Cermat" or alt? | Day 1 (wordmark in TopNav) |
-| 2 | FI multiplier — fixed 300, or 240/300/360 dropdown? | Day 5 (Goals FI auto-formula) |
+| 2 | ~~FI multiplier — fixed 300, or 240/300/360 dropdown?~~ **RESOLVED 2026-05-31 (D0.2):** fixed `300` (4% rule). No dropdown — exposing 240/360 invites false precision when the underlying SWR is itself ESTIMASI for EM. Power users can override later if validated by usage. | ~~Day 5~~ done |
 | 3 | Modal Siap formula — subtract 3–6 mo emergency buffer? | Day 3 (Modal Siap metric card) |
 | 4 | Mobile breakpoint — bottom-nav vs hamburger? | Day 11 (mobile polish) |
 | 5 | 9-metric "—" rules — explicit per-metric, or shared rule? | Day 3 (empty/partial states) |
