@@ -13,7 +13,7 @@ import type {
 //
 // IMPORTANT: these are *estimates*; UI MUST surface them as such.
 export const EMAS_VALUATION = {
-  fisikAntamSpread: 0.93, // ~7% spread vs list (Antam buyback)
+  fisikAntamSpread: 0.897, // ~10.3% spread vs list (Antam buyback)
   perhiasan18K: 0.595, // ~57–62% Antam (kadar ~75%)
   perhiasan14K: 0.455, // ~43–48% Antam (kadar ~58.3%)
   perhiasan10K: 0.375, // ~35–40% Antam (kadar ~41.7%)

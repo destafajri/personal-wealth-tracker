@@ -28,7 +28,7 @@ describe('calcTotalAset / calcTotalUtang / calcNetWorth', () => {
     s.asetLikuid.deposito.push(row(20_000_000))
     s.asetNonLikuid.properti.push(row(1_000_000_000))
     // emas.fisikAntamGram = 60 (TOTAL owned, including the 10g pawned below)
-    // 60 × 2_000_000 × 0.93 = 111_600_000
+    // 60 × 2_000_000 × 0.897 = 107_640_000
     s.emas.fisikAntamGram = 60
     s.gadai.push({
       id: 'g1',
@@ -50,9 +50,9 @@ describe('calcTotalAset / calcTotalUtang / calcNetWorth', () => {
         { idr: number | null; usd: number | null; eur: number | null; jpy: number | null; krw: number | null }
       >,
     }
-    // 30jt likuid + 1mlrd properti + 111.6jt fisik + 10jt saham
+    // 30jt likuid + 1mlrd properti + 107.64jt fisik + 10jt saham
     expect(calcTotalAset(s, prices)).toBe(
-      30_000_000 + 1_000_000_000 + 111_600_000 + 10_000_000,
+      30_000_000 + 1_000_000_000 + 107_640_000 + 10_000_000,
     )
   })
 
@@ -372,8 +372,8 @@ describe('calcRunway', () => {
         { idr: number | null; usd: number | null; eur: number | null; jpy: number | null; krw: number | null }
       >,
     }
-    // at-home = 50g; 50 × 1jt × 0.93 = 46.5jt; runway = 46.5
-    expect(calcRunway(s, prices)).toBeCloseTo(46.5, 6)
+    // at-home = 50g; 50 × 1jt × 0.897 = 44.85jt; runway = 44.85
+    expect(calcRunway(s, prices)).toBeCloseTo(44.85, 6)
   })
 })
 

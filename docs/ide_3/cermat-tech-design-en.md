@@ -522,7 +522,7 @@ Five emas categories, each with its own buyback rate vs Antam 1g list price. Mul
 
 ```ts
 export const EMAS_VALUATION = {
-  fisikAntamSpread: 0.93,   // ~7% spread vs Antam list price
+  fisikAntamSpread: 0.897,  // ~10.3% spread vs Antam list price
   perhiasan18K:     0.595,  // ~57–62% Antam (kadar ~75%)
   perhiasan14K:     0.455,  // ~43–48% Antam (kadar ~58.3%)
   perhiasan10K:     0.375,  // ~35–40% Antam (kadar ~41.7%)
@@ -623,7 +623,7 @@ Payload (all rates per 1 gram):
 ```
 
 - `hargaJual` = Pegadaian Digital buyback per gram → drives `emas.digitalGram` valuation
-- `antam1g` = Antam list price per gram → base for fisik (×0.93) + perhiasan (18K ×0.595 / 14K ×0.455 / 10K ×0.375)
+- `antam1g` = Antam list price per gram → base for fisik (×0.897) + perhiasan (18K ×0.595 / 14K ×0.455 / 10K ×0.375)
 - `stale: true` if EITHER source returned null (Modal Siap / Net Worth display honesty)
 
 Cache 60 min — Pegadaian moves prices at most daily; minute-level freshness is pointless. `name` field bumped to `v2` to retire any pre-table cache entries on deploy.

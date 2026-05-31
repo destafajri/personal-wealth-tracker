@@ -141,7 +141,7 @@ export interface Pengeluaran {
 // Each gram is "owned at home" (not pawned); pawned grams live on gadai[].gramTertahan.
 export interface EmasState {
   digitalGram: number // valued at Pegadaian Digital hargaJual
-  fisikAntamGram: number // valued at Antam 1g × ~0.93 buyback spread
+  fisikAntamGram: number // valued at Antam 1g × ~0.897 buyback spread
   perhiasan18KGram: number // ~59.5% Antam
   perhiasan14KGram: number // ~45.5% Antam
   perhiasan10KGram: number // ~37.5% Antam
