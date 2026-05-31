@@ -14,8 +14,23 @@ export type ExplainerKey =
   | 'allocationDiscipline'
   | 'rasioTertahan'
 
+// Union of every zone label used across all 9 metrics. Modal's color-class map keys
+// on this type so any new label here forces a matching entry there at compile time.
+export type ZoneLabel =
+  | 'Sehat'
+  | 'Waspada'
+  | 'Bahaya'
+  | 'Konservatif'
+  | 'Seimbang'
+  | 'Agresif'
+  | 'Tight'
+  | 'Drift'
+  | 'Off-Plan'
+  | 'Aman'
+  | 'Risiko Likuidasi'
+
 export interface ExplainerZone {
-  label: string // 'Sehat' / 'Waspada' / 'Bahaya' / 'Konservatif' / etc
+  label: ZoneLabel
   range: string // '<30%' / '30–40%' / '≥40%'
   body: string
 }

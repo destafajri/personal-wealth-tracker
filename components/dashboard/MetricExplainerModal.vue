@@ -1,27 +1,27 @@
 <script setup lang="ts">
 import { X } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
-import { metricExplainers } from '~/lib/copy/metric-explainers'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { metricExplainers, type ZoneLabel } from '~/lib/copy/metric-explainers'
 import { useMetricExplainer } from '~/composables/useMetricExplainer'
 
 const { active, isOpen, close } = useMetricExplainer()
+const panelRef = ref<HTMLElement | null>(null)
 
 const spec = computed(() =>
   active.value === null ? null : metricExplainers[active.value],
 )
 
-const ZONE_CLASS: Record<string, string> = {
-  // Lower-better good / higher-better good — both render emerald
+// Keyed on ZoneLabel union so adding a new label in metric-explainers forces a matching
+// entry here at compile time.
+const ZONE_CLASS: Record<ZoneLabel, string> = {
   Sehat: 'bg-[var(--color-accent-emerald-soft)] text-[var(--color-accent-emerald)]',
   Konservatif:
     'bg-[var(--color-accent-emerald-soft)] text-[var(--color-accent-emerald)]',
   Tight: 'bg-[var(--color-accent-emerald-soft)] text-[var(--color-accent-emerald)]',
   Aman: 'bg-[var(--color-accent-emerald-soft)] text-[var(--color-accent-emerald)]',
-  // Middle zone — amber
   Waspada: 'bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]',
   Seimbang: 'bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]',
   Drift: 'bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]',
-  // High-risk side — rose
   Bahaya: 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
   Agresif: 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
   'Off-Plan': 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
@@ -29,21 +29,85 @@ const ZONE_CLASS: Record<string, string> = {
     'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
 }
 
-function zoneClass(label: string): string {
-  return ZONE_CLASS[label] ?? 'bg-[var(--color-surface-low)] text-[var(--color-text-secondary)]'
+function zoneClass(label: ZoneLabel): string {
+  return ZONE_CLASS[label]
 }
 
-function onEscape(e: KeyboardEvent) {
-  if (e.key === 'Escape' && isOpen.value) close()
+function focusableIn(root: HTMLElement): HTMLElement[] {
+  return Array.from(
+    root.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ),
+  )
 }
 
-onMounted(() => document.addEventListener('keydown', onEscape))
-onBeforeUnmount(() => document.removeEventListener('keydown', onEscape))
+function onKeydown(e: KeyboardEvent) {
+  if (!isOpen.value) return
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    close()
+    return
+  }
+  if (e.key === 'Tab' && panelRef.value) {
+    const focusable = focusableIn(panelRef.value)
+    if (focusable.length === 0) {
+      // No focusable children — keep focus pinned to the panel itself.
+      e.preventDefault()
+      panelRef.value.focus()
+      return
+    }
+    const first = focusable[0]!
+    const last = focusable[focusable.length - 1]!
+    const activeEl = document.activeElement as HTMLElement | null
+    if (e.shiftKey && (activeEl === first || activeEl === panelRef.value)) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && activeEl === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
+}
 
-// Lock body scroll while the modal is open so the page behind doesn't drift.
-watch(isOpen, (open) => {
+// Snapshot prior body.overflow so we restore (not clobber) on close — handles the case
+// where some other component already set it for its own reason.
+let prevBodyOverflow: string | null = null
+
+function lockBodyScroll() {
   if (typeof document === 'undefined') return
-  document.body.style.overflow = open ? 'hidden' : ''
+  prevBodyOverflow = document.body.style.overflow
+  document.body.style.overflow = 'hidden'
+}
+
+function unlockBodyScroll() {
+  if (typeof document === 'undefined') return
+  if (prevBodyOverflow !== null) {
+    document.body.style.overflow = prevBodyOverflow
+    prevBodyOverflow = null
+  }
+}
+
+watch(
+  isOpen,
+  async (open) => {
+    if (open) {
+      lockBodyScroll()
+      await nextTick()
+      panelRef.value?.focus()
+    } else {
+      unlockBodyScroll()
+    }
+  },
+  // immediate handles the edge case where the modal mounts while `active` is already
+  // set (e.g., HMR), so body scroll + focus still wire up correctly.
+  { immediate: true },
+)
+
+onMounted(() => document.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onKeydown)
+  // Restore body scroll if the modal unmounts while still open (route nav / HMR).
+  unlockBodyScroll()
 })
 </script>
 
@@ -55,13 +119,19 @@ watch(isOpen, (open) => {
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6"
         role="dialog"
         aria-modal="true"
+        aria-labelledby="metric-explainer-title"
         @click.self="close"
       >
         <div
-          class="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[var(--radius-card)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-modal)]"
+          ref="panelRef"
+          tabindex="-1"
+          class="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[var(--radius-card)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-modal)] focus:outline-none"
         >
           <header class="mb-4 flex items-start justify-between gap-4">
-            <h2 class="text-lg font-bold text-[var(--color-primary-dark)]">
+            <h2
+              id="metric-explainer-title"
+              class="text-lg font-bold text-[var(--color-primary-dark)]"
+            >
               {{ spec.title }}
             </h2>
             <button
