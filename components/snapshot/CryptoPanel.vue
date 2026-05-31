@@ -147,6 +147,10 @@ function onAmount(id: string, v: number | null) {
 function setMode(id: string, mode: CryptoMode) {
   const row = snap.crypto.find((r) => r.id === id)
   if (!row) return
+  // Same-mode tap = true no-op. updateCrypto replaces the row object (spread merge)
+  // even when the patch is identical, which would otherwise trigger downstream
+  // reactivity for no reason.
+  if (row.mode === mode) return
   snap.updateCrypto(id, nextCryptoModePatch(row.mode, mode))
 }
 
