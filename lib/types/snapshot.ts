@@ -38,6 +38,9 @@ export interface StockHolding {
   lot: number
   hargaRataRata: number // IDR / lembar (cost basis)
   bobotTargetPercent?: number // 0–100; missing = no target set
+  // Manual price override (IDR / lembar). When set, valuation uses this instead of the
+  // live IDX price — escape hatch when the live feed is stale, wrong, or missing.
+  hargaOverride?: number
 }
 
 // Crypto holding with per-row mode + canonical CoinGecko ID (picked from the top-52

@@ -11,7 +11,7 @@ import {
   calcTotalAset,
   calcTotalUtang,
 } from '~/lib/finance/metrics'
-import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
+import { emptySnapshot, type PricesView, type SnapshotState } from '~/lib/types/snapshot'
 
 function row(amount: number, label = 'x') {
   return { id: crypto.randomUUID(), label, amount }
@@ -467,5 +467,38 @@ describe('calcAllocationDiscipline', () => {
       },
     ]
     expect(calcAllocationDiscipline(stocks)).toBeCloseTo(10, 6)
+  })
+
+  it('hargaOverride takes precedence over live + cost basis', () => {
+    // BBCA override 20_000 → 100jt (100% live), target 50 → drift 50
+    // BBRI no override, live = 5_000 → 25jt (... wait, total = 100+25 = 125)
+    // BBCA bobot = 100/125 = 80%, target 50 → drift 30
+    // BBRI bobot = 25/125 = 20%, target 50 → drift 30
+    // avg = 30 pp
+    const stocks = [
+      {
+        id: '1',
+        ticker: 'BBCA',
+        lot: 50,
+        hargaRataRata: 10_000,
+        bobotTargetPercent: 50,
+        hargaOverride: 20_000, // overrides whatever live says
+      },
+      {
+        id: '2',
+        ticker: 'BBRI',
+        lot: 50,
+        hargaRataRata: 10_000,
+        bobotTargetPercent: 50,
+      },
+    ]
+    const prices: PricesView = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: { BBCA: 99_999, BBRI: 5_000 }, // BBCA live ignored due to override
+      cryptoByCoinId: {},
+    }
+    expect(calcAllocationDiscipline(stocks, prices)).toBeCloseTo(30, 6)
   })
 })

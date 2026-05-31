@@ -6,6 +6,7 @@ import PengeluaranForm from '~/components/snapshot/PengeluaranForm.vue'
 import AsetLikuidPanel from '~/components/snapshot/AsetLikuidPanel.vue'
 import AsetNonLikuidPanel from '~/components/snapshot/AsetNonLikuidPanel.vue'
 import CryptoPanel from '~/components/snapshot/CryptoPanel.vue'
+import SahamPanel from '~/components/snapshot/SahamPanel.vue'
 import EmasPanel from '~/components/snapshot/EmasPanel.vue'
 import CicilanAktifPanel from '~/components/snapshot/CicilanAktifPanel.vue'
 import UtangPribadiPanel from '~/components/snapshot/UtangPribadiPanel.vue'
@@ -41,6 +42,7 @@ const fx = useFxRates()
 const idx = useIdxPrices(tickers)
 const crypto = useCryptoPrices()
 const cryptoLiveError = computed(() => crypto.error.value !== null)
+const idxLiveError = computed(() => idx.error.value !== null)
 
 function emptyFxRates(): FxRatesMap {
   return { USD: null, SGD: null, EUR: null, JPY: null, KRW: null }
@@ -81,6 +83,12 @@ watchEffect(() => {
     <PenghasilanForm />
     <PengeluaranForm />
     <AsetLikuidPanel />
+    <SahamPanel
+      :idx-rows="idx.data.value?.prices"
+      :live-error="idxLiveError"
+      :live-pending="idx.pending.value"
+      :on-refresh="idx.refresh"
+    />
     <CryptoPanel
       :live-error="cryptoLiveError"
       :live-pending="crypto.pending.value"

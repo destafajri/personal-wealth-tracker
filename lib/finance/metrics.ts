@@ -203,8 +203,10 @@ export function calcAllocationDiscipline(
 ): number | null {
   if (stocks.length === 0) return null
   const valued = stocks.map((s) => {
+    // Valuation precedence: manual override > live IDX > cost basis. Manual override
+    // wins so users can fix obviously-wrong live data without affecting cost basis.
     const live = prices?.idxByTicker[s.ticker] ?? null
-    const price = live ?? s.hargaRataRata
+    const price = s.hargaOverride ?? live ?? s.hargaRataRata
     return { stock: s, idr: s.lot * 100 * price }
   })
   const total = valued.reduce((sum, v) => sum + v.idr, 0)
