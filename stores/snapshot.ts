@@ -21,6 +21,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
   const init = emptySnapshot()
 
   const penghasilan = ref<number>(init.penghasilan)
+  const penghasilanLain = ref<number>(init.penghasilanLain)
   const pengeluaran = reactive({ ...init.pengeluaran })
   const asetLikuid = reactive(init.asetLikuid)
   const asetNonLikuid = reactive(init.asetNonLikuid)
@@ -248,9 +249,14 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     penghasilan.value = value
   }
 
+  function setPenghasilanLain(value: number) {
+    penghasilanLain.value = value
+  }
+
   function reset() {
     const fresh = emptySnapshot()
     penghasilan.value = fresh.penghasilan
+    penghasilanLain.value = fresh.penghasilanLain
     Object.assign(pengeluaran, fresh.pengeluaran)
     ;(['kas', 'deposito', 'reksaDana', 'sbn'] as const).forEach(
       (k) => (asetLikuid[k] = []),
@@ -268,6 +274,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
 
   return {
     penghasilan,
+    penghasilanLain,
     pengeluaran,
     asetLikuid,
     asetNonLikuid,
@@ -304,6 +311,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     setEmas,
     setPengeluaran,
     setPenghasilan,
+    setPenghasilanLain,
     reset,
   }
 })

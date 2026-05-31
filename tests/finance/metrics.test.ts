@@ -6,10 +6,12 @@ import {
   calcDsr,
   calcModalSiap,
   calcNetWorth,
+  calcPotentialDividendIdr,
   calcRunway,
   calcSafeHaven,
   calcSavingsRate,
   calcTotalAset,
+  calcTotalDividendAnnual,
   calcTotalUtang,
   effectiveStockPrice,
 } from '~/lib/finance/metrics'
@@ -432,6 +434,111 @@ describe('calcSafeHaven', () => {
     }
     // aset = 40jt likuid + 10jt emas + 50jt properti = 100jt; safe haven = 10+20+10+10 = 50jt → 50%
     expect(calcSafeHaven(s, prices)).toBeCloseTo(50, 6)
+  })
+})
+
+describe('calcPotentialDividendIdr', () => {
+  const baseStock = {
+    id: '1',
+    ticker: 'BBCA',
+    lot: 162,
+    hargaRataRata: 9_000,
+  }
+
+  it('returns 0 when neither lastDividend nor yield is set', () => {
+    expect(calcPotentialDividendIdr(baseStock, 10_000)).toBe(0)
+  })
+
+  it('uses lastDividendPerLembar literal when set: lot × 100 × lastDiv', () => {
+    // 162 lot × 100 × 225 = 3_645_000 (matches Stitch example)
+    expect(
+      calcPotentialDividendIdr(
+        { ...baseStock, lastDividendPerLembar: 225 },
+        10_000,
+      ),
+    ).toBe(3_645_000)
+  })
+
+  it('uses yield % × valuasi when lastDividend missing', () => {
+    // valuasi = 162 × 100 × 10_000 = 162_000_000; 4% yield → 6_480_000
+    expect(
+      calcPotentialDividendIdr(
+        { ...baseStock, avgDividendYieldPercent: 4 },
+        10_000,
+      ),
+    ).toBeCloseTo(6_480_000, 6)
+  })
+
+  it('lastDividend literal wins over yield % when both set', () => {
+    expect(
+      calcPotentialDividendIdr(
+        { ...baseStock, lastDividendPerLembar: 225, avgDividendYieldPercent: 4 },
+        10_000,
+      ),
+    ).toBe(3_645_000)
+  })
+
+  it('yield path uses effectiveStockPrice (override > live > cost basis)', () => {
+    // override 12_000 → valuasi 162 × 100 × 12_000 = 194_400_000; 4% = 7_776_000
+    expect(
+      calcPotentialDividendIdr(
+        { ...baseStock, hargaOverride: 12_000, avgDividendYieldPercent: 4 },
+        10_000, // live ignored due to override
+      ),
+    ).toBeCloseTo(7_776_000, 6)
+  })
+})
+
+describe('calcTotalDividendAnnual + DSR/SavingsRate integration', () => {
+  it('sums per-row dividends across stocks', () => {
+    const stocks = [
+      { id: '1', ticker: 'BBCA', lot: 162, hargaRataRata: 9_000, lastDividendPerLembar: 225 }, // 3_645_000
+      { id: '2', ticker: 'BBRI', lot: 100, hargaRataRata: 4_000, lastDividendPerLembar: 150 }, // 1_500_000
+    ]
+    expect(calcTotalDividendAnnual(stocks)).toBe(5_145_000)
+  })
+
+  it('dividend flows into calcDsr (denominator grows → ratio shrinks)', () => {
+    const s = baseSnap()
+    s.penghasilan = 10_000_000
+    s.cicilanAktif.push({
+      id: 'c1',
+      tipe: 'KPR',
+      label: 'KPR',
+      sisaPokok: 100_000_000,
+      cicilanPerBulan: 4_000_000,
+      jenisBunga: 'Flat',
+      sukuBunga: 5,
+      tenorSisaBulan: 60,
+    })
+    // Without dividend: DSR = 4jt / 10jt = 40%
+    expect(calcDsr(s)).toBeCloseTo(40, 6)
+    // Add dividend: 1jt/bulan (12jt/tahun). Total penghasilan = 11jt. DSR = 4/11 ≈ 36.36%
+    s.saham.push({
+      id: 's1',
+      ticker: 'BBCA',
+      lot: 100,
+      hargaRataRata: 9_000,
+      lastDividendPerLembar: 1_200, // 100 × 100 × 1_200 = 12_000_000/tahun = 1_000_000/bulan
+    })
+    expect(calcDsr(s)).toBeCloseTo((4_000_000 / 11_000_000) * 100, 4)
+  })
+
+  it('dividend flows into calcSavingsRate (denominator + numerator both adjust)', () => {
+    const s = baseSnap()
+    s.penghasilan = 10_000_000
+    s.pengeluaran.pokok = 6_000_000
+    // Without dividend: (10 − 6)/10 = 40%
+    expect(calcSavingsRate(s)).toBeCloseTo(40, 6)
+    s.saham.push({
+      id: 's1',
+      ticker: 'BBCA',
+      lot: 100,
+      hargaRataRata: 9_000,
+      lastDividendPerLembar: 1_200, // +1jt/bulan
+    })
+    // With dividend: (11 − 6)/11 ≈ 45.45%
+    expect(calcSavingsRate(s)).toBeCloseTo((5_000_000 / 11_000_000) * 100, 4)
   })
 })
 

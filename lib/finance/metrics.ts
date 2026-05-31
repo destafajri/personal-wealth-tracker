@@ -96,6 +96,43 @@ function sumStockIdr(stocks: StockHolding[], prices?: PricesView): number {
   )
 }
 
+// Per-row annual potential dividend (IDR / tahun). Precedence: literal lastDividend wins
+// (concrete, user-provided number) over the yield-percent path (yield × valuation). Both
+// optional — returns 0 when neither is set. Exported so panels / form can show per-row
+// figures with the same math used in aggregates.
+export function calcPotentialDividendIdr(
+  s: StockHolding,
+  livePrice: number | null,
+): number {
+  if (s.lastDividendPerLembar !== undefined && s.lastDividendPerLembar > 0) {
+    return s.lot * 100 * s.lastDividendPerLembar
+  }
+  if (s.avgDividendYieldPercent !== undefined && s.avgDividendYieldPercent > 0) {
+    const valuasi = s.lot * 100 * effectiveStockPrice(s, livePrice)
+    return valuasi * (s.avgDividendYieldPercent / 100)
+  }
+  return 0
+}
+
+export function calcTotalDividendAnnual(
+  stocks: StockHolding[],
+  prices?: PricesView,
+): number {
+  return stocks.reduce(
+    (sum, s) =>
+      sum + calcPotentialDividendIdr(s, prices?.idxByTicker[s.ticker] ?? null),
+    0,
+  )
+}
+
+// Monthly equivalent of total annual dividend — used to flow saham yield into the
+// /BULAN context (Penghasilan section, DSR, Savings Rate). Dividend doesn't actually
+// arrive monthly, but the monthly avg is what makes the numbers consistent across the
+// snapshot's monthly-cashflow framing.
+function dividendMonthly(snap: SnapshotState, prices?: PricesView): number {
+  return calcTotalDividendAnnual(snap.saham, prices) / 12
+}
+
 function sumCicilanPerBulan(snap: SnapshotState): number {
   // Formal amortizing + informal personal debt. Both are recurring monthly outflows that
   // drive DSR + Total Pengeluaran (Runway / Savings Rate).
@@ -157,11 +194,23 @@ export function calcModalSiap(snap: SnapshotState, prices?: PricesView): number 
   )
 }
 
+// Monthly penghasilan = Gaji Bersih + Penghasilan Lain + monthly avg of saham dividend.
+// Dividend is annual by nature; we /12 it to match the /BULAN context the rest of the
+// cashflow metrics (DSR, Runway, Savings Rate) operate in.
+function totalPenghasilanMonthly(snap: SnapshotState, prices?: PricesView): number {
+  return (
+    (snap.penghasilan || 0) +
+    (snap.penghasilanLain || 0) +
+    dividendMonthly(snap, prices)
+  )
+}
+
 // ----- 3. DSR — Σ cicilan / penghasilan (percent) -----
 
-export function calcDsr(snap: SnapshotState): number | null {
-  if (!snap.penghasilan || snap.penghasilan <= 0) return null
-  return (sumCicilanPerBulan(snap) / snap.penghasilan) * 100
+export function calcDsr(snap: SnapshotState, prices?: PricesView): number | null {
+  const peng = totalPenghasilanMonthly(snap, prices)
+  if (peng <= 0) return null
+  return (sumCicilanPerBulan(snap) / peng) * 100
 }
 
 // ----- 4. DAR — total utang / total aset (percent) -----
@@ -188,9 +237,13 @@ export function calcRunway(snap: SnapshotState, prices?: PricesView): number | n
 
 // ----- 6. Savings Rate — (penghasilan − totalPengeluaran) / penghasilan -----
 
-export function calcSavingsRate(snap: SnapshotState): number | null {
-  if (!snap.penghasilan || snap.penghasilan <= 0) return null
-  return ((snap.penghasilan - totalPengeluaran(snap)) / snap.penghasilan) * 100
+export function calcSavingsRate(
+  snap: SnapshotState,
+  prices?: PricesView,
+): number | null {
+  const peng = totalPenghasilanMonthly(snap, prices)
+  if (peng <= 0) return null
+  return ((peng - totalPengeluaran(snap)) / peng) * 100
 }
 
 // ----- 7. Safe Haven — (Kas + Emas + RD + Deposito) / Total Aset (percent) -----

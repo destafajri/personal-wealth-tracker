@@ -12,6 +12,7 @@ import {
   calcSafeHaven,
   calcSavingsRate,
   calcTotalAset,
+  calcTotalDividendAnnual,
   calcTotalUtang,
 } from '~/lib/finance/metrics'
 import { breakdownGoldIdr } from '~/lib/finance/emas'
@@ -37,6 +38,7 @@ export const useDerivedStore = defineStore('derived', () => {
   // only read). Computed below re-runs when any snapshot field or priceView changes.
   const snapshotState = computed<SnapshotState>(() => ({
     penghasilan: snap.penghasilan,
+    penghasilanLain: snap.penghasilanLain,
     pengeluaran: snap.pengeluaran,
     asetLikuid: snap.asetLikuid,
     asetNonLikuid: snap.asetNonLikuid,
@@ -54,10 +56,12 @@ export const useDerivedStore = defineStore('derived', () => {
   const totalUtang = computed(() => calcTotalUtang(snapshotState.value))
   const netWorth = computed(() => calcNetWorth(snapshotState.value, prices.value))
   const modalSiap = computed(() => calcModalSiap(snapshotState.value, prices.value))
-  const dsr = computed(() => calcDsr(snapshotState.value))
+  const dsr = computed(() => calcDsr(snapshotState.value, prices.value))
   const dar = computed(() => calcDar(snapshotState.value, prices.value))
   const runway = computed(() => calcRunway(snapshotState.value, prices.value))
-  const savingsRate = computed(() => calcSavingsRate(snapshotState.value))
+  const savingsRate = computed(() =>
+    calcSavingsRate(snapshotState.value, prices.value),
+  )
   const safeHaven = computed(() => calcSafeHaven(snapshotState.value, prices.value))
   const allocationDiscipline = computed(() =>
     calcAllocationDiscipline(snapshotState.value.saham, prices.value),
@@ -71,6 +75,14 @@ export const useDerivedStore = defineStore('derived', () => {
   const assetBreakdown = computed(() =>
     calcAssetBreakdown(snapshotState.value, prices.value),
   )
+
+  // Saham dividend totals — annual (per Stitch design + per-row "Rp X/tahun" copy) and
+  // monthly avg (annual / 12), surfaced in PenghasilanForm as an auto-derived ESTIMASI
+  // line. Same Rp that gets folded into DSR/SavingsRate via totalPenghasilanMonthly.
+  const dividendAnnual = computed(() =>
+    calcTotalDividendAnnual(snapshotState.value.saham, prices.value),
+  )
+  const dividendMonthly = computed(() => dividendAnnual.value / 12)
 
   // Day 5 will wire goalHealth. Returning null keeps the dashboard "—" state honest.
   const goalHealth = computed<number | null>(() => null)
@@ -97,5 +109,7 @@ export const useDerivedStore = defineStore('derived', () => {
     goalHealth,
     emasBreakdown,
     assetBreakdown,
+    dividendAnnual,
+    dividendMonthly,
   }
 })

@@ -3,24 +3,23 @@ import { computed, ref } from 'vue'
 import { ChevronDown, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
 import InputQuantity from '~/components/common/InputQuantity.vue'
-import StatusDot from '~/components/common/StatusDot.vue'
-import { effectiveStockPrice } from '~/lib/finance/metrics'
+import { calcPotentialDividendIdr, effectiveStockPrice } from '~/lib/finance/metrics'
 import { idr } from '~/lib/format/idr'
 import { percent } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
-import { zoneOf, type Zone } from '~/lib/finance/thresholds'
 import type { StockHolding } from '~/lib/types/snapshot'
+
+// Dividend input modes — user toggles between literal "Last dividend / lembar" and a
+// "Yield %" path. Only one field is rendered at a time; switching modes clears the
+// other so the underlying calcPotentialDividendIdr precedence (literal wins) stays
+// unambiguous regardless of which mode the user lands on.
+type DividendMode = 'lastDiv' | 'yield'
 
 const props = defineProps<{
   row: StockHolding
-  // Live price snapshot for THIS card's ticker. `price` is IDR per lembar from IDX;
-  // `stale` flags Yahoo's staleness marker; `fetchedAt` is ISO. All null/false when the
-  // ticker hasn't been fetched yet (e.g., user just typed a new symbol).
   livePrice: number | null
   liveStale: boolean
   liveFetchedAt: string | null
-  // Sum of all stocks' value (post override > live > cost basis precedence). Used to
-  // derive THIS row's live bobot for drift comparison.
   totalValueIdr: number
 }>()
 
@@ -31,33 +30,33 @@ const emit = defineEmits<{
 
 const expanded = ref(false)
 
-// Effective price via the shared helper so card display and dashboard metrics never
-// disagree on which price feeds the valuation.
-const effectivePrice = computed(() => effectiveStockPrice(props.row, props.livePrice))
+// Default mode = lastDiv (more concrete). Initial mode picks whichever field already
+// has a value, so reopening a row with yield set lands on the yield tab.
+const dividendMode = ref<DividendMode>(
+  props.row.avgDividendYieldPercent !== undefined &&
+    props.row.lastDividendPerLembar === undefined
+    ? 'yield'
+    : 'lastDiv',
+)
 
+function setDividendMode(mode: DividendMode) {
+  if (dividendMode.value === mode) return
+  // Clear the non-active field on switch so precedence is unambiguous and the new mode
+  // starts from a clean slate.
+  if (mode === 'lastDiv') {
+    emit('update', { avgDividendYieldPercent: undefined })
+  } else {
+    emit('update', { lastDividendPerLembar: undefined })
+  }
+  dividendMode.value = mode
+}
+
+const effectivePrice = computed(() => effectiveStockPrice(props.row, props.livePrice))
 const valueIdr = computed(() => props.row.lot * 100 * effectivePrice.value)
 
 const liveBobot = computed(() => {
   if (props.totalValueIdr <= 0) return null
   return (valueIdr.value / props.totalValueIdr) * 100
-})
-
-const drift = computed<number | null>(() => {
-  if (props.row.bobotTargetPercent === undefined) return null
-  if (liveBobot.value === null) return null
-  return Math.abs(liveBobot.value - props.row.bobotTargetPercent)
-})
-
-const driftZone = computed<Zone | null>(() => {
-  if (drift.value === null) return null
-  return zoneOf('allocationDiscipline', drift.value)
-})
-
-const driftLabel = computed(() => {
-  if (driftZone.value === null) return t('snapshot.saham.driftNoTarget')
-  if (driftZone.value === 'sehat') return t('snapshot.saham.driftSehat')
-  if (driftZone.value === 'waspada') return t('snapshot.saham.driftWaspada')
-  return t('snapshot.saham.driftBahaya')
 })
 
 // Pill state: hargaOverride wins → no live pill (user explicitly opted out). Else
@@ -103,8 +102,7 @@ function fmtTime(iso: string): string {
   return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
 }
 
-// Ticker → uppercase, max 4 chars (IDX convention). We don't gate fetching client-side
-// — the endpoint rejects malformed tickers with 400, surfaced as a stale state.
+// Ticker → uppercase, max 4 chars (IDX convention). Endpoint rejects malformed.
 function onTickerInput(e: Event) {
   const raw = (e.target as HTMLInputElement).value
   emit('update', { ticker: raw.toUpperCase().slice(0, 4) })
@@ -114,20 +112,6 @@ function onLot(v: number | null) {
   emit('update', { lot: v ?? 0 })
 }
 
-function onHargaRataRata(v: number | null) {
-  emit('update', { hargaRataRata: v ?? 0 })
-}
-
-function onTarget(v: number | null) {
-  // Clamp to 0–100. Empty input = clear target (drift goes back to "no target").
-  if (v === null || Number.isNaN(v)) {
-    emit('update', { bobotTargetPercent: undefined })
-    return
-  }
-  const clamped = Math.max(0, Math.min(100, v))
-  emit('update', { bobotTargetPercent: clamped })
-}
-
 function onOverride(v: number | null) {
   if (v === null || v <= 0) {
     emit('update', { hargaOverride: undefined })
@@ -135,13 +119,49 @@ function onOverride(v: number | null) {
   }
   emit('update', { hargaOverride: v })
 }
+
+function onLotsTarget(v: number | null) {
+  if (v === null || v <= 0) {
+    emit('update', { lotsTarget: undefined })
+    return
+  }
+  emit('update', { lotsTarget: v })
+}
+
+function onLastDiv(v: number | null) {
+  if (v === null || v <= 0) {
+    emit('update', { lastDividendPerLembar: undefined })
+    return
+  }
+  emit('update', { lastDividendPerLembar: v })
+}
+
+function onYield(v: number | null) {
+  if (v === null || v <= 0) {
+    emit('update', { avgDividendYieldPercent: undefined })
+    return
+  }
+  emit('update', { avgDividendYieldPercent: Math.min(100, v) })
+}
+
+// Lots accumulation progress (PRD §5.7: Progress to Target = lotsSekarang / lotsTarget).
+const lotsProgressPct = computed<number | null>(() => {
+  if (props.row.lotsTarget === undefined || props.row.lotsTarget <= 0) return null
+  return Math.min(100, (props.row.lot / props.row.lotsTarget) * 100)
+})
+
+// Annual potential dividend via the shared helper — keeps per-row display in sync with
+// totalDividendAnnual that flows into PenghasilanForm + DSR + SavingsRate.
+const potentialDividendAnnual = computed(() =>
+  calcPotentialDividendIdr(props.row, props.livePrice),
+)
 </script>
 
 <template>
   <li
     class="space-y-2 rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3"
   >
-    <!-- Collapsed row: ticker | lot | price+pill | drift dot | expand chevron + delete -->
+    <!-- Collapsed row: ticker | lot | price+pill | expand chevron + delete -->
     <div class="flex flex-wrap items-center gap-2">
       <input
         type="text"
@@ -165,7 +185,6 @@ function onOverride(v: number | null) {
         />
       </div>
 
-      <!-- Price chip: shows effective price + LIVE/STALE/OVERRIDE/missing state. -->
       <div class="flex flex-1 min-w-[120px] items-center gap-2">
         <span
           class="inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
@@ -177,11 +196,6 @@ function onOverride(v: number | null) {
           {{ idr(effectivePrice) }}
         </span>
       </div>
-
-      <StatusDot
-        :status="driftZone ?? 'neutral'"
-        :label="driftLabel"
-      />
 
       <button
         type="button"
@@ -204,53 +218,117 @@ function onOverride(v: number | null) {
       </button>
     </div>
 
-    <!-- Value summary row (always visible — answers "berapa nilainya"). -->
     <div class="flex items-baseline justify-between text-[11px] text-[var(--color-text-secondary)]">
       <span class="tabular">{{ idr(valueIdr) }}</span>
       <span v-if="liveBobot !== null" class="tabular">
         {{ percent(liveBobot, 1) }}
-        <template v-if="row.bobotTargetPercent !== undefined">
-          / target {{ row.bobotTargetPercent }}%
-        </template>
       </span>
     </div>
 
-    <!-- Expanded section: cost basis + target + override + last-updated.
-         Each visible label text is also passed as `aria-label` on the underlying input
-         because the shared InputCurrency/InputQuantity wrap their `<input>` in their own
-         `<label :for="useId()">` — the `<label class="block">` above is a sibling, not
-         linked, so screen readers would otherwise only hear the currency prefix or unit. -->
+    <div v-if="lotsProgressPct !== null" class="space-y-1">
+      <div class="flex items-baseline justify-between text-[10px] text-[var(--color-text-muted)]">
+        <span class="tabular">
+          {{ t('snapshot.saham.lotsProgress', { now: row.lot, target: row.lotsTarget! }) }}
+        </span>
+        <span class="tabular">{{ percent(lotsProgressPct, 0) }}</span>
+      </div>
+      <div class="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-surface-card)]">
+        <div
+          class="h-full rounded-full bg-[var(--color-primary)] transition-all"
+          :style="{ width: `${lotsProgressPct}%` }"
+        />
+      </div>
+    </div>
+
+    <!-- Expanded section: lots target + dividend (mode toggle) + override + last-updated.
+         aria-label mirrors visible label text because InputCurrency/InputQuantity wrap
+         their own `<input>` in `<label :for="useId()">`; outer `<label class="block">` is
+         a sibling, not linked. -->
     <div v-if="expanded" class="space-y-3 border-t border-[var(--color-border)] pt-3">
       <div>
         <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
-          {{ t('snapshot.saham.hargaRataRataLabel') }}
+          {{ t('snapshot.saham.lotsTargetLabel') }}
         </label>
-        <InputCurrency
-          prefix="Rp"
-          :aria-label="t('snapshot.saham.hargaRataRataLabel')"
-          :model-value="row.hargaRataRata === 0 ? null : row.hargaRataRata"
-          @update:model-value="onHargaRataRata"
+        <InputQuantity
+          :unit="t('snapshot.saham.lotLabel')"
+          :aria-label="t('snapshot.saham.lotsTargetLabel')"
+          :step="1"
+          :model-value="row.lotsTarget ?? null"
+          @update:model-value="onLotsTarget"
         />
         <p class="mt-1 text-[10px] text-[var(--color-text-muted)]">
-          {{ t('snapshot.saham.hargaRataRataHelp') }}
+          {{ t('snapshot.saham.lotsTargetHelp') }}
         </p>
       </div>
 
       <div>
         <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
-          {{ t('snapshot.saham.targetLabel') }}
+          {{ t('snapshot.saham.dividendSection') }}
         </label>
-        <InputQuantity
-          unit="%"
-          :aria-label="t('snapshot.saham.targetLabel')"
-          :step="1"
-          :model-value="row.bobotTargetPercent ?? null"
-          @update:model-value="onTarget"
-        />
-        <p class="mt-1 text-[10px] text-[var(--color-text-muted)]">
-          {{ t('snapshot.saham.targetHelp') }}
-        </p>
+        <div
+          class="inline-flex h-9 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-0.5"
+          role="group"
+          :aria-label="t('snapshot.saham.dividendModeAria')"
+        >
+          <button
+            type="button"
+            class="rounded-[var(--radius-input)] px-3 text-xs font-medium transition-colors"
+            :class="
+              dividendMode === 'lastDiv'
+                ? 'bg-[var(--color-primary)] text-[var(--color-surface-card)]'
+                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+            "
+            :aria-pressed="dividendMode === 'lastDiv'"
+            @click="setDividendMode('lastDiv')"
+          >
+            {{ t('snapshot.saham.dividendModeLastDiv') }}
+          </button>
+          <button
+            type="button"
+            class="rounded-[var(--radius-input)] px-3 text-xs font-medium transition-colors"
+            :class="
+              dividendMode === 'yield'
+                ? 'bg-[var(--color-primary)] text-[var(--color-surface-card)]'
+                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+            "
+            :aria-pressed="dividendMode === 'yield'"
+            @click="setDividendMode('yield')"
+          >
+            {{ t('snapshot.saham.dividendModeYield') }}
+          </button>
+        </div>
+
+        <div v-if="dividendMode === 'lastDiv'" class="mt-2">
+          <InputCurrency
+            prefix="Rp"
+            :aria-label="t('snapshot.saham.lastDivLabel')"
+            :model-value="row.lastDividendPerLembar ?? null"
+            @update:model-value="onLastDiv"
+          />
+          <p class="mt-1 text-[10px] text-[var(--color-text-muted)]">
+            {{ t('snapshot.saham.lastDivHelp') }}
+          </p>
+        </div>
+        <div v-else class="mt-2">
+          <InputQuantity
+            unit="%"
+            :aria-label="t('snapshot.saham.yieldLabel')"
+            :step="0.1"
+            :model-value="row.avgDividendYieldPercent ?? null"
+            @update:model-value="onYield"
+          />
+          <p class="mt-1 text-[10px] text-[var(--color-text-muted)]">
+            {{ t('snapshot.saham.yieldHelp') }}
+          </p>
+        </div>
       </div>
+
+      <p
+        v-if="potentialDividendAnnual > 0"
+        class="rounded-[var(--radius-input)] bg-[var(--color-accent-emerald-soft)] px-3 py-2 text-[11px] font-medium text-[var(--color-accent-emerald)]"
+      >
+        {{ t('snapshot.saham.potentialDividend', { amount: idr(potentialDividendAnnual) }) }}
+      </p>
 
       <div>
         <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">

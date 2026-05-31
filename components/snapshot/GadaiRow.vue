@@ -35,6 +35,7 @@ const emasCat = computed(() => emasCategoryOfJaminan(props.row.jaminan))
 
 const snapView = computed(() => ({
   penghasilan: snap.penghasilan,
+  penghasilanLain: snap.penghasilanLain,
   pengeluaran: snap.pengeluaran,
   asetLikuid: snap.asetLikuid,
   asetNonLikuid: snap.asetNonLikuid,

@@ -37,10 +37,19 @@ export interface StockHolding {
   ticker: string // e.g., "BBCA"
   lot: number
   hargaRataRata: number // IDR / lembar (cost basis)
-  bobotTargetPercent?: number // 0–100; missing = no target set
+  bobotTargetPercent?: number // 0–100; missing = no target set (drives Allocation Discipline)
+  // Lots target 100% — user's accumulation goal (e.g., "kumpulkan 450 lot"). Drives the
+  // per-card progress bar only; not fed into any metric. Independent from bobotTargetPercent
+  // (top-down % allocation) vs lotsTarget (bottom-up share count).
+  lotsTarget?: number
   // Manual price override (IDR / lembar). When set, valuation uses this instead of the
   // live IDX price — escape hatch when the live feed is stale, wrong, or missing.
   hargaOverride?: number
+  // Dividend inputs — both optional. Precedence at compute time: lastDividendPerLembar
+  // literal wins (more concrete) over avgDividendYieldPercent (yield × valuation). User
+  // can fill either or neither; potential dividend stays 0 when neither is set.
+  lastDividendPerLembar?: number // IDR / lembar / tahun (annual)
+  avgDividendYieldPercent?: number // 0–100, annual yield
 }
 
 // Crypto holding with per-row mode + canonical CoinGecko ID (picked from the top-52
@@ -151,7 +160,8 @@ export interface EmasState {
 }
 
 export interface SnapshotState {
-  penghasilan: number // IDR/bulan
+  penghasilan: number // IDR/bulan — interpreted as Gaji Bersih (take-home setelah PPh21)
+  penghasilanLain: number // IDR/bulan — sampingan/sewa/freelance/dll
   pengeluaran: Pengeluaran
   asetLikuid: Record<LiquidAssetCategory, AssetRow[]>
   asetNonLikuid: Record<NonLiquidAssetCategory, AssetRow[]>
@@ -189,6 +199,7 @@ export interface PricesView {
 export function emptySnapshot(): SnapshotState {
   return {
     penghasilan: 0,
+    penghasilanLain: 0,
     pengeluaran: { pokok: 0, lifestyle: 0 },
     asetLikuid: {
       kas: [],
