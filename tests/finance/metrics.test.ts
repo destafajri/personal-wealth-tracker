@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   calcAllocationDiscipline,
+  calcAssetBreakdown,
   calcDar,
   calcDsr,
   calcModalSiap,
@@ -431,6 +432,27 @@ describe('calcSafeHaven', () => {
     }
     // aset = 40jt likuid + 10jt emas + 50jt properti = 100jt; safe haven = 10+20+10+10 = 50jt → 50%
     expect(calcSafeHaven(s, prices)).toBeCloseTo(50, 6)
+  })
+})
+
+describe('calcAssetBreakdown', () => {
+  it('totalIdr === 0 when snapshot is empty', () => {
+    const b = calcAssetBreakdown(baseSnap())
+    expect(b.safeIdr).toBe(0)
+    expect(b.totalIdr).toBe(0)
+  })
+
+  it('safeIdr = kas + deposito + reksaDana + emas (per Safe Haven formula)', () => {
+    const s = baseSnap()
+    s.asetLikuid.kas.push(row(10_000_000))
+    s.asetLikuid.deposito.push(row(20_000_000))
+    s.asetLikuid.reksaDana.push(row(30_000_000))
+    s.asetLikuid.sbn.push(row(40_000_000)) // SBN is NOT in safe haven
+    // emas: skip — totalGoldIdr requires prices; test the no-emas path here
+    const b = calcAssetBreakdown(s)
+    expect(b.safeIdr).toBe(60_000_000)
+    // total = 60jt safe + 40jt sbn = 100jt
+    expect(b.totalIdr).toBe(100_000_000)
   })
 })
 

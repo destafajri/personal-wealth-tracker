@@ -235,6 +235,17 @@ export const copy = {
   'snapshot.saham.driftBahaya': 'Bobot jauh dari target',
   'snapshot.saham.driftNoTarget': 'Belum ada target bobot',
 
+  'chart.allocation.title': 'Alokasi Saham',
+  'chart.allocation.empty': 'Belum ada saham di portofolio.',
+  'chart.allocation.legendTotal': 'Total',
+  'chart.safeHaven.title': 'Safe Haven vs Growth',
+  'chart.safeHaven.empty': 'Belum ada aset untuk dipetakan.',
+  'chart.safeHaven.safe': 'Safe Haven',
+  'chart.safeHaven.growth': 'Growth',
+  'chart.safeHaven.safeDesc': 'Kas + Deposito + Reksa Dana + Emas',
+  'chart.safeHaven.growthDesc': 'Saham + Crypto + Aset Non-Likuid',
+  'chart.loading': 'Memuat chart…',
+
   'error.generic.title': 'Ada yang gak beres',
   'error.generic.body': 'Coba muat ulang halaman, atau balik ke beranda.',
   'error.generic.cta': 'Kembali ke beranda',

@@ -195,16 +195,31 @@ export function calcSavingsRate(snap: SnapshotState): number | null {
 
 // ----- 7. Safe Haven — (Kas + Emas + RD + Deposito) / Total Aset (percent) -----
 
-export function calcSafeHaven(snap: SnapshotState, prices?: PricesView): number | null {
-  const aset = calcTotalAset(snap, prices)
-  if (aset <= 0) return null
+// Absolute Rp breakdown used by both the Safe Haven ratio and the dashboard
+// SafeHavenBar chart. Exposing this as a single helper keeps the chart's slices
+// numerically aligned with the metric (no drift between visual and number).
+export interface AssetBreakdown {
+  safeIdr: number // kas + deposito + RD + emas (per Safe Haven formula)
+  totalIdr: number
+}
+
+export function calcAssetBreakdown(
+  snap: SnapshotState,
+  prices?: PricesView,
+): AssetBreakdown {
   const a = snap.asetLikuid
-  const safe =
+  const safeIdr =
     sumRowsToIdr(a.kas, prices) +
     sumRowsToIdr(a.deposito, prices) +
     sumRowsToIdr(a.reksaDana, prices) +
     sumGoldIdr(snap, prices)
-  return (safe / aset) * 100
+  return { safeIdr, totalIdr: calcTotalAset(snap, prices) }
+}
+
+export function calcSafeHaven(snap: SnapshotState, prices?: PricesView): number | null {
+  const { safeIdr, totalIdr } = calcAssetBreakdown(snap, prices)
+  if (totalIdr <= 0) return null
+  return (safeIdr / totalIdr) * 100
 }
 
 // ----- 8. Allocation Discipline — avg pp drift across stocks (Day 4 will surface, but

@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import {
   calcAllocationDiscipline,
+  calcAssetBreakdown,
   calcDar,
   calcDsr,
   calcModalSiap,
@@ -65,6 +66,12 @@ export const useDerivedStore = defineStore('derived', () => {
   // Per-kategori emas valuation breakdown — surfaced in EmasPanel for transparency.
   const emasBreakdown = computed(() => breakdownGoldIdr(snapshotState.value, prices.value))
 
+  // Safe vs growth split — feeds the SafeHavenBar chart on the dashboard. Same numbers
+  // that drive calcSafeHaven, exposed in absolute Rp so the chart can render slice widths.
+  const assetBreakdown = computed(() =>
+    calcAssetBreakdown(snapshotState.value, prices.value),
+  )
+
   // Day 5 will wire goalHealth. Returning null keeps the dashboard "—" state honest.
   const goalHealth = computed<number | null>(() => null)
 
@@ -89,5 +96,6 @@ export const useDerivedStore = defineStore('derived', () => {
     allocationDiscipline,
     goalHealth,
     emasBreakdown,
+    assetBreakdown,
   }
 })
