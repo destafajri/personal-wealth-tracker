@@ -591,7 +591,7 @@ describe('calcAllocationDiscipline', () => {
     expect(calcAllocationDiscipline([])).toBeNull()
   })
 
-  it('returns null when no stock has a target bobot set', () => {
+  it('returns null when no stock has a lots target set', () => {
     expect(
       calcAllocationDiscipline([
         { id: '1', ticker: 'BBCA', lot: 10, hargaRataRata: 10_000 },
@@ -599,27 +599,28 @@ describe('calcAllocationDiscipline', () => {
     ).toBeNull()
   })
 
-  it('= avg |live − target| pp across stocks-with-target', () => {
-    // BBCA: 50jt (50% live), target 60 → drift 10
-    // BBRI: 50jt (50% live), target 40 → drift 10
+  it('= avg |live_bobot − target_bobot_derived| within lots-target universe', () => {
+    // BBCA: lot 50, lots_target 60, price 10_000 → live 50jt, target 60jt
+    // BBRI: lot 50, lots_target 40, price 10_000 → live 50jt, target 40jt
+    // Universe: totalLive 100jt, totalTarget 100jt.
+    // BBCA: live_bobot 50%, target_bobot 60% → drift 10
+    // BBRI: live_bobot 50%, target_bobot 40% → drift 10
     // avg = 10 pp
     const stocks = [
-      {
-        id: '1',
-        ticker: 'BBCA',
-        lot: 50,
-        hargaRataRata: 10_000,
-        bobotTargetPercent: 60,
-      },
-      {
-        id: '2',
-        ticker: 'BBRI',
-        lot: 50,
-        hargaRataRata: 10_000,
-        bobotTargetPercent: 40,
-      },
+      { id: '1', ticker: 'BBCA', lot: 50, hargaRataRata: 10_000, lotsTarget: 60 },
+      { id: '2', ticker: 'BBRI', lot: 50, hargaRataRata: 10_000, lotsTarget: 40 },
     ]
     expect(calcAllocationDiscipline(stocks)).toBeCloseTo(10, 6)
+  })
+
+  it('excludes rows without lots target from the universe', () => {
+    // BBCA in universe (lots = target), BBRI out (no target).
+    // Universe collapses to BBCA only → live_bobot = target_bobot = 100% → drift 0.
+    const stocks = [
+      { id: '1', ticker: 'BBCA', lot: 50, hargaRataRata: 10_000, lotsTarget: 50 },
+      { id: '2', ticker: 'BBRI', lot: 50, hargaRataRata: 10_000 },
+    ]
+    expect(calcAllocationDiscipline(stocks)).toBeCloseTo(0, 6)
   })
 
   it('hargaOverride feeds calcNetWorth (not just Allocation Discipline)', () => {
@@ -644,36 +645,38 @@ describe('calcAllocationDiscipline', () => {
     expect(calcNetWorth(s, prices)).toBe(12_000_000)
   })
 
-  it('hargaOverride takes precedence over live + cost basis', () => {
-    // BBCA override 20_000 → 100jt (100% live), target 50 → drift 50
-    // BBRI no override, live = 5_000 → 25jt (... wait, total = 100+25 = 125)
-    // BBCA bobot = 100/125 = 80%, target 50 → drift 30
-    // BBRI bobot = 25/125 = 20%, target 50 → drift 30
-    // avg = 30 pp
+  it('hargaOverride feeds calcAllocationDiscipline (target_idr uses effective price)', () => {
+    // BBCA: lot 50, lots_target 100, hargaOverride 20_000 → live 100jt, target 200jt
+    // BBRI: lot 100, lots_target 100, no override, cost basis 5_000 → live 50jt, target 50jt
+    // (no live price in PricesView for BBRI → falls through to cost basis)
+    // Universe totals: live 150jt, target 250jt
+    // BBCA: live_bobot 100/150 = 66.67%, target_bobot 200/250 = 80% → drift 13.33
+    // BBRI: live_bobot 50/150 = 33.33%, target_bobot 50/250 = 20% → drift 13.33
+    // avg ≈ 13.33 pp
     const stocks = [
       {
         id: '1',
         ticker: 'BBCA',
         lot: 50,
-        hargaRataRata: 10_000,
-        bobotTargetPercent: 50,
+        hargaRataRata: 5_000,
+        lotsTarget: 100,
         hargaOverride: 20_000, // overrides whatever live says
       },
       {
         id: '2',
         ticker: 'BBRI',
-        lot: 50,
-        hargaRataRata: 10_000,
-        bobotTargetPercent: 50,
+        lot: 100,
+        hargaRataRata: 5_000,
+        lotsTarget: 100,
       },
     ]
     const prices: PricesView = {
       goldDigitalIdrPerGram: null,
       goldAntam1gIdr: null,
       fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
-      idxByTicker: { BBCA: 99_999, BBRI: 5_000 }, // BBCA live ignored due to override
+      idxByTicker: { BBCA: 99_999 }, // BBCA live ignored due to override
       cryptoByCoinId: {},
     }
-    expect(calcAllocationDiscipline(stocks, prices)).toBeCloseTo(30, 6)
+    expect(calcAllocationDiscipline(stocks, prices)).toBeCloseTo(40 / 3, 4)
   })
 })

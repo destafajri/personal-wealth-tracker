@@ -278,25 +278,37 @@ export function calcSafeHaven(snap: SnapshotState, prices?: PricesView): number 
 // ----- 8. Allocation Discipline — avg pp drift across stocks (Day 4 will surface, but
 // expose the function now for consistency / wizard prep) -----
 
+// Discipline universe = rows where the user set `lotsTarget`. Target bobot is derived
+// from `lotsTarget × price` (not an explicit `bobotTargetPercent`), so the metric
+// reflects how proportionally close current holdings are to the user's targeted lot
+// composition. Both live and target bobots are computed WITHIN the universe so the
+// bases are comparable. Rows without lots target are excluded (no baseline to drift
+// against). Same `effectiveStockPrice` (override > live > cost basis) feeds both
+// live_idr and target_idr — so a price override flows symmetrically into the metric.
 export function calcAllocationDiscipline(
   stocks: StockHolding[],
   prices?: PricesView,
 ): number | null {
   if (stocks.length === 0) return null
-  const valued = stocks.map((s) => ({
-    stock: s,
-    idr: s.lot * 100 * effectiveStockPrice(s, prices?.idxByTicker[s.ticker] ?? null),
-  }))
-  const total = valued.reduce((sum, v) => sum + v.idr, 0)
-  if (total <= 0) return null
-  const stocksWithTarget = valued.filter((v) => v.stock.bobotTargetPercent !== undefined)
-  if (stocksWithTarget.length === 0) return null
-  const driftSum = stocksWithTarget.reduce((acc, v) => {
-    const liveBobot = (v.idr / total) * 100
-    const target = v.stock.bobotTargetPercent!
-    return acc + Math.abs(liveBobot - target)
+  const universe = stocks
+    .filter((s) => s.lotsTarget !== undefined && s.lotsTarget > 0)
+    .map((s) => {
+      const price = effectiveStockPrice(s, prices?.idxByTicker[s.ticker] ?? null)
+      return {
+        liveIdr: s.lot * 100 * price,
+        targetIdr: s.lotsTarget! * 100 * price,
+      }
+    })
+  if (universe.length === 0) return null
+  const totalLive = universe.reduce((sum, v) => sum + v.liveIdr, 0)
+  const totalTarget = universe.reduce((sum, v) => sum + v.targetIdr, 0)
+  if (totalLive <= 0 || totalTarget <= 0) return null
+  const driftSum = universe.reduce((acc, v) => {
+    const liveBobot = (v.liveIdr / totalLive) * 100
+    const targetBobot = (v.targetIdr / totalTarget) * 100
+    return acc + Math.abs(liveBobot - targetBobot)
   }, 0)
-  return driftSum / stocksWithTarget.length
+  return driftSum / universe.length
 }
 
 // ----- 9. Goal Health — wired in Day 5; stubbed null here so derived store can wire it now.

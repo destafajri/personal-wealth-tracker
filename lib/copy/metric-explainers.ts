@@ -187,8 +187,9 @@ export const metricExplainers: Record<ExplainerKey, ExplainerSpec> = {
   allocationDiscipline: {
     title: 'Allocation Discipline',
     definition:
-      'Rata-rata seberapa jauh komposisi saham kamu menyimpang dari target alokasi yang udah kamu set. Satuannya percentage point (pp).',
-    formula: 'Allocation Discipline = (1/n) × Σ |Bobot Live − Target Bobot| antar saham',
+      'Rata-rata seberapa jauh komposisi saham kamu menyimpang dari komposisi yang implied dari lots target. Satuannya percentage point (pp).',
+    formula:
+      'Allocation Discipline = (1/n) × Σ |Bobot Live − Bobot Target| · Bobot Target di-derive dari (lots target × harga) tiap saham',
     zones: [
       {
         label: 'Tight',
@@ -203,10 +204,10 @@ export const metricExplainers: Record<ExplainerKey, ExplainerSpec> = {
       {
         label: 'Off-Plan',
         range: '>15pp',
-        body: 'Jauh dari target. Bisa di-rebalance, atau review target-nya kalau prioritas portfolio udah berubah.',
+        body: 'Jauh dari target. Bisa di-rebalance, atau review lots target-nya kalau prioritas portfolio udah berubah.',
       },
     ],
-    note: 'Metric ini cuma jalan kalau ada minimal 1 saham dengan target bobot terisi. Tanpa target, gak ada baseline buat ngitung drift.',
+    note: 'Metric ini cuma jalan kalau ada minimal 1 saham dengan lots target terisi. Bobot target bergeser kalau harga bergerak — itu by design buat akumulator (lots target tetap, bobot adaptif).',
   },
 
   rasioTertahan: {
