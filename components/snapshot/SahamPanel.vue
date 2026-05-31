@@ -4,10 +4,10 @@ import { RotateCw } from 'lucide-vue-next'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import PerEmitenCard from '~/components/snapshot/PerEmitenCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { effectiveStockPrice } from '~/lib/finance/metrics'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
 import type { IdxPriceRow } from '~/lib/prices/yahoo'
-import type { StockHolding } from '~/lib/types/snapshot'
 
 // Live-price plumbing from the page (snapshot.vue owns the composable so panel + cards
 // share one fetch state). Mirrors CryptoPanel's prop shape — refresh button surfaces a
@@ -32,18 +32,15 @@ function priceFor(ticker: string): IdxPriceRow | null {
   return priceByTicker.value[ticker] ?? null
 }
 
-// Per-row effective price (override > live > cost basis) — same precedence as the card
-// computes internally, but we need it here to compute the total once and pass it down
-// for bobot derivation. Keeping these in sync is enforced via the shared StockHolding
-// shape, not an extracted helper (extracting felt like over-abstraction for two sites).
-function effectivePrice(row: StockHolding): number {
-  if (row.hargaOverride !== undefined) return row.hargaOverride
-  const live = priceFor(row.ticker)?.price ?? null
-  return live ?? row.hargaRataRata
-}
-
+// Total uses the shared `effectiveStockPrice` helper so the panel summary stays in
+// lockstep with dashboard metrics. If a row has hargaOverride, NetWorth/DAR/Runway/
+// SafeHaven and this total all read the same number.
 const totalValueIdr = computed(() =>
-  snap.saham.reduce((sum, row) => sum + row.lot * 100 * effectivePrice(row), 0),
+  snap.saham.reduce(
+    (sum, row) =>
+      sum + row.lot * 100 * effectiveStockPrice(row, priceFor(row.ticker)?.price ?? null),
+    0,
+  ),
 )
 
 function refreshLive() {

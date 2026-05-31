@@ -10,6 +10,7 @@ import {
   calcSavingsRate,
   calcTotalAset,
   calcTotalUtang,
+  effectiveStockPrice,
 } from '~/lib/finance/metrics'
 import { emptySnapshot, type PricesView, type SnapshotState } from '~/lib/types/snapshot'
 
@@ -433,6 +434,29 @@ describe('calcSafeHaven', () => {
   })
 })
 
+describe('effectiveStockPrice', () => {
+  const baseStock = {
+    id: '1',
+    ticker: 'BBCA',
+    lot: 1,
+    hargaRataRata: 5_000,
+  }
+
+  it('uses hargaOverride when set (live + cost basis ignored)', () => {
+    expect(
+      effectiveStockPrice({ ...baseStock, hargaOverride: 9_000 }, 7_000),
+    ).toBe(9_000)
+  })
+
+  it('falls back to live price when override is missing', () => {
+    expect(effectiveStockPrice(baseStock, 7_000)).toBe(7_000)
+  })
+
+  it('falls back to cost basis when both override and live are missing', () => {
+    expect(effectiveStockPrice(baseStock, null)).toBe(5_000)
+  })
+})
+
 describe('calcAllocationDiscipline', () => {
   it('returns null when no stocks', () => {
     expect(calcAllocationDiscipline([])).toBeNull()
@@ -467,6 +491,28 @@ describe('calcAllocationDiscipline', () => {
       },
     ]
     expect(calcAllocationDiscipline(stocks)).toBeCloseTo(10, 6)
+  })
+
+  it('hargaOverride feeds calcNetWorth (not just Allocation Discipline)', () => {
+    // Regression for Codex round-8 #1: prior to extracting `effectiveStockPrice`,
+    // sumStockIdr ignored hargaOverride so card display and dashboard total disagreed.
+    const s = baseSnap()
+    s.saham.push({
+      id: '1',
+      ticker: 'BBCA',
+      lot: 10, // 10 × 100 = 1_000 lembar
+      hargaRataRata: 5_000,
+      hargaOverride: 12_000, // override → 12_000 × 1_000 = 12_000_000
+    })
+    const prices: PricesView = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: { BBCA: 8_000 }, // live ignored due to override
+      cryptoByCoinId: {},
+    }
+    expect(calcTotalAset(s, prices)).toBe(12_000_000)
+    expect(calcNetWorth(s, prices)).toBe(12_000_000)
   })
 
   it('hargaOverride takes precedence over live + cost basis', () => {

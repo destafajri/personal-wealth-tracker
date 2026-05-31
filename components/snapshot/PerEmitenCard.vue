@@ -4,6 +4,7 @@ import { ChevronDown, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
 import InputQuantity from '~/components/common/InputQuantity.vue'
 import StatusDot from '~/components/common/StatusDot.vue'
+import { effectiveStockPrice } from '~/lib/finance/metrics'
 import { idr } from '~/lib/format/idr'
 import { percent } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
@@ -30,11 +31,9 @@ const emit = defineEmits<{
 
 const expanded = ref(false)
 
-// Effective price for valuation: override > live > cost basis. Mirrors the precedence
-// in calcAllocationDiscipline so this card's displayed value matches the metric.
-const effectivePrice = computed(() => {
-  return props.row.hargaOverride ?? props.livePrice ?? props.row.hargaRataRata
-})
+// Effective price via the shared helper so card display and dashboard metrics never
+// disagree on which price feeds the valuation.
+const effectivePrice = computed(() => effectiveStockPrice(props.row, props.livePrice))
 
 const valueIdr = computed(() => props.row.lot * 100 * effectivePrice.value)
 
@@ -159,6 +158,7 @@ function onOverride(v: number | null) {
       <div class="w-24">
         <InputQuantity
           :unit="t('snapshot.saham.lotLabel')"
+          :aria-label="t('snapshot.saham.lotAria')"
           :step="1"
           :model-value="row.lot || null"
           @update:model-value="onLot"
@@ -215,7 +215,11 @@ function onOverride(v: number | null) {
       </span>
     </div>
 
-    <!-- Expanded section: cost basis + target + override + last-updated. -->
+    <!-- Expanded section: cost basis + target + override + last-updated.
+         Each visible label text is also passed as `aria-label` on the underlying input
+         because the shared InputCurrency/InputQuantity wrap their `<input>` in their own
+         `<label :for="useId()">` — the `<label class="block">` above is a sibling, not
+         linked, so screen readers would otherwise only hear the currency prefix or unit. -->
     <div v-if="expanded" class="space-y-3 border-t border-[var(--color-border)] pt-3">
       <div>
         <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
@@ -223,6 +227,7 @@ function onOverride(v: number | null) {
         </label>
         <InputCurrency
           prefix="Rp"
+          :aria-label="t('snapshot.saham.hargaRataRataLabel')"
           :model-value="row.hargaRataRata === 0 ? null : row.hargaRataRata"
           @update:model-value="onHargaRataRata"
         />
@@ -237,6 +242,7 @@ function onOverride(v: number | null) {
         </label>
         <InputQuantity
           unit="%"
+          :aria-label="t('snapshot.saham.targetLabel')"
           :step="1"
           :model-value="row.bobotTargetPercent ?? null"
           @update:model-value="onTarget"
@@ -252,6 +258,7 @@ function onOverride(v: number | null) {
         </label>
         <InputCurrency
           prefix="Rp"
+          :aria-label="t('snapshot.saham.overrideLabel')"
           :model-value="row.hargaOverride ?? null"
           @update:model-value="onOverride"
         />

@@ -75,12 +75,25 @@ function sumGoldIdr(snap: SnapshotState, prices?: PricesView): number {
   return totalGoldIdr(snap, prices)
 }
 
+// Single source of truth for stock valuation precedence: `hargaOverride > live IDX
+// > hargaRataRata`. Exported so SahamPanel + PerEmitenCard can use the same helper —
+// any drift here would silently make dashboard metrics and per-card display disagree.
+// Takes `livePrice` as a plain `number | null` so panel-side callers (which read live
+// from IdxPriceRow, not PricesView) don't have to synthesize a PricesView slice.
+export function effectiveStockPrice(
+  s: StockHolding,
+  livePrice: number | null,
+): number {
+  if (s.hargaOverride !== undefined) return s.hargaOverride
+  return livePrice ?? s.hargaRataRata
+}
+
 function sumStockIdr(stocks: StockHolding[], prices?: PricesView): number {
-  return stocks.reduce((s, h) => {
-    const live = prices?.idxByTicker[h.ticker] ?? null
-    const price = live ?? h.hargaRataRata // fallback to cost basis if live missing
-    return s + h.lot * 100 * price
-  }, 0)
+  return stocks.reduce(
+    (s, h) =>
+      s + h.lot * 100 * effectiveStockPrice(h, prices?.idxByTicker[h.ticker] ?? null),
+    0,
+  )
 }
 
 function sumCicilanPerBulan(snap: SnapshotState): number {
@@ -202,13 +215,10 @@ export function calcAllocationDiscipline(
   prices?: PricesView,
 ): number | null {
   if (stocks.length === 0) return null
-  const valued = stocks.map((s) => {
-    // Valuation precedence: manual override > live IDX > cost basis. Manual override
-    // wins so users can fix obviously-wrong live data without affecting cost basis.
-    const live = prices?.idxByTicker[s.ticker] ?? null
-    const price = s.hargaOverride ?? live ?? s.hargaRataRata
-    return { stock: s, idr: s.lot * 100 * price }
-  })
+  const valued = stocks.map((s) => ({
+    stock: s,
+    idr: s.lot * 100 * effectiveStockPrice(s, prices?.idxByTicker[s.ticker] ?? null),
+  }))
   const total = valued.reduce((sum, v) => sum + v.idr, 0)
   if (total <= 0) return null
   const stocksWithTarget = valued.filter((v) => v.stock.bobotTargetPercent !== undefined)
