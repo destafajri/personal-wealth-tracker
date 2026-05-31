@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useId, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 import { parseCurrency } from '~/lib/format/parse-currency'
 
 const props = withDefaults(
@@ -9,8 +9,9 @@ const props = withDefaults(
     ariaLabel?: string
     disabled?: boolean
     prefix?: string // currency label rendered inside the input (e.g., 'Rp', '$', 'KRW')
+    id?: string // optional: let parent supply id so an external <label for=...> can target it
   }>(),
-  { placeholder: '0', disabled: false, ariaLabel: undefined, prefix: 'Rp' },
+  { placeholder: '0', disabled: false, ariaLabel: undefined, prefix: 'Rp', id: undefined },
 )
 const emit = defineEmits<{ 'update:modelValue': [value: number | null] }>()
 
@@ -44,7 +45,8 @@ function onBlur() {
   else display.value = ''
 }
 
-const id = useId()
+const fallbackId = useId()
+const id = computed(() => props.id ?? fallbackId)
 </script>
 
 <template>

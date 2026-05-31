@@ -37,12 +37,13 @@ const hasDividen = computed(() => dividenAnnual.value > 0)
         />
         <div class="flex-1 space-y-1">
           <label
-            :for="'penghasilan-gaji'"
+            for="penghasilan-gaji"
             class="block text-xs font-medium text-[var(--color-text-secondary)]"
           >
             {{ t('snapshot.penghasilan.gajiLabel') }}
           </label>
           <InputCurrency
+            id="penghasilan-gaji"
             :aria-label="t('snapshot.penghasilan.gajiLabel')"
             :model-value="snap.penghasilan === 0 ? null : snap.penghasilan"
             @update:model-value="snap.setPenghasilan($event ?? 0)"

@@ -149,6 +149,10 @@ export const useSnapshotStore = defineStore('snapshot', () => {
       lot: partial.lot ?? 0,
       hargaRataRata: partial.hargaRataRata ?? 0,
       bobotTargetPercent: partial.bobotTargetPercent,
+      lotsTarget: partial.lotsTarget,
+      hargaOverride: partial.hargaOverride,
+      lastDividendPerLembar: partial.lastDividendPerLembar,
+      avgDividendYieldPercent: partial.avgDividendYieldPercent,
     }
     saham.value.push(row)
     return row
