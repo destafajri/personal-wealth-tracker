@@ -36,6 +36,7 @@ export const copy = {
   'snapshot.section.pengeluaran': 'Pengeluaran rutin',
   'snapshot.section.asetLikuid': 'Aset likuid',
   'snapshot.section.asetNonLikuid': 'Aset non-likuid',
+  'snapshot.section.crypto': 'Crypto (live, by unit)',
   'snapshot.section.emas': 'Emas',
   'snapshot.section.cicilanAktif': 'Cicilan aktif',
   'snapshot.section.utangPribadi': 'Utang pribadi',
@@ -52,7 +53,6 @@ export const copy = {
   'snapshot.aset.deposito': 'Deposito',
   'snapshot.aset.reksaDana': 'Reksa Dana',
   'snapshot.aset.sbn': 'SBN / Obligasi',
-  'snapshot.aset.cryptoManual': 'Crypto',
   'snapshot.aset.properti': 'Properti',
   'snapshot.aset.kendaraan': 'Kendaraan',
   'snapshot.aset.pensiun': 'Dana pensiun',
@@ -83,6 +83,30 @@ export const copy = {
   'snapshot.emas.perhiasan.14K.note': '~45.5% Antam (range 43–48%).',
   'snapshot.emas.perhiasan.10K.label': '10 Karat (~42% emas)',
   'snapshot.emas.perhiasan.10K.note': '~37.5% Antam (range 35–40%).',
+
+  // ----- crypto (dropdown + 4 input modes) -----
+  'snapshot.crypto.help':
+    'Pilih coin dari dropdown (top 50 di CoinGecko, bisa di-search) lalu pilih mode input — Unit (jumlah coin), IDR / USD / KRW (nilai dalam mata uang itu). Total selalu dikonversi ke IDR.',
+  'snapshot.crypto.empty': 'Belum ada crypto. Klik "+ Tambah crypto" untuk mulai.',
+  'snapshot.crypto.add': '+ Tambah crypto',
+  'snapshot.crypto.remove': 'Hapus crypto',
+  'snapshot.crypto.coinPlaceholder': 'Symbol coin (mis. BTC, ETH, XAUT)',
+  'snapshot.crypto.coinAria': 'Symbol coin crypto',
+  'snapshot.crypto.modeAria': 'Mode input crypto',
+  'snapshot.crypto.modeUnit': 'Unit',
+  'snapshot.crypto.modeIdr': 'IDR',
+  'snapshot.crypto.modeUsd': 'USD',
+  'snapshot.crypto.modeKrw': 'KRW',
+  'snapshot.crypto.unitFallback': 'unit',
+  'snapshot.crypto.ratePickCoin': 'Pilih coin dulu untuk lihat harga live.',
+  'snapshot.crypto.rateStale': 'Live rate {sym} belum kebaca.',
+  'snapshot.crypto.rateLine': '{rates} / 1 {sym}',
+  'snapshot.crypto.idrStale': '≈ — (rate belum kebaca)',
+  'snapshot.crypto.fxStale': '≈ — (kurs FX belum kebaca)',
+  'snapshot.crypto.amountPlaceholder': 'Nilai',
+  'snapshot.crypto.duplicateWarning':
+    'Coin {sym} sudah dipakai di row lain. Hapus salah satu atau ubah biar gak double-count.',
+  'snapshot.crypto.totalLabel': 'Total nilai crypto',
 
   // ----- cicilan -----
   'cicilan.add': '+ Tambah cicilan',

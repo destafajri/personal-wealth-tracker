@@ -40,6 +40,7 @@ const snapView = computed(() => ({
   asetNonLikuid: snap.asetNonLikuid,
   emas: snap.emas,
   saham: snap.saham,
+  crypto: snap.crypto,
   cicilanAktif: snap.cicilanAktif,
   utangPribadi: snap.utangPribadi,
   gadai: snap.gadai,

@@ -4,6 +4,7 @@ import {
   emptySnapshot,
   type AssetRow,
   type CicilanRow,
+  type CryptoHolding,
   type GadaiRow,
   type LiquidAssetCategory,
   type NonLiquidAssetCategory,
@@ -25,6 +26,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
   const asetNonLikuid = reactive(init.asetNonLikuid)
   const emas = reactive({ ...init.emas })
   const saham = ref<StockHolding[]>([])
+  const cryptoLive = ref<CryptoHolding[]>([])
   const cicilanAktif = ref<CicilanRow[]>([])
   const utangPribadi = ref<UtangPribadiRow[]>([])
   const gadai = ref<GadaiRow[]>([])
@@ -161,6 +163,35 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     saham.value = saham.value.filter((r) => r.id !== id)
   }
 
+  // ----- mutations: crypto (live unit-based; coexists with asetLikuid.cryptoManual) -----
+
+  function addCrypto(partial: Partial<CryptoHolding> = {}): CryptoHolding {
+    const row: CryptoHolding = {
+      id: rid(),
+      coinId: (partial.coinId ?? '').toLowerCase(),
+      mode: partial.mode ?? 'unit',
+      units: partial.units ?? 0,
+      amount: partial.amount ?? 0,
+      label: partial.label,
+    }
+    cryptoLive.value.push(row)
+    return row
+  }
+
+  function updateCrypto(id: string, patch: Partial<Omit<CryptoHolding, 'id'>>) {
+    const idx = cryptoLive.value.findIndex((r) => r.id === id)
+    if (idx === -1) return
+    const next = { ...cryptoLive.value[idx]!, ...patch }
+    // Coin IDs are canonical CoinGecko lowercase slugs (e.g., "bitcoin"); normalize on
+    // write so lookups against PricesView.cryptoByCoinId always match.
+    if (patch.coinId !== undefined) next.coinId = patch.coinId.toLowerCase()
+    cryptoLive.value[idx] = next
+  }
+
+  function removeCrypto(id: string) {
+    cryptoLive.value = cryptoLive.value.filter((r) => r.id !== id)
+  }
+
   // ----- mutations: gadai -----
 
   function addGadai(partial: Partial<GadaiRow> = {}): GadaiRow {
@@ -221,7 +252,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     const fresh = emptySnapshot()
     penghasilan.value = fresh.penghasilan
     Object.assign(pengeluaran, fresh.pengeluaran)
-    ;(['kas', 'deposito', 'reksaDana', 'sbn', 'cryptoManual'] as const).forEach(
+    ;(['kas', 'deposito', 'reksaDana', 'sbn'] as const).forEach(
       (k) => (asetLikuid[k] = []),
     )
     ;(['properti', 'kendaraan', 'pensiun'] as const).forEach(
@@ -229,6 +260,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     )
     Object.assign(emas, fresh.emas)
     saham.value = []
+    cryptoLive.value = []
     cicilanAktif.value = []
     utangPribadi.value = []
     gadai.value = []
@@ -241,6 +273,9 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     asetNonLikuid,
     emas,
     saham,
+    // Exposed as `crypto` for consumer ergonomics; internal ref keeps the more explicit
+    // `cryptoLive` name to disambiguate from the legacy `asetLikuid.cryptoManual`.
+    crypto: cryptoLive,
     cicilanAktif,
     utangPribadi,
     gadai,
@@ -259,6 +294,9 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     addSaham,
     updateSaham,
     removeSaham,
+    addCrypto,
+    updateCrypto,
+    removeCrypto,
     addGadai,
     updateGadai,
     removeGadai,

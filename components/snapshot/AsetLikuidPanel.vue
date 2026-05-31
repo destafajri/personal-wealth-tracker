@@ -11,7 +11,8 @@ const categories: { key: LiquidAssetCategory; titleKey: string }[] = [
   { key: 'deposito', titleKey: 'snapshot.aset.deposito' },
   { key: 'reksaDana', titleKey: 'snapshot.aset.reksaDana' },
   { key: 'sbn', titleKey: 'snapshot.aset.sbn' },
-  { key: 'cryptoManual', titleKey: 'snapshot.aset.cryptoManual' },
+  // Crypto is no longer here — it lives in its own panel with per-row mode toggle
+  // (live unit-based OR manual IDR). See components/snapshot/CryptoPanel.vue.
 ]
 
 // CopyKey type is exposed by strings.ts; using string casting to keep this generic.

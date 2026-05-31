@@ -45,6 +45,10 @@ describe('calcTotalAset / calcTotalUtang / calcNetWorth', () => {
       goldAntam1gIdr: 2_000_000,
       fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
       idxByTicker: { BBCA: 10_000 },
+      cryptoByCoinId: {} as Record<
+        string,
+        { idr: number | null; usd: number | null; eur: number | null; jpy: number | null; krw: number | null }
+      >,
     }
     // 30jt likuid + 1mlrd properti + 111.6jt fisik + 10jt saham
     expect(calcTotalAset(s, prices)).toBe(
@@ -106,10 +110,170 @@ describe('calcModalSiap (D0.3: advisory only, no auto-subtract)', () => {
     s.asetLikuid.deposito.push(row(10_000_000))
     s.asetLikuid.reksaDana.push(row(15_000_000))
     s.asetLikuid.sbn.push(row(50_000_000)) // intentionally excluded per PRD §5.4 #9
-    s.asetLikuid.cryptoManual.push(row(5_000_000))
+    // IDR-mode crypto row — escape hatch for coins not on CoinGecko.
+    s.crypto.push({
+      id: 'c0',
+      coinId: 'dogecoin',
+      mode: 'idr',
+      units: 0,
+      amount: 5_000_000,
+    })
     s.pengeluaran = { pokok: 10_000_000, lifestyle: 5_000_000 }
     // Should NOT subtract 6 × pengeluaran (= 90jt). Pure sum:
     expect(calcModalSiap(s)).toBe(50_000_000)
+  })
+
+  it('includes live crypto holdings (units × cryptoByCoinId.idr)', () => {
+    const s = baseSnap()
+    s.asetLikuid.kas.push(row(10_000_000))
+    s.crypto.push({
+      id: 'c1',
+      coinId: 'bitcoin',
+      mode: 'unit',
+      units: 0.5,
+      amount: 0,
+    })
+    s.crypto.push({
+      id: 'c2',
+      coinId: 'ethereum',
+      mode: 'unit',
+      units: 2,
+      amount: 0,
+    })
+    const prices = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {
+        bitcoin: {
+          idr: 1_500_000_000,
+          usd: 95_000,
+          eur: 88_000,
+          jpy: 14_500_000,
+          krw: 125_000_000,
+        },
+        ethereum: {
+          idr: 50_000_000,
+          usd: 3200,
+          eur: 2950,
+          jpy: 480_000,
+          krw: 4_200_000,
+        },
+      },
+    }
+    // 10jt kas + 0.5 × 1.5mlrd + 2 × 50jt = 10jt + 750jt + 100jt = 860jt
+    expect(calcModalSiap(s, prices)).toBe(10_000_000 + 750_000_000 + 100_000_000)
+  })
+
+  it('skips live crypto with missing / stale rate (graceful degrade)', () => {
+    const s = baseSnap()
+    s.asetLikuid.kas.push(row(10_000_000))
+    s.crypto.push({
+      id: 'c1',
+      coinId: 'bitcoin',
+      mode: 'unit',
+      units: 0.5,
+      amount: 0,
+    })
+    s.crypto.push({
+      id: 'c2',
+      coinId: 'nosuch',
+      mode: 'unit',
+      units: 1000,
+      amount: 0,
+    })
+    const prices = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {
+        bitcoin: {
+          idr: 1_500_000_000,
+          usd: 95_000,
+          eur: 88_000,
+          jpy: 14_500_000,
+          krw: 125_000_000,
+        },
+        nosuch: { idr: null, usd: null, eur: null, jpy: null, krw: null },
+      },
+    }
+    expect(calcModalSiap(s, prices)).toBe(10_000_000 + 750_000_000)
+  })
+
+  it('IDR-mode crypto uses amount regardless of coinId or live rate', () => {
+    const s = baseSnap()
+    s.crypto.push({
+      id: 'c1',
+      coinId: 'dogecoin',
+      mode: 'idr',
+      units: 9999, // ignored when mode='idr'
+      amount: 7_500_000,
+    })
+    const prices = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {
+        dogecoin: { idr: 2000, usd: 0.12, eur: 0.11, jpy: 17, krw: 160 },
+      },
+    }
+    expect(calcModalSiap(s, prices)).toBe(7_500_000)
+  })
+
+  it('USD-mode crypto = amount × fxRates.USD; KRW-mode = amount × fxRates.KRW', () => {
+    const s = baseSnap()
+    s.crypto.push({
+      id: 'c1',
+      coinId: 'bitcoin',
+      mode: 'usd',
+      units: 0,
+      amount: 100, // $100 worth of BTC
+    })
+    s.crypto.push({
+      id: 'c2',
+      coinId: 'ripple',
+      mode: 'krw',
+      units: 0,
+      amount: 1_000_000, // ₩1M worth of XRP
+    })
+    const prices = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: 16_000, SGD: null, EUR: null, JPY: null, KRW: 12 },
+      idxByTicker: {},
+      cryptoByCoinId: {
+        // Live rates are irrelevant here — mode='usd'/'krw' uses fxRates, not coin rate.
+        bitcoin: { idr: 1, usd: 1, eur: null, jpy: null, krw: null },
+      },
+    }
+    // $100 × 16_000 IDR/USD = 1.6jt; ₩1M × 12 IDR/KRW = 12jt. Sum = 13.6jt
+    expect(calcModalSiap(s, prices)).toBe(100 * 16_000 + 1_000_000 * 12)
+  })
+
+  it('USD/KRW-mode skipped when their FX rate is missing', () => {
+    const s = baseSnap()
+    s.crypto.push({
+      id: 'c1',
+      coinId: 'bitcoin',
+      mode: 'usd',
+      units: 0,
+      amount: 100,
+    })
+    const prices = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      // USD fx missing → row contributes 0 (UI separately shows "kurs FX belum kebaca").
+      fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {} as Record<
+        string,
+        { idr: number | null; usd: number | null; eur: number | null; jpy: number | null; krw: number | null }
+      >,
+    }
+    expect(calcModalSiap(s, prices)).toBe(0)
   })
 })
 
@@ -203,6 +367,10 @@ describe('calcRunway', () => {
       goldAntam1gIdr: 1_000_000,
       fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
       idxByTicker: {},
+      cryptoByCoinId: {} as Record<
+        string,
+        { idr: number | null; usd: number | null; eur: number | null; jpy: number | null; krw: number | null }
+      >,
     }
     // at-home = 50g; 50 × 1jt × 0.93 = 46.5jt; runway = 46.5
     expect(calcRunway(s, prices)).toBeCloseTo(46.5, 6)
@@ -255,6 +423,10 @@ describe('calcSafeHaven', () => {
       goldAntam1gIdr: 0,
       fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
       idxByTicker: {},
+      cryptoByCoinId: {} as Record<
+        string,
+        { idr: number | null; usd: number | null; eur: number | null; jpy: number | null; krw: number | null }
+      >,
     }
     // aset = 40jt likuid + 10jt emas + 50jt properti = 100jt; safe haven = 10+20+10+10 = 50jt → 50%
     expect(calcSafeHaven(s, prices)).toBeCloseTo(50, 6)

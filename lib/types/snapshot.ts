@@ -7,7 +7,10 @@
 // - Stock holdings: lot (number), price IDR/lembar; 1 lot = 100 lembar
 // - Percentages: number 0–100 (NOT 0–1) unless noted
 
-export type LiquidAssetCategory = 'kas' | 'deposito' | 'reksaDana' | 'sbn' | 'cryptoManual'
+// Crypto used to live here as a `cryptoManual` IDR-only row; it now lives on
+// `SnapshotState.crypto` with a per-row mode (unit-live or IDR-manual). Removing it
+// from the likuid category list keeps a single source of truth for crypto valuation.
+export type LiquidAssetCategory = 'kas' | 'deposito' | 'reksaDana' | 'sbn'
 export type NonLiquidAssetCategory = 'properti' | 'kendaraan' | 'pensiun'
 
 // Supported currencies for liquid assets. Non-liquid (properti/kendaraan/pensiun)
@@ -35,6 +38,28 @@ export interface StockHolding {
   lot: number
   hargaRataRata: number // IDR / lembar (cost basis)
   bobotTargetPercent?: number // 0–100; missing = no target set
+}
+
+// Crypto holding with per-row mode + canonical CoinGecko ID (picked from the top-50
+// dropdown). Four modes:
+//   - 'unit' → live valuation: units × cryptoByCoinId[coinId].idr
+//   - 'idr'  → user-entered rupiah amount (escape hatch)
+//   - 'usd'  → user-entered dollar amount × fxRates.USD (FX endpoint, not the coin's
+//              own USD rate — keeps math consistent across snapshot's multi-ccy assets)
+//   - 'krw'  → user-entered won amount × fxRates.KRW (same idea as 'usd')
+//
+// `coinId` is the canonical CoinGecko id (e.g., "bitcoin", "ripple"), NOT the ticker.
+// `amount` carries the value for any non-unit mode; switching mode preserves the number
+// but reinterprets the currency (cheap UX — empty/zero is the common case anyway).
+export type CryptoMode = 'unit' | 'idr' | 'usd' | 'krw'
+
+export interface CryptoHolding {
+  id: string
+  coinId: string // canonical CoinGecko id, lowercase: "bitcoin"
+  mode: CryptoMode
+  units: number // used when mode='unit'
+  amount: number // used when mode in ('idr','usd','krw')
+  label?: string // optional nickname (e.g., "BTC di Tokocrypto")
 }
 
 export type JenisBunga = 'Anuitas' | 'Flat' | 'Floating' | 'Revolving'
@@ -128,6 +153,7 @@ export interface SnapshotState {
   asetNonLikuid: Record<NonLiquidAssetCategory, AssetRow[]>
   emas: EmasState
   saham: StockHolding[]
+  crypto: CryptoHolding[]
   cicilanAktif: CicilanRow[]
   utangPribadi: UtangPribadiRow[]
   gadai: GadaiRow[]
@@ -137,11 +163,23 @@ export interface SnapshotState {
 // `null` per pair → fetch failed; the consumer renders the row as stale.
 export type FxRatesMap = Record<Exclude<Currency, 'IDR'>, number | null>
 
+// Crypto rate map per coin — IDR drives valuation; USD/EUR/JPY/KRW are display only.
+// `null` per currency means "fetch missed that pair" — UI omits that segment of the
+// rate line; finance code only reads `.idr`.
+export interface CryptoRateView {
+  idr: number | null
+  usd: number | null
+  eur: number | null
+  jpy: number | null
+  krw: number | null
+}
+
 export interface PricesView {
   goldDigitalIdrPerGram: number | null // Pegadaian Digital hargaJual (savings endpoint)
   goldAntam1gIdr: number | null // Antam 1g list price (table endpoint)
   fxRates: FxRatesMap
   idxByTicker: Record<string, number | null> // IDR per lembar
+  cryptoByCoinId: Record<string, CryptoRateView> // per-coin rates (key = canonical id)
 }
 
 export function emptySnapshot(): SnapshotState {
@@ -153,7 +191,6 @@ export function emptySnapshot(): SnapshotState {
       deposito: [],
       reksaDana: [],
       sbn: [],
-      cryptoManual: [],
     },
     asetNonLikuid: { properti: [], kendaraan: [], pensiun: [] },
     emas: {
@@ -164,6 +201,7 @@ export function emptySnapshot(): SnapshotState {
       perhiasan10KGram: 0,
     },
     saham: [],
+    crypto: [],
     cicilanAktif: [],
     utangPribadi: [],
     gadai: [],

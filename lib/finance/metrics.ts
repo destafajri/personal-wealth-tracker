@@ -2,6 +2,7 @@ import { cadanganGoldIdr, totalGoldIdr } from '~/lib/finance/emas'
 import { rowToIdr } from '~/lib/finance/fx'
 import type {
   AssetRow,
+  CryptoHolding,
   PricesView,
   SnapshotState,
   StockHolding,
@@ -21,6 +22,32 @@ function sumRowsToIdr(rows: AssetRow[], prices?: PricesView): number {
   return rows.reduce((s, r) => s + rowToIdr(r, prices?.fxRates), 0)
 }
 
+// Crypto holdings with per-row mode (see CryptoHolding doc for full table):
+//   - 'unit' → units × cryptoByCoinId[coinId].idr (missing rate drops row from total)
+//   - 'idr'  → amount as-is
+//   - 'usd'  → amount × fxRates.USD (FX endpoint, not coin's own USD price — keeps math
+//             consistent with other multi-currency assets in the snapshot)
+//   - 'krw'  → amount × fxRates.KRW
+function sumCryptoIdr(crypto: CryptoHolding[], prices?: PricesView): number {
+  return crypto.reduce((s, c) => {
+    if (c.mode === 'idr') return s + (c.amount || 0)
+    if (c.mode === 'usd') {
+      const fx = prices?.fxRates.USD ?? null
+      return fx === null ? s : s + (c.amount || 0) * fx
+    }
+    if (c.mode === 'krw') {
+      const fx = prices?.fxRates.KRW ?? null
+      return fx === null ? s : s + (c.amount || 0) * fx
+    }
+    // mode === 'unit'
+    const cid = (c.coinId || '').toLowerCase()
+    if (!cid) return s
+    const rate = prices?.cryptoByCoinId[cid]?.idr ?? null
+    if (rate === null) return s
+    return s + (c.units || 0) * rate
+  }, 0)
+}
+
 function sumLiquidIdr(snap: SnapshotState, prices?: PricesView): number {
   const a = snap.asetLikuid
   return (
@@ -28,7 +55,7 @@ function sumLiquidIdr(snap: SnapshotState, prices?: PricesView): number {
     sumRowsToIdr(a.deposito, prices) +
     sumRowsToIdr(a.reksaDana, prices) +
     sumRowsToIdr(a.sbn, prices) +
-    sumRowsToIdr(a.cryptoManual, prices)
+    sumCryptoIdr(snap.crypto, prices)
   )
 }
 
@@ -113,7 +140,7 @@ export function calcModalSiap(snap: SnapshotState, prices?: PricesView): number 
     sumRowsToIdr(a.kas, prices) +
     sumRowsToIdr(a.deposito, prices) +
     sumRowsToIdr(a.reksaDana, prices) +
-    sumRowsToIdr(a.cryptoManual, prices)
+    sumCryptoIdr(snap.crypto, prices)
   )
 }
 
