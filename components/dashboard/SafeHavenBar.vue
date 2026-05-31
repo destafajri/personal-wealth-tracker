@@ -5,9 +5,13 @@ import { useDerivedStore } from '~/stores/derived'
 import { idr } from '~/lib/format/idr'
 import { percent } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
-import { registerEcharts } from './charts-register'
+import { cssVar, registerEcharts } from './charts-register'
 
 registerEcharts()
+
+// ECharts canvas can't resolve `var(--color-*)` — resolve to literal hex at mount.
+const SAFE_COLOR = cssVar('--color-accent-emerald')
+const GROWTH_COLOR = cssVar('--color-warning-amber')
 
 const derived = useDerivedStore()
 
@@ -52,7 +56,7 @@ const option = computed(() => ({
       stack: 'total',
       barWidth: 24,
       itemStyle: {
-        color: 'var(--color-accent-emerald)',
+        color: SAFE_COLOR,
         borderRadius: [6, 0, 0, 6],
       },
       data: [safeIdr.value],
@@ -63,7 +67,7 @@ const option = computed(() => ({
       stack: 'total',
       barWidth: 24,
       itemStyle: {
-        color: 'var(--color-warning-amber)',
+        color: GROWTH_COLOR,
         borderRadius: [0, 6, 6, 0],
       },
       data: [growthIdr.value],
@@ -128,7 +132,7 @@ const option = computed(() => ({
     </template>
     <p
       v-else
-      class="flex h-24 items-center justify-center text-xs text-[var(--color-text-muted)]"
+      class="flex h-48 items-center justify-center text-xs text-[var(--color-text-muted)]"
     >
       {{ t('chart.safeHaven.empty') }}
     </p>

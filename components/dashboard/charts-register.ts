@@ -27,3 +27,13 @@ export function registerEcharts(): void {
   ])
   registered = true
 }
+
+// ECharts canvas renderer does not parse CSS custom properties — passing
+// `var(--color-primary)` straight to itemStyle.color paints black. Resolve the var to
+// its computed hex/rgb at call time so the chart picks up the design-token color.
+// SSR-safe: returns empty string if document is missing (component is async-loaded inside
+// an ssr:false route, but the guard is cheap insurance).
+export function cssVar(name: string): string {
+  if (typeof document === 'undefined') return ''
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}

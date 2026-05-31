@@ -6,9 +6,21 @@ import { useDerivedStore } from '~/stores/derived'
 import { effectiveStockPrice } from '~/lib/finance/metrics'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
-import { registerEcharts } from './charts-register'
+import { cssVar, registerEcharts } from './charts-register'
 
 registerEcharts()
+
+// Resolve design-token colors to actual hex once at mount — ECharts canvas can't read
+// CSS custom properties.
+const PALETTE = [
+  cssVar('--color-primary'),
+  cssVar('--color-accent-emerald'),
+  cssVar('--color-warning-amber'),
+  cssVar('--color-capacity-teal'),
+  cssVar('--color-danger-rose'),
+  cssVar('--color-primary-container'),
+  cssVar('--color-gold'),
+]
 
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
@@ -29,17 +41,6 @@ const slices = computed(() => {
 const total = computed(() => slices.value.reduce((sum, r) => sum + r.value, 0))
 
 const hasData = computed(() => slices.value.length > 0 && total.value > 0)
-
-// Design-token palette — keeps the donut on-brand without echarts default rainbow.
-const PALETTE = [
-  'var(--color-primary)',
-  'var(--color-accent-emerald)',
-  'var(--color-warning-amber)',
-  'var(--color-capacity-teal)',
-  'var(--color-danger-rose)',
-  'var(--color-primary-container)',
-  'var(--color-text-secondary)',
-]
 
 const option = computed(() => ({
   aria: { enabled: true, decal: { show: false } },
@@ -90,7 +91,7 @@ const option = computed(() => ({
     </div>
     <p
       v-else
-      class="flex h-64 items-center justify-center text-xs text-[var(--color-text-muted)]"
+      class="flex h-48 items-center justify-center text-xs text-[var(--color-text-muted)]"
     >
       {{ t('chart.allocation.empty') }}
     </p>
