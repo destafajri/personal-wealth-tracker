@@ -5,7 +5,7 @@ import type { FxPayload, IdxPayload, UsdIdrPayload } from '~/lib/prices/yahoo'
 
 const idxCache = new Map<string, IdxPayload>()
 // Crypto cache is a single payload (no per-key map) — the endpoint always returns the
-// full top-50 list, so there's only ever one payload to remember.
+// full top-52 catalog, so there's only ever one payload to remember.
 let cryptoCache: CryptoPayload | null = null
 let usdIdrCache: UsdIdrPayload | null = null
 // NOTE: no module-level cache for gold — that survived HMR and pinned stale payloads
@@ -62,7 +62,7 @@ export function useIdxPrices(tickers: Ref<string[]> | ComputedRef<string[]>) {
   return { data, error, pending, isStale, refresh }
 }
 
-// Crypto prices: one batched request for the entire top-50 catalog. No args (server
+// Crypto prices: one batched request for the entire top-52 catalog. No args (server
 // endpoint sources the catalog itself), single payload cached at module level so HMR
 // reuses last-good data. The panel reads per-coin from priceView.cryptoByCoinId without
 // re-triggering any fetch when the user adds/edits rows — the keystroke race that

@@ -6,7 +6,7 @@ import {
   type CryptoPayload,
 } from '~/lib/prices/coingecko'
 
-// One batched request per session: pull every coin in the top-50 catalog at once and
+// One batched request per session: pull every coin in the top-52 catalog at once and
 // cache for 5 minutes. The composable consumes the whole payload and the panel reads
 // per-coin from the cryptoByCoinId map — no per-symbol refetch, so the keystroke-race
 // the previous version had is gone.

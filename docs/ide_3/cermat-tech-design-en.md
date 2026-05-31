@@ -303,10 +303,14 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     deposito: AssetRow[]
     reksaDana: AssetRow[]
     sbn: AssetRow[]
-    cryptoManual: AssetRow[]
-  }>({ kas: [], deposito: [], reksaDana: [], sbn: [], cryptoManual: [] })
+  }>({ kas: [], deposito: [], reksaDana: [], sbn: [] })
 
   const saham = ref<StockHolding[]>([])         // per-emiten (Day 4)
+
+  // Crypto lives on its own ref (NOT under asetLikuid) — per-row dropdown picks a
+  // canonical CoinGecko ID from the top-52 catalog, with 4 input modes (unit/idr/usd/krw).
+  // Sum flows through sumCryptoIdr into sumLiquidIdr and downstream metrics.
+  const crypto = ref<CryptoHolding[]>([])       // §3.4 — CryptoHolding (mode-based)
 
   // EmasState splits into 5 categories, each with its own buyback rate (§6.2). Grams
   // here = TOTAL ownership in that category (whether at home or pawned); pawned

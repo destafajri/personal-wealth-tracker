@@ -1,4 +1,4 @@
-// CoinGecko `/simple/price?ids=…&vs_currencies=…` adapter. We fetch the entire top-50
+// CoinGecko `/simple/price?ids=…&vs_currencies=…` adapter. We fetch the entire top-52
 // catalog in ONE request per session — previous symbol-input version was vulnerable to
 // keystroke-induced refetch races and only carried IDR/USD/KRW. Switching to canonical
 // IDs (e.g., `ripple` not `xrp`, `binancecoin` not `bnb`) is required by `?ids=` —

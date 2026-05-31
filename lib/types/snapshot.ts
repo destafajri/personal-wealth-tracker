@@ -7,9 +7,9 @@
 // - Stock holdings: lot (number), price IDR/lembar; 1 lot = 100 lembar
 // - Percentages: number 0–100 (NOT 0–1) unless noted
 
-// Crypto used to live here as a `cryptoManual` IDR-only row; it now lives on
-// `SnapshotState.crypto` with a per-row mode (unit-live or IDR-manual). Removing it
-// from the likuid category list keeps a single source of truth for crypto valuation.
+// Crypto lives on `SnapshotState.crypto` (NOT under asetLikuid) — per-row CryptoHolding
+// with a canonical CoinGecko id + 4 input modes (unit/idr/usd/krw). Sum flows into
+// sumLiquidIdr; the standalone location keeps one source of truth for crypto valuation.
 export type LiquidAssetCategory = 'kas' | 'deposito' | 'reksaDana' | 'sbn'
 export type NonLiquidAssetCategory = 'properti' | 'kendaraan' | 'pensiun'
 
@@ -40,7 +40,7 @@ export interface StockHolding {
   bobotTargetPercent?: number // 0–100; missing = no target set
 }
 
-// Crypto holding with per-row mode + canonical CoinGecko ID (picked from the top-50
+// Crypto holding with per-row mode + canonical CoinGecko ID (picked from the top-52
 // dropdown). Four modes:
 //   - 'unit' → live valuation: units × cryptoByCoinId[coinId].idr
 //   - 'idr'  → user-entered rupiah amount (escape hatch)
@@ -49,8 +49,9 @@ export interface StockHolding {
 //   - 'krw'  → user-entered won amount × fxRates.KRW (same idea as 'usd')
 //
 // `coinId` is the canonical CoinGecko id (e.g., "bitcoin", "ripple"), NOT the ticker.
-// `amount` carries the value for any non-unit mode; switching mode preserves the number
-// but reinterprets the currency (cheap UX — empty/zero is the common case anyway).
+// `amount` carries the value for any non-unit mode; switching across currency modes
+// (idr↔usd↔krw) resets `amount` to 0 in the panel — preserving the number would silently
+// reinterpret 1.000.000 IDR as 1.000.000 USD (~16B IDR) on a single tap.
 export type CryptoMode = 'unit' | 'idr' | 'usd' | 'krw'
 
 export interface CryptoHolding {

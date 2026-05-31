@@ -31,7 +31,7 @@ useSeoMeta({ title: `${t('snapshot.title')} — ${t('brand.name')}` })
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
 
-// Live prices: gold, FX, and the top-50 crypto catalog fire once per session (the
+// Live prices: gold, FX, and the top-52 crypto catalog fire once per session (the
 // endpoints/composables handle caching). IDX is gated on having tickers because Yahoo's
 // endpoint requires the ticker list up-front; crypto is NOT gated because the whole
 // catalog is requested once regardless of what the user picks in the dropdown.
@@ -40,6 +40,7 @@ const gold = useGoldPrice()
 const fx = useFxRates()
 const idx = useIdxPrices(tickers)
 const crypto = useCryptoPrices()
+const cryptoLiveError = computed(() => crypto.error.value !== null)
 
 function emptyFxRates(): FxRatesMap {
   return { USD: null, SGD: null, EUR: null, JPY: null, KRW: null }
@@ -80,7 +81,11 @@ watchEffect(() => {
     <PenghasilanForm />
     <PengeluaranForm />
     <AsetLikuidPanel />
-    <CryptoPanel />
+    <CryptoPanel
+      :live-error="cryptoLiveError"
+      :live-pending="crypto.pending.value"
+      :on-refresh="crypto.refresh"
+    />
     <EmasPanel />
     <AsetNonLikuidPanel />
     <CicilanAktifPanel />

@@ -163,7 +163,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     saham.value = saham.value.filter((r) => r.id !== id)
   }
 
-  // ----- mutations: crypto (live unit-based; coexists with asetLikuid.cryptoManual) -----
+  // ----- mutations: crypto (per-row CryptoHolding with mode + canonical coinId) -----
 
   function addCrypto(partial: Partial<CryptoHolding> = {}): CryptoHolding {
     const row: CryptoHolding = {
@@ -274,7 +274,8 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     emas,
     saham,
     // Exposed as `crypto` for consumer ergonomics; internal ref keeps the more explicit
-    // `cryptoLive` name to disambiguate from the legacy `asetLikuid.cryptoManual`.
+    // `cryptoLive` name (predates the per-row mode refactor — name retained to keep diffs
+    // small; the public surface is `snap.crypto`).
     crypto: cryptoLive,
     cicilanAktif,
     utangPribadi,

@@ -86,7 +86,10 @@ export const copy = {
 
   // ----- crypto (dropdown + 4 input modes) -----
   'snapshot.crypto.help':
-    'Pilih coin dari dropdown (top 50 di CoinGecko, bisa di-search) lalu pilih mode input — Unit (jumlah coin), IDR / USD / KRW (nilai dalam mata uang itu). Total selalu dikonversi ke IDR.',
+    'Pilih coin dari dropdown (top 52 di CoinGecko, bisa di-search) lalu pilih mode input — Unit (jumlah coin), IDR / USD / KRW (nilai dalam mata uang itu). Total selalu dikonversi ke IDR.',
+  'snapshot.crypto.refresh': 'Refresh',
+  'snapshot.crypto.refreshError': 'Gagal · klik ulang',
+  'snapshot.crypto.refreshAria': 'Refresh harga crypto live',
   'snapshot.crypto.empty': 'Belum ada crypto. Klik "+ Tambah crypto" untuk mulai.',
   'snapshot.crypto.add': '+ Tambah crypto',
   'snapshot.crypto.remove': 'Hapus crypto',
