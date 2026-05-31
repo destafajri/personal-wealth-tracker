@@ -7,7 +7,7 @@ import { percent } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
 import { zoneOf, type MetricKey, type Zone } from '~/lib/finance/thresholds'
 import { useMetricExplainer } from '~/composables/useMetricExplainer'
-import type { ExplainerKey } from '~/lib/copy/metric-explainers'
+import { metricExplainers, type ExplainerKey } from '~/lib/copy/metric-explainers'
 
 type UnitKind = 'percent' | 'months' | 'pp'
 
@@ -26,11 +26,16 @@ const zone = computed<Zone | null>(() =>
   props.value === null ? null : zoneOf(props.thresholdKey, props.value),
 )
 
+// Label sourced from the explainer registry (single source of truth) so card status
+// stays in sync with the popup labels per metric — e.g., Safe Haven shows
+// Konservatif/Seimbang/Agresif, Allocation Discipline shows Tight/Drift/Off-Plan,
+// instead of falling back to generic Sehat/Waspada/Bahaya.
 const zoneLabel = computed(() => {
-  if (zone.value === 'sehat') return t('metric.zone.sehat')
-  if (zone.value === 'waspada') return t('metric.zone.waspada')
-  if (zone.value === 'bahaya') return t('metric.zone.bahaya')
-  return ''
+  if (zone.value === null) return ''
+  const zones = metricExplainers[props.explainerKey].zones
+  if (!zones) return ''
+  const idx = zone.value === 'sehat' ? 0 : zone.value === 'waspada' ? 1 : 2
+  return zones[idx]?.label ?? ''
 })
 
 const display = computed(() => {
