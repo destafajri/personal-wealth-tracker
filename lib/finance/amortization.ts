@@ -144,3 +144,37 @@ export function revolving(
   // Hit cap without clearing — treat as non-clearing.
   return { monthsToClear: null, totalBunga: null, schedule }
 }
+
+// ----- Inverse helpers (Day 8 — Max Utang + Lunasi partial pay) -----
+
+// Solve principal P from a desired monthly payment M, anuitas formula.
+// M = P × i × (1+i)^n / ((1+i)^n − 1) → P = M × ((1+i)^n − 1) / (i × (1+i)^n)
+export function anuitasInversePokok(
+  cicilanPerBulan: number,
+  bungaPerTahun: number,
+  tenorBulan: number,
+): number {
+  if (tenorBulan <= 0 || cicilanPerBulan <= 0) return 0
+  const i = bungaPerTahun / 100 / 12
+  if (i === 0) return cicilanPerBulan * tenorBulan
+  const r = Math.pow(1 + i, tenorBulan)
+  return (cicilanPerBulan * (r - 1)) / (i * r)
+}
+
+// Solve tenor (months) from a known monthly payment M and principal P, anuitas formula.
+// n = log(M / (M − P×i)) / log(1+i). Returns null when payment doesn't cover interest
+// (divergent — debt never clears).
+export function anuitasInverseTenor(
+  cicilanPerBulan: number,
+  pokok: number,
+  bungaPerTahun: number,
+): number | null {
+  if (pokok <= 0) return 0
+  if (cicilanPerBulan <= 0) return null
+  const i = bungaPerTahun / 100 / 12
+  if (i === 0) return pokok / cicilanPerBulan
+  if (cicilanPerBulan <= pokok * i) return null
+  const ratio = cicilanPerBulan / (cicilanPerBulan - pokok * i)
+  return Math.log(ratio) / Math.log(1 + i)
+}
+

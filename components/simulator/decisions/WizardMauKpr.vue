@@ -20,7 +20,7 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
 import type { JenisBunga } from '~/lib/types/snapshot'
-import type { GoalDelta } from '~/lib/types/wizard'
+import type { GoalDelta, WizardResult } from '~/lib/types/wizard'
 
 const snapStore = useSnapshotStore()
 const goalsStore = useGoalsStore()
@@ -40,7 +40,12 @@ const JENIS_OPTIONS: ReadonlyArray<Extract<JenisBunga, 'Anuitas' | 'Flat'>> = [
   'Flat',
 ]
 
-const result = computed(() => simulator.currentResult.value)
+// Narrow AnyWizardResult → WizardResult ('delta' is a WizardResult-only field).
+const result = computed<WizardResult | null>(() => {
+  const r = simulator.currentResult.value
+  if (r === null || !('delta' in r)) return null
+  return r
+})
 
 const canSubmit = computed(
   () =>

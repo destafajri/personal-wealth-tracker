@@ -33,10 +33,10 @@ const decisions: LauncherCard[] = [
   { key: 'custom', labelKey: 'simulator.card.custom.label', bodyKey: 'simulator.card.custom.body', icon: Settings2, enabled: true },
 ]
 
-// Capacity wizards ("Bisa gw apa?") — Day 8.
+// Capacity wizards ("Bisa gw apa?") — Day 8: Max Utang + Lunasi. Modal Options Day 9.
 const capacity: LauncherCard[] = [
-  { key: 'max-utang', labelKey: 'simulator.card.maxUtang.label', bodyKey: 'simulator.card.maxUtang.body', icon: Coins, enabled: false },
-  { key: 'lunasi', labelKey: 'simulator.card.lunasi.label', bodyKey: 'simulator.card.lunasi.body', icon: PiggyBank, enabled: false },
+  { key: 'max-utang', labelKey: 'simulator.card.maxUtang.label', bodyKey: 'simulator.card.maxUtang.body', icon: Coins, enabled: true },
+  { key: 'lunasi', labelKey: 'simulator.card.lunasi.label', bodyKey: 'simulator.card.lunasi.body', icon: PiggyBank, enabled: true },
   { key: 'modal-options', labelKey: 'simulator.card.modalOptions.label', bodyKey: 'simulator.card.modalOptions.body', icon: Compass, enabled: false },
 ]
 </script>

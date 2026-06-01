@@ -20,7 +20,7 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
 import type { GadaiJaminanKind } from '~/lib/types/snapshot'
-import type { GoalDelta } from '~/lib/types/wizard'
+import type { GoalDelta, WizardResult } from '~/lib/types/wizard'
 
 const snapStore = useSnapshotStore()
 const goalsStore = useGoalsStore()
@@ -56,7 +56,11 @@ const bungaPerBulanPercent = ref<number>(1.5)
 const tempoBulan = ref<number>(4)
 
 const isEmas = computed(() => jaminan.value.startsWith('emas:'))
-const result = computed(() => simulator.currentResult.value)
+const result = computed<WizardResult | null>(() => {
+  const r = simulator.currentResult.value
+  if (r === null || !('delta' in r)) return null
+  return r
+})
 
 // Codex round-13: gram ownership ceiling. Block submit when user requests more than
 // what's actually at-home in this category. Recomputes reactively against snapshot

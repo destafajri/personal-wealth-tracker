@@ -19,7 +19,7 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
 import type { JenisBunga } from '~/lib/types/snapshot'
-import type { GoalDelta } from '~/lib/types/wizard'
+import type { GoalDelta, WizardResult } from '~/lib/types/wizard'
 
 const snapStore = useSnapshotStore()
 const goalsStore = useGoalsStore()
@@ -55,7 +55,11 @@ const jenisBunga = ref<Extract<JenisBunga, 'Anuitas' | 'Flat'>>('Anuitas')
 const asetValue = ref<number | null>(null)
 const asetKategori = ref<'kendaraan' | 'properti' | ''>('')
 
-const result = computed(() => simulator.currentResult.value)
+const result = computed<WizardResult | null>(() => {
+  const r = simulator.currentResult.value
+  if (r === null || !('delta' in r)) return null
+  return r
+})
 
 const canSubmit = computed(
   () =>

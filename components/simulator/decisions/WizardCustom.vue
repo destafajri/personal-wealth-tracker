@@ -16,7 +16,7 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
 import { CURRENCIES, type CicilanTipe, type Currency, type JenisBunga } from '~/lib/types/snapshot'
-import type { GoalDelta } from '~/lib/types/wizard'
+import type { GoalDelta, WizardResult } from '~/lib/types/wizard'
 
 const snapStore = useSnapshotStore()
 const goalsStore = useGoalsStore()
@@ -66,7 +66,11 @@ const asetKategori = ref<AnyAssetCategory | ''>('')
 const asetAmount = ref<number | null>(null)
 const asetCurrency = ref<Currency>('IDR')
 
-const result = computed(() => simulator.currentResult.value)
+const result = computed<WizardResult | null>(() => {
+  const r = simulator.currentResult.value
+  if (r === null || !('delta' in r)) return null
+  return r
+})
 
 const isLiquidCat = computed(() =>
   ['kas', 'deposito', 'reksaDana', 'sbn'].includes(asetKategori.value as string),

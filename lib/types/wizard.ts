@@ -62,3 +62,23 @@ export interface WizardResult {
   goalImpact: GoalDelta[]
   warnings: string[]
 }
+
+// Capacity wizards (Day 8: Max Utang Aman; Modal Options later) don't mutate snapshot —
+// they answer "what's the max headroom?" with a hero number + equivalent scenarios. No
+// delta table because there's no Sesudah snapshot to diff against.
+export interface CapacityScenario {
+  key: string // 'kpr' | 'kpm' | 'paylater' | …
+  label: string
+  description: string
+}
+
+export interface CapacityResult {
+  heroValue: number
+  heroLabel: string
+  scenarios: CapacityScenario[]
+  warnings: string[]
+}
+
+// Discriminator for useSimulator.currentResult — UI components narrow by activeKey
+// or by `'heroValue' in result` check.
+export type AnyWizardResult = WizardResult | CapacityResult

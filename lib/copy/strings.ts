@@ -504,6 +504,64 @@ export const copy = {
   'wizard.custom.aset.amount': 'Nilai',
   'wizard.custom.aset.currency': 'Mata uang',
   'wizard.custom.form.submit': 'Hitung skenario',
+
+  // ----- wizard: Max Utang Aman (capacity) -----
+  'wizard.maxUtang.title': 'Max Utang Aman',
+  'wizard.maxUtang.subtitle':
+    'Berapa max cicilan baru/bulan biar DSR tetap aman (di bawah target)?',
+  'wizard.maxUtang.form.targetDsr': 'Target DSR (%)',
+  'wizard.maxUtang.form.targetDsrHelp': 'Default 30% (sehat band per dashboard).',
+  'wizard.maxUtang.form.advancedToggle': 'Tampilkan KPR override',
+  'wizard.maxUtang.form.kprTenor': 'KPR tenor (tahun)',
+  'wizard.maxUtang.form.kprBunga': 'KPR bunga (%/tahun)',
+  'wizard.maxUtang.form.submit': 'Hitung skenario',
+
+  'wizard.maxUtang.hero.label': 'Max cicilan baru / bulan',
+  'wizard.maxUtang.warning.noPenghasilan':
+    'Belum ada penghasilan di snapshot. Isi gaji bersih dulu di tab Track.',
+  'wizard.maxUtang.warning.zeroHeadroom':
+    'Cicilan kamu sekarang sudah di atas target DSR — gak ada headroom untuk utang baru.',
+  'wizard.maxUtang.warning.burnOverIncome':
+    'Pengeluaran total kamu sudah lebih besar dari penghasilan — headroom ini misleading. Cek pos lifestyle / cicilan dulu.',
+
+  'wizard.maxUtang.scenarios.title': 'Setara dengan',
+  'wizard.maxUtang.scenario.kpr.label': 'Setara KPR',
+  'wizard.maxUtang.scenario.kpr.body':
+    'Sampai ~{harga} harga rumah ({tenor} tahun, DP 20%, bunga {bunga}% Anuitas).',
+  'wizard.maxUtang.scenario.kpm.label': 'Setara KPM (motor/mobil)',
+  'wizard.maxUtang.scenario.kpm.body':
+    'Sampai ~{harga} harga kendaraan (36 bln, DP 20%, bunga 8% Anuitas).',
+  'wizard.maxUtang.scenario.paylater.label': 'Setara Paylater / cicilan barang',
+  'wizard.maxUtang.scenario.paylater.body':
+    'Sampai ~{harga} harga barang (12 bln, bunga 24%/tahun).',
+
+  // ----- wizard: Lunasi Utang (capacity) -----
+  'wizard.lunasi.title': 'Lunasi Utang Sekarang',
+  'wizard.lunasi.subtitle':
+    'Bayar utang dari Modal Siap kamu. Pilih utang yang mau dilunasi + jumlah bayar.',
+  'wizard.lunasi.form.debt': 'Pilih utang',
+  'wizard.lunasi.form.debtEmpty': 'Belum ada utang aktif di snapshot kamu.',
+  'wizard.lunasi.form.payment': 'Jumlah bayar (Rp)',
+  'wizard.lunasi.form.paymentHelp': 'Default = sisa pokok (lunas). Edit untuk bayar partial.',
+  'wizard.lunasi.form.modeTitle': 'Behavior untuk Anuitas / Flat',
+  'wizard.lunasi.form.modeTenor': 'Tenor lebih cepat (cicilan/bln tetap)',
+  'wizard.lunasi.form.modeCicilan': 'Cicilan turun (tenor tetap)',
+  'wizard.lunasi.form.submit': 'Hitung skenario',
+
+  'wizard.lunasi.debt.cicilanLabel': '{label} ({tipe}) — sisa {amount}',
+  'wizard.lunasi.debt.utangLabel': '{label} (utang pribadi) — sisa {amount}',
+  'wizard.lunasi.debt.gadaiLabel': '{label} (gadai) — piutang {amount}',
+
+  'wizard.lunasi.summary.title': 'Ringkasan Pembayaran',
+  'wizard.lunasi.summary.paid': 'Yang dibayar: {amount}',
+  'wizard.lunasi.summary.lunas': 'Status: LUNAS ✓ (utang dihapus dari snapshot)',
+  'wizard.lunasi.summary.postSisa': 'Sisa pokok setelah lunasi: {amount}',
+  'wizard.lunasi.summary.postCicilan': 'Cicilan/bulan jadi: {amount}',
+  'wizard.lunasi.summary.postTenor': 'Tenor sisa: {months} bulan',
+
+  'wizard.lunasi.warning.zeroPayment': 'Isi jumlah bayar yang lebih dari 0.',
+  'wizard.lunasi.warning.modalShortfall':
+    'Modal Siap kamu gak cukup untuk bayar segini — sebagian aja yang ke-apply. Pertimbangkan partial pay lebih kecil atau tambah likuid dulu.',
 } as const
 
 export type CopyKey = keyof typeof copy

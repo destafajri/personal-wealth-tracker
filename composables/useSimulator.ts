@@ -7,10 +7,12 @@
 // focus to it — required for the a11y dialog pattern.
 
 import { computed, ref } from 'vue'
-import type { WizardKey, WizardResult } from '~/lib/types/wizard'
+import type { AnyWizardResult, WizardKey } from '~/lib/types/wizard'
 
 const activeKey = ref<WizardKey | null>(null)
-const currentResult = ref<WizardResult | null>(null)
+// AnyWizardResult = WizardResult (decision wizards) | CapacityResult (Day 8 Max Utang,
+// Modal Options). Components narrow by activeKey or via `'heroValue' in result`.
+const currentResult = ref<AnyWizardResult | null>(null)
 const previouslyFocused = ref<HTMLElement | null>(null)
 
 export function useSimulator() {
@@ -33,7 +35,7 @@ export function useSimulator() {
     if (target && typeof document !== 'undefined') target.focus()
   }
 
-  function setResult(r: WizardResult | null) {
+  function setResult(r: AnyWizardResult | null) {
     currentResult.value = r
   }
 

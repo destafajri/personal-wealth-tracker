@@ -14,6 +14,8 @@ import WizardMauKpr from '~/components/simulator/decisions/WizardMauKpr.vue'
 import WizardMauGadai from '~/components/simulator/decisions/WizardMauGadai.vue'
 import WizardMauCicil from '~/components/simulator/decisions/WizardMauCicil.vue'
 import WizardCustom from '~/components/simulator/decisions/WizardCustom.vue'
+import WizardMaxUtang from '~/components/simulator/capacity/WizardMaxUtang.vue'
+import WizardLunasiUtang from '~/components/simulator/capacity/WizardLunasiUtang.vue'
 import { useSimulator } from '~/composables/useSimulator'
 import { t, type CopyKey } from '~/lib/copy/strings'
 
@@ -34,7 +36,9 @@ const titleKey = computed<CopyKey>(() => {
     case 'custom':
       return 'wizard.custom.title'
     case 'max-utang':
+      return 'wizard.maxUtang.title'
     case 'lunasi':
+      return 'wizard.lunasi.title'
     case 'modal-options':
     case null:
     default:
@@ -149,6 +153,8 @@ onBeforeUnmount(() => {
           <WizardMauGadai v-else-if="activeKey === 'gadai'" />
           <WizardMauCicil v-else-if="activeKey === 'cicil'" />
           <WizardCustom v-else-if="activeKey === 'custom'" />
+          <WizardMaxUtang v-else-if="activeKey === 'max-utang'" />
+          <WizardLunasiUtang v-else-if="activeKey === 'lunasi'" />
         </div>
       </div>
     </div>
