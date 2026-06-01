@@ -7,11 +7,13 @@ import { computed, ref } from 'vue'
 import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import {
+  MAX_UTANG_TIPES,
   runMaxUtang,
   type MaxUtangInput,
+  type MaxUtangTipe,
 } from '~/lib/finance/wizards/max-utang'
 import { idr } from '~/lib/format/idr'
-import { t } from '~/lib/copy/strings'
+import { t, type CopyKey } from '~/lib/copy/strings'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
@@ -22,15 +24,30 @@ const derived = useDerivedStore()
 const simulator = useSimulator()
 
 const targetDsrPercent = ref<number>(30)
+// Multi-pick. Defaults to KPR-only so single-decision user gets the most common path.
+const tipes = ref<MaxUtangTipe[]>(['kpr'])
 const showAdvanced = ref(false)
-// Per-scenario override knobs. Defaults match max-utang.ts pure-fn defaults so
-// untouched fields produce identical results to before the round-14 expansion.
+
+function toggleTipe(t: MaxUtangTipe) {
+  tipes.value = tipes.value.includes(t)
+    ? tipes.value.filter((x) => x !== t)
+    : [...tipes.value, t]
+}
+// Per-tipe override knobs. Defaults match max-utang.ts pure-fn defaults so untouched
+// fields produce identical results to default (showAdvanced=false → all undefined →
+// pure-fn falls back to its own defaults).
 const kprTenorTahun = ref<number>(20)
 const kprBungaPercent = ref<number>(7)
 const kpmTenorBulan = ref<number>(36)
 const kpmBungaPercent = ref<number>(8)
 const paylaterTenorBulan = ref<number>(12)
 const paylaterBungaPercent = ref<number>(24)
+
+const TIPE_LABEL: Record<MaxUtangTipe, CopyKey> = {
+  kpr: 'wizard.maxUtang.form.tipeKpr',
+  kpm: 'wizard.maxUtang.form.tipeKpm',
+  paylater: 'wizard.maxUtang.form.tipePaylater',
+}
 
 // CapacityResult narrowing: simulator.currentResult is AnyWizardResult — narrow via
 // 'heroValue' check (only CapacityResult has it).
@@ -41,7 +58,10 @@ const result = computed<CapacityResult | null>(() => {
 })
 
 const canSubmit = computed(
-  () => targetDsrPercent.value > 0 && targetDsrPercent.value <= 100,
+  () =>
+    targetDsrPercent.value > 0 &&
+    targetDsrPercent.value <= 100 &&
+    tipes.value.length > 0,
 )
 
 function snapshotView() {
@@ -62,14 +82,29 @@ function snapshotView() {
 
 function submit() {
   if (!canSubmit.value) return
+  // Only pass override fields for picked tipes (pure fn ignores non-matching ones, but
+  // this keeps the input shape clean for debugging).
   const input: MaxUtangInput = {
     targetDsrPercent: targetDsrPercent.value,
-    kprTenorTahun: showAdvanced.value ? kprTenorTahun.value : undefined,
-    kprBungaPercent: showAdvanced.value ? kprBungaPercent.value : undefined,
-    kpmTenorBulan: showAdvanced.value ? kpmTenorBulan.value : undefined,
-    kpmBungaPercent: showAdvanced.value ? kpmBungaPercent.value : undefined,
-    paylaterTenorBulan: showAdvanced.value ? paylaterTenorBulan.value : undefined,
-    paylaterBungaPercent: showAdvanced.value ? paylaterBungaPercent.value : undefined,
+    tipes: [...tipes.value],
+    ...(showAdvanced.value && tipes.value.includes('kpr')
+      ? {
+          kprTenorTahun: kprTenorTahun.value,
+          kprBungaPercent: kprBungaPercent.value,
+        }
+      : {}),
+    ...(showAdvanced.value && tipes.value.includes('kpm')
+      ? {
+          kpmTenorBulan: kpmTenorBulan.value,
+          kpmBungaPercent: kpmBungaPercent.value,
+        }
+      : {}),
+    ...(showAdvanced.value && tipes.value.includes('paylater')
+      ? {
+          paylaterTenorBulan: paylaterTenorBulan.value,
+          paylaterBungaPercent: paylaterBungaPercent.value,
+        }
+      : {}),
   }
   const r = runMaxUtang(input, snapshotView(), {
     prices: derived.priceView ?? undefined,
@@ -93,7 +128,40 @@ function reset() {
       </p>
     </header>
 
-    <section class="grid gap-3 sm:grid-cols-2">
+    <section class="space-y-3">
+      <!-- Tipe utang checkboxes: pick 1+ — wizard renders 1 scenario per pick. -->
+      <fieldset class="space-y-2">
+        <legend class="text-xs font-medium text-[var(--color-text-secondary)]">
+          {{ t('wizard.maxUtang.form.tipe') }}
+        </legend>
+        <div class="grid gap-2 sm:grid-cols-3">
+          <label
+            v-for="opt in MAX_UTANG_TIPES"
+            :key="opt"
+            class="flex cursor-pointer items-center gap-2 rounded-[var(--radius-input)] border px-3 py-2 text-sm"
+            :class="
+              tipes.includes(opt)
+                ? 'border-[var(--color-primary)] bg-[var(--color-surface-low)] text-[var(--color-text-primary)]'
+                : 'border-[var(--color-border)] bg-[var(--color-surface-card)] text-[var(--color-text-secondary)] hover:border-[var(--color-text-secondary)]'
+            "
+          >
+            <input
+              type="checkbox"
+              :checked="tipes.includes(opt)"
+              class="accent-[var(--color-primary)]"
+              @change="toggleTipe(opt)"
+            >
+            {{ t(TIPE_LABEL[opt]) }}
+          </label>
+        </div>
+        <p
+          v-if="tipes.length === 0"
+          class="text-[11px] text-[var(--color-danger-rose)]"
+        >
+          {{ t('wizard.maxUtang.form.tipeEmpty') }}
+        </p>
+      </fieldset>
+
       <label class="block text-xs">
         <span class="font-medium text-[var(--color-text-secondary)]">
           {{ t('wizard.maxUtang.form.targetDsr') }}
@@ -104,7 +172,7 @@ function reset() {
           min="1"
           max="100"
           step="1"
-          class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+          class="mt-1 h-10 w-full max-w-xs rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
         >
         <p class="mt-1 text-[11px] text-[var(--color-text-muted)]">
           {{ t('wizard.maxUtang.form.targetDsrHelp') }}
@@ -121,110 +189,106 @@ function reset() {
         {{ t('wizard.maxUtang.form.advancedToggle') }}
       </summary>
 
-      <div class="mt-3 space-y-4">
-        <!-- KPR section: tenor in tahun (longer horizon) -->
-        <div>
-          <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
-            {{ t('wizard.maxUtang.form.kprSection') }}
-          </h4>
-          <div class="grid gap-3 sm:grid-cols-2">
-            <label class="block text-xs">
-              <span class="font-medium text-[var(--color-text-secondary)]">
-                {{ t('wizard.maxUtang.form.kprTenor') }}
-              </span>
-              <input
-                v-model.number="kprTenorTahun"
-                type="number"
-                min="1"
-                max="35"
-                step="1"
-                class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-              >
-            </label>
-            <label class="block text-xs">
-              <span class="font-medium text-[var(--color-text-secondary)]">
-                {{ t('wizard.maxUtang.form.kprBunga') }}
-              </span>
-              <input
-                v-model.number="kprBungaPercent"
-                type="number"
-                min="0"
-                max="30"
-                step="0.1"
-                class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-              >
-            </label>
-          </div>
+      <!-- Override sections: render 1 grid per picked tipe. -->
+      <div v-if="tipes.includes('kpr')" class="mt-3">
+        <h4 class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          {{ t('wizard.maxUtang.form.tipeKpr') }}
+        </h4>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label class="block text-xs">
+            <span class="font-medium text-[var(--color-text-secondary)]">
+              {{ t('wizard.maxUtang.form.kprTenor') }}
+            </span>
+            <input
+              v-model.number="kprTenorTahun"
+              type="number"
+              min="1"
+              max="35"
+              step="1"
+              class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            >
+          </label>
+          <label class="block text-xs">
+            <span class="font-medium text-[var(--color-text-secondary)]">
+              {{ t('wizard.maxUtang.form.kprBunga') }}
+            </span>
+            <input
+              v-model.number="kprBungaPercent"
+              type="number"
+              min="0"
+              max="30"
+              step="0.1"
+              class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            >
+          </label>
         </div>
+      </div>
 
-        <!-- KPM section: tenor in bulan (shorter, matches typical contract framing) -->
-        <div>
-          <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
-            {{ t('wizard.maxUtang.form.kpmSection') }}
-          </h4>
-          <div class="grid gap-3 sm:grid-cols-2">
-            <label class="block text-xs">
-              <span class="font-medium text-[var(--color-text-secondary)]">
-                {{ t('wizard.maxUtang.form.tenorBulan') }}
-              </span>
-              <input
-                v-model.number="kpmTenorBulan"
-                type="number"
-                min="1"
-                max="120"
-                step="1"
-                class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-              >
-            </label>
-            <label class="block text-xs">
-              <span class="font-medium text-[var(--color-text-secondary)]">
-                {{ t('wizard.maxUtang.form.bunga') }}
-              </span>
-              <input
-                v-model.number="kpmBungaPercent"
-                type="number"
-                min="0"
-                max="40"
-                step="0.1"
-                class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-              >
-            </label>
-          </div>
+      <div v-if="tipes.includes('kpm')" class="mt-4">
+        <h4 class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          {{ t('wizard.maxUtang.form.tipeKpm') }}
+        </h4>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label class="block text-xs">
+            <span class="font-medium text-[var(--color-text-secondary)]">
+              {{ t('wizard.maxUtang.form.tenorBulan') }}
+            </span>
+            <input
+              v-model.number="kpmTenorBulan"
+              type="number"
+              min="1"
+              max="120"
+              step="1"
+              class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            >
+          </label>
+          <label class="block text-xs">
+            <span class="font-medium text-[var(--color-text-secondary)]">
+              {{ t('wizard.maxUtang.form.bunga') }}
+            </span>
+            <input
+              v-model.number="kpmBungaPercent"
+              type="number"
+              min="0"
+              max="40"
+              step="0.1"
+              class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            >
+          </label>
         </div>
+      </div>
 
-        <!-- Paylater section -->
-        <div>
-          <h4 class="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
-            {{ t('wizard.maxUtang.form.paylaterSection') }}
-          </h4>
-          <div class="grid gap-3 sm:grid-cols-2">
-            <label class="block text-xs">
-              <span class="font-medium text-[var(--color-text-secondary)]">
-                {{ t('wizard.maxUtang.form.tenorBulan') }}
-              </span>
-              <input
-                v-model.number="paylaterTenorBulan"
-                type="number"
-                min="1"
-                max="60"
-                step="1"
-                class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-              >
-            </label>
-            <label class="block text-xs">
-              <span class="font-medium text-[var(--color-text-secondary)]">
-                {{ t('wizard.maxUtang.form.bunga') }}
-              </span>
-              <input
-                v-model.number="paylaterBungaPercent"
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-              >
-            </label>
-          </div>
+      <div v-if="tipes.includes('paylater')" class="mt-4">
+        <h4 class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
+          {{ t('wizard.maxUtang.form.tipePaylater') }}
+        </h4>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label class="block text-xs">
+            <span class="font-medium text-[var(--color-text-secondary)]">
+              {{ t('wizard.maxUtang.form.tenorBulan') }}
+            </span>
+            <input
+              v-model.number="paylaterTenorBulan"
+              type="number"
+              min="1"
+              max="60"
+              step="1"
+              class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            >
+          </label>
+          <label class="block text-xs">
+            <span class="font-medium text-[var(--color-text-secondary)]">
+              {{ t('wizard.maxUtang.form.bunga') }}
+            </span>
+            <input
+              v-model.number="paylaterBungaPercent"
+              type="number"
+              min="0"
+              max="100"
+              step="0.1"
+              class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            >
+          </label>
         </div>
       </div>
     </details>

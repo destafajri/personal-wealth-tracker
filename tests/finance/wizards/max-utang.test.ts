@@ -13,7 +13,7 @@ function baseSnap(): SnapshotState {
 }
 
 function baseInput(): MaxUtangInput {
-  return { targetDsrPercent: 30 }
+  return { targetDsrPercent: 30, tipes: ['kpr'] }
 }
 
 describe('runMaxUtang', () => {
@@ -75,50 +75,84 @@ describe('runMaxUtang', () => {
     expect(r.warnings.length).toBeGreaterThan(0)
   })
 
-  it('renders 3 equivalent scenarios when headroom > 0', () => {
-    const r = runMaxUtang(baseInput(), baseSnap(), {})
-    expect(r.scenarios).toHaveLength(3)
+  it('single pick: renders only that scenario', () => {
+    const r = runMaxUtang({ targetDsrPercent: 30, tipes: ['kpm'] }, baseSnap(), {})
+    expect(r.scenarios).toHaveLength(1)
+    expect(r.scenarios[0]!.key).toBe('kpm')
+  })
+
+  it('multi pick: renders 1 scenario per picked tipe, canonical order', () => {
+    // Pick in any order — output always canonical (kpr → kpm → paylater)
+    const r = runMaxUtang(
+      { targetDsrPercent: 30, tipes: ['paylater', 'kpr'] },
+      baseSnap(),
+      {},
+    )
+    expect(r.scenarios.map((s) => s.key)).toEqual(['kpr', 'paylater'])
+  })
+
+  it('all 3 picked: 3 scenarios in canonical order', () => {
+    const r = runMaxUtang(
+      { targetDsrPercent: 30, tipes: ['kpm', 'paylater', 'kpr'] },
+      baseSnap(),
+      {},
+    )
     expect(r.scenarios.map((s) => s.key)).toEqual(['kpr', 'kpm', 'paylater'])
-    // KPR harga should be MUCH larger than KPM (longer tenor + lower rate)
-    const kpr = r.scenarios.find((s) => s.key === 'kpr')!
-    const kpm = r.scenarios.find((s) => s.key === 'kpm')!
-    expect(kpr.description.length).toBeGreaterThan(0)
-    expect(kpm.description.length).toBeGreaterThan(0)
+  })
+
+  it('duplicates dedup via Set', () => {
+    const r = runMaxUtang(
+      { targetDsrPercent: 30, tipes: ['kpr', 'kpr', 'kpm'] },
+      baseSnap(),
+      {},
+    )
+    expect(r.scenarios.map((s) => s.key)).toEqual(['kpr', 'kpm'])
+  })
+
+  it('empty tipes array: 0 scenarios (caller-side validation expected)', () => {
+    const r = runMaxUtang({ targetDsrPercent: 30, tipes: [] }, baseSnap(), {})
+    expect(r.scenarios).toEqual([])
+    // Hero still populated — headroom calc is independent of tipe choice
+    expect(r.heroValue).toBeGreaterThan(0)
   })
 
   it('honours custom KPR tenor + bunga overrides', () => {
     const r1 = runMaxUtang(baseInput(), baseSnap(), {})
     const r2 = runMaxUtang(
-      { targetDsrPercent: 30, kprTenorTahun: 30, kprBungaPercent: 5 },
+      { targetDsrPercent: 30, tipes: ['kpr'], kprTenorTahun: 30, kprBungaPercent: 5 },
       baseSnap(),
       {},
     )
-    // Lower bunga + longer tenor → bigger KPR harga
-    expect(r2.scenarios.find((s) => s.key === 'kpr')!.description).not.toBe(
-      r1.scenarios.find((s) => s.key === 'kpr')!.description,
-    )
+    expect(r2.scenarios[0]!.description).not.toBe(r1.scenarios[0]!.description)
   })
 
-  it('honours custom KPM + Paylater overrides (carries to scenario body)', () => {
-    const r1 = runMaxUtang(baseInput(), baseSnap(), {})
+  it('honours custom KPM override (only when KPM picked)', () => {
+    const r1 = runMaxUtang({ targetDsrPercent: 30, tipes: ['kpm'] }, baseSnap(), {})
     const r2 = runMaxUtang(
       {
         targetDsrPercent: 30,
+        tipes: ['kpm'],
         kpmTenorBulan: 60,
         kpmBungaPercent: 6,
-        paylaterTenorBulan: 24,
-        paylaterBungaPercent: 18,
       },
       baseSnap(),
       {},
     )
-    // KPM with longer tenor + lower rate → bigger harga
-    const r1Kpm = r1.scenarios.find((s) => s.key === 'kpm')!
-    const r2Kpm = r2.scenarios.find((s) => s.key === 'kpm')!
-    expect(r2Kpm.description).not.toBe(r1Kpm.description)
-    // Paylater same — different body
-    const r1Pl = r1.scenarios.find((s) => s.key === 'paylater')!
-    const r2Pl = r2.scenarios.find((s) => s.key === 'paylater')!
-    expect(r2Pl.description).not.toBe(r1Pl.description)
+    expect(r2.scenarios[0]!.description).not.toBe(r1.scenarios[0]!.description)
+  })
+
+  it('non-matching tipe overrides ignored (KPR override does not affect KPM-only pick)', () => {
+    const r1 = runMaxUtang({ targetDsrPercent: 30, tipes: ['kpm'] }, baseSnap(), {})
+    const r2 = runMaxUtang(
+      {
+        targetDsrPercent: 30,
+        tipes: ['kpm'],
+        kprTenorTahun: 30,
+        kprBungaPercent: 5,
+      },
+      baseSnap(),
+      {},
+    )
+    expect(r2.scenarios[0]!.description).toBe(r1.scenarios[0]!.description)
   })
 })

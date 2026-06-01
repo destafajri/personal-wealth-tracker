@@ -19,11 +19,18 @@ import type {
 } from '~/lib/types/snapshot'
 import type { CapacityResult, CapacityScenario } from '~/lib/types/wizard'
 
+// User picks 1+ utang tipes — wizard renders 1 scenario per picked tipe so user bisa
+// compare (mis. KPR vs KPM kalau lagi mikir antara dua). Empty array → no scenarios.
+export type MaxUtangTipe = 'kpr' | 'kpm' | 'paylater'
+
+export const MAX_UTANG_TIPES: ReadonlyArray<MaxUtangTipe> = ['kpr', 'kpm', 'paylater']
+
 export interface MaxUtangInput {
   targetDsrPercent: number // default 30 (sehat threshold)
-  // Override knobs per scenario (optional — collapsed by default per design-guidelines §8.18).
-  // KPR tenor in YEARS (longer horizon, user mental model); KPM + Paylater in MONTHS (matches
-  // typical contract framing for these). All bunga in %/tahun.
+  tipes: MaxUtangTipe[] // 1+ picks; renders 1 scenario per pick in this order
+  // Override knobs per-tipe (optional — collapsed by default per design-guidelines §8.18).
+  // Only fields matching picked tipes are read; others ignored.
+  // KPR tenor in YEARS (longer horizon); KPM + Paylater in MONTHS (typical contract framing).
   kprTenorTahun?: number // default 20
   kprBungaPercent?: number // default 7
   kpmTenorBulan?: number // default 36
@@ -83,58 +90,73 @@ export function runMaxUtang(
     warnings.push(t('wizard.maxUtang.warning.burnOverIncome'))
   }
 
-  // KPR scenario (defaults: 20 thn / 7%, 20% DP → harga = pokok / 0.8)
-  const kprTenorTahun = input.kprTenorTahun ?? 20
-  const kprTenorBulan = kprTenorTahun * 12
-  const kprBunga = input.kprBungaPercent ?? 7
-  const kprPokok = anuitasInversePokok(maxNewCicilan, kprBunga, kprTenorBulan)
-  const kprHarga = kprPokok / 0.8
-
-  // KPM scenario (defaults: 36 bln / 8%, 20% DP)
-  const kpmTenorBulan = input.kpmTenorBulan ?? 36
-  const kpmBunga = input.kpmBungaPercent ?? 8
-  const kpmPokok = anuitasInversePokok(maxNewCicilan, kpmBunga, kpmTenorBulan)
-  const kpmHarga = kpmPokok / 0.8
-
-  // Paylater scenario (defaults: 12 bln / 24%, no DP — purchase price = pokok)
-  const plTenorBulan = input.paylaterTenorBulan ?? 12
-  const plBunga = input.paylaterBungaPercent ?? 24
-  const plPokok = anuitasInversePokok(maxNewCicilan, plBunga, plTenorBulan)
-
-  const scenarios: CapacityScenario[] = [
-    {
-      key: 'kpr',
-      label: t('wizard.maxUtang.scenario.kpr.label'),
-      description: t('wizard.maxUtang.scenario.kpr.body', {
-        harga: idr(kprHarga),
-        tenor: kprTenorTahun,
-        bunga: kprBunga,
-      }),
-    },
-    {
-      key: 'kpm',
-      label: t('wizard.maxUtang.scenario.kpm.label'),
-      description: t('wizard.maxUtang.scenario.kpm.body', {
-        harga: idr(kpmHarga),
-        tenor: kpmTenorBulan,
-        bunga: kpmBunga,
-      }),
-    },
-    {
-      key: 'paylater',
-      label: t('wizard.maxUtang.scenario.paylater.label'),
-      description: t('wizard.maxUtang.scenario.paylater.body', {
-        harga: idr(plPokok),
-        tenor: plTenorBulan,
-        bunga: plBunga,
-      }),
-    },
-  ]
+  // Render canonical order (kpr → kpm → paylater) regardless of pick-array order, so the
+  // result list looks consistent if user toggles checkboxes. Dedup via Set in case caller
+  // passes duplicates.
+  const pickedSet = new Set<MaxUtangTipe>(input.tipes)
+  const scenarios: CapacityScenario[] = []
+  for (const tipe of MAX_UTANG_TIPES) {
+    if (!pickedSet.has(tipe)) continue
+    scenarios.push(buildScenario(tipe, maxNewCicilan, input))
+  }
 
   return {
     heroValue: maxNewCicilan,
     heroLabel: t('wizard.maxUtang.hero.label'),
     scenarios,
     warnings,
+  }
+}
+
+// Build a single scenario for the given tipe. DP framing per tipe: 20% for KPR/KPM,
+// 0% for Paylater (purchase price = pokok). Same anuitas inverse helper for all 3.
+function buildScenario(
+  tipe: MaxUtangTipe,
+  maxNewCicilan: number,
+  input: MaxUtangInput,
+): CapacityScenario {
+  if (tipe === 'kpr') {
+    const tenorTahun = input.kprTenorTahun ?? 20
+    const tenorBulan = tenorTahun * 12
+    const bunga = input.kprBungaPercent ?? 7
+    const pokok = anuitasInversePokok(maxNewCicilan, bunga, tenorBulan)
+    const harga = pokok / 0.8
+    return {
+      key: 'kpr',
+      label: t('wizard.maxUtang.scenario.kpr.label'),
+      description: t('wizard.maxUtang.scenario.kpr.body', {
+        harga: idr(harga),
+        tenor: tenorTahun,
+        bunga,
+      }),
+    }
+  }
+  if (tipe === 'kpm') {
+    const tenorBulan = input.kpmTenorBulan ?? 36
+    const bunga = input.kpmBungaPercent ?? 8
+    const pokok = anuitasInversePokok(maxNewCicilan, bunga, tenorBulan)
+    const harga = pokok / 0.8
+    return {
+      key: 'kpm',
+      label: t('wizard.maxUtang.scenario.kpm.label'),
+      description: t('wizard.maxUtang.scenario.kpm.body', {
+        harga: idr(harga),
+        tenor: tenorBulan,
+        bunga,
+      }),
+    }
+  }
+  // paylater
+  const tenorBulan = input.paylaterTenorBulan ?? 12
+  const bunga = input.paylaterBungaPercent ?? 24
+  const pokok = anuitasInversePokok(maxNewCicilan, bunga, tenorBulan)
+  return {
+    key: 'paylater',
+    label: t('wizard.maxUtang.scenario.paylater.label'),
+    description: t('wizard.maxUtang.scenario.paylater.body', {
+      harga: idr(pokok),
+      tenor: tenorBulan,
+      bunga,
+    }),
   }
 }
