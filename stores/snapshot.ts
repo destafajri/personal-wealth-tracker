@@ -180,6 +180,8 @@ export const useSnapshotStore = defineStore('snapshot', () => {
       units: partial.units ?? 0,
       amount: partial.amount ?? 0,
       label: partial.label,
+      costBasisPerUnit: partial.costBasisPerUnit,
+      costBasisCurrency: partial.costBasisCurrency,
     }
     cryptoLive.value.push(row)
     return row

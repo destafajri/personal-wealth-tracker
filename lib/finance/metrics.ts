@@ -220,6 +220,27 @@ export function calcBungaSbnMonthly(snap: SnapshotState, prices?: PricesView): n
   return calcBungaMonthlyForRows(snap.asetLikuid.sbn, prices)
 }
 
+// Per-row crypto capital gain % — (liveIdrPerUnit − costIdrPerUnit) / costIdrPerUnit × 100.
+// Only meaningful for mode='unit' (other modes input opaque IDR/USD/KRW totals — no
+// per-unit comparison possible). Returns null when cost basis is missing, FX rate is
+// stale, or live coin price is unavailable. Public so panel + future per-row analytics
+// share one definition.
+export function calcCryptoCapitalGainPercent(
+  c: CryptoHolding,
+  prices?: PricesView,
+): number | null {
+  if (c.mode !== 'unit') return null
+  if (c.costBasisPerUnit === undefined || c.costBasisPerUnit <= 0) return null
+  if (c.costBasisCurrency === undefined) return null
+  const liveIdrPerUnit = prices?.cryptoByCoinId[c.coinId.toLowerCase()]?.idr ?? null
+  if (liveIdrPerUnit === null || liveIdrPerUnit <= 0) return null
+  const fxRate = rateToIdr(c.costBasisCurrency, prices?.fxRates)
+  if (fxRate === null) return null
+  const costIdrPerUnit = c.costBasisPerUnit * fxRate
+  if (costIdrPerUnit <= 0) return null
+  return ((liveIdrPerUnit - costIdrPerUnit) / costIdrPerUnit) * 100
+}
+
 export function calcBungaDepositoMonthly(snap: SnapshotState, prices?: PricesView): number {
   return calcBungaMonthlyForRows(snap.asetLikuid.deposito, prices)
 }

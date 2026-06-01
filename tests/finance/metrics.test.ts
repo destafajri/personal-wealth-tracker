@@ -4,6 +4,7 @@ import {
   calcAssetBreakdown,
   calcBungaDepositoMonthly,
   calcBungaSbnMonthly,
+  calcCryptoCapitalGainPercent,
   calcDar,
   calcDsr,
   calcModalSiap,
@@ -795,6 +796,94 @@ describe('calcBungaSbnMonthly + calcBungaDepositoMonthly', () => {
       sukuBungaPercent: 12,
     })
     expect(calcDsr(s)).toBeCloseTo((4_000_000 / 11_000_000) * 100, 4)
+  })
+})
+
+describe('calcCryptoCapitalGainPercent', () => {
+  const baseUnitRow = {
+    id: 'c1',
+    coinId: 'bitcoin',
+    mode: 'unit' as const,
+    units: 0.5,
+    amount: 0,
+  }
+
+  const pricesWith = (
+    btcIdr: number | null,
+    usdRate: number | null = 16_000,
+  ): PricesView => ({
+    goldDigitalIdrPerGram: null,
+    goldAntam1gIdr: null,
+    fxRates: { USD: usdRate, SGD: null, EUR: null, JPY: null, KRW: null },
+    idxByTicker: {},
+    cryptoByCoinId: {
+      bitcoin: { idr: btcIdr, usd: null, eur: null, jpy: null, krw: null },
+    },
+  })
+
+  it('returns null in non-unit modes', () => {
+    expect(
+      calcCryptoCapitalGainPercent(
+        { ...baseUnitRow, mode: 'idr', costBasisPerUnit: 30_000, costBasisCurrency: 'USD' },
+        pricesWith(960_000_000),
+      ),
+    ).toBeNull()
+  })
+
+  it('returns null when cost basis missing', () => {
+    expect(calcCryptoCapitalGainPercent(baseUnitRow, pricesWith(960_000_000))).toBeNull()
+  })
+
+  it('returns null when live coin price missing', () => {
+    expect(
+      calcCryptoCapitalGainPercent(
+        { ...baseUnitRow, costBasisPerUnit: 30_000, costBasisCurrency: 'USD' },
+        pricesWith(null),
+      ),
+    ).toBeNull()
+  })
+
+  it('returns null when FX rate stale for foreign cost basis', () => {
+    expect(
+      calcCryptoCapitalGainPercent(
+        { ...baseUnitRow, costBasisPerUnit: 30_000, costBasisCurrency: 'USD' },
+        pricesWith(960_000_000, null),
+      ),
+    ).toBeNull()
+  })
+
+  it('= (live IDR per unit − cost IDR per unit) / cost IDR per unit × 100', () => {
+    // Cost: $30k × 16_000 = Rp 480M/unit. Live: Rp 960M/unit. Gain = +100%.
+    expect(
+      calcCryptoCapitalGainPercent(
+        { ...baseUnitRow, costBasisPerUnit: 30_000, costBasisCurrency: 'USD' },
+        pricesWith(960_000_000, 16_000),
+      ),
+    ).toBeCloseTo(100, 4)
+  })
+
+  it('negative when live below cost basis', () => {
+    // Cost: $60k × 16_000 = Rp 960M/unit. Live: Rp 480M/unit. Gain = −50%.
+    expect(
+      calcCryptoCapitalGainPercent(
+        { ...baseUnitRow, costBasisPerUnit: 60_000, costBasisCurrency: 'USD' },
+        pricesWith(480_000_000, 16_000),
+      ),
+    ).toBeCloseTo(-50, 4)
+  })
+
+  it('IDR cost basis skips FX (rate=1)', () => {
+    // Cost: Rp 800M/unit. Live: Rp 1B/unit. Gain = +25%.
+    expect(
+      calcCryptoCapitalGainPercent(
+        {
+          ...baseUnitRow,
+          costBasisPerUnit: 800_000_000,
+          costBasisCurrency: 'IDR',
+        },
+        pricesWith(1_000_000_000),
+      ),
+    ).toBeCloseTo(25, 4)
   })
 })
 

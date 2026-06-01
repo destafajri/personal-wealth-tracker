@@ -112,6 +112,11 @@ export const copy = {
   'snapshot.crypto.duplicateWarning':
     'Coin {sym} sudah dipakai di row lain. Hapus salah satu atau ubah biar gak double-count.',
   'snapshot.crypto.totalLabel': 'Total nilai crypto',
+  'snapshot.crypto.costBasisLabel': 'Harga beli rata-rata / unit',
+  'snapshot.crypto.costBasisHelp':
+    'Cost basis per coin. Currency bebas (USD/IDR/dll); drives capital gain % vs harga live.',
+  'snapshot.crypto.costBasisCurrencyAria': 'Currency cost basis',
+  'snapshot.crypto.capitalGainHint': 'vs harga live',
 
   // ----- cicilan -----
   'cicilan.add': '+ Tambah cicilan',

@@ -80,6 +80,12 @@ export interface CryptoHolding {
   units: number // used when mode='unit'
   amount: number // used when mode in ('idr','usd','krw')
   label?: string // optional nickname (e.g., "BTC di Tokocrypto")
+  // Cost basis per unit + its currency — drives capital gain % display. Only meaningful
+  // in mode='unit' (other modes input opaque IDR/USD/KRW totals, not per-unit). Preserved
+  // across mode toggles so users can flip back without re-entering. `Currency` covers the
+  // full FX set since traders commonly buy in USD/EUR/etc, not just the mode's 3 fiats.
+  costBasisPerUnit?: number
+  costBasisCurrency?: Currency
 }
 
 export type JenisBunga = 'Anuitas' | 'Flat' | 'Floating' | 'Revolving'

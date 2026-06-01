@@ -6,7 +6,9 @@ import InputCurrency from '~/components/common/InputCurrency.vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
+import { calcCryptoCapitalGainPercent } from '~/lib/finance/metrics'
 import { idr } from '~/lib/format/idr'
+import { percent } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
 import {
   COINGECKO_TOP_COINS,
@@ -14,7 +16,7 @@ import {
   findCoinBySymbol,
 } from '~/lib/data/coingecko-top-coins'
 import { nextCryptoModePatch } from '~/lib/snapshot/crypto-mode'
-import type { CryptoHolding, CryptoMode } from '~/lib/types/snapshot'
+import { CURRENCIES, type CryptoHolding, type CryptoMode, type Currency } from '~/lib/types/snapshot'
 
 // Live-price plumbing from the page (snapshot.vue owns the composable so panel + page
 // share one fetch state). When the upstream throws (cold-start 502/429), `liveError` is
@@ -169,6 +171,39 @@ function amountPrefix(mode: CryptoMode): string {
   return ''
 }
 
+const CCY_PREFIX: Record<Currency, string> = {
+  IDR: 'Rp',
+  USD: '$',
+  SGD: 'S$',
+  EUR: '€',
+  JPY: '¥',
+  KRW: '₩',
+}
+
+function costBasisCurrencyOf(row: CryptoHolding): Currency {
+  return row.costBasisCurrency ?? 'USD'
+}
+
+function onCostBasis(id: string, v: number | null) {
+  snap.updateCrypto(id, { costBasisPerUnit: v === null || v <= 0 ? undefined : v })
+}
+
+function onCostBasisCurrency(id: string, value: Currency) {
+  snap.updateCrypto(id, { costBasisCurrency: value })
+}
+
+// Capital gain % vs live market — hidden unless mode='unit' + cost basis + live rate
+// all aligned. Color-coded same as saham (emerald/rose/muted).
+function capitalGainOf(row: CryptoHolding): number | null {
+  return calcCryptoCapitalGainPercent(row, derived.priceView ?? undefined)
+}
+
+function capitalGainClass(pct: number): string {
+  if (pct > 0) return 'text-[var(--color-accent-emerald)]'
+  if (pct < 0) return 'text-[var(--color-danger-rose)]'
+  return 'text-[var(--color-text-muted)]'
+}
+
 const total = computed(() =>
   snap.crypto.reduce((s, c) => s + (rowIdrEquivalent(c) ?? 0), 0),
 )
@@ -305,12 +340,61 @@ const total = computed(() =>
             :model-value="row.units || null"
             @update:model-value="(v) => onUnits(row.id, v)"
           />
-          <p class="tabular mt-1 text-[11px] text-[var(--color-text-muted)]">
-            <template v-if="liveIdrEquivalent(row) !== null">
-              ≈ {{ idr(liveIdrEquivalent(row)) }}
-            </template>
-            <template v-else>{{ t('snapshot.crypto.idrStale') }}</template>
-          </p>
+          <div class="mt-1 flex items-baseline justify-between gap-2">
+            <p class="tabular text-[11px] text-[var(--color-text-muted)]">
+              <template v-if="liveIdrEquivalent(row) !== null">
+                ≈ {{ idr(liveIdrEquivalent(row)) }}
+              </template>
+              <template v-else>{{ t('snapshot.crypto.idrStale') }}</template>
+            </p>
+            <p
+              v-if="capitalGainOf(row) !== null"
+              class="tabular text-[11px] font-medium"
+              :class="capitalGainClass(capitalGainOf(row)!)"
+              :title="t('snapshot.crypto.capitalGainHint')"
+            >
+              {{ capitalGainOf(row)! > 0 ? '+' : '' }}{{ percent(capitalGainOf(row)!, 2) }}
+            </p>
+          </div>
+
+          <!-- Cost basis (per unit, any currency) — drives capital gain %. Hidden in
+               non-unit modes since cost basis is per-unit semantics. Currency defaults to
+               USD (most traders quote crypto in USD); fields preserved across mode toggles. -->
+          <div class="mt-3 space-y-1">
+            <label
+              :for="`cost-basis-${row.id}`"
+              class="block text-[11px] font-medium uppercase tracking-wide text-[var(--color-text-secondary)]"
+            >
+              {{ t('snapshot.crypto.costBasisLabel') }}
+            </label>
+            <div class="flex items-center gap-2">
+              <select
+                :value="costBasisCurrencyOf(row)"
+                :aria-label="t('snapshot.crypto.costBasisCurrencyAria')"
+                class="h-10 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+                @change="
+                  onCostBasisCurrency(
+                    row.id,
+                    ($event.target as HTMLSelectElement).value as Currency,
+                  )
+                "
+              >
+                <option v-for="cur in CURRENCIES" :key="cur" :value="cur">{{ cur }}</option>
+              </select>
+              <div class="flex-1">
+                <InputCurrency
+                  :id="`cost-basis-${row.id}`"
+                  :prefix="CCY_PREFIX[costBasisCurrencyOf(row)]"
+                  :aria-label="t('snapshot.crypto.costBasisLabel')"
+                  :model-value="row.costBasisPerUnit ?? null"
+                  @update:model-value="(v) => onCostBasis(row.id, v)"
+                />
+              </div>
+            </div>
+            <p class="text-[10px] text-[var(--color-text-muted)]">
+              {{ t('snapshot.crypto.costBasisHelp') }}
+            </p>
+          </div>
         </div>
         <div v-else>
           <InputCurrency
