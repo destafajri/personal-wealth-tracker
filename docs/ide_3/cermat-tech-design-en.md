@@ -393,13 +393,28 @@ export interface UtangPribadiRow {
 ### 5.2 `stores/goals.ts`
 
 ```ts
+// FI_MULTIPLIER is an exported CONSTANT, not a ref — per D0.2 locked at 300 (Trinity 4%
+// rule). Runtime change would silently invalidate every projection; flipping to a
+// dropdown later = one-line edit here.
+export const FI_MULTIPLIER = 300
+
 export const useGoalsStore = defineStore('goals', () => {
-  const goals = ref<Goal[]>([])               // each Goal may carry monthlyAllocationIdr? (override; default = surplus ÷ N)
-  const fiMultiplier = ref<240 | 300 | 360 | number>(300)
-  const assumedAnnualReturnReal = ref<number>(0.05)  // global, REAL (inflation-baked); results carry ESTIMASI pill
-  // …add/edit/remove + getter for FI auto-target + projection via lib/finance/goals (§6.4)
+  const goals = ref<Goal[]>([])                       // each Goal may carry monthlyAllocationIdr? (override; default = surplus ÷ N)
+  const assumedAnnualReturnReal = ref<number>(0.05)    // global, REAL (inflation-baked); ESTIMASI pill; clamped [−0.05, 0.20]
+
+  const hasFiGoal = computed(() => goals.value.some((g) => g.kind === 'FI'))
+  const activeGoalsCount = computed(() => goals.value.length)
+
+  // addGoal returns null when caller tries to add a 2nd FI — UI surfaces the disabled hint.
+  function addGoal(partial: Partial<Goal> & { kind: GoalKind }): Goal | null {
+    if (partial.kind === 'FI' && hasFiGoal.value) return null
+    // …
+  }
+  // …updateGoal, removeGoal, setAssumedReturn, reset
 })
 ```
+
+`Goal.kind ∈ { 'FI', 'DP_RUMAH', 'DANA_PENDIDIKAN', 'CUSTOM' }`. `Goal.buckets: GoalBucketCategory[]` — 10-category union mirroring snapshot's asset taxonomy. `DEFAULT_BUCKETS.FI = ['kas','deposito','reksaDana','sbn','saham','crypto','emas']`; other kinds empty.
 
 ### 5.3 `stores/derived.ts` — the single source of dashboard truth
 
@@ -486,26 +501,69 @@ export function revolving(sisaPokok: number, bungaPerBulan: number, minPaymentRa
 
 ### 6.3 Wizard engines — `lib/finance/wizards/*.ts`
 
-Each wizard exports a single function `run(inputs, currentSnapshot, currentGoals): WizardResult`.
+Each wizard exports a single pure function `run(input, snap, goals, opts) → WizardResult`. **Purity invariant (locked Day 6):** wizards NEVER mutate the real snapshot/goals stores — they deep-clone the snapshot, mutate the clone, and return it. Caller (UI) just renders. Drift here = race conditions + breaks Sebelum/Sesudah framing.
 
 `WizardResult` shape:
 ```ts
-type WizardResult = {
-  scenarioSnapshot: SnapshotState     // cloned + mutated
-  scenarioGoals: Goal[]
-  delta: Array<{
-    metricKey: string                  // 'dsr' | 'runway' | 'goal:fi' | …
-    label: string                      // 'DSR' | 'Goal: FI 2035'
-    before: { display: string; value: number | null; zone?: Zone }
-    after:  { display: string; value: number | null; zone?: Zone }
-    deltaDisplay: string               // '▲ +16 pp' | '▼ −4' | '●'
-    direction: 'better' | 'worse' | 'neutral'
-  }>
-  warnings?: string[]                  // from copy registry
+export interface WizardResult {
+  scenarioSnapshot: SnapshotState           // cloned + mutated
+  scenarioGoals: Goal[]                     // KPR doesn't add/remove goals; passes through
+  delta: DeltaRow[]                         // 7 metric rows (NW, ModalSiap, DSR, DAR, Runway, SR, SafeHaven)
+  goalImpact: GoalDelta[]                   // per-goal status flip + monthsShift
+  warnings: string[]                        // already-resolved strings via t()
+}
+
+export interface DeltaRow {
+  metricKey: string                          // 'netWorth' | 'modalSiap' | 'dsr' | …
+  label: string                              // 'DSR' | 'Net Worth' (from copy registry)
+  before: DeltaSide
+  after:  DeltaSide
+  deltaDisplay: string                       // '▲ Rp 40jt' | '▼ −4 pp' | '●'
+  direction: 'better' | 'worse' | 'neutral' // independent from up/down — DSR↑=worse, Runway↑=better
+}
+
+export interface DeltaSide {
+  value: number | null
+  display: string                            // formatted via idr/percent/duration helpers
+  zone?: Zone                                // populated only for metrics with threshold bands
+}
+
+export interface GoalDelta {
+  goalId: string
+  goalLabel: string
+  beforeStatus: 'on' | 'at-risk' | 'off'
+  afterStatus:  'on' | 'at-risk' | 'off'
+  monthsShift: number                        // positive = mundur, negative = lebih cepat
+  unreachable: boolean                        // true when scenario kills goal projection
 }
 ```
 
-`<WizardDeltaTable :delta="result.delta" />` is the shared renderer of the 4-col table — every wizard uses it.
+`<WizardDeltaTable :delta="result.delta" />` is the shared renderer of the 4-col table — every wizard uses it. Zone-tint on `after` cell (sehat/waspada/bahaya soft bg via existing `--color-accent-emerald-soft` etc); direction-color on Δ (emerald/rose/muted). Zone and direction are independent — a metric can be `worse` but still in `sehat`.
+
+#### Goal impact
+
+```ts
+const goalImpact = goals.map((g) => {
+  const beforeP = goalProgress(g, snap, opts)
+  const afterP  = goalProgress(g, scenarioSnapshot, opts)
+  const unreachable = !Number.isFinite(afterP.projection.months)
+  const monthsShift = unreachable || !Number.isFinite(beforeP.projection.months)
+    ? 0                                     // surface via `unreachable` flag instead of faking a number
+    : afterP.projection.months - beforeP.projection.months
+  return { /* … */ }
+})
+```
+
+Same `goalProgress` from `lib/finance/goals.ts` (§6.4) — wizard math reconciles with `/app/goals` card math automatically.
+
+#### Day-6 locked decisions for `runMauKpr`
+
+1. **Wizard mounted globally.** `<WizardHost>` lives once in `layouts/app.vue` (Teleport-to-body, focus trap, Esc/backdrop close, body-overflow snapshot/restore). Triggers from any page call `useSimulator().open('kpr')` — keyed `v-if` inside `WizardHost` dispatches to the right wizard component. Don't fork per-page modals.
+2. **DP source = waterfall kas → deposito → reksaDana.** Simplest realistic model without an extra UI input. On shortfall: kas drained to 0; `warnings.push('DP melebihi modal likuid')` — simulation still computes so user sees the gap.
+3. **Property added at full `hargaRumah`** to `scenarioSnapshot.asetNonLikuid.properti`. Reflects "real estate as aset" mental model; Net Worth ≈ (aset+1.2B) − (utang+960jt). DP-only equity accounting considered + rejected.
+4. **Cicilan KPR row** rides on `anuitas()` / `flat()` from `amortization.ts` — wizard cicilan = canonical schedule (no drift).
+5. **Snapshot cloned via `JSON.parse(JSON.stringify(snap))`.** SnapshotState is plain data (no Dates / functions / Maps), so safe. `structuredClone` not used — Vitest path more predictable.
+6. **`useSimulator` = module-scoped `ref` (not Pinia),** mirroring `useMetricExplainer`. Captures `previouslyFocused` at `open()` time for focus restore on `close()`.
 
 ### 6.4 Goal projection — `lib/finance/goals.ts`
 
@@ -528,10 +586,13 @@ export function projectCompletion(args: {
 export function goalStatus(projectedDate: string | null, targetDate: string): 'on' | 'at-risk' | 'off'
 ```
 
-- `annualReturnReal` default `0.05` (REAL, inflation-baked). Global (`useGoalsStore().assumedAnnualReturnReal`), user-editable; every projected figure carries the ESTIMASI pill.
+- `annualReturnReal` default `0.05` (REAL, inflation-baked). Global (`useGoalsStore().assumedAnnualReturnReal`), user-editable on `/app/goals` header (percent UI ↔ decimal store via two-way computed); every projected figure carries the ESTIMASI pill. Clamped to [−0.05, 0.20] in store.
 - `monthlyInflow` = `goal.monthlyAllocationIdr ?? defaultAllocation(snap, activeGoalCount)`.
-- `date: null` when `monthlyInflow ≤ 0` or growth can't reach target → card shows *"Belum tercapai dengan alokasi sekarang"* (descriptive).
-- **Wizard delta:** re-run `projectCompletion` against the cloned/mutated snapshot (lower surplus + lower bucket) → year-shift = *"FI mundur ~N tahun"*. Same pure fn, no special-casing.
+- `date: null` returned when **either** (a) `target ≤ 0` (invalid/missing — e.g., FI goal with `pengeluaran=0`), or (b) growth + inflow can't reach target. Split intentional after Codex round-11 — the old code conflated the two and FI goals with empty pengeluaran got false `on-track` status. UI distinguishes: `FiGoalCard` surfaces specific `goal.fi.needsPengeluaran` copy when targetIdr ≤ 0; generic `goal.projection.unreachable` for the inflow case.
+- **Bucket tagging = category-level** (locked Day 5): user multi-selects from `GoalBucketCategory` (10 categories mirroring snapshot asset taxonomy). `DEFAULT_BUCKETS.FI = wealth-building 7`; other kinds empty (user picks per goal). Per-row tagging considered + skipped — adding later = schema migration on `Goal.buckets`.
+- **One FI goal max per snapshot** (locked Day 5). `store.addGoal({kind:'FI'})` returns `null` when `hasFiGoal === true`. `GoalForm` disables submit + shows hint.
+- **`FI_MULTIPLIER = 300`** = exported const (NOT a ref) from `stores/goals.ts`. Flipping at runtime would invalidate every projection silently; per D0.2.
+- **Wizard delta:** re-run `projectCompletion` against the cloned/mutated snapshot → year-shift = *"FI mundur ~N tahun"*. Same pure fn, no special-casing. `monthsShift=0 + unreachable=true` when either before-or-after projection is `Infinity` (surface via flag instead of faking a number).
 
 ### 6.5 Emas valuation — `lib/finance/emas.ts`
 
@@ -854,16 +915,21 @@ These must be answered before code that depends on them:
 
 | # | Question | Blocks |
 |---|---|---|
-| 1 | Brand name lock — "Cermat" or alt? | Day 1 (wordmark in TopNav) |
+| 1 | ~~Brand name lock — "Cermat" or alt?~~ **RESOLVED 2026-05-30** — "Cermat" locked. | ~~Day 1~~ done |
 | 2 | ~~FI multiplier — fixed 300, or 240/300/360 dropdown?~~ **RESOLVED 2026-05-31 (D0.2):** fixed `300` (4% rule). No dropdown — exposing 240/360 invites false precision when the underlying SWR is itself ESTIMASI for EM. Power users can override later if validated by usage. | ~~Day 5~~ done |
-| 3 | Modal Siap formula — subtract 3–6 mo emergency buffer? | Day 3 (Modal Siap metric card) |
-| 4 | Mobile breakpoint — bottom-nav vs hamburger? | Day 11 (mobile polish) |
-| 5 | 9-metric "—" rules — explicit per-metric, or shared rule? | Day 3 (empty/partial states) |
+| 3 | ~~Modal Siap formula — subtract 3–6 mo emergency buffer?~~ **RESOLVED Day 3 (D0.3):** no auto-subtract; advisory copy only. | ~~Day 3~~ done |
+| 4 | ~~Mobile breakpoint — bottom-nav vs hamburger?~~ **RESOLVED 2026-05-30** — bottom-nav (4 modul). | ~~Day 11~~ closed early |
+| 5 | ~~9-metric "—" rules — explicit per-metric, or shared rule?~~ **RESOLVED Day 3 (D0.5):** per-metric. Each metric has its own prereq + `emptyHintKey`. | ~~Day 3~~ done |
 | 6 | ~~IDX source — Yahoo confirmed?~~ **RESOLVED 2026-05-28** — Yahoo `/v7/quote` is dead; use `/v7/spark` (batch) + `/v8/chart` (single), free/no-auth, tested live. Goapi only if Yahoo blocks Vercel egress IPs. | ~~Day 2~~ done |
-| 7 | Per-emiten depth — lots+target+bobot+dividen only, or ladders? | Day 4 (Saham subsection) — MVP says no ladders, confirm |
-| 8 | Plausible analytics on `/` landing — yes/no? | Day 1 (landing wiring) |
+| 7 | ~~Per-emiten depth — lots+target+bobot+dividen only, or ladders?~~ **RESOLVED Day 4** — lots+target+dividen, no ladders. Target bobot HIDDEN per Day 4.7 Stitch parity (fields stay on type as escape hatch). | ~~Day 4~~ done |
+| 8 | Plausible analytics on `/` landing — yes/no? | Day 10 (landing polish), low risk |
+| 9 | ~~Bucket tagging UX — category-level multi-select, or per-row?~~ **RESOLVED Day 5:** category-level (10 `GoalBucketCategory` mirroring snapshot taxonomy). Per-row = schema migration if revisited. | ~~Day 5~~ done |
+| 10 | ~~Goal Health placement — chip vs 7th MetricGrid card?~~ **RESOLVED Day 5 (carries Codex round-4):** chip beside Goals panel + GoalSummaryCards on dashboard rail. NEVER MetricGrid. | ~~Day 5~~ done |
+| 11 | ~~Decision-wizard DP source — explicit picker, waterfall, or proportional?~~ **RESOLVED Day 6:** waterfall kas → deposito → reksaDana; shortfall triggers `warnings.push()` instead of negative balances. | ~~Day 6~~ done |
+| 12 | ~~Decision-wizard property accounting — full `hargaRumah`, DP-only, or skip?~~ **RESOLVED Day 6:** full `hargaRumah` added to `asetNonLikuid.properti`. Net Worth framing matches reality. | ~~Day 6~~ done |
+| 13 | ~~WizardLauncher — render all 7 cards w/ Soon, or only enabled?~~ **RESOLVED Day 6:** all 7 always rendered, non-built ones disabled + Soon badge. Match TabBar pattern. | ~~Day 6~~ done |
 
-I recommend resolving #1, #2, #3, #5, #6, #8 at the start of Day 1 (a 30-min decisions block before scaffolding).
+D0 items #1–#7 closed before/during Day 1–4. #9–#13 closed in Day 5–6 build phases.
 
 ---
 
