@@ -25,12 +25,12 @@ interface LauncherCard {
   enabled: boolean
 }
 
-// Decision wizards ("Mau gw X?") — Day 6: KPR; Day 7: Gadai/Cicil/Custom.
+// Decision wizards ("Mau gw X?") — Day 6+7: all 4 live. Capacity Day 8.
 const decisions: LauncherCard[] = [
   { key: 'kpr', labelKey: 'simulator.card.kpr.label', bodyKey: 'simulator.card.kpr.body', icon: Home, enabled: true },
-  { key: 'gadai', labelKey: 'simulator.card.gadai.label', bodyKey: 'simulator.card.gadai.body', icon: Gem, enabled: false },
-  { key: 'cicil', labelKey: 'simulator.card.cicil.label', bodyKey: 'simulator.card.cicil.body', icon: CarFront, enabled: false },
-  { key: 'custom', labelKey: 'simulator.card.custom.label', bodyKey: 'simulator.card.custom.body', icon: Settings2, enabled: false },
+  { key: 'gadai', labelKey: 'simulator.card.gadai.label', bodyKey: 'simulator.card.gadai.body', icon: Gem, enabled: true },
+  { key: 'cicil', labelKey: 'simulator.card.cicil.label', bodyKey: 'simulator.card.cicil.body', icon: CarFront, enabled: true },
+  { key: 'custom', labelKey: 'simulator.card.custom.label', bodyKey: 'simulator.card.custom.body', icon: Settings2, enabled: true },
 ]
 
 // Capacity wizards ("Bisa gw apa?") — Day 8.

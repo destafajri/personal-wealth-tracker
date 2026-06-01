@@ -11,6 +11,9 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { X } from 'lucide-vue-next'
 import DisclaimerBanner from '~/components/common/DisclaimerBanner.vue'
 import WizardMauKpr from '~/components/simulator/decisions/WizardMauKpr.vue'
+import WizardMauGadai from '~/components/simulator/decisions/WizardMauGadai.vue'
+import WizardMauCicil from '~/components/simulator/decisions/WizardMauCicil.vue'
+import WizardCustom from '~/components/simulator/decisions/WizardCustom.vue'
 import { useSimulator } from '~/composables/useSimulator'
 import { t } from '~/lib/copy/strings'
 
@@ -121,6 +124,9 @@ onBeforeUnmount(() => {
 
         <div class="px-5 py-5">
           <WizardMauKpr v-if="activeKey === 'kpr'" />
+          <WizardMauGadai v-else-if="activeKey === 'gadai'" />
+          <WizardMauCicil v-else-if="activeKey === 'cicil'" />
+          <WizardCustom v-else-if="activeKey === 'custom'" />
         </div>
       </div>
     </div>

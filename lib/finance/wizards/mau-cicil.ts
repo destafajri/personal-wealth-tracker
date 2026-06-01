@@ -1,18 +1,12 @@
-// "Mau KPR?" wizard — first decision wizard, sets the pattern for the rest.
+// "Mau Cicil?" wizard — generic installment (non-KPR). Covers KPM / BANK_KTA / PINJOL /
+// PAYLATER / KK / LAIN. KPR has its own wizard (different mental model: home + DP large).
 //
-// Pure function. Never mutates the input snapshot. Returns a fresh scenarioSnapshot
-// (clone + KPR effects applied) + computed delta vs. the original. UI layer just renders.
-//
-// KPR effects on scenario:
-//   1) Add cicilan KPR row (Anuitas default) — pokok = harga − DP, cicilan computed via
-//      lib/finance/amortization.ts so wizard math matches the canonical schedule.
-//   2) Add property row to asetNonLikuid.properti — nilai = full harga rumah (locked
-//      decision: better Net Worth framing than DP-only equity accounting).
-//   3) Debit DP via waterfall kas → deposito → reksaDana (locked decision). FX-aware
-//      after Codex round-12. Drain stops at 0; leftover triggers shortfall warning.
-//
-// Goal impact = re-run goalProgress against scenarioSnapshot per goal. Same pure fn used
-// by /app/goals — no special-casing.
+// Effects on scenario (mirror mau-kpr.ts but no auto-property):
+//   1) Add cicilan row (Anuitas/Flat) — pokok = harga − DP, cicilan via amortization.ts.
+//   2) Optional asset row in asetNonLikuid (kendaraan / properti) — only if user fills
+//      `asetValue + asetKategori`. Default skip (locked decision: avoid auto-tracking
+//      depreciating elektronik / KK groceries; KPM user can opt in by setting nilai).
+//   3) DP waterfall (FX-aware) from kas → deposito → reksaDana. Same helper as KPR.
 
 import { anuitas, flat } from '~/lib/finance/amortization'
 import {
@@ -26,6 +20,7 @@ import { t } from '~/lib/copy/strings'
 import type { Goal } from '~/lib/types/goals'
 import type {
   CicilanRow,
+  CicilanTipe,
   FxRatesMap,
   JenisBunga,
   PricesView,
@@ -33,16 +28,24 @@ import type {
 } from '~/lib/types/snapshot'
 import type { WizardResult } from '~/lib/types/wizard'
 
-export interface KprInput {
+// KPR excluded — has its own wizard. KK is technically Revolving but we keep it under
+// this wizard with Anuitas/Flat options (user can switch later in Cicilan Aktif panel).
+export type CicilTipe = Exclude<CicilanTipe, 'KPR'>
+
+export interface CicilInput {
   label: string
-  hargaRumah: number
-  dpPercent: number // 0..100
-  tenorTahun: number // years (×12 = bulan)
+  tipe: CicilTipe
+  hargaBarang: number
+  dpPercent: number // 0..100; default 0 OK (KK/Paylater have no DP)
+  tenorBulan: number
   bungaPercent: number // %/tahun
   jenisBunga: Extract<JenisBunga, 'Anuitas' | 'Flat'>
+  // Optional asset tracking. Set both to add a non-likuid row reflecting the purchase.
+  asetValue?: number
+  asetKategori?: 'kendaraan' | 'properti'
 }
 
-export interface KprComputed {
+export interface CicilComputed {
   dpIdr: number
   pokokPinjaman: number
   tenorBulan: number
@@ -50,10 +53,10 @@ export interface KprComputed {
   totalBunga: number
 }
 
-export function computeKpr(input: KprInput): KprComputed {
-  const dpIdr = Math.max(0, input.hargaRumah * (input.dpPercent / 100))
-  const pokokPinjaman = Math.max(0, input.hargaRumah - dpIdr)
-  const tenorBulan = Math.max(0, Math.round(input.tenorTahun * 12))
+export function computeCicil(input: CicilInput): CicilComputed {
+  const dpIdr = Math.max(0, input.hargaBarang * (input.dpPercent / 100))
+  const pokokPinjaman = Math.max(0, input.hargaBarang - dpIdr)
+  const tenorBulan = Math.max(0, Math.round(input.tenorBulan))
   const am =
     input.jenisBunga === 'Flat'
       ? flat(pokokPinjaman, input.bungaPercent, tenorBulan)
@@ -71,16 +74,16 @@ interface ApplyResult {
   dpShortfall: number
 }
 
-function applyKprToScenario(
+function applyCicilToScenario(
   snap: SnapshotState,
-  input: KprInput,
-  c: KprComputed,
+  input: CicilInput,
+  c: CicilComputed,
   fxRates: FxRatesMap | undefined,
 ): ApplyResult {
-  const labelBase = input.label.trim() || 'KPR scenario'
+  const labelBase = input.label.trim() || 'Cicil scenario'
   snap.cicilanAktif.push({
     id: rid(),
-    tipe: 'KPR',
+    tipe: input.tipe,
     label: labelBase,
     sisaPokok: c.pokokPinjaman,
     cicilanPerBulan: c.cicilanPerBulan,
@@ -88,11 +91,18 @@ function applyKprToScenario(
     tenorSisaBulan: c.tenorBulan,
     jenisBunga: input.jenisBunga,
   } satisfies CicilanRow)
-  snap.asetNonLikuid.properti.push({
-    id: rid(),
-    label: `KPR scenario — ${labelBase}`,
-    amount: input.hargaRumah,
-  })
+  // Optional asset (locked decision: opt-in via asetValue + asetKategori both set).
+  if (
+    input.asetValue !== undefined &&
+    input.asetValue > 0 &&
+    input.asetKategori !== undefined
+  ) {
+    snap.asetNonLikuid[input.asetKategori].push({
+      id: rid(),
+      label: `Cicil scenario — ${labelBase}`,
+      amount: input.asetValue,
+    })
+  }
   const dpShortfall = waterfallDebit(
     [snap.asetLikuid.kas, snap.asetLikuid.deposito, snap.asetLikuid.reksaDana],
     c.dpIdr,
@@ -101,8 +111,8 @@ function applyKprToScenario(
   return { dpShortfall }
 }
 
-export function runMauKpr(
-  input: KprInput,
+export function runMauCicil(
+  input: CicilInput,
   snap: SnapshotState,
   goals: Goal[],
   opts: {
@@ -113,9 +123,9 @@ export function runMauKpr(
   },
 ): WizardResult {
   const { prices } = opts
-  const computed = computeKpr(input)
+  const computed = computeCicil(input)
   const scenarioSnapshot = cloneSnapshot(snap)
-  const { dpShortfall } = applyKprToScenario(
+  const { dpShortfall } = applyCicilToScenario(
     scenarioSnapshot,
     input,
     computed,
