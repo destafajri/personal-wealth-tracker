@@ -362,6 +362,72 @@ export const copy = {
   'dashboard.goalHealth.label': 'Goal Health',
   'dashboard.goalHealth.empty': 'Belum ada goal',
   'dashboard.goalHealth.value': '{pct}% on-track',
+
+  // ----- simulator (Decide tab) -----
+  'simulator.title': 'Simulator',
+  'simulator.subtitle': 'Simulasi keputusan keuangan besar — semua hitungan pakai data snapshot kamu.',
+  'simulator.launcher.decisions': 'Wizard Keputusan ("Mau gw X?")',
+  'simulator.launcher.capacity': 'Wizard Kapasitas ("Bisa gw apa?")',
+
+  'simulator.card.kpr.label': 'Mau KPR',
+  'simulator.card.kpr.body': 'Cek dampak ambil KPR baru ke metrik + goals.',
+  'simulator.card.gadai.label': 'Mau Gadai',
+  'simulator.card.gadai.body': 'Simulasi gadai emas / aset.',
+  'simulator.card.cicil.label': 'Mau Cicil',
+  'simulator.card.cicil.body': 'Simulasi cicilan elektronik / KPM.',
+  'simulator.card.custom.label': 'Custom',
+  'simulator.card.custom.body': 'Skenario bebas tanpa template.',
+  'simulator.card.maxUtang.label': 'Max Utang Aman',
+  'simulator.card.maxUtang.body': 'Berapa max cicilan baru yang aman?',
+  'simulator.card.lunasi.label': 'Lunasi Utang',
+  'simulator.card.lunasi.body': 'Simulasi pelunasan dari modal likuid.',
+  'simulator.card.modalOptions.label': 'Modal Options',
+  'simulator.card.modalOptions.body': 'Opsi deployment modal likuid.',
+  'simulator.card.soon': 'Soon',
+
+  'wizard.host.close': 'Tutup wizard',
+
+  'wizard.kpr.title': 'Mau KPR?',
+  'wizard.kpr.subtitle': 'Isi spesifikasi KPR untuk lihat dampak ke metrik + goals.',
+  'wizard.kpr.form.label': 'Nama / catatan (opsional)',
+  'wizard.kpr.form.labelPlaceholder': 'mis. Rumah Bandung 2028',
+  'wizard.kpr.form.hargaRumah': 'Harga rumah',
+  'wizard.kpr.form.dpPercent': 'DP (%)',
+  'wizard.kpr.form.tenor': 'Tenor (tahun)',
+  'wizard.kpr.form.bunga': 'Suku bunga (%/tahun)',
+  'wizard.kpr.form.jenisBunga': 'Jenis bunga',
+  'wizard.kpr.form.submit': 'Hitung skenario',
+  'wizard.kpr.form.reset': 'Reset',
+
+  'wizard.kpr.summary.title': 'Ringkasan KPR',
+  'wizard.kpr.summary.dp': 'DP: {amount}',
+  'wizard.kpr.summary.pokok': 'Pokok pinjaman: {amount}',
+  'wizard.kpr.summary.cicilan': 'Cicilan/bulan: {amount}',
+  'wizard.kpr.summary.totalBunga': 'Total bunga (sepanjang tenor): {amount}',
+
+  'wizard.delta.title': 'Dampak ke Metrik',
+  'wizard.delta.col.metric': 'Metrik',
+  'wizard.delta.col.before': 'Sebelum',
+  'wizard.delta.col.after': 'Sesudah',
+  'wizard.delta.col.delta': 'Δ',
+
+  'wizard.goalImpact.title': 'Dampak ke Goals',
+  'wizard.goalImpact.empty': 'Belum ada goal. Tambah dulu di tab Plan biar kelihatan dampaknya.',
+  'wizard.goalImpact.shift.late': '{label}: mundur ~{months} bulan',
+  'wizard.goalImpact.shift.early': '{label}: lebih cepat ~{months} bulan',
+  'wizard.goalImpact.shift.none': '{label}: gak berubah',
+  'wizard.goalImpact.unreachable': '{label}: jadi tidak tercapai dengan alokasi sekarang',
+
+  'wizard.warning.dpExceedsLiquid':
+    'DP melebihi modal likuid kamu — pertimbangkan turunin DP% atau tambah tabungan dulu.',
+
+  'metric.label.netWorth': 'Net Worth',
+  'metric.label.modalSiap': 'Modal Siap',
+  'metric.label.dsr': 'DSR',
+  'metric.label.dar': 'DAR',
+  'metric.label.runway': 'Runway',
+  'metric.label.savingsRate': 'Savings Rate',
+  'metric.label.safeHaven': 'Safe Haven',
 } as const
 
 export type CopyKey = keyof typeof copy

@@ -4,6 +4,7 @@ import TabBar from '~/components/layout/TabBar.vue'
 import DashboardPanel from '~/components/layout/DashboardPanel.vue'
 import FooterDisclaimer from '~/components/layout/FooterDisclaimer.vue'
 import MetricExplainerModal from '~/components/dashboard/MetricExplainerModal.vue'
+import WizardHost from '~/components/simulator/WizardHost.vue'
 </script>
 
 <template>
@@ -24,5 +25,6 @@ import MetricExplainerModal from '~/components/dashboard/MetricExplainerModal.vu
     </div>
     <FooterDisclaimer />
     <MetricExplainerModal />
+    <WizardHost />
   </div>
 </template>
