@@ -21,5 +21,10 @@ export default defineCachedEventHandler(
       return buildUsdIdrStalePayload(now)
     }
   },
-  { maxAge: 60 * 15, swr: true },
+  {
+    maxAge: 60 * 15,
+    swr: true,
+    getKey: () => 'default',
+    shouldInvalidateCache: (event) => getQuery(event).force === '1',
+  },
 )

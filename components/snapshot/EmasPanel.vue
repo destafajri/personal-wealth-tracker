@@ -12,6 +12,7 @@ import type { EmasState } from '~/lib/types/snapshot'
 const props = defineProps<{
   liveError?: boolean
   livePending?: boolean
+  cooldownRemaining?: number
   onRefresh?: () => void | Promise<void>
 }>()
 
@@ -19,7 +20,7 @@ const snap = useSnapshotStore()
 const derived = useDerivedStore()
 
 function refreshLive() {
-  if (props.livePending) return
+  if (props.livePending || (props.cooldownRemaining ?? 0) > 0) return
   props.onRefresh?.()
 }
 
@@ -94,13 +95,17 @@ function field(key: keyof EmasState, value: number | null) {
               ? 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)] hover:bg-[var(--color-danger-rose-soft)]/80'
               : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-low)] hover:text-[var(--color-text-secondary)]'
           "
-          :disabled="livePending"
+          :disabled="livePending || (cooldownRemaining ?? 0) > 0"
           :aria-label="t('snapshot.emas.refreshAria')"
           @click="refreshLive"
         >
           <RotateCw :size="12" :class="livePending ? 'animate-spin' : ''" />
           <span>{{
-            liveError ? t('snapshot.emas.refreshError') : t('snapshot.emas.refresh')
+            (cooldownRemaining ?? 0) > 0
+              ? t('snapshot.emas.refreshCooldown', { sec: cooldownRemaining ?? 0 })
+              : liveError
+                ? t('snapshot.emas.refreshError')
+                : t('snapshot.emas.refresh')
           }}</span>
         </button>
       </div>

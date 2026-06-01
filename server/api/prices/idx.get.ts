@@ -29,5 +29,15 @@ export default defineCachedEventHandler(
       return buildIdxStalePayload(tickers, now)
     }
   },
-  { maxAge: 60 * 15, swr: true },
+  {
+    maxAge: 60 * 15,
+    swr: true,
+    // Key by sorted-canonical ticker list only — drops `force` so a forced refresh
+    // updates the same entry the unforced reads share, not a parallel one.
+    getKey: (event) => {
+      const list = parseTickerList(String(getQuery(event).tickers ?? ''))
+      return list.length === 0 ? 'empty' : [...list].sort().join(',')
+    },
+    shouldInvalidateCache: (event) => getQuery(event).force === '1',
+  },
 )

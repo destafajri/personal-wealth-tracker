@@ -88,17 +88,20 @@ watchEffect(() => {
       :idx-rows="idx.data.value?.prices"
       :live-error="idxLiveError"
       :live-pending="idx.pending.value"
-      :on-refresh="idx.refresh"
+      :cooldown-remaining="idx.cooldownRemaining.value"
+      :on-refresh="idx.forceRefresh"
     />
     <CryptoPanel
       :live-error="cryptoLiveError"
       :live-pending="crypto.pending.value"
-      :on-refresh="crypto.refresh"
+      :cooldown-remaining="crypto.cooldownRemaining.value"
+      :on-refresh="crypto.forceRefresh"
     />
     <EmasPanel
       :live-error="goldLiveError"
       :live-pending="gold.pending.value"
-      :on-refresh="gold.refresh"
+      :cooldown-remaining="gold.cooldownRemaining.value"
+      :on-refresh="gold.forceRefresh"
     />
     <AsetNonLikuidPanel />
     <CicilanAktifPanel />

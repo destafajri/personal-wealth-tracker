@@ -16,6 +16,7 @@ const props = defineProps<{
   idxRows?: IdxPriceRow[]
   liveError?: boolean
   livePending?: boolean
+  cooldownRemaining?: number
   onRefresh?: () => void | Promise<void>
 }>()
 
@@ -55,7 +56,7 @@ const totalValueIdr = computed(() =>
 )
 
 function refreshLive() {
-  if (props.livePending) return
+  if (props.livePending || (props.cooldownRemaining ?? 0) > 0) return
   props.onRefresh?.()
 }
 </script>
@@ -78,13 +79,17 @@ function refreshLive() {
               ? 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)] hover:bg-[var(--color-danger-rose-soft)]/80'
               : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-low)] hover:text-[var(--color-text-secondary)]'
           "
-          :disabled="livePending"
+          :disabled="livePending || (cooldownRemaining ?? 0) > 0"
           :aria-label="t('snapshot.saham.refreshAria')"
           @click="refreshLive"
         >
           <RotateCw :size="12" :class="livePending ? 'animate-spin' : ''" />
           <span>{{
-            liveError ? t('snapshot.saham.refreshError') : t('snapshot.saham.refresh')
+            (cooldownRemaining ?? 0) > 0
+              ? t('snapshot.saham.refreshCooldown', { sec: cooldownRemaining ?? 0 })
+              : liveError
+                ? t('snapshot.saham.refreshError')
+                : t('snapshot.saham.refresh')
           }}</span>
         </button>
       </div>

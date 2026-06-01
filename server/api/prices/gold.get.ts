@@ -38,5 +38,16 @@ export default defineCachedEventHandler(
       return buildGoldStalePayload(now)
     }
   },
-  { name: 'prices-gold-v2', maxAge: 60 * 60, swr: true },
+  {
+    name: 'prices-gold-v2',
+    maxAge: 60 * 60,
+    swr: true,
+    // Stable key — strip the `force` param so a user-forced refresh updates the
+    // SAME cache entry instead of pinning a parallel one under a different URL hash.
+    getKey: () => 'default',
+    // `force=1` from the client refresh button: mark current entry expired so the
+    // handler re-fetches upstream and writes the fresh payload back to cache for
+    // everyone (vs shouldBypassCache, which skips the write).
+    shouldInvalidateCache: (event) => getQuery(event).force === '1',
+  },
 )

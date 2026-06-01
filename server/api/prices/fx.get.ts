@@ -35,5 +35,11 @@ export default defineCachedEventHandler(
       missing: rates.filter((r) => r.stale).map((r) => r.pair),
     }
   },
-  { name: 'prices-fx-v1', maxAge: 60 * 60, swr: true },
+  {
+    name: 'prices-fx-v1',
+    maxAge: 60 * 60,
+    swr: true,
+    getKey: () => 'default',
+    shouldInvalidateCache: (event) => getQuery(event).force === '1',
+  },
 )

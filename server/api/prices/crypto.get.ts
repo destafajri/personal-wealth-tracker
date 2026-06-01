@@ -36,5 +36,11 @@ export default defineCachedEventHandler(
       })
     }
   },
-  { name: 'prices-crypto-v4', maxAge: 60 * 5, swr: true },
+  {
+    name: 'prices-crypto-v4',
+    maxAge: 60 * 5,
+    swr: true,
+    getKey: () => 'default',
+    shouldInvalidateCache: (event) => getQuery(event).force === '1',
+  },
 )
