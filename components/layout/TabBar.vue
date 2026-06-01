@@ -12,9 +12,10 @@ interface Tab {
 
 // Only /app/snapshot exists in Day 3; other tabs come online Day 5 (Plan) / Day 6 (Decide)
 // / Day 9 (Discover). Disabled tabs are kept visible so the mental model is consistent.
+// Plan tab → /app/goals (single page hosts the Plan module; D6+ may add sub-routes).
 const tabs: Tab[] = [
   { to: '/app/snapshot', labelKey: 'nav.track', icon: FileText, enabled: true },
-  { to: '/app/plan', labelKey: 'nav.plan', icon: Target, enabled: false },
+  { to: '/app/goals', labelKey: 'nav.plan', icon: Target, enabled: true },
   { to: '/app/decide', labelKey: 'nav.decide', icon: Sparkles, enabled: false },
   { to: '/app/discover', labelKey: 'nav.discover', icon: Compass, enabled: false },
 ]

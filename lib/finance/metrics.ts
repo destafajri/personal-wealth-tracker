@@ -28,7 +28,7 @@ function sumRowsToIdr(rows: AssetRow[], prices?: PricesView): number {
 //   - 'usd'  → amount × fxRates.USD (FX endpoint, not coin's own USD price — keeps math
 //             consistent with other multi-currency assets in the snapshot)
 //   - 'krw'  → amount × fxRates.KRW
-function sumCryptoIdr(crypto: CryptoHolding[], prices?: PricesView): number {
+export function sumCryptoIdr(crypto: CryptoHolding[], prices?: PricesView): number {
   return crypto.reduce((s, c) => {
     if (c.mode === 'idr') return s + (c.amount || 0)
     if (c.mode === 'usd') {
@@ -147,7 +147,10 @@ function sumCicilanPokok(snap: SnapshotState): number {
   return cicilan + pribadi
 }
 
-function totalPengeluaran(snap: SnapshotState): number {
+// Public so goal projections (lib/finance/goals.ts) compute surplus against the same
+// definition the dashboard metrics use — drift would silently make goal cards disagree
+// with DSR / Runway / SavingsRate.
+export function calcTotalPengeluaran(snap: SnapshotState): number {
   // PRD §5.1.3 / tech-design §6.1: pokok + lifestyle + Σ cicilan_per_bulan.
   return (
     (snap.pengeluaran.pokok || 0) +
@@ -283,7 +286,7 @@ export function calcDar(snap: SnapshotState, prices?: PricesView): number | null
 // ----- 5. Runway — aset likuid / total pengeluaran (months) -----
 
 export function calcRunway(snap: SnapshotState, prices?: PricesView): number | null {
-  const burn = totalPengeluaran(snap)
+  const burn = calcTotalPengeluaran(snap)
   if (burn <= 0) return null
   // Likuid here = cash-equivalent + tradable financial assets. Excludes gold-tertahan
   // (pawned) since it can't be liquidated without tebus.
@@ -302,7 +305,7 @@ export function calcSavingsRate(
 ): number | null {
   const peng = totalPenghasilanMonthly(snap, prices)
   if (peng <= 0) return null
-  return ((peng - totalPengeluaran(snap)) / peng) * 100
+  return ((peng - calcTotalPengeluaran(snap)) / peng) * 100
 }
 
 // ----- 7. Safe Haven — (Kas + Emas + RD + Deposito) / Total Aset (percent) -----

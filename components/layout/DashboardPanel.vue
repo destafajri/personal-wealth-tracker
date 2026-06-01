@@ -10,6 +10,7 @@
 import { defineAsyncComponent, h } from 'vue'
 import HeroPair from '~/components/dashboard/HeroPair.vue'
 import MetricGrid from '~/components/dashboard/MetricGrid.vue'
+import GoalSummaryCards from '~/components/dashboard/GoalSummaryCards.vue'
 import { t } from '~/lib/copy/strings'
 
 const ChartLoading = {
@@ -42,5 +43,6 @@ const SafeHavenBar = defineAsyncComponent({
       <AllocationDonut />
       <SafeHavenBar />
     </div>
+    <GoalSummaryCards />
   </section>
 </template>

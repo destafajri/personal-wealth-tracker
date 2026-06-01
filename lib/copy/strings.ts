@@ -286,6 +286,80 @@ export const copy = {
   'error.generic.title': 'Ada yang gak beres',
   'error.generic.body': 'Coba muat ulang halaman, atau balik ke beranda.',
   'error.generic.cta': 'Kembali ke beranda',
+
+  // ----- goals page -----
+  'goals.title': 'Goals',
+  'goals.subtitle': 'Tag asset ke goal — progress jalan otomatis.',
+  'goals.banner.estimasi':
+    'Proyeksi pakai asumsi return real {pct}%/tahun. ESTIMASI — bukan jaminan.',
+  'goals.returnAssumption.label': 'Asumsi return real (per tahun)',
+  'goals.returnAssumption.help': 'Real return = setelah dikurangi inflasi. Default 5%.',
+
+  'goals.empty.title': 'Belum ada goal',
+  'goals.empty.body': 'Tambah goal pertama kamu di form di atas.',
+
+  'goals.kind.FI': 'Financial Independence',
+  'goals.kind.DP_RUMAH': 'DP Rumah',
+  'goals.kind.DANA_PENDIDIKAN': 'Dana Pendidikan',
+  'goals.kind.CUSTOM': 'Goal kustom',
+
+  'goals.form.title': 'Tambah goal',
+  'goals.form.kindLabel': 'Tipe goal',
+  'goals.form.labelLabel': 'Nama goal',
+  'goals.form.labelPlaceholder': 'mis. DP Rumah Bandung 2028',
+  'goals.form.targetLabel': 'Target (Rp)',
+  'goals.form.targetDateLabel': 'Target tanggal',
+  'goals.form.bucketsLabel': 'Bucket aset',
+  'goals.form.bucketsHelp': 'Pilih kategori aset yang counted ke goal ini.',
+  'goals.form.allocationLabel': 'Alokasi bulanan (opsional)',
+  'goals.form.allocationHelp':
+    'Kosongkan untuk pakai default = surplus ÷ jumlah goal aktif.',
+  'goals.form.submit': '+ Tambah Goal',
+  'goals.form.fiAuto':
+    'Target FI auto-dihitung dari pengeluaran bulanan × 300 (4% rule).',
+  'goals.form.fiBlocked': 'Sudah ada FI goal — cuma boleh satu.',
+  'goals.form.targetRequired': 'Isi target Rp + tanggal dulu.',
+
+  'goals.bucket.kas': 'Kas / Tabungan',
+  'goals.bucket.deposito': 'Deposito',
+  'goals.bucket.reksaDana': 'Reksa Dana',
+  'goals.bucket.sbn': 'SBN / Obligasi',
+  'goals.bucket.saham': 'Saham',
+  'goals.bucket.crypto': 'Crypto',
+  'goals.bucket.emas': 'Emas',
+  'goals.bucket.properti': 'Properti',
+  'goals.bucket.kendaraan': 'Kendaraan',
+  'goals.bucket.pensiun': 'Dana Pensiun',
+
+  'goal.status.on': 'On-Track',
+  'goal.status.atRisk': 'Waspada',
+  'goal.status.off': 'Off-Track',
+
+  'goal.progress.label': '{current} / {target}',
+  'goal.bucket.empty': 'Belum ada bucket. Pilih kategori aset di form.',
+  'goal.contribution.label': 'Kontribusi bulanan: {amount}',
+  'goal.contribution.default': '{amount} (default = surplus ÷ jumlah goal)',
+  'goal.projection.complete': 'Sudah tercapai ✓',
+  'goal.projection.date': 'Proyeksi selesai: {date}',
+  'goal.projection.unreachable': 'Belum tercapai dengan alokasi sekarang',
+  'goal.projection.diffOn': 'sesuai target',
+  'goal.projection.diffEarly': '{months} bulan lebih cepat dari target',
+  'goal.projection.diffLate': '{months} bulan lebih lambat dari target',
+  'goal.fi.formula':
+    'Asumsi: Pengeluaran bulanan {monthly} × {multiplier} = {fiNumber}',
+  'goal.fi.formulaNote': 'Multiplier fixed 300 (4% rule, Trinity baseline).',
+  'goal.remove': 'Hapus goal',
+  'goal.edit.targetIdr': 'Target (Rp)',
+  'goal.edit.targetDate': 'Target tanggal',
+  'goal.edit.allocation': 'Alokasi /bulan (opsional)',
+  'goal.edit.allocationPlaceholder': 'Default surplus ÷ N',
+
+  // ----- dashboard goal summary -----
+  'dashboard.goals.title': 'Goals',
+  'dashboard.goals.empty': 'Belum ada goal. Tambah di tab Plan.',
+  'dashboard.goalHealth.label': 'Goal Health',
+  'dashboard.goalHealth.empty': 'Belum ada goal',
+  'dashboard.goalHealth.value': '{pct}% on-track',
 } as const
 
 export type CopyKey = keyof typeof copy

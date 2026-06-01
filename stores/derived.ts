@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { FI_MULTIPLIER, useGoalsStore } from '~/stores/goals'
 import {
   calcAllocationDiscipline,
   calcAssetBreakdown,
@@ -18,7 +19,9 @@ import {
   calcTotalUtang,
   totalPenghasilanMonthly,
 } from '~/lib/finance/metrics'
+import { calcGoalHealth, goalProgress, surplus } from '~/lib/finance/goals'
 import { breakdownGoldIdr } from '~/lib/finance/emas'
+import type { Goal } from '~/lib/types/goals'
 import type { PricesView, SnapshotState } from '~/lib/types/snapshot'
 
 // Derived store = single source of dashboard truth. NEVER mutated by components.
@@ -31,6 +34,7 @@ import type { PricesView, SnapshotState } from '~/lib/types/snapshot'
 
 export const useDerivedStore = defineStore('derived', () => {
   const snap = useSnapshotStore()
+  const goalsStore = useGoalsStore()
   const priceView = ref<PricesView | null>(null)
 
   function setPrices(next: PricesView | null) {
@@ -107,8 +111,32 @@ export const useDerivedStore = defineStore('derived', () => {
     totalPenghasilanMonthly(snapshotState.value, prices.value),
   )
 
-  // Day 5 will wire goalHealth. Returning null keeps the dashboard "—" state honest.
-  const goalHealth = computed<number | null>(() => null)
+  // Surplus = penghasilan − pengeluaran (IDR/bulan). Public so Goals page can show the
+  // user the same surplus number that drives `defaultAllocation` for projections.
+  const surplusIdr = computed(() => surplus(snapshotState.value, prices.value))
+
+  // Goal Health = share of active goals with status 'on' (percent). null when 0 goals.
+  // Per Codex round-4 + PRD §5.4: chip beside Goals panel, NOT a 7th MetricGrid card.
+  const goalHealth = computed<number | null>(() =>
+    calcGoalHealth(goalsStore.goals, snapshotState.value, {
+      fiMultiplier: FI_MULTIPLIER,
+      annualReturnReal: goalsStore.assumedAnnualReturnReal,
+      prices: prices.value,
+    }),
+  )
+
+  // Per-goal progress factory. Reads reactive snapshot + goalsStore.assumedAnnualReturnReal
+  // so cards/chips can wrap this in a `computed` and stay reactive. NOT a computed map
+  // because the caller (per-card) usually only needs one entry — avoids recomputing all
+  // goals when one card re-renders.
+  function progressFor(goal: Goal) {
+    return goalProgress(goal, snapshotState.value, {
+      fiMultiplier: FI_MULTIPLIER,
+      annualReturnReal: goalsStore.assumedAnnualReturnReal,
+      activeGoalsCount: goalsStore.activeGoalsCount,
+      prices: prices.value,
+    })
+  }
 
   // No `isEmpty` gate here. The Screen-10 all-empty visual is handled in DashboardPanel
   // by always rendering HeroPair + MetricGrid; each MetricCard renders "—" + hint when
@@ -130,6 +158,8 @@ export const useDerivedStore = defineStore('derived', () => {
     safeHaven,
     allocationDiscipline,
     goalHealth,
+    surplusIdr,
+    progressFor,
     emasBreakdown,
     assetBreakdown,
     dividendAnnual,
