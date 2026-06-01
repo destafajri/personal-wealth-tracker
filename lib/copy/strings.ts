@@ -222,6 +222,8 @@ export const copy = {
   'snapshot.saham.overrideHelp': 'Kosongin = pakai harga LIVE. Isi kalau live salah / stale.',
   'snapshot.saham.lastUpdated': 'Terakhir update {time}',
   'snapshot.saham.priceMissing': 'Harga live belum kebaca',
+  'snapshot.saham.duplicateWarning':
+    'Ticker {ticker} sudah dipakai di row lain. Hapus salah satu atau gabungin biar gak double-count.',
   'snapshot.saham.expand': 'Lihat detail',
   'snapshot.saham.collapse': 'Sembunyikan detail',
   'snapshot.saham.remove': 'Hapus saham',

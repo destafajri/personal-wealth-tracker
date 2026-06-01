@@ -32,6 +32,17 @@ function priceFor(ticker: string): IdxPriceRow | null {
   return priceByTicker.value[ticker] ?? null
 }
 
+// Duplicate detection: same ticker on multiple rows is flagged but not blocked — user
+// might legitimately hold BBCA across multiple sekuritas (Stockbit + Mirae etc).
+const duplicateTickers = computed(() => {
+  const seen = new Map<string, number>()
+  for (const row of snap.saham) {
+    if (!row.ticker) continue
+    seen.set(row.ticker, (seen.get(row.ticker) ?? 0) + 1)
+  }
+  return new Set([...seen.entries()].filter(([, n]) => n > 1).map(([k]) => k))
+})
+
 // Total uses the shared `effectiveStockPrice` helper so the panel summary stays in
 // lockstep with dashboard metrics. If a row has hargaOverride, NetWorth/DAR/Runway/
 // SafeHaven and this total all read the same number.
@@ -91,6 +102,7 @@ function refreshLive() {
         :live-stale="priceFor(row.ticker)?.stale ?? false"
         :live-fetched-at="priceFor(row.ticker)?.fetchedAt ?? null"
         :total-value-idr="totalValueIdr"
+        :is-duplicate="!!row.ticker && duplicateTickers.has(row.ticker)"
         @update="(patch) => snap.updateSaham(row.id, patch)"
         @remove="snap.removeSaham(row.id)"
       />

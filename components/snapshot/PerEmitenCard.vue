@@ -15,13 +15,17 @@ import type { StockHolding } from '~/lib/types/snapshot'
 // unambiguous regardless of which mode the user lands on.
 type DividendMode = 'lastDiv' | 'yield'
 
-const props = defineProps<{
-  row: StockHolding
-  livePrice: number | null
-  liveStale: boolean
-  liveFetchedAt: string | null
-  totalValueIdr: number
-}>()
+const props = withDefaults(
+  defineProps<{
+    row: StockHolding
+    livePrice: number | null
+    liveStale: boolean
+    liveFetchedAt: string | null
+    totalValueIdr: number
+    isDuplicate?: boolean
+  }>(),
+  { isDuplicate: false },
+)
 
 const emit = defineEmits<{
   update: [patch: Partial<Omit<StockHolding, 'id'>>]
@@ -217,6 +221,13 @@ const potentialDividendAnnual = computed(() =>
         <X :size="16" />
       </button>
     </div>
+
+    <p
+      v-if="props.isDuplicate"
+      class="text-[11px] text-[var(--color-danger-rose)]"
+    >
+      {{ t('snapshot.saham.duplicateWarning', { ticker: row.ticker }) }}
+    </p>
 
     <div class="flex items-baseline justify-between text-[11px] text-[var(--color-text-secondary)]">
       <span class="tabular">{{ idr(valueIdr) }}</span>
