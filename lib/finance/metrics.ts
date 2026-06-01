@@ -1,5 +1,5 @@
 import { cadanganGoldIdr, totalGoldIdr } from '~/lib/finance/emas'
-import { rowToIdr } from '~/lib/finance/fx'
+import { rateToIdr, rowToIdr } from '~/lib/finance/fx'
 import type {
   AssetRow,
   CryptoHolding,
@@ -194,14 +194,46 @@ export function calcModalSiap(snap: SnapshotState, prices?: PricesView): number 
   )
 }
 
-// Monthly penghasilan = Gaji Bersih + Penghasilan Lain + monthly avg of saham dividend.
-// Dividend is annual by nature; we /12 it to match the /BULAN context the rest of the
-// cashflow metrics (DSR, Runway, Savings Rate) operate in.
+// Gaji Bersih → IDR. Stale FX rate falls through to 0 (consistent with asset-side rule);
+// UI surfaces the stale-rate hint on the form so the user notices.
+export function gajiBersihIdr(snap: SnapshotState, prices?: PricesView): number {
+  const { amount, currency } = snap.penghasilan
+  if (currency === 'IDR') return amount || 0
+  const rate = rateToIdr(currency, prices?.fxRates)
+  if (rate === null) return 0
+  return (amount || 0) * rate
+}
+
+// Monthly interest income from sbn/deposito rows. principal (IDR) × (sukuBunga/100) / 12.
+// Both `sukuBungaPercent` and `amount` optional → row contributes 0 when missing. Public
+// so PenghasilanForm can render per-category breakdowns (mirrors how dividen is exposed).
+export function calcBungaMonthlyForRows(rows: AssetRow[], prices?: PricesView): number {
+  return rows.reduce((sum, r) => {
+    const rate = r.sukuBungaPercent
+    if (rate === undefined || rate <= 0) return sum
+    const principal = rowToIdr(r, prices?.fxRates)
+    return sum + (principal * (rate / 100)) / 12
+  }, 0)
+}
+
+export function calcBungaSbnMonthly(snap: SnapshotState, prices?: PricesView): number {
+  return calcBungaMonthlyForRows(snap.asetLikuid.sbn, prices)
+}
+
+export function calcBungaDepositoMonthly(snap: SnapshotState, prices?: PricesView): number {
+  return calcBungaMonthlyForRows(snap.asetLikuid.deposito, prices)
+}
+
+// Monthly penghasilan = Gaji Bersih + Σ Penghasilan Lain + monthly avg saham dividend +
+// monthly bunga sbn/deposito. Dividend is annual by nature; same /12 framing keeps DSR,
+// Runway, Savings Rate consistent in the /BULAN context.
 function totalPenghasilanMonthly(snap: SnapshotState, prices?: PricesView): number {
   return (
-    (snap.penghasilan || 0) +
-    (snap.penghasilanLain || 0) +
-    dividendMonthly(snap, prices)
+    gajiBersihIdr(snap, prices) +
+    sumRowsToIdr(snap.penghasilanLain, prices) +
+    dividendMonthly(snap, prices) +
+    calcBungaSbnMonthly(snap, prices) +
+    calcBungaDepositoMonthly(snap, prices)
   )
 }
 

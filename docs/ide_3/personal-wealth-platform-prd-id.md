@@ -193,22 +193,24 @@ Di-organize ke dalam 4 grup collapsible di panel kiri:
 #### 5.1.1 Penghasilan (Bulanan, IDR)
 | Field | Catatan |
 |---|---|
-| Gaji Bersih | Setelah PPh21 |
-| Penghasilan Lainnya | Sampingan, sewa, dll — single field |
+| Gaji Bersih | Setelah PPh21. **Currency-aware** (IDR/USD/SGD/EUR/JPY/KRW); convert ke IDR via FX di metric layer. |
+| Penghasilan Lainnya | **Multi-row** (extended post-MVP): sampingan/sewa/freelance/dll. Tiap row punya label + amount + currency. |
 | Estimasi Dividen Saham | Auto-computed dari section per-emiten (lihat §5.7). Mode A (asumsi yield) / Mode B (manual per-emiten). |
+| Estimasi Bunga SBN / Obligasi | Auto-computed dari `sukuBungaPercent × principal IDR / 12` per row SBN. Flow ke DSR/SavingsRate via totalPenghasilanMonthly. |
+| Estimasi Bunga Deposito | Auto-computed dari `sukuBungaPercent × principal IDR / 12` per row deposito. |
 
 #### 5.1.2 Aset (Likuid + Non-Likuid)
 
 **Likuid:**
 | Jenis | Input | Auto-calc | Sumber live |
 |---|---|---|---|
-| Kas / Tabungan | Amount + currency (IDR/USD) | IDR kalau USD | USD→IDR |
-| Deposito | IDR | — | — |
+| Kas / Tabungan | Amount + currency (IDR/USD/SGD/EUR/JPY/KRW) | IDR equivalent | FX rates |
+| Deposito | Amount + currency + **suku bunga %/tahun** | IDR equivalent + bunga monthly → Penghasilan estimasi | FX rates |
 | Emas (Cadangan) | **Gram** | **IDR = gram × harga gram live** | Pegadaian |
 | Emas (Tertahan) | **Gram dipawned** | (Lihat Gadai §5.3) | — |
 | **Saham (per-emiten)** | Lihat §5.7 | Lihat §5.7 | Yahoo Finance |
 | Reksa Dana | Total IDR | — | Manual |
-| SBN | IDR | — | Manual |
+| SBN / Obligasi | Amount + currency + **suku bunga %/tahun** | IDR equivalent + bunga monthly → Penghasilan estimasi | FX rates |
 | Crypto | Coin + qty + price IDR | IDR = qty × price | Manual |
 
 **Non-Likuid:** Properti / Kendaraan / Dana Pensiun
@@ -433,7 +435,9 @@ Untuk setiap row saham:
 | Lots Sekarang | Manual |
 | Lots Target 100% | Manual |
 | Harga Live (Rp/lembar) | Auto — Yahoo Finance |
+| **Harga Rata-Rata (cost basis Rp/lembar)** | Manual (opsional) |
 | Valuasi = Lots × 100 × Harga | Auto |
+| **Capital Gain %** | Auto (live vs harga rata-rata); hide kalau tidak ada market price |
 | Target Bobot % | Manual |
 | Bobot Live % | Auto (relatif terhadap total saham) |
 | Progress to Target % | Auto (Lots Sekarang / Lots Target) |

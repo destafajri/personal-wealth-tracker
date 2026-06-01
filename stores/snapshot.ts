@@ -5,9 +5,11 @@ import {
   type AssetRow,
   type CicilanRow,
   type CryptoHolding,
+  type Currency,
   type GadaiRow,
   type LiquidAssetCategory,
   type NonLiquidAssetCategory,
+  type PenghasilanGaji,
   type StockHolding,
   type UtangPribadiRow,
 } from '~/lib/types/snapshot'
@@ -20,8 +22,8 @@ const rid = (): string =>
 export const useSnapshotStore = defineStore('snapshot', () => {
   const init = emptySnapshot()
 
-  const penghasilan = ref<number>(init.penghasilan)
-  const penghasilanLain = ref<number>(init.penghasilanLain)
+  const penghasilan = reactive<PenghasilanGaji>({ ...init.penghasilan })
+  const penghasilanLain = ref<AssetRow[]>([...init.penghasilanLain])
   const pengeluaran = reactive({ ...init.pengeluaran })
   const asetLikuid = reactive(init.asetLikuid)
   const asetNonLikuid = reactive(init.asetNonLikuid)
@@ -249,18 +251,39 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     Object.assign(pengeluaran, patch)
   }
 
-  function setPenghasilan(value: number) {
-    penghasilan.value = value
+  function setPenghasilanAmount(value: number) {
+    penghasilan.amount = value
   }
 
-  function setPenghasilanLain(value: number) {
-    penghasilanLain.value = value
+  function setPenghasilanCurrency(currency: Currency) {
+    penghasilan.currency = currency
+  }
+
+  function addPenghasilanLain(partial: Partial<AssetRow> = {}): AssetRow {
+    const row: AssetRow = {
+      id: rid(),
+      label: partial.label ?? '',
+      amount: partial.amount ?? 0,
+      currency: partial.currency,
+    }
+    penghasilanLain.value.push(row)
+    return row
+  }
+
+  function updatePenghasilanLain(id: string, patch: Partial<Omit<AssetRow, 'id'>>) {
+    const row = penghasilanLain.value.find((r) => r.id === id)
+    if (!row) return
+    Object.assign(row, patch)
+  }
+
+  function removePenghasilanLain(id: string) {
+    penghasilanLain.value = penghasilanLain.value.filter((r) => r.id !== id)
   }
 
   function reset() {
     const fresh = emptySnapshot()
-    penghasilan.value = fresh.penghasilan
-    penghasilanLain.value = fresh.penghasilanLain
+    Object.assign(penghasilan, fresh.penghasilan)
+    penghasilanLain.value = [...fresh.penghasilanLain]
     Object.assign(pengeluaran, fresh.pengeluaran)
     ;(['kas', 'deposito', 'reksaDana', 'sbn'] as const).forEach(
       (k) => (asetLikuid[k] = []),
@@ -314,8 +337,11 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     removeGadai,
     setEmas,
     setPengeluaran,
-    setPenghasilan,
-    setPenghasilanLain,
+    setPenghasilanAmount,
+    setPenghasilanCurrency,
+    addPenghasilanLain,
+    updatePenghasilanLain,
+    removePenghasilanLain,
     reset,
   }
 })

@@ -290,19 +290,26 @@ Three stores. Anything dashboard-renderable is **derived**, never stored.
 
 ```ts
 export const useSnapshotStore = defineStore('snapshot', () => {
-  const penghasilan = ref<number>(0)
+  // Gaji Bersih — currency-aware single value. Extended post-MVP: input in non-IDR
+  // (USD/EUR/etc) converts via fxRates → IDR at metric layer (gajiBersihIdr).
+  const penghasilan = reactive<PenghasilanGaji>({ amount: 0, currency: 'IDR' })
+  // Penghasilan Lain — multi-row AssetRow[] (extended from single number post-MVP).
+  // Per-row currency, summed via sumRowsToIdr into totalPenghasilanMonthly.
+  const penghasilanLain = ref<AssetRow[]>([])
   // Cicilan is NOT stored under pengeluaran — it comes from cicilanAktif + utangPribadi
   // (Σ cicilanPerBulan), avoiding double-count.
   const pengeluaran = reactive<{ pokok: number; lifestyle: number }>({ pokok: 0, lifestyle: 0 })
 
-  // AssetRow = { id, label, amount, currency? }. `amount` is in the row's currency
-  // (defaults to IDR). Likuid panels expose a Currency dropdown per row; non-likuid
-  // stays IDR-only by product decision.
+  // AssetRow = { id, label, amount, currency?, sukuBungaPercent? }. `amount` is in the
+  // row's currency (defaults to IDR). Likuid panels expose a Currency dropdown per row;
+  // non-likuid stays IDR-only. `sukuBungaPercent` is rendered only on sbn + deposito
+  // (the fixed-income-like bucket) and feeds auto-derived bunga estimasi rows in
+  // PenghasilanForm via calcBungaSbnMonthly + calcBungaDepositoMonthly.
   const asetLikuid = reactive<{
     kas: AssetRow[]              // Tabungan, Cash (multi-currency)
-    deposito: AssetRow[]
+    deposito: AssetRow[]         // + sukuBungaPercent → bunga monthly income
     reksaDana: AssetRow[]
-    sbn: AssetRow[]
+    sbn: AssetRow[]              // + sukuBungaPercent → bunga monthly income
   }>({ kas: [], deposito: [], reksaDana: [], sbn: [] })
 
   const saham = ref<StockHolding[]>([])         // per-emiten (Day 4)
@@ -346,6 +353,13 @@ export interface AssetRow {
   id: string; label: string
   amount: number              // value in the row's currency
   currency?: Currency         // default IDR if undefined
+  sukuBungaPercent?: number   // %/tahun — rendered for sbn + deposito only
+}
+
+// Gaji Bersih wrapper — currency-aware single value (post-MVP extension).
+export interface PenghasilanGaji {
+  amount: number
+  currency: Currency
 }
 
 // Gadai: each row carries the jaminan kind. Emas-* uses gramTertahan; properti /

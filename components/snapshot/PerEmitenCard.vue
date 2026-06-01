@@ -116,6 +116,10 @@ function onLot(v: number | null) {
   emit('update', { lot: v ?? 0 })
 }
 
+function onHargaRataRata(v: number | null) {
+  emit('update', { hargaRataRata: v ?? 0 })
+}
+
 function onOverride(v: number | null) {
   if (v === null || v <= 0) {
     emit('update', { hargaOverride: undefined })
@@ -152,6 +156,24 @@ function onYield(v: number | null) {
 const lotsProgressPct = computed<number | null>(() => {
   if (props.row.lotsTarget === undefined || props.row.lotsTarget <= 0) return null
   return Math.min(100, (props.row.lot / props.row.lotsTarget) * 100)
+})
+
+// Capital gain % = (effectivePrice − hargaRataRata) / hargaRataRata × 100. Only shown
+// when there's a *real* market price (live or override) — otherwise effectivePrice falls
+// through to hargaRataRata itself and the gain would always be 0% (misleading).
+const capitalGainPercent = computed<number | null>(() => {
+  if (props.row.hargaRataRata <= 0) return null
+  const hasMarketPrice =
+    props.row.hargaOverride !== undefined || props.livePrice !== null
+  if (!hasMarketPrice) return null
+  return ((effectivePrice.value - props.row.hargaRataRata) / props.row.hargaRataRata) * 100
+})
+
+const capitalGainClass = computed(() => {
+  if (capitalGainPercent.value === null) return ''
+  if (capitalGainPercent.value > 0) return 'text-[var(--color-accent-emerald)]'
+  if (capitalGainPercent.value < 0) return 'text-[var(--color-danger-rose)]'
+  return 'text-[var(--color-text-muted)]'
 })
 
 // Annual potential dividend via the shared helper — keeps per-row display in sync with
@@ -231,8 +253,18 @@ const potentialDividendAnnual = computed(() =>
 
     <div class="flex items-baseline justify-between text-[11px] text-[var(--color-text-secondary)]">
       <span class="tabular">{{ idr(valueIdr) }}</span>
-      <span v-if="liveBobot !== null" class="tabular">
-        {{ percent(liveBobot, 1) }}
+      <span class="flex items-baseline gap-2">
+        <span
+          v-if="capitalGainPercent !== null"
+          class="tabular font-medium"
+          :class="capitalGainClass"
+          :title="t('snapshot.saham.capitalGainHint')"
+        >
+          {{ capitalGainPercent > 0 ? '+' : '' }}{{ percent(capitalGainPercent, 2) }}
+        </span>
+        <span v-if="liveBobot !== null" class="tabular">
+          {{ percent(liveBobot, 1) }}
+        </span>
       </span>
     </div>
 
@@ -340,6 +372,21 @@ const potentialDividendAnnual = computed(() =>
       >
         {{ t('snapshot.saham.potentialDividend', { amount: idr(potentialDividendAnnual) }) }}
       </p>
+
+      <div>
+        <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
+          {{ t('snapshot.saham.hargaRataRataLabel') }}
+        </label>
+        <InputCurrency
+          prefix="Rp"
+          :aria-label="t('snapshot.saham.hargaRataRataLabel')"
+          :model-value="row.hargaRataRata === 0 ? null : row.hargaRataRata"
+          @update:model-value="onHargaRataRata"
+        />
+        <p class="mt-1 text-[10px] text-[var(--color-text-muted)]">
+          {{ t('snapshot.saham.hargaRataRataHelp') }}
+        </p>
+      </div>
 
       <div>
         <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">

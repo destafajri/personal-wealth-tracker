@@ -4,6 +4,8 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import {
   calcAllocationDiscipline,
   calcAssetBreakdown,
+  calcBungaDepositoMonthly,
+  calcBungaSbnMonthly,
   calcDar,
   calcDsr,
   calcModalSiap,
@@ -84,6 +86,18 @@ export const useDerivedStore = defineStore('derived', () => {
   )
   const dividendMonthly = computed(() => dividendAnnual.value / 12)
 
+  // Bunga sbn + deposito — auto-derived monthly income that flows into PenghasilanForm
+  // as an ESTIMASI line (mirrors the dividen pattern). Annual figure shown alongside
+  // so per-row "%/tahun" math reconciles visually.
+  const bungaSbnMonthly = computed(() =>
+    calcBungaSbnMonthly(snapshotState.value, prices.value),
+  )
+  const bungaSbnAnnual = computed(() => bungaSbnMonthly.value * 12)
+  const bungaDepositoMonthly = computed(() =>
+    calcBungaDepositoMonthly(snapshotState.value, prices.value),
+  )
+  const bungaDepositoAnnual = computed(() => bungaDepositoMonthly.value * 12)
+
   // Day 5 will wire goalHealth. Returning null keeps the dashboard "—" state honest.
   const goalHealth = computed<number | null>(() => null)
 
@@ -111,5 +125,9 @@ export const useDerivedStore = defineStore('derived', () => {
     assetBreakdown,
     dividendAnnual,
     dividendMonthly,
+    bungaSbnMonthly,
+    bungaSbnAnnual,
+    bungaDepositoMonthly,
+    bungaDepositoAnnual,
   }
 })

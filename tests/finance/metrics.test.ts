@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   calcAllocationDiscipline,
   calcAssetBreakdown,
+  calcBungaDepositoMonthly,
+  calcBungaSbnMonthly,
   calcDar,
   calcDsr,
   calcModalSiap,
@@ -14,6 +16,7 @@ import {
   calcTotalDividendAnnual,
   calcTotalUtang,
   effectiveStockPrice,
+  gajiBersihIdr,
 } from '~/lib/finance/metrics'
 import { emptySnapshot, type PricesView, type SnapshotState } from '~/lib/types/snapshot'
 
@@ -288,7 +291,7 @@ describe('calcDsr (per-metric empty rule)', () => {
 
   it('returns Σ cicilan / penghasilan × 100 when penghasilan > 0', () => {
     const s = baseSnap()
-    s.penghasilan = 18_000_000
+    s.penghasilan = { amount: 18_000_000, currency: 'IDR' }
     s.cicilanAktif.push({
       id: '1',
       tipe: 'KPR',
@@ -388,7 +391,7 @@ describe('calcSavingsRate', () => {
 
   it('= (penghasilan − totalPengeluaran) / penghasilan × 100', () => {
     const s = baseSnap()
-    s.penghasilan = 20_000_000
+    s.penghasilan = { amount: 20_000_000, currency: 'IDR' }
     s.pengeluaran = { pokok: 8_000_000, lifestyle: 4_000_000 }
     s.cicilanAktif.push({
       id: '1',
@@ -404,7 +407,7 @@ describe('calcSavingsRate', () => {
 
   it('can be negative when burn > penghasilan', () => {
     const s = baseSnap()
-    s.penghasilan = 10_000_000
+    s.penghasilan = { amount: 10_000_000, currency: 'IDR' }
     s.pengeluaran = { pokok: 12_000_000, lifestyle: 0 }
     expect(calcSavingsRate(s)).toBeCloseTo(-20, 6)
   })
@@ -500,7 +503,7 @@ describe('calcTotalDividendAnnual + DSR/SavingsRate integration', () => {
 
   it('dividend flows into calcDsr (denominator grows → ratio shrinks)', () => {
     const s = baseSnap()
-    s.penghasilan = 10_000_000
+    s.penghasilan = { amount: 10_000_000, currency: 'IDR' }
     s.cicilanAktif.push({
       id: 'c1',
       tipe: 'KPR',
@@ -526,7 +529,7 @@ describe('calcTotalDividendAnnual + DSR/SavingsRate integration', () => {
 
   it('dividend flows into calcSavingsRate (denominator + numerator both adjust)', () => {
     const s = baseSnap()
-    s.penghasilan = 10_000_000
+    s.penghasilan = { amount: 10_000_000, currency: 'IDR' }
     s.pengeluaran.pokok = 6_000_000
     // Without dividend: (10 − 6)/10 = 40%
     expect(calcSavingsRate(s)).toBeCloseTo(40, 6)
@@ -691,5 +694,145 @@ describe('calcAllocationDiscipline', () => {
       cryptoByCoinId: {},
     }
     expect(calcAllocationDiscipline(stocks, prices)).toBeCloseTo(40 / 3, 4)
+  })
+})
+
+describe('gajiBersihIdr (currency-aware penghasilan)', () => {
+  it('IDR returns amount as-is', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 15_000_000, currency: 'IDR' }
+    expect(gajiBersihIdr(s)).toBe(15_000_000)
+  })
+
+  it('USD converts via fxRates.USD', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 1_000, currency: 'USD' }
+    const prices: PricesView = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: 16_200, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {},
+    }
+    expect(gajiBersihIdr(s, prices)).toBe(16_200_000)
+  })
+
+  it('returns 0 when foreign currency rate is stale (matches asset-side behavior)', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 1_000, currency: 'USD' }
+    // No prices supplied → no fxRates → falls through to 0
+    expect(gajiBersihIdr(s)).toBe(0)
+  })
+})
+
+describe('calcBungaSbnMonthly + calcBungaDepositoMonthly', () => {
+  it('returns 0 when no rows have sukuBunga', () => {
+    const s = baseSnap()
+    s.asetLikuid.sbn.push(row(100_000_000)) // no sukuBunga
+    s.asetLikuid.deposito.push(row(50_000_000))
+    expect(calcBungaSbnMonthly(s)).toBe(0)
+    expect(calcBungaDepositoMonthly(s)).toBe(0)
+  })
+
+  it('= principal × (sukuBunga/100) / 12 per row, summed', () => {
+    const s = baseSnap()
+    // SBN: 100jt @ 6.5% → 6.5jt/tahun → 541_666.67/bulan
+    s.asetLikuid.sbn.push({
+      id: 'sbn1',
+      label: 'ORI',
+      amount: 100_000_000,
+      sukuBungaPercent: 6.5,
+    })
+    // Deposito: 50jt @ 4% → 2jt/tahun → 166_666.67/bulan
+    s.asetLikuid.deposito.push({
+      id: 'd1',
+      label: 'BCA',
+      amount: 50_000_000,
+      sukuBungaPercent: 4,
+    })
+    expect(calcBungaSbnMonthly(s)).toBeCloseTo(541_666.67, 0)
+    expect(calcBungaDepositoMonthly(s)).toBeCloseTo(166_666.67, 0)
+  })
+
+  it('foreign-currency principal converts via fxRates before applying rate', () => {
+    const s = baseSnap()
+    // 1_000 USD @ 4% with USD rate 16_200 → principal IDR 16_200_000 → 648_000/tahun → 54_000/bulan
+    s.asetLikuid.deposito.push({
+      id: 'd1',
+      label: 'USD Deposito',
+      amount: 1_000,
+      currency: 'USD',
+      sukuBungaPercent: 4,
+    })
+    const prices: PricesView = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: 16_200, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {},
+    }
+    expect(calcBungaDepositoMonthly(s, prices)).toBeCloseTo(54_000, 0)
+  })
+
+  it('bunga flows into calcDsr (penghasilan denominator grows)', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 10_000_000, currency: 'IDR' }
+    s.cicilanAktif.push({
+      id: 'c1',
+      tipe: 'KPR',
+      label: 'KPR',
+      sisaPokok: 100_000_000,
+      cicilanPerBulan: 4_000_000,
+      jenisBunga: 'Flat',
+    })
+    // Without bunga: DSR = 4/10 = 40%
+    expect(calcDsr(s)).toBeCloseTo(40, 6)
+    // Add SBN 100jt @ 12% → 1jt/bulan; total penghasilan = 11jt; DSR = 4/11 ≈ 36.36%
+    s.asetLikuid.sbn.push({
+      id: 'sbn1',
+      label: 'ORI',
+      amount: 100_000_000,
+      sukuBungaPercent: 12,
+    })
+    expect(calcDsr(s)).toBeCloseTo((4_000_000 / 11_000_000) * 100, 4)
+  })
+})
+
+describe('multi-row penghasilanLain', () => {
+  it('sums all rows into DSR denominator', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 10_000_000, currency: 'IDR' }
+    s.penghasilanLain = [
+      { id: 'l1', label: 'Sewa', amount: 3_000_000 },
+      { id: 'l2', label: 'Freelance', amount: 2_000_000 },
+    ]
+    s.cicilanAktif.push({
+      id: 'c1',
+      tipe: 'KPR',
+      label: 'KPR',
+      sisaPokok: 0,
+      cicilanPerBulan: 5_000_000,
+      jenisBunga: 'Anuitas',
+    })
+    // total penghasilan = 10 + 5 = 15jt; DSR = 5/15 ≈ 33.33%
+    expect(calcDsr(s)).toBeCloseTo((5_000_000 / 15_000_000) * 100, 4)
+  })
+
+  it('foreign-currency lain row converts via fxRates', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 0, currency: 'IDR' }
+    s.penghasilanLain = [
+      { id: 'l1', label: 'Konsultasi remote', amount: 500, currency: 'USD' },
+    ]
+    s.pengeluaran.pokok = 4_000_000
+    const prices: PricesView = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: 16_200, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {},
+    }
+    // penghasilan = 500 × 16_200 = 8.1jt; SR = (8.1 − 4)/8.1 ≈ 50.6%
+    expect(calcSavingsRate(s, prices)).toBeCloseTo(((8_100_000 - 4_000_000) / 8_100_000) * 100, 4)
   })
 })

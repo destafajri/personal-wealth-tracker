@@ -30,7 +30,8 @@ const biggest = computed(() => {
   )
 })
 const overPenghasilan = computed(
-  () => snap.penghasilan > 0 && totalCicilan.value > snap.penghasilan,
+  () =>
+    snap.penghasilan.amount > 0 && totalCicilan.value > snap.penghasilan.amount,
 )
 </script>
 

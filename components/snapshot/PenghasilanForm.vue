@@ -1,21 +1,58 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Banknote, CirclePlus, PiggyBank } from 'lucide-vue-next'
+import { Banknote, CirclePlus, Coins, Landmark, PiggyBank, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
+import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
+import { rateToIdr } from '~/lib/finance/fx'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
+import { CURRENCIES, type Currency } from '~/lib/types/snapshot'
 
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
 
-// Saham dividend auto-flows into Penghasilan as a read-only ESTIMASI row. Monthly avg
-// (annual / 12) keeps the /BULAN context consistent with the rest of the form; annual
-// figure shown as a hint so the per-row "Rp X/tahun" numbers still reconcile.
+const PREFIX: Record<Currency, string> = {
+  IDR: 'Rp',
+  USD: '$',
+  SGD: 'S$',
+  EUR: '€',
+  JPY: '¥',
+  KRW: '₩',
+}
+
+// Auto-derived monthly estimasi rows surfaced inline: saham dividen + bunga sbn +
+// bunga deposito. Same numbers that flow into DSR/SavingsRate via metrics layer.
 const dividenMonthly = computed(() => derived.dividendMonthly)
 const dividenAnnual = computed(() => derived.dividendAnnual)
 const hasDividen = computed(() => dividenAnnual.value > 0)
+
+const bungaSbnMonthly = computed(() => derived.bungaSbnMonthly)
+const bungaSbnAnnual = computed(() => derived.bungaSbnAnnual)
+const hasBungaSbn = computed(() => bungaSbnAnnual.value > 0)
+
+const bungaDepositoMonthly = computed(() => derived.bungaDepositoMonthly)
+const bungaDepositoAnnual = computed(() => derived.bungaDepositoAnnual)
+const hasBungaDeposito = computed(() => bungaDepositoAnnual.value > 0)
+
+// Gaji bersih IDR equivalent (when currency != IDR) — kept in this component (not pulled
+// from derived) because the form is the only place it's surfaced as a per-row hint.
+function gajiIdrEquivalent(): number | null {
+  const cur = snap.penghasilan.currency
+  if (cur === 'IDR') return null
+  const rate = rateToIdr(cur, derived.priceView?.fxRates)
+  if (rate === null) return null
+  return (snap.penghasilan.amount || 0) * rate
+}
+
+function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number | null {
+  const cur = row.currency ?? 'IDR'
+  if (cur === 'IDR') return null
+  const rate = rateToIdr(cur, derived.priceView?.fxRates)
+  if (rate === null) return null
+  return (row.amount || 0) * rate
+}
 </script>
 
 <template>
@@ -29,7 +66,7 @@ const hasDividen = computed(() => dividenAnnual.value > 0)
     </header>
 
     <div class="space-y-3">
-      <!-- Row 1: Gaji Bersih -->
+      <!-- Row 1: Gaji Bersih (currency-aware) -->
       <div class="flex items-start gap-3 rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3">
         <Banknote
           :size="20"
@@ -42,37 +79,129 @@ const hasDividen = computed(() => dividenAnnual.value > 0)
           >
             {{ t('snapshot.penghasilan.gajiLabel') }}
           </label>
-          <InputCurrency
-            id="penghasilan-gaji"
-            :aria-label="t('snapshot.penghasilan.gajiLabel')"
-            :model-value="snap.penghasilan === 0 ? null : snap.penghasilan"
-            @update:model-value="snap.setPenghasilan($event ?? 0)"
-          />
-        </div>
-      </div>
-
-      <!-- Row 2: Penghasilan Lain -->
-      <div class="flex items-start gap-3 rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3">
-        <CirclePlus
-          :size="20"
-          class="mt-1 shrink-0 text-[var(--color-text-secondary)]"
-        />
-        <div class="flex-1 space-y-1">
-          <label
-            class="block text-xs font-medium text-[var(--color-text-secondary)]"
+          <div class="flex items-center gap-2">
+            <select
+              :value="snap.penghasilan.currency"
+              :aria-label="t('snapshot.penghasilan.gajiLabel') + ' currency'"
+              class="h-12 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+              @change="
+                snap.setPenghasilanCurrency(
+                  ($event.target as HTMLSelectElement).value as Currency,
+                )
+              "
+            >
+              <option v-for="cur in CURRENCIES" :key="cur" :value="cur">{{ cur }}</option>
+            </select>
+            <div class="flex-1">
+              <InputCurrency
+                id="penghasilan-gaji"
+                :aria-label="t('snapshot.penghasilan.gajiLabel')"
+                :prefix="PREFIX[snap.penghasilan.currency]"
+                :model-value="snap.penghasilan.amount === 0 ? null : snap.penghasilan.amount"
+                @update:model-value="snap.setPenghasilanAmount($event ?? 0)"
+              />
+            </div>
+          </div>
+          <p
+            v-if="snap.penghasilan.currency !== 'IDR'"
+            class="tabular text-[11px] text-[var(--color-text-muted)]"
           >
-            {{ t('snapshot.penghasilan.lainLabel') }}
-          </label>
-          <InputCurrency
-            :aria-label="t('snapshot.penghasilan.lainLabel')"
-            :model-value="snap.penghasilanLain === 0 ? null : snap.penghasilanLain"
-            @update:model-value="snap.setPenghasilanLain($event ?? 0)"
-          />
+            <template v-if="gajiIdrEquivalent() !== null">
+              ≈ {{ idr(gajiIdrEquivalent()) }}
+            </template>
+            <template v-else>{{ t('snapshot.row.fxStale') }}</template>
+          </p>
         </div>
       </div>
 
-      <!-- Row 3: Estimasi Dividen Saham (auto, read-only) — renders only when ≥1 saham
-           row has dividen data, matching the Stitch "auto muncul" pattern. -->
+      <!-- Row 2: Penghasilan Lain (multi-row + per-row currency) -->
+      <div class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3">
+        <div class="flex items-start gap-3">
+          <CirclePlus
+            :size="20"
+            class="mt-1 shrink-0 text-[var(--color-text-secondary)]"
+          />
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <label
+                class="block text-xs font-medium text-[var(--color-text-secondary)]"
+              >
+                {{ t('snapshot.penghasilan.lainLabel') }}
+              </label>
+              <ButtonGhost @click="snap.addPenghasilanLain()">
+                {{ t('snapshot.penghasilan.lainAdd') }}
+              </ButtonGhost>
+            </div>
+            <p
+              v-if="snap.penghasilanLain.length === 0"
+              class="mt-2 text-[11px] text-[var(--color-text-muted)]"
+            >
+              {{ t('snapshot.penghasilan.lainEmpty') }}
+            </p>
+            <ul v-else class="mt-2 space-y-2">
+              <li
+                v-for="row in snap.penghasilanLain"
+                :key="row.id"
+                class="space-y-1"
+              >
+                <div class="flex items-center gap-2">
+                  <input
+                    type="text"
+                    :value="row.label"
+                    :placeholder="t('snapshot.penghasilan.lainLabelPlaceholder')"
+                    class="h-12 flex-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+                    @input="
+                      snap.updatePenghasilanLain(row.id, {
+                        label: ($event.target as HTMLInputElement).value,
+                      })
+                    "
+                  >
+                  <select
+                    :value="row.currency ?? 'IDR'"
+                    class="h-12 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+                    @change="
+                      snap.updatePenghasilanLain(row.id, {
+                        currency: ($event.target as HTMLSelectElement).value as Currency,
+                      })
+                    "
+                  >
+                    <option v-for="cur in CURRENCIES" :key="cur" :value="cur">{{ cur }}</option>
+                  </select>
+                  <div class="w-44">
+                    <InputCurrency
+                      :model-value="row.amount === 0 ? null : row.amount"
+                      :prefix="PREFIX[row.currency ?? 'IDR']"
+                      :placeholder="t('snapshot.row.idrPlaceholder')"
+                      @update:model-value="
+                        snap.updatePenghasilanLain(row.id, { amount: $event ?? 0 })
+                      "
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    :aria-label="t('snapshot.penghasilan.lainRemove')"
+                    class="rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)]"
+                    @click="snap.removePenghasilanLain(row.id)"
+                  >
+                    <X :size="16" />
+                  </button>
+                </div>
+                <p
+                  v-if="(row.currency ?? 'IDR') !== 'IDR'"
+                  class="tabular pl-2 text-[11px] text-[var(--color-text-muted)]"
+                >
+                  <template v-if="lainIdrEquivalent(row) !== null">
+                    ≈ {{ idr(lainIdrEquivalent(row)) }}
+                  </template>
+                  <template v-else>{{ t('snapshot.row.fxStale') }}</template>
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto rows: Dividen Saham, Bunga SBN, Bunga Deposito (ESTIMASI). Same pattern. -->
       <div
         v-if="hasDividen"
         class="flex items-start gap-3 rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3"
@@ -100,6 +229,68 @@ const hasDividen = computed(() => dividenAnnual.value > 0)
           </p>
           <p class="mt-1 text-[11px] italic text-[var(--color-text-muted)]">
             {{ t('snapshot.penghasilan.dividenHint') }}
+          </p>
+        </div>
+      </div>
+
+      <div
+        v-if="hasBungaSbn"
+        class="flex items-start gap-3 rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3"
+      >
+        <Landmark
+          :size="20"
+          class="mt-1 shrink-0 text-[var(--color-accent-emerald)]"
+        />
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-[var(--color-text-secondary)]">
+              {{ t('snapshot.penghasilan.bungaSbnLabel') }}
+            </span>
+            <span
+              class="rounded-[var(--radius-pill)] bg-[var(--color-accent-emerald-soft)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--color-accent-emerald)]"
+            >
+              {{ t('pill.estimasi') }}
+            </span>
+          </div>
+          <p class="tabular mt-1 text-lg font-semibold text-[var(--color-text-primary)]">
+            {{ idr(bungaSbnMonthly) }}
+          </p>
+          <p class="tabular text-[11px] text-[var(--color-text-muted)]">
+            {{ t('snapshot.penghasilan.dividenAnnual', { amount: idr(bungaSbnAnnual) }) }}
+          </p>
+          <p class="mt-1 text-[11px] italic text-[var(--color-text-muted)]">
+            {{ t('snapshot.penghasilan.bungaSbnHint') }}
+          </p>
+        </div>
+      </div>
+
+      <div
+        v-if="hasBungaDeposito"
+        class="flex items-start gap-3 rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3"
+      >
+        <Coins
+          :size="20"
+          class="mt-1 shrink-0 text-[var(--color-accent-emerald)]"
+        />
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-[var(--color-text-secondary)]">
+              {{ t('snapshot.penghasilan.bungaDepositoLabel') }}
+            </span>
+            <span
+              class="rounded-[var(--radius-pill)] bg-[var(--color-accent-emerald-soft)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--color-accent-emerald)]"
+            >
+              {{ t('pill.estimasi') }}
+            </span>
+          </div>
+          <p class="tabular mt-1 text-lg font-semibold text-[var(--color-text-primary)]">
+            {{ idr(bungaDepositoMonthly) }}
+          </p>
+          <p class="tabular text-[11px] text-[var(--color-text-muted)]">
+            {{ t('snapshot.penghasilan.dividenAnnual', { amount: idr(bungaDepositoAnnual) }) }}
+          </p>
+          <p class="mt-1 text-[11px] italic text-[var(--color-text-muted)]">
+            {{ t('snapshot.penghasilan.bungaDepositoHint') }}
           </p>
         </div>
       </div>

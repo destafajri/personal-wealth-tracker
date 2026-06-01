@@ -30,6 +30,10 @@ export interface AssetRow {
   label: string
   amount: number // value in the row's currency (defaults to IDR if currency undefined)
   currency?: Currency
+  // Annual interest rate (%). UI only renders the input on sbn + deposito categories;
+  // present here so the generic AssetRow shape can carry it without forking the type.
+  // Drives the auto-derived monthly interest income row in PenghasilanForm.
+  sukuBungaPercent?: number
 }
 
 export interface StockHolding {
@@ -162,9 +166,18 @@ export interface EmasState {
   perhiasan10KGram: number // ~37.5% Antam
 }
 
+// Gaji Bersih (take-home setelah PPh21) — /bulan, currency-aware. Currency lets expats
+// or USD-paid workers input in source currency; metrics convert via fxRates → IDR.
+export interface PenghasilanGaji {
+  amount: number
+  currency: Currency
+}
+
 export interface SnapshotState {
-  penghasilan: number // IDR/bulan — interpreted as Gaji Bersih (take-home setelah PPh21)
-  penghasilanLain: number // IDR/bulan — sampingan/sewa/freelance/dll
+  penghasilan: PenghasilanGaji
+  // Penghasilan tambahan — sampingan/sewa/freelance/dll. Multi-row + per-row currency
+  // (reuses AssetRow shape since the fields are identical: id/label/amount/currency).
+  penghasilanLain: AssetRow[]
   pengeluaran: Pengeluaran
   asetLikuid: Record<LiquidAssetCategory, AssetRow[]>
   asetNonLikuid: Record<NonLiquidAssetCategory, AssetRow[]>
@@ -201,8 +214,8 @@ export interface PricesView {
 
 export function emptySnapshot(): SnapshotState {
   return {
-    penghasilan: 0,
-    penghasilanLain: 0,
+    penghasilan: { amount: 0, currency: 'IDR' },
+    penghasilanLain: [],
     pengeluaran: { pokok: 0, lifestyle: 0 },
     asetLikuid: {
       kas: [],

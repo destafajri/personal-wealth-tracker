@@ -14,8 +14,11 @@ withDefaults(
     title: string
     // Likuid panels expose currency dropdown; non-likuid leaves it off (IDR-only).
     showCurrency?: boolean
+    // Sbn + deposito surface a per-row interest rate input. Drives the auto-derived
+    // monthly bunga line in PenghasilanForm.
+    showInterestRate?: boolean
   }>(),
-  { showCurrency: false },
+  { showCurrency: false, showInterestRate: false },
 )
 
 const emit = defineEmits<{
@@ -23,6 +26,7 @@ const emit = defineEmits<{
   'update:label': [id: string, value: string]
   'update:amount': [id: string, value: number | null]
   'update:currency': [id: string, value: Currency]
+  'update:sukuBunga': [id: string, value: number | null]
   remove: [id: string]
 }>()
 
@@ -110,6 +114,34 @@ function idrEquivalent(row: AssetRow): number | null {
           </template>
           <template v-else>{{ t('snapshot.row.fxStale') }}</template>
         </p>
+
+        <div v-if="showInterestRate" class="flex items-center gap-2 pl-2">
+          <label
+            :for="`sukuBunga-${row.id}`"
+            class="text-[11px] text-[var(--color-text-muted)]"
+          >
+            {{ t('snapshot.aset.sukuBungaLabel') }}
+          </label>
+          <input
+            :id="`sukuBunga-${row.id}`"
+            type="number"
+            inputmode="decimal"
+            step="0.01"
+            min="0"
+            :value="row.sukuBungaPercent ?? ''"
+            :aria-label="t('snapshot.aset.sukuBungaAria')"
+            class="tabular h-8 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-right text-xs text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            @input="
+              emit(
+                'update:sukuBunga',
+                row.id,
+                (($event.target as HTMLInputElement).value || '') === ''
+                  ? null
+                  : Number(($event.target as HTMLInputElement).value),
+              )
+            "
+          >
+        </div>
       </li>
     </ul>
   </div>
