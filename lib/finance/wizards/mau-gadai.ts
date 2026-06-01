@@ -13,6 +13,7 @@
 // Bunga accrues monthly off-snapshot — surfaced only as the warning summary; user
 // pays it when tebus / lunas.
 
+import { availableGramOf, emasCategoryOfJaminan } from '~/lib/finance/emas'
 import {
   cloneSnapshot,
   computeGoalImpact,
@@ -98,6 +99,25 @@ export function runMauGadai(
   if (input.piutangIdr <= 0) warnings.push(t('wizard.gadai.warning.zeroPiutang'))
   if (input.jaminan.startsWith('emas:') && (input.gramTertahan ?? 0) <= 0) {
     warnings.push(t('wizard.gadai.warning.zeroGram'))
+  }
+  // Codex round-13: gram ownership invariant. snap.emas.{cat}Gram = TOTAL ownership
+  // (at home + already pawned); user can only pawn what's still available at home.
+  // Pure fn emits warning (defensive); form layer blocks submit upstream so the
+  // warning normally never reaches the user in happy-path flow.
+  if (input.jaminan.startsWith('emas:')) {
+    const cat = emasCategoryOfJaminan(input.jaminan)
+    if (cat !== null) {
+      const available = availableGramOf(snap, cat)
+      const requested = input.gramTertahan ?? 0
+      if (requested > available + 1e-6) {
+        warnings.push(
+          t('wizard.gadai.warning.gramExceedsOwned', {
+            requested: requested.toString(),
+            available: available.toFixed(2),
+          }),
+        )
+      }
+    }
   }
 
   return {

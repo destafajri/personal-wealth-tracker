@@ -7,7 +7,7 @@
 //
 // Why a single global host (vs per-wizard modal): keeps disclaimer + a11y wiring in
 // one place; per Day 6 → Day 8, each new wizard plugs in via the keyed v-if below.
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { X } from 'lucide-vue-next'
 import DisclaimerBanner from '~/components/common/DisclaimerBanner.vue'
 import WizardMauKpr from '~/components/simulator/decisions/WizardMauKpr.vue'
@@ -15,10 +15,32 @@ import WizardMauGadai from '~/components/simulator/decisions/WizardMauGadai.vue'
 import WizardMauCicil from '~/components/simulator/decisions/WizardMauCicil.vue'
 import WizardCustom from '~/components/simulator/decisions/WizardCustom.vue'
 import { useSimulator } from '~/composables/useSimulator'
-import { t } from '~/lib/copy/strings'
+import { t, type CopyKey } from '~/lib/copy/strings'
 
 const { activeKey, isOpen, close } = useSimulator()
 const panelRef = ref<HTMLElement | null>(null)
+
+// Codex round-13: dialog accessible name must reflect the active wizard, not the
+// hard-coded KPR title. Maps each WizardKey to its localized title; unknown keys
+// fall through to the generic Simulator label.
+const titleKey = computed<CopyKey>(() => {
+  switch (activeKey.value) {
+    case 'kpr':
+      return 'wizard.kpr.title'
+    case 'gadai':
+      return 'wizard.gadai.title'
+    case 'cicil':
+      return 'wizard.cicil.title'
+    case 'custom':
+      return 'wizard.custom.title'
+    case 'max-utang':
+    case 'lunasi':
+    case 'modal-options':
+    case null:
+    default:
+      return 'simulator.title'
+  }
+})
 
 function focusableIn(root: HTMLElement): HTMLElement[] {
   return Array.from(
@@ -110,7 +132,7 @@ onBeforeUnmount(() => {
         <header
           class="flex items-start justify-between gap-3 border-b border-[var(--color-border)] px-5 py-4"
         >
-          <h2 id="wizard-host-title" class="sr-only">{{ t('wizard.kpr.title') }}</h2>
+          <h2 id="wizard-host-title" class="sr-only">{{ t(titleKey) }}</h2>
           <DisclaimerBanner />
           <button
             type="button"

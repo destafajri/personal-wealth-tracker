@@ -12,6 +12,7 @@ import {
   runMauGadai,
   type GadaiInput,
 } from '~/lib/finance/wizards/mau-gadai'
+import { availableGramOf, emasCategoryOfJaminan } from '~/lib/finance/emas'
 import { idr } from '~/lib/format/idr'
 import { t, type CopyKey } from '~/lib/copy/strings'
 import { FI_MULTIPLIER, useGoalsStore } from '~/stores/goals'
@@ -57,6 +58,20 @@ const tempoBulan = ref<number>(4)
 const isEmas = computed(() => jaminan.value.startsWith('emas:'))
 const result = computed(() => simulator.currentResult.value)
 
+// Codex round-13: gram ownership ceiling. Block submit when user requests more than
+// what's actually at-home in this category. Recomputes reactively against snapshot
+// (kategori switch + existing gadai rows both flow through).
+const availableGrams = computed(() => {
+  if (!isEmas.value) return Infinity
+  const cat = emasCategoryOfJaminan(jaminan.value)
+  if (cat === null) return Infinity
+  return availableGramOf(snapshotView(), cat)
+})
+
+const gramOverOwned = computed(
+  () => isEmas.value && gramTertahan.value > availableGrams.value + 1e-6,
+)
+
 // Aset rows available for asetRefId picker, based on jaminan kind.
 const refRows = computed(() => {
   if (jaminan.value === 'properti') return snapStore.asetNonLikuid.properti
@@ -74,6 +89,7 @@ const canSubmit = computed(() => {
   if (bungaPerBulanPercent.value < 0) return false
   if (tempoBulan.value <= 0) return false
   if (isEmas.value && gramTertahan.value <= 0) return false
+  if (isEmas.value && gramOverOwned.value) return false
   if (!isEmas.value && asetRefId.value === '') return false
   return true
 })
@@ -195,6 +211,19 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
           step="0.1"
           class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
         >
+        <p
+          class="mt-1 text-[11px]"
+          :class="gramOverOwned ? 'text-[var(--color-danger-rose)]' : 'text-[var(--color-text-muted)]'"
+        >
+          {{
+            gramOverOwned
+              ? t('wizard.gadai.warning.gramExceedsOwned', {
+                requested: gramTertahan.toString(),
+                available: availableGrams.toFixed(2),
+              })
+              : t('wizard.gadai.form.gramAvailable', { available: availableGrams.toFixed(2) })
+          }}
+        </p>
       </label>
       <label v-else class="block text-xs">
         <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.gadai.form.asetRef') }}</span>

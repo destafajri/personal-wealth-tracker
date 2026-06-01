@@ -449,6 +449,10 @@ export const copy = {
 
   'wizard.gadai.warning.zeroPiutang': 'Isi piutang yang kamu terima dari Pegadaian.',
   'wizard.gadai.warning.zeroGram': 'Untuk jaminan emas, isi gram yang tertahan.',
+  'wizard.gadai.warning.gramExceedsOwned':
+    'Mau gadai {requested}g tapi cuma punya {available}g yang available di kategori ini.',
+  'wizard.gadai.form.gramAvailable':
+    'Tersedia: {available}g (total ownership dikurang yang sudah digadai).',
 
   'wizard.gadai.jaminan.emasDigital': 'Emas digital (Pegadaian / e-mas)',
   'wizard.gadai.jaminan.emasFisikAntam': 'Emas fisik Antam',
