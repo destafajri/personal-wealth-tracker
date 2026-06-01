@@ -21,9 +21,15 @@ import type { CapacityResult, CapacityScenario } from '~/lib/types/wizard'
 
 export interface MaxUtangInput {
   targetDsrPercent: number // default 30 (sehat threshold)
-  // KPR override knobs (optional — collapsed by default in UI per design-guidelines §8.18).
+  // Override knobs per scenario (optional — collapsed by default per design-guidelines §8.18).
+  // KPR tenor in YEARS (longer horizon, user mental model); KPM + Paylater in MONTHS (matches
+  // typical contract framing for these). All bunga in %/tahun.
   kprTenorTahun?: number // default 20
   kprBungaPercent?: number // default 7
+  kpmTenorBulan?: number // default 36
+  kpmBungaPercent?: number // default 8
+  paylaterTenorBulan?: number // default 12
+  paylaterBungaPercent?: number // default 24
 }
 
 // Sum monthly cicilan from cicilanAktif + utangPribadi. Same definition as DSR's cicilan
@@ -77,21 +83,22 @@ export function runMaxUtang(
     warnings.push(t('wizard.maxUtang.warning.burnOverIncome'))
   }
 
-  // KPR scenario (locked defaults: 20 thn / 7%, 20% DP → harga = pokok / 0.8)
-  const kprTenorBulan = (input.kprTenorTahun ?? 20) * 12
+  // KPR scenario (defaults: 20 thn / 7%, 20% DP → harga = pokok / 0.8)
+  const kprTenorTahun = input.kprTenorTahun ?? 20
+  const kprTenorBulan = kprTenorTahun * 12
   const kprBunga = input.kprBungaPercent ?? 7
   const kprPokok = anuitasInversePokok(maxNewCicilan, kprBunga, kprTenorBulan)
   const kprHarga = kprPokok / 0.8
 
-  // KPM scenario (locked: 36 bln / 8%, 20% DP)
-  const kpmTenorBulan = 36
-  const kpmBunga = 8
+  // KPM scenario (defaults: 36 bln / 8%, 20% DP)
+  const kpmTenorBulan = input.kpmTenorBulan ?? 36
+  const kpmBunga = input.kpmBungaPercent ?? 8
   const kpmPokok = anuitasInversePokok(maxNewCicilan, kpmBunga, kpmTenorBulan)
   const kpmHarga = kpmPokok / 0.8
 
-  // Paylater scenario (locked: 12 bln / 24%, no DP — purchase price = pokok)
-  const plTenorBulan = 12
-  const plBunga = 24
+  // Paylater scenario (defaults: 12 bln / 24%, no DP — purchase price = pokok)
+  const plTenorBulan = input.paylaterTenorBulan ?? 12
+  const plBunga = input.paylaterBungaPercent ?? 24
   const plPokok = anuitasInversePokok(maxNewCicilan, plBunga, plTenorBulan)
 
   const scenarios: CapacityScenario[] = [
@@ -100,7 +107,7 @@ export function runMaxUtang(
       label: t('wizard.maxUtang.scenario.kpr.label'),
       description: t('wizard.maxUtang.scenario.kpr.body', {
         harga: idr(kprHarga),
-        tenor: input.kprTenorTahun ?? 20,
+        tenor: kprTenorTahun,
         bunga: kprBunga,
       }),
     },
@@ -109,6 +116,8 @@ export function runMaxUtang(
       label: t('wizard.maxUtang.scenario.kpm.label'),
       description: t('wizard.maxUtang.scenario.kpm.body', {
         harga: idr(kpmHarga),
+        tenor: kpmTenorBulan,
+        bunga: kpmBunga,
       }),
     },
     {
@@ -116,6 +125,8 @@ export function runMaxUtang(
       label: t('wizard.maxUtang.scenario.paylater.label'),
       description: t('wizard.maxUtang.scenario.paylater.body', {
         harga: idr(plPokok),
+        tenor: plTenorBulan,
+        bunga: plBunga,
       }),
     },
   ]

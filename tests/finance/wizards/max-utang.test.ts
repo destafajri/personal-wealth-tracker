@@ -98,4 +98,27 @@ describe('runMaxUtang', () => {
       r1.scenarios.find((s) => s.key === 'kpr')!.description,
     )
   })
+
+  it('honours custom KPM + Paylater overrides (carries to scenario body)', () => {
+    const r1 = runMaxUtang(baseInput(), baseSnap(), {})
+    const r2 = runMaxUtang(
+      {
+        targetDsrPercent: 30,
+        kpmTenorBulan: 60,
+        kpmBungaPercent: 6,
+        paylaterTenorBulan: 24,
+        paylaterBungaPercent: 18,
+      },
+      baseSnap(),
+      {},
+    )
+    // KPM with longer tenor + lower rate → bigger harga
+    const r1Kpm = r1.scenarios.find((s) => s.key === 'kpm')!
+    const r2Kpm = r2.scenarios.find((s) => s.key === 'kpm')!
+    expect(r2Kpm.description).not.toBe(r1Kpm.description)
+    // Paylater same — different body
+    const r1Pl = r1.scenarios.find((s) => s.key === 'paylater')!
+    const r2Pl = r2.scenarios.find((s) => s.key === 'paylater')!
+    expect(r2Pl.description).not.toBe(r1Pl.description)
+  })
 })

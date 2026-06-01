@@ -511,9 +511,14 @@ export const copy = {
     'Berapa max cicilan baru/bulan biar DSR tetap aman (di bawah target)?',
   'wizard.maxUtang.form.targetDsr': 'Target DSR (%)',
   'wizard.maxUtang.form.targetDsrHelp': 'Default 30% (sehat band per dashboard).',
-  'wizard.maxUtang.form.advancedToggle': 'Tampilkan KPR override',
-  'wizard.maxUtang.form.kprTenor': 'KPR tenor (tahun)',
-  'wizard.maxUtang.form.kprBunga': 'KPR bunga (%/tahun)',
+  'wizard.maxUtang.form.advancedToggle': 'Tampilkan override scenarios',
+  'wizard.maxUtang.form.kprSection': 'KPR',
+  'wizard.maxUtang.form.kpmSection': 'KPM (motor/mobil)',
+  'wizard.maxUtang.form.paylaterSection': 'Paylater / cicilan barang',
+  'wizard.maxUtang.form.kprTenor': 'Tenor (tahun)',
+  'wizard.maxUtang.form.kprBunga': 'Bunga (%/tahun)',
+  'wizard.maxUtang.form.tenorBulan': 'Tenor (bulan)',
+  'wizard.maxUtang.form.bunga': 'Bunga (%/tahun)',
   'wizard.maxUtang.form.submit': 'Hitung skenario',
 
   'wizard.maxUtang.hero.label': 'Max cicilan baru / bulan',
@@ -530,10 +535,10 @@ export const copy = {
     'Sampai ~{harga} harga rumah ({tenor} tahun, DP 20%, bunga {bunga}% Anuitas).',
   'wizard.maxUtang.scenario.kpm.label': 'Setara KPM (motor/mobil)',
   'wizard.maxUtang.scenario.kpm.body':
-    'Sampai ~{harga} harga kendaraan (36 bln, DP 20%, bunga 8% Anuitas).',
+    'Sampai ~{harga} harga kendaraan ({tenor} bln, DP 20%, bunga {bunga}% Anuitas).',
   'wizard.maxUtang.scenario.paylater.label': 'Setara Paylater / cicilan barang',
   'wizard.maxUtang.scenario.paylater.body':
-    'Sampai ~{harga} harga barang (12 bln, bunga 24%/tahun).',
+    'Sampai ~{harga} harga barang ({tenor} bln, bunga {bunga}%/tahun).',
 
   // ----- wizard: Lunasi Utang (capacity) -----
   'wizard.lunasi.title': 'Lunasi Utang Sekarang',
