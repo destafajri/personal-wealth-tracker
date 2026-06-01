@@ -185,7 +185,19 @@ function costBasisCurrencyOf(row: CryptoHolding): Currency {
 }
 
 function onCostBasis(id: string, v: number | null) {
-  snap.updateCrypto(id, { costBasisPerUnit: v === null || v <= 0 ? undefined : v })
+  const next = v === null || v <= 0 ? undefined : v
+  const patch: Partial<CryptoHolding> = { costBasisPerUnit: next }
+  // The currency select renders 'USD' as a visual default when the row hasn't set one
+  // (see `costBasisCurrencyOf`). Persist that default on the row the moment a cost basis
+  // is actually entered — otherwise `calcCryptoCapitalGainPercent`'s undefined-currency
+  // guard returns null and the gain pill never shows even though the UI looks complete.
+  if (next !== undefined) {
+    const row = snap.crypto.find((r) => r.id === id)
+    if (row && row.costBasisCurrency === undefined) {
+      patch.costBasisCurrency = 'USD'
+    }
+  }
+  snap.updateCrypto(id, patch)
 }
 
 function onCostBasisCurrency(id: string, value: Currency) {

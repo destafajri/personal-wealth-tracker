@@ -245,10 +245,16 @@ export function calcBungaDepositoMonthly(snap: SnapshotState, prices?: PricesVie
   return calcBungaMonthlyForRows(snap.asetLikuid.deposito, prices)
 }
 
-// Monthly penghasilan = Gaji Bersih + Σ Penghasilan Lain + monthly avg saham dividend +
-// monthly bunga sbn/deposito. Dividend is annual by nature; same /12 framing keeps DSR,
-// Runway, Savings Rate consistent in the /BULAN context.
-function totalPenghasilanMonthly(snap: SnapshotState, prices?: PricesView): number {
+// Monthly penghasilan in IDR — Gaji Bersih + Σ Penghasilan Lain + monthly avg saham
+// dividend + monthly bunga sbn/deposito. Dividend is annual by nature; same /12 framing
+// keeps DSR, Runway, Savings Rate consistent in the /BULAN context. Exported so panels
+// that surface income-vs-burn warnings (e.g., CicilanAktifPanel `overPenghasilan`) read
+// the canonical FX-aware total instead of comparing against `snap.penghasilan.amount`
+// raw — which is in source currency and ignores lain/dividen/bunga contributions.
+export function totalPenghasilanMonthly(
+  snap: SnapshotState,
+  prices?: PricesView,
+): number {
   return (
     gajiBersihIdr(snap, prices) +
     sumRowsToIdr(snap.penghasilanLain, prices) +

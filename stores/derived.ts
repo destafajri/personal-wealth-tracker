@@ -16,6 +16,7 @@ import {
   calcTotalAset,
   calcTotalDividendAnnual,
   calcTotalUtang,
+  totalPenghasilanMonthly,
 } from '~/lib/finance/metrics'
 import { breakdownGoldIdr } from '~/lib/finance/emas'
 import type { PricesView, SnapshotState } from '~/lib/types/snapshot'
@@ -98,6 +99,14 @@ export const useDerivedStore = defineStore('derived', () => {
   )
   const bungaDepositoAnnual = computed(() => bungaDepositoMonthly.value * 12)
 
+  // FX-aware total monthly income (gaji + lain + dividen + bunga sbn + bunga deposito,
+  // all in IDR). Single source of truth for "income vs burn" UI checks like the cicilan
+  // overflow warning — keeps panels from comparing against `snap.penghasilan.amount`
+  // raw (which is in source currency and excludes lain/dividen/bunga).
+  const penghasilanMonthlyIdr = computed(() =>
+    totalPenghasilanMonthly(snapshotState.value, prices.value),
+  )
+
   // Day 5 will wire goalHealth. Returning null keeps the dashboard "—" state honest.
   const goalHealth = computed<number | null>(() => null)
 
@@ -129,5 +138,6 @@ export const useDerivedStore = defineStore('derived', () => {
     bungaSbnAnnual,
     bungaDepositoMonthly,
     bungaDepositoAnnual,
+    penghasilanMonthlyIdr,
   }
 })

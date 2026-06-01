@@ -18,6 +18,7 @@ import {
   calcTotalUtang,
   effectiveStockPrice,
   gajiBersihIdr,
+  totalPenghasilanMonthly,
 } from '~/lib/finance/metrics'
 import { emptySnapshot, type PricesView, type SnapshotState } from '~/lib/types/snapshot'
 
@@ -796,6 +797,54 @@ describe('calcBungaSbnMonthly + calcBungaDepositoMonthly', () => {
       sukuBungaPercent: 12,
     })
     expect(calcDsr(s)).toBeCloseTo((4_000_000 / 11_000_000) * 100, 4)
+  })
+})
+
+describe('totalPenghasilanMonthly (FX-aware aggregate)', () => {
+  it('sums gaji + lain + dividen + bunga sbn + bunga deposito in IDR', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 10_000_000, currency: 'IDR' }
+    s.penghasilanLain = [
+      { id: 'l1', label: 'Sewa', amount: 2_000_000 },
+    ]
+    s.asetLikuid.sbn.push({
+      id: 'sbn1',
+      label: 'ORI',
+      amount: 100_000_000,
+      sukuBungaPercent: 6, // 6jt/tahun → 500k/bulan
+    })
+    s.asetLikuid.deposito.push({
+      id: 'd1',
+      label: 'BCA',
+      amount: 50_000_000,
+      sukuBungaPercent: 4, // 2jt/tahun → 166_666.67/bulan
+    })
+    s.saham.push({
+      id: 'st1',
+      ticker: 'BBCA',
+      lot: 100,
+      hargaRataRata: 9_000,
+      lastDividendPerLembar: 600, // 100×100×600 = 6jt/tahun → 500k/bulan
+    })
+    // Expected: 10jt + 2jt + 500k (sbn) + 166_666.67 (deposito) + 500k (div) ≈ 13_166_666.67
+    expect(totalPenghasilanMonthly(s)).toBeCloseTo(13_166_666.67, 0)
+  })
+
+  it('foreign-currency gaji folds via FX before summing', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 1_000, currency: 'USD' }
+    s.penghasilanLain = [
+      { id: 'l1', label: 'Side', amount: 2_000_000 },
+    ]
+    const prices: PricesView = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: 16_000, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {},
+    }
+    // Expected: 1000×16_000 + 2jt = 18jt
+    expect(totalPenghasilanMonthly(s, prices)).toBe(18_000_000)
   })
 })
 

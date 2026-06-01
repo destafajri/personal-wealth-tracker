@@ -3,11 +3,13 @@ import { computed } from 'vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import CicilanRowEditor from '~/components/snapshot/CicilanRow.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { useDerivedStore } from '~/stores/derived'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
 import type { CicilanTipe } from '~/lib/types/snapshot'
 
 const snap = useSnapshotStore()
+const derived = useDerivedStore()
 
 const quickAdds: { labelKey: 'cicilan.quickadd.kpr' | 'cicilan.quickadd.kpm' | 'cicilan.quickadd.kk' | 'cicilan.quickadd.pinjol'; tipe: CicilanTipe; jenis: 'Anuitas' | 'Revolving' }[] = [
   { labelKey: 'cicilan.quickadd.kpr', tipe: 'KPR', jenis: 'Anuitas' },
@@ -29,9 +31,14 @@ const biggest = computed(() => {
     r.cicilanPerBulan > (max?.cicilanPerBulan ?? -1) ? r : max,
   )
 })
+// Compare against FX-aware total monthly income (gaji + lain + dividen + bunga) in IDR
+// — not `snap.penghasilan.amount` raw, which is in source currency and ignores the
+// non-gaji income streams. Otherwise a USD salary 1000 + IDR cicilan 5jt would falsely
+// trip the warning even though derived DSR is fine.
 const overPenghasilan = computed(
   () =>
-    snap.penghasilan.amount > 0 && totalCicilan.value > snap.penghasilan.amount,
+    derived.penghasilanMonthlyIdr > 0 &&
+    totalCicilan.value > derived.penghasilanMonthlyIdr,
 )
 </script>
 
