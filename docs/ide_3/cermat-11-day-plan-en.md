@@ -229,9 +229,9 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 - [ ] D11.4 — Mobile fallback (<768px): stack columns, "↓ Lihat dashboard" anchor, "Lebih nyaman di desktop" hint; resolve breakpoint behavior (D0.4 — bottom-nav vs hamburger)
 - [ ] D11.5 — Accessibility pass: keyboard nav, focus states, ARIA live on dashboard, AA contrast check (esp. amber)
 - [ ] D11.6 — Lighthouse run → fix until Performance ≥ 85; defer-load wizard bundles + ECharts + SheetJS
-- [ ] D11.7 — Playwright smoke: Landing → Snapshot fill → KPR wizard → xlsx download
+- [HOLD] D11.7 — Playwright smoke: Landing → Snapshot fill → KPR wizard → xlsx download _(deferred post-MVP — manual smoke pass acceptable for launch; revisit when regression risk justifies E2E setup cost)_
 
-**Done:** Lighthouse ≥ 85; all edge states render correctly; mobile is functional; a11y pass; smoke E2E green. Ready to ship.
+**Done:** Lighthouse ≥ 85; all edge states render correctly; mobile is functional; a11y pass. Ready to ship. _(E2E smoke deferred — see D11.7.)_
 **Depends on:** all prior.
 
 ---
