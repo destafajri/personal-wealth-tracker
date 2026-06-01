@@ -17,6 +17,7 @@
 // by /app/goals — no special-casing.
 
 import { anuitas, flat } from '~/lib/finance/amortization'
+import { rateToIdr } from '~/lib/finance/fx'
 import { goalProgress } from '~/lib/finance/goals'
 import {
   calcDar,
@@ -35,6 +36,8 @@ import type { Goal } from '~/lib/types/goals'
 import type {
   AssetRow,
   CicilanRow,
+  Currency,
+  FxRatesMap,
   JenisBunga,
   PricesView,
   SnapshotState,
@@ -88,23 +91,37 @@ function cloneSnapshot(snap: SnapshotState): SnapshotState {
   return JSON.parse(JSON.stringify(snap)) as SnapshotState
 }
 
-// Drain `amount` from a list of asset-row lists in order. Mutates rows in place. Each row
-// goes to 0 before moving to the next; row priority within a list = insertion order. The
-// caller picks the list priority (kas → deposito → RD for KPR DP). Returns leftover.
-function waterfallDebit(rows: AssetRow[][], amount: number): number {
-  let remaining = amount
+// Drain `amountIdr` from a list of asset-row lists in order. Mutates rows in place.
+// FX-AWARE (Codex round-12 fix): each row's `amount` is in its own currency; convert
+// to IDR for the comparison + drain in source-currency units. A USD 10k deposito row
+// at 16_000 IDR/USD covers 160jt IDR — without this conversion it would be treated
+// like Rp 10_000 and produce false DP shortfalls.
+//
+// Row skipped when FX rate is stale/null (currency rate not yet loaded). Skipping
+// instead of silently draining-as-0 preserves the row balance; the leftover then
+// flows into the shortfall warning so the user sees the gap.
+function waterfallDebit(
+  rows: AssetRow[][],
+  amountIdr: number,
+  fxRates: FxRatesMap | undefined,
+): number {
+  let remainingIdr = amountIdr
   for (const list of rows) {
-    if (remaining <= 0) break
+    if (remainingIdr <= 0) break
     for (const r of list) {
-      if (remaining <= 0) break
-      const avail = r.amount || 0
-      if (avail <= 0) continue
-      const take = Math.min(avail, remaining)
-      r.amount = avail - take
-      remaining -= take
+      if (remainingIdr <= 0) break
+      const currency: Currency = r.currency ?? 'IDR'
+      const rate = currency === 'IDR' ? 1 : rateToIdr(currency, fxRates)
+      if (rate === null || rate <= 0) continue // stale FX → skip; don't silently zero out
+      const availIdr = (r.amount || 0) * rate
+      if (availIdr <= 0) continue
+      const takeIdr = Math.min(availIdr, remainingIdr)
+      const takeSource = takeIdr / rate
+      r.amount = (r.amount || 0) - takeSource
+      remainingIdr -= takeIdr
     }
   }
-  return remaining
+  return remainingIdr
 }
 
 const rid = (): string =>
@@ -120,6 +137,7 @@ function applyKprToScenario(
   snap: SnapshotState,
   input: KprInput,
   c: KprComputed,
+  fxRates: FxRatesMap | undefined,
 ): ApplyResult {
   const labelBase = input.label.trim() || 'KPR scenario'
   snap.cicilanAktif.push({
@@ -140,6 +158,7 @@ function applyKprToScenario(
   const dpShortfall = waterfallDebit(
     [snap.asetLikuid.kas, snap.asetLikuid.deposito, snap.asetLikuid.reksaDana],
     c.dpIdr,
+    fxRates,
   )
   return { dpShortfall }
 }
@@ -238,7 +257,12 @@ export function runMauKpr(
   const { prices, fiMultiplier, assumedAnnualReturnReal, today } = opts
   const computed = computeKpr(input)
   const scenarioSnapshot = cloneSnapshot(snap)
-  const { dpShortfall } = applyKprToScenario(scenarioSnapshot, input, computed)
+  const { dpShortfall } = applyKprToScenario(
+    scenarioSnapshot,
+    input,
+    computed,
+    prices?.fxRates,
+  )
 
   // Build delta rows — call metric pure fns against both snapshots.
   const bNW = calcNetWorth(snap, prices)

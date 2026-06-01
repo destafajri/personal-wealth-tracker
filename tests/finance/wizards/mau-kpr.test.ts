@@ -1,7 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { computeKpr, runMauKpr, type KprInput } from '~/lib/finance/wizards/mau-kpr'
-import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
+import { emptySnapshot, type PricesView, type SnapshotState } from '~/lib/types/snapshot'
 import type { Goal } from '~/lib/types/goals'
+
+function emptyPrices(): PricesView {
+  return {
+    goldDigitalIdrPerGram: null,
+    goldAntam1gIdr: null,
+    fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
+    idxByTicker: {},
+    cryptoByCoinId: {},
+  }
+}
 
 function baseInput(): KprInput {
   return {
@@ -138,5 +148,84 @@ describe('runMauKpr — golden fixture', () => {
       assumedAnnualReturnReal: 0.05,
     })
     expect(r.goalImpact).toEqual([])
+  })
+})
+
+describe('runMauKpr — FX-aware DP waterfall (Codex round-12 fix)', () => {
+  it('USD deposito drained in source currency, not raw IDR', () => {
+    const snap = emptySnapshot()
+    snap.penghasilan = { amount: 25_000_000, currency: 'IDR' }
+    snap.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+    // USD 20_000 × 16_000 = Rp 320jt IDR equivalent
+    snap.asetLikuid.deposito.push({
+      id: 'd1',
+      label: 'BCA Dollar',
+      amount: 20_000,
+      currency: 'USD',
+    })
+    const prices: PricesView = {
+      ...emptyPrices(),
+      fxRates: { USD: 16_000, SGD: null, EUR: null, JPY: null, KRW: null },
+    }
+    // DP 240jt → drain 240jt IDR = 15_000 USD from deposito
+    const r = runMauKpr(baseInput(), snap, [], {
+      fiMultiplier: 300,
+      assumedAnnualReturnReal: 0.05,
+      prices,
+    })
+    expect(r.scenarioSnapshot.asetLikuid.deposito[0]!.amount).toBeCloseTo(5_000, 1)
+    // Currency preserved post-drain
+    expect(r.scenarioSnapshot.asetLikuid.deposito[0]!.currency).toBe('USD')
+    // 320jt > 240jt → no shortfall warning
+    expect(r.warnings.length).toBe(0)
+  })
+
+  it('skips rows with stale FX rate (no silent drain of foreign liquid)', () => {
+    const snap = emptySnapshot()
+    snap.penghasilan = { amount: 25_000_000, currency: 'IDR' }
+    snap.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+    snap.asetLikuid.deposito.push({
+      id: 'd1',
+      label: 'BCA Dollar',
+      amount: 10_000,
+      currency: 'USD',
+    })
+    // FX rate null → row should be skipped, not drained as raw 10_000 IDR
+    const prices: PricesView = emptyPrices()
+    const r = runMauKpr(baseInput(), snap, [], {
+      fiMultiplier: 300,
+      assumedAnnualReturnReal: 0.05,
+      prices,
+    })
+    expect(r.scenarioSnapshot.asetLikuid.deposito[0]!.amount).toBe(10_000)
+    // Nothing drained → 240jt shortfall → warning fires
+    expect(r.warnings.length).toBeGreaterThan(0)
+  })
+
+  it('mixed IDR + USD waterfall drains IDR first, then foreign', () => {
+    const snap = emptySnapshot()
+    snap.penghasilan = { amount: 25_000_000, currency: 'IDR' }
+    snap.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+    // Kas 100jt IDR + deposito USD 10_000 (= 160jt IDR @ 16k rate) = 260jt total liquid
+    snap.asetLikuid.kas.push({ id: 'k1', label: 'BCA', amount: 100_000_000 })
+    snap.asetLikuid.deposito.push({
+      id: 'd1',
+      label: 'BCA Dollar',
+      amount: 10_000,
+      currency: 'USD',
+    })
+    const prices: PricesView = {
+      ...emptyPrices(),
+      fxRates: { USD: 16_000, SGD: null, EUR: null, JPY: null, KRW: null },
+    }
+    // DP 240jt: drain kas 100jt + deposito 140jt IDR (= 8_750 USD)
+    const r = runMauKpr(baseInput(), snap, [], {
+      fiMultiplier: 300,
+      assumedAnnualReturnReal: 0.05,
+      prices,
+    })
+    expect(r.scenarioSnapshot.asetLikuid.kas[0]!.amount).toBe(0)
+    expect(r.scenarioSnapshot.asetLikuid.deposito[0]!.amount).toBeCloseTo(1_250, 1) // 10_000 - 8_750
+    expect(r.warnings.length).toBe(0)
   })
 })

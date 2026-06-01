@@ -419,7 +419,7 @@ export const copy = {
   'wizard.goalImpact.unreachable': '{label}: jadi tidak tercapai dengan alokasi sekarang',
 
   'wizard.warning.dpExceedsLiquid':
-    'DP melebihi modal likuid kamu — pertimbangkan turunin DP% atau tambah tabungan dulu.',
+    'DP melebihi tabungan + deposito + reksa dana kamu — turunin DP% atau tambah likuid dulu. (Saham, crypto, emas, SBN tidak otomatis ditarik di skenario ini.)',
 
   'metric.label.netWorth': 'Net Worth',
   'metric.label.modalSiap': 'Modal Siap',
