@@ -201,7 +201,7 @@ const potentialDividendAnnual = computed(() =>
         @input="onTickerInput"
       >
 
-      <div class="w-24">
+      <div class="w-32">
         <InputQuantity
           :unit="t('snapshot.saham.lotLabel')"
           :aria-label="t('snapshot.saham.lotAria')"

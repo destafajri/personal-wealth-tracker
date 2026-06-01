@@ -43,6 +43,7 @@ const idx = useIdxPrices(tickers)
 const crypto = useCryptoPrices()
 const cryptoLiveError = computed(() => crypto.error.value !== null)
 const idxLiveError = computed(() => idx.error.value !== null)
+const goldLiveError = computed(() => gold.error.value !== null)
 
 function emptyFxRates(): FxRatesMap {
   return { USD: null, SGD: null, EUR: null, JPY: null, KRW: null }
@@ -94,7 +95,11 @@ watchEffect(() => {
       :live-pending="crypto.pending.value"
       :on-refresh="crypto.refresh"
     />
-    <EmasPanel />
+    <EmasPanel
+      :live-error="goldLiveError"
+      :live-pending="gold.pending.value"
+      :on-refresh="gold.refresh"
+    />
     <AsetNonLikuidPanel />
     <CicilanAktifPanel />
     <UtangPribadiPanel />

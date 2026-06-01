@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { RotateCw } from 'lucide-vue-next'
 import InputQuantity from '~/components/common/InputQuantity.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
@@ -8,8 +9,19 @@ import { EMAS_VALUATION, pawnedGramOf, type EmasCategory } from '~/lib/finance/e
 import { t } from '~/lib/copy/strings'
 import type { EmasState } from '~/lib/types/snapshot'
 
+const props = defineProps<{
+  liveError?: boolean
+  livePending?: boolean
+  onRefresh?: () => void | Promise<void>
+}>()
+
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
+
+function refreshLive() {
+  if (props.livePending) return
+  props.onRefresh?.()
+}
 
 const digitalRate = computed(() => derived.priceView?.goldDigitalIdrPerGram ?? null)
 const antamRate = computed(() => derived.priceView?.goldAntam1gIdr ?? null)
@@ -69,9 +81,29 @@ function field(key: keyof EmasState, value: number | null) {
     class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
   >
     <header class="mb-3">
-      <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
-        {{ t('snapshot.section.emas') }}
-      </h3>
+      <div class="flex items-start justify-between gap-3">
+        <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
+          {{ t('snapshot.section.emas') }}
+        </h3>
+        <button
+          v-if="onRefresh"
+          type="button"
+          class="inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2 py-1 text-[11px] font-medium transition-colors"
+          :class="
+            liveError
+              ? 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)] hover:bg-[var(--color-danger-rose-soft)]/80'
+              : 'text-[var(--color-text-muted)] hover:bg-[var(--color-surface-low)] hover:text-[var(--color-text-secondary)]'
+          "
+          :disabled="livePending"
+          :aria-label="t('snapshot.emas.refreshAria')"
+          @click="refreshLive"
+        >
+          <RotateCw :size="12" :class="livePending ? 'animate-spin' : ''" />
+          <span>{{
+            liveError ? t('snapshot.emas.refreshError') : t('snapshot.emas.refresh')
+          }}</span>
+        </button>
+      </div>
       <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
         {{ t('snapshot.emas.help') }}
       </p>
