@@ -126,9 +126,11 @@ export function projectCompletion(args: {
   const { current, monthlyInflow, target } = args
   const annualReturnReal = args.annualReturnReal ?? 0.05
   const today = args.today ?? new Date()
-  if (target <= 0 || current >= target) {
-    return { months: 0, date: toIsoDate(today) }
-  }
+  // target ≤ 0 = invalid/missing target (e.g., FI goal but user hasn't filled pengeluaran).
+  // Treat as unreachable — surfaces 'off' status + null projection date downstream. UI
+  // layer overrides the generic copy for the FI-specific case.
+  if (target <= 0) return { months: Infinity, date: null }
+  if (current >= target) return { months: 0, date: toIsoDate(today) }
   const r = Math.pow(1 + annualReturnReal, 1 / 12) - 1
   let months: number
   if (Math.abs(r) < 1e-9) {

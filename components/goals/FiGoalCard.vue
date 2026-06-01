@@ -77,6 +77,10 @@ const ZONE_CLASS: Record<GoalStatus, { pill: string; fill: string }> = {
 
 function diffMessage(): string {
   const proj = progress.value.projection
+  // FI-specific: pengeluaran=0 → fiNumber=0 → projection.date=null. Generic "unreachable"
+  // copy would mislead ("alokasi sekarang" — but the real issue is missing snapshot data).
+  // Surface the specific hint so the user knows where to go (Snapshot, not /app/goals).
+  if (progress.value.targetIdr <= 0) return t('goal.fi.needsPengeluaran')
   if (proj.date === null) return t('goal.projection.unreachable')
   if (proj.months === 0) return t('goal.projection.complete')
   if (props.goal.targetDate === '') return t('goal.projection.date', { date: proj.date })
@@ -127,6 +131,7 @@ function remove() {
       <input
         type="text"
         :value="goal.label"
+        :aria-label="t('goals.form.labelLabel')"
         class="h-10 flex-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm font-semibold text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
         @input="onLabel"
       >

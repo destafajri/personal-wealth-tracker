@@ -111,6 +111,7 @@ function remove() {
       <input
         type="text"
         :value="goal.label"
+        :aria-label="t('goals.form.labelLabel')"
         class="h-10 flex-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm font-semibold text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
         @input="onLabel"
       >

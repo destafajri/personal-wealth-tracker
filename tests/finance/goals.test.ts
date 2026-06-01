@@ -173,6 +173,20 @@ describe('projectCompletion', () => {
     expect(r5.months).toBeGreaterThan(0)
   })
 
+  it('target ≤ 0 → unreachable (no false "tercapai")', () => {
+    // Codex round-11: FI with empty pengeluaran resolves target to 0; the old code path
+    // short-circuited that to {months:0, date:today} → status='on' → inflated Goal Health
+    // to 100%. Split target<=0 (invalid) from current>=target (complete).
+    const r = projectCompletion({
+      current: 0,
+      monthlyInflow: 1_000_000,
+      target: 0,
+      today,
+    })
+    expect(r.months).toBe(Infinity)
+    expect(r.date).toBeNull()
+  })
+
   it('returns null when current=0 + monthlyInflow≤0 (unreachable)', () => {
     const r = projectCompletion({
       current: 0,
@@ -243,6 +257,29 @@ describe('goalProgress + calcGoalHealth', () => {
     expect(p.targetIdr).toBe(500_000_000)
     expect(p.percent).toBeCloseTo(18, 0)
     expect(p.monthlyInflow).toBe(15_000_000) // surplus 15jt / 1 goal
+  })
+
+  it('FI with zero pengeluaran does NOT inflate Goal Health (Codex round-11 fix)', () => {
+    const s = baseSnap() // pengeluaran=0 → fiNumber=0 → projection unreachable → off
+    const fi: Goal = {
+      id: 'g',
+      kind: 'FI',
+      label: 'FI',
+      targetIdr: 0,
+      targetDate: '2045-01-01',
+      buckets: ['kas'],
+    }
+    const p = goalProgress(fi, s, {
+      fiMultiplier: 300,
+      annualReturnReal: 0.05,
+      activeGoalsCount: 1,
+      today,
+    })
+    expect(p.targetIdr).toBe(0)
+    expect(p.projection.date).toBeNull()
+    expect(p.status).toBe('off')
+    // Single goal off-track → 0% (was 100% pre-fix due to target<=0 short-circuit).
+    expect(calcGoalHealth([fi], s, { fiMultiplier: 300, annualReturnReal: 0.05 })).toBe(0)
   })
 
   it('calcGoalHealth: null when no goals; percent when mixed', () => {

@@ -348,6 +348,8 @@ export const copy = {
   'goal.fi.formula':
     'Asumsi: Pengeluaran bulanan {monthly} × {multiplier} = {fiNumber}',
   'goal.fi.formulaNote': 'Multiplier fixed 300 (4% rule, Trinity baseline).',
+  'goal.fi.needsPengeluaran':
+    'Isi pengeluaran di Snapshot dulu — FI Number butuh data itu.',
   'goal.remove': 'Hapus goal',
   'goal.edit.targetIdr': 'Target (Rp)',
   'goal.edit.targetDate': 'Target tanggal',
