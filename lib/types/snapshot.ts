@@ -37,10 +37,13 @@ export interface StockHolding {
   ticker: string // e.g., "BBCA"
   lot: number
   hargaRataRata: number // IDR / lembar (cost basis)
-  bobotTargetPercent?: number // 0–100; missing = no target set (drives Allocation Discipline)
-  // Lots target 100% — user's accumulation goal (e.g., "kumpulkan 450 lot"). Drives the
-  // per-card progress bar only; not fed into any metric. Independent from bobotTargetPercent
-  // (top-down % allocation) vs lotsTarget (bottom-up share count).
+  // Optional top-down % allocation target. Currently NOT fed into any metric — Allocation
+  // Discipline derives target bobot from `lotsTarget × price` instead. Kept on the type as
+  // a deliberate escape hatch for a future "set target by %" UI; safe to ignore today.
+  bobotTargetPercent?: number // 0–100
+  // Lots target — user's accumulation goal (e.g., "kumpulkan 450 lot"). Drives both the
+  // per-card progress bar AND Allocation Discipline (target bobot = lotsTarget × price ÷
+  // Σ lotsTarget × price across emitens). Independent from bobotTargetPercent above.
   lotsTarget?: number
   // Manual price override (IDR / lembar). When set, valuation uses this instead of the
   // live IDX price — escape hatch when the live feed is stale, wrong, or missing.
