@@ -285,6 +285,9 @@ export function calcSafeHaven(snap: SnapshotState, prices?: PricesView): number 
 // bases are comparable. Rows without lots target are excluded (no baseline to drift
 // against). Same `effectiveStockPrice` (override > live > cost basis) feeds both
 // live_idr and target_idr — so a price override flows symmetrically into the metric.
+// Universe size <2 returns null: composition drift is undefined with a single member
+// (live & target bobot both 100% by definition), so reporting "0pp Tight" would be
+// misleadingly green. UI surfaces an empty-state hint instead.
 export function calcAllocationDiscipline(
   stocks: StockHolding[],
   prices?: PricesView,
@@ -299,7 +302,7 @@ export function calcAllocationDiscipline(
         targetIdr: s.lotsTarget! * 100 * price,
       }
     })
-  if (universe.length === 0) return null
+  if (universe.length < 2) return null
   const totalLive = universe.reduce((sum, v) => sum + v.liveIdr, 0)
   const totalTarget = universe.reduce((sum, v) => sum + v.targetIdr, 0)
   if (totalLive <= 0 || totalTarget <= 0) return null

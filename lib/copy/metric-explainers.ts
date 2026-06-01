@@ -187,7 +187,7 @@ export const metricExplainers: Record<ExplainerKey, ExplainerSpec> = {
   allocationDiscipline: {
     title: 'Allocation Discipline',
     definition:
-      'Rata-rata seberapa jauh komposisi saham kamu menyimpang dari komposisi yang implied dari lots target. Satuannya percentage point (pp).',
+      'Rata-rata seberapa miring komposisi (mix) portofolio saham kamu dibanding komposisi yang implied dari lots target. Mengukur disiplin rebalancing, BUKAN progress akumulasi (yang ada di progress bar per kartu). Satuannya percentage point (pp).',
     formula:
       'Allocation Discipline = (1/n) × Σ |Bobot Live − Bobot Target| · Bobot Target di-derive dari (lots target × harga) tiap saham',
     zones: [
@@ -207,7 +207,7 @@ export const metricExplainers: Record<ExplainerKey, ExplainerSpec> = {
         body: 'Jauh dari target. Bisa di-rebalance, atau review lots target-nya kalau prioritas portfolio udah berubah.',
       },
     ],
-    note: 'Metric ini cuma jalan kalau ada minimal 1 saham dengan lots target terisi. Bobot target bergeser kalau harga bergerak — itu by design buat akumulator (lots target tetap, bobot adaptif).',
+    note: 'Butuh ≥2 saham dengan lots target — composition drift gak meaningful dengan universe 1. Edge case yang sering bikin bingung: kalau semua emiten kurang lot-nya secara proporsional sama (mis. BBCA 10/100 + BBRI 10/100 lot), mix-nya tetap match target → drift 0pp. Buat lihat progress akumulasi per emiten, pakai lots progress bar di kartu saham. Bobot target juga bergeser kalau harga bergerak — by design buat akumulator (lots target tetap, bobot adaptif).',
   },
 
   rasioTertahan: {

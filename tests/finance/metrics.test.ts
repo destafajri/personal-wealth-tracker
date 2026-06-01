@@ -613,14 +613,27 @@ describe('calcAllocationDiscipline', () => {
     expect(calcAllocationDiscipline(stocks)).toBeCloseTo(10, 6)
   })
 
-  it('excludes rows without lots target from the universe', () => {
-    // BBCA in universe (lots = target), BBRI out (no target).
-    // Universe collapses to BBCA only → live_bobot = target_bobot = 100% → drift 0.
+  it('returns null when only one stock has lots target (universe of 1 is not meaningful)', () => {
+    // BBCA in universe (lots = target), BBRI excluded (no target).
+    // Universe collapses to 1 member → composition drift is undefined (single-member
+    // bobot is always 100% by definition). Return null so the UI shows the empty-state
+    // hint instead of a misleading "0pp Tight" green.
     const stocks = [
       { id: '1', ticker: 'BBCA', lot: 50, hargaRataRata: 10_000, lotsTarget: 50 },
       { id: '2', ticker: 'BBRI', lot: 50, hargaRataRata: 10_000 },
     ]
-    expect(calcAllocationDiscipline(stocks)).toBeCloseTo(0, 6)
+    expect(calcAllocationDiscipline(stocks)).toBeNull()
+  })
+
+  it('excludes rows without lots target while keeping ≥2 in universe', () => {
+    // BBCA + BBRI in universe (both have target), TLKM excluded (no target).
+    // Universe size 2, math same as the canonical 2-stock case.
+    const stocks = [
+      { id: '1', ticker: 'BBCA', lot: 50, hargaRataRata: 10_000, lotsTarget: 60 },
+      { id: '2', ticker: 'BBRI', lot: 50, hargaRataRata: 10_000, lotsTarget: 40 },
+      { id: '3', ticker: 'TLKM', lot: 50, hargaRataRata: 10_000 },
+    ]
+    expect(calcAllocationDiscipline(stocks)).toBeCloseTo(10, 6)
   })
 
   it('hargaOverride feeds calcNetWorth (not just Allocation Discipline)', () => {

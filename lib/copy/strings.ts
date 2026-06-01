@@ -199,7 +199,8 @@ export const copy = {
   'metric.empty.runway': 'Isi pengeluaran dulu.',
   'metric.empty.savingsRate': 'Isi penghasilan dulu.',
   'metric.empty.safeHaven': 'Isi aset dulu.',
-  'metric.empty.allocationDiscipline': 'Set lots target di expanded view saham.',
+  'metric.empty.allocationDiscipline':
+    'Butuh ≥2 saham dengan lots target di expanded view buat lihat disiplin alokasi.',
 
   'pill.live': 'LIVE',
   'pill.estimasi': 'ESTIMASI',
