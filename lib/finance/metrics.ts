@@ -97,10 +97,15 @@ export function sumStockIdr(stocks: StockHolding[], prices?: PricesView): number
   )
 }
 
-// Public so D9 ModalSiap include-toggle can pull emas valuation (totalGoldIdr) without
-// re-importing the breakdown helper. Mirrors sumStockIdr's exposure.
+// Public so D9 ModalSiap include-toggle can pull emas valuation. Returns CADANGAN
+// only (at-home grams) — pawned gold can't be deployed without tebus utang gadai
+// first, so counting it in Modal Siap would double-count against the gadai cash
+// already booked under kas/deposito. Mirrors Runway's cadangan-only stance for the
+// same liquidatability reason. Net Worth + Safe Haven keep using totalGoldIdr via
+// the private sumGoldIdr helper (correct: pawned gold is still owned, offset on the
+// utang side via piutangIdr).
 export function sumEmasIdr(snap: SnapshotState, prices?: PricesView): number {
-  return sumGoldIdr(snap, prices)
+  return cadanganGoldIdr(snap, prices)
 }
 
 // SBN row total (IDR-converted). Exposed for D9 ModalSiap include-toggle so callers
@@ -201,8 +206,10 @@ export function calcNetWorth(snap: SnapshotState, prices?: PricesView): number {
 // darurat 3–6 bulan terpisah."
 //
 // Day 9 extension: optional `includes` object lets the dashboard user pull additional
-// asset classes (saham/emas/sbn) into the Modal Siap headline at FULL live valuation —
-// realisasi cair perlu user pahami sendiri (spread/bea jual surfaces as inline disclaimer
+// asset classes into the Modal Siap headline. Saham + SBN pulled at FULL live valuation;
+// emas pulled at CADANGAN-only (excludes pawned grams — pawned gold can't be deployed
+// without tebus utang gadai first, and the gadai cash is already booked under kas).
+// Realisasi cair perlu user pahami sendiri (spread/bea jual surfaces as inline disclaimer
 // on HeroPair). When includes is omitted the formula stays the PRD §11.4 baseline so
 // non-toggle callers (wizards, options preview before D9.10 wiring) don't accidentally
 // inflate Modal Siap. Wizard delta tables MUST pass includes through so Sebelum/Sesudah

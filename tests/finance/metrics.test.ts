@@ -284,6 +284,34 @@ describe('calcModalSiap (D0.3: advisory only, no auto-subtract)', () => {
     }
     expect(calcModalSiap(s, prices)).toBe(0)
   })
+
+  it('includes.emas counts cadangan only (excludes pawned grams)', () => {
+    // Codex round-18: pawned gold is collateralized — counting it in Modal Siap
+    // would double-count against the gadai cash already booked under kas. Pin: with
+    // includes.emas ON, gadai 20g of 50g digital → only 30g (cadangan) added.
+    const s = baseSnap()
+    s.emas.digitalGram = 50
+    s.gadai.push({
+      id: 'g1',
+      label: 'Old gadai',
+      jaminan: 'emas:digital',
+      gramTertahan: 20,
+      piutangIdr: 10_000_000,
+      bungaPerBulanPercent: 1.5,
+      tempoBulan: 4,
+    })
+    s.asetLikuid.kas.push(row(10_000_000)) // gadai cash already in kas
+    const prices = {
+      goldDigitalIdrPerGram: 1_000_000,
+      goldAntam1gIdr: null,
+      fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {},
+    }
+    // baseline kas = 10jt; cadangan emas (30g × 1jt) = 30jt; total = 40jt.
+    // If sumEmasIdr were total (50g × 1jt = 50jt), result would be 60jt — that's the bug.
+    expect(calcModalSiap(s, prices, { saham: false, emas: true, sbn: false })).toBe(40_000_000)
+  })
 })
 
 describe('calcDsr (per-metric empty rule)', () => {
