@@ -297,8 +297,8 @@ export const copy = {
   'chart.safeHaven.empty': 'Belum ada aset untuk dipetakan.',
   'chart.safeHaven.safe': 'Safe Haven',
   'chart.safeHaven.growth': 'Growth',
-  'chart.safeHaven.safeDesc': 'Kas + Deposito + Reksa Dana + Emas',
-  'chart.safeHaven.growthDesc': 'Saham + Crypto + Aset Non-Likuid',
+  'chart.safeHaven.safeDesc': 'Kas + Deposito + SBN + RD defensif (RDPU/RDPT) + Emas',
+  'chart.safeHaven.growthDesc': 'Saham + Crypto + RD agresif (saham/indeks/campuran/lain) + Aset Non-Likuid',
   'chart.loading': 'Memuat chart…',
 
   'error.generic.title': 'Ada yang gak beres',

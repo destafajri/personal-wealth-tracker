@@ -29,6 +29,7 @@ import type {
   SnapshotState,
 } from '~/lib/types/snapshot'
 import type { WizardResult } from '~/lib/types/wizard'
+import type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 export interface GadaiInput {
   label: string
@@ -86,13 +87,14 @@ export function runMauGadai(
     fiMultiplier: number
     assumedAnnualReturnReal: number
     today?: Date
+    includes?: ModalSiapIncludes
   },
 ): WizardResult {
   const { prices } = opts
   const scenarioSnapshot = cloneSnapshot(snap)
   applyGadaiToScenario(scenarioSnapshot, input)
 
-  const delta = computeStandardDelta(snap, scenarioSnapshot, prices)
+  const delta = computeStandardDelta(snap, scenarioSnapshot, prices, opts.includes)
   const goalImpact = computeGoalImpact(goals, snap, scenarioSnapshot, opts)
 
   const warnings: string[] = []

@@ -4,7 +4,7 @@ import {
   runDeployPreview,
   type DeployAction,
 } from '~/lib/finance/wizards/deploy-preview'
-import { calcNetWorth, type ModalSiapIncludes } from '~/lib/finance/metrics'
+import { calcModalSiap, calcNetWorth, type ModalSiapIncludes } from '~/lib/finance/metrics'
 import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
 
 const OPTS = {
@@ -251,5 +251,51 @@ describe('runDeployPreview — drain priority', () => {
     const bbca = r.scenarioSnapshot.saham.find((s) => s.id === 's2')!
     expect(bbri.lot).toBe(30) // unchanged-by-drain + added
     expect(bbca.lot).toBeLessThan(20) // drained
+  })
+})
+
+describe('runDeployPreview — delta Modal Siap honors includes', () => {
+  // Codex round-17: computeStandardDelta was using baseline calcModalSiap regardless
+  // of input.includes, so wizard Sebelum/Sesudah drifted from the dashboard headline
+  // whenever user toggled saham/emas/sbn ON. These two cases pin the contract.
+
+  it('Sebelum Modal Siap matches headline when saham toggled IN', () => {
+    const s = baseSnap()
+    s.asetLikuid.kas.push({ id: 'k1', label: 'BCA', amount: 10_000_000 })
+    s.saham.push({ id: 's1', ticker: 'BBRI', lot: 0, hargaRataRata: 5_000, lotsTarget: 100 })
+    s.saham.push({ id: 's2', ticker: 'BBCA', lot: 20, hargaRataRata: 10_000 }) // 20jt
+    const includes: ModalSiapIncludes = { saham: true, emas: false, sbn: false }
+    // Dashboard headline = baseline 10jt + saham 20jt = 30jt
+    const headline = calcModalSiap(s, undefined, includes)
+    const action: DeployAction = {
+      kind: 'addStockLots',
+      stockId: 's1',
+      stockTicker: 'BBRI',
+      lotsToAdd: 30,
+      costIdr: 15_000_000,
+    }
+    const r = runDeployPreview({ action, includes }, s, [], OPTS)
+    const modalRow = r.delta.find((row) => row.metricKey === 'modalSiap')!
+    expect(modalRow.before.value).toBe(headline)
+  })
+
+  it('Sesudah Modal Siap matches scenario headline (zero-sum saham→deposito = 0 delta)', () => {
+    const s = baseSnap()
+    s.saham.push({ id: 's1', ticker: 'BBCA', lot: 20, hargaRataRata: 10_000 }) // 20jt
+    const includes: ModalSiapIncludes = { saham: true, emas: false, sbn: false }
+    // Drain saham to fund deposito. Saham IN → both sides of the move are inside Modal
+    // Siap → delta MUST be 0 (zero-sum). Pre-fix this read as +5jt because baseline-only
+    // delta saw deposito grow but missed the offsetting saham reduction.
+    const action: DeployAction = {
+      kind: 'addLiquidRow',
+      category: 'deposito',
+      label: 'Mandiri',
+      amountIdr: 5_000_000,
+    }
+    const r = runDeployPreview({ action, includes }, s, [], OPTS)
+    const modalRow = r.delta.find((row) => row.metricKey === 'modalSiap')!
+    expect(modalRow.before.value).not.toBeNull()
+    expect(modalRow.after.value).not.toBeNull()
+    expect(Math.abs((modalRow.after.value as number) - (modalRow.before.value as number))).toBeLessThan(1)
   })
 })

@@ -27,6 +27,7 @@ import type {
   SnapshotState,
 } from '~/lib/types/snapshot'
 import type { WizardResult } from '~/lib/types/wizard'
+import type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 // KPR excluded — has its own wizard. KK is technically Revolving but we keep it under
 // this wizard with Anuitas/Flat options (user can switch later in Cicilan Aktif panel).
@@ -120,6 +121,7 @@ export function runMauCicil(
     fiMultiplier: number
     assumedAnnualReturnReal: number
     today?: Date
+    includes?: ModalSiapIncludes
   },
 ): WizardResult {
   const { prices } = opts
@@ -132,7 +134,7 @@ export function runMauCicil(
     prices?.fxRates,
   )
 
-  const delta = computeStandardDelta(snap, scenarioSnapshot, prices)
+  const delta = computeStandardDelta(snap, scenarioSnapshot, prices, opts.includes)
   const goalImpact = computeGoalImpact(goals, snap, scenarioSnapshot, opts)
 
   const warnings: string[] = []

@@ -27,6 +27,7 @@ import type {
   SnapshotState,
 } from '~/lib/types/snapshot'
 import type { WizardResult } from '~/lib/types/wizard'
+import type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 export type AnyAssetCategory = LiquidAssetCategory | NonLiquidAssetCategory
 
@@ -96,13 +97,14 @@ export function runCustom(
     fiMultiplier: number
     assumedAnnualReturnReal: number
     today?: Date
+    includes?: ModalSiapIncludes
   },
 ): WizardResult {
   const { prices } = opts
   const scenarioSnapshot = cloneSnapshot(snap)
   applyCustomToScenario(scenarioSnapshot, input)
 
-  const delta = computeStandardDelta(snap, scenarioSnapshot, prices)
+  const delta = computeStandardDelta(snap, scenarioSnapshot, prices, opts.includes)
   const goalImpact = computeGoalImpact(goals, snap, scenarioSnapshot, opts)
 
   return {

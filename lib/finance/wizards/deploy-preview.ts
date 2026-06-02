@@ -337,7 +337,7 @@ export function runDeployPreview(
   // Add destination (clamped to what was actually sourced — preserves Net Worth invariance).
   applyDestination(scenarioSnapshot, input.action, actualIdr, prices)
 
-  const delta = computeStandardDelta(snap, scenarioSnapshot, prices)
+  const delta = computeStandardDelta(snap, scenarioSnapshot, prices, input.includes)
   const goalImpact = computeGoalImpact(goals, snap, scenarioSnapshot, opts)
 
   const warnings: string[] = []

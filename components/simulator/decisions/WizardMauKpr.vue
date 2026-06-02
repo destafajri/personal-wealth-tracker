@@ -87,6 +87,7 @@ function submit() {
     prices: derived.priceView ?? undefined,
     fiMultiplier: FI_MULTIPLIER,
     assumedAnnualReturnReal: goalsStore.assumedAnnualReturnReal,
+    includes: derived.modalSiapIncludes,
   })
   simulator.setResult(r)
 }

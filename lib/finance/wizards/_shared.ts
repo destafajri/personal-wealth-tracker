@@ -13,6 +13,7 @@ import {
   calcRunway,
   calcSafeHaven,
   calcSavingsRate,
+  type ModalSiapIncludes,
 } from '~/lib/finance/metrics'
 import { zoneOf, type MetricKey } from '~/lib/finance/thresholds'
 import { idr } from '~/lib/format/idr'
@@ -153,15 +154,21 @@ function deltaMonths(before: number | null, after: number | null): string {
 // Returns the 7-metric delta block used by every decision + capacity wizard. Each
 // wizard can post-process if it needs custom rows; for KPR/Gadai/Cicil/Custom the
 // block is identical.
+//
+// `includes` mirrors the dashboard's Modal Siap toggle (saham/emas/sbn) so Sebelum
+// matches the headline the user just saw on HeroPair. Omitting it falls back to
+// baseline (kas+depo+RD+crypto); callers that don't have the user's toggle state
+// in scope can skip it, but production wizard components SHOULD pass it.
 export function computeStandardDelta(
   before: SnapshotState,
   after: SnapshotState,
   prices?: PricesView,
+  includes?: ModalSiapIncludes,
 ): DeltaRow[] {
   const bNW = calcNetWorth(before, prices)
   const aNW = calcNetWorth(after, prices)
-  const bMS = calcModalSiap(before, prices)
-  const aMS = calcModalSiap(after, prices)
+  const bMS = calcModalSiap(before, prices, includes)
+  const aMS = calcModalSiap(after, prices, includes)
   const bDsr = calcDsr(before, prices)
   const aDsr = calcDsr(after, prices)
   const bDar = calcDar(before, prices)
