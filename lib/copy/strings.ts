@@ -388,7 +388,7 @@ export const copy = {
   'simulator.card.lunasi.label': 'Lunasi Utang',
   'simulator.card.lunasi.body': 'Simulasi pelunasan dari modal likuid.',
   'simulator.card.modalOptions.label': 'Modal Options',
-  'simulator.card.modalOptions.body': 'Opsi deployment modal likuid.',
+  'simulator.card.modalOptions.body': 'Opsi distribusi modal likuid.',
   'simulator.card.soon': 'Soon',
 
   'wizard.host.close': 'Tutup wizard',
@@ -580,7 +580,7 @@ export const copy = {
   // Headers + framing. NEVER "Rekomendasi" / "Pilihan terbaik" (OJK §11.1, PRD §9).
   'modal.options.title': 'Opsi yang Bisa Dihitungkan',
   'modal.options.subtitle':
-    'Daftar opsi deployment Modal Siap kamu. Bukan ranking — pilih sesuai prioritas kamu sendiri.',
+    'Daftar opsi distribusi Modal Siap kamu. Bukan ranking — pilih sesuai prioritas kamu sendiri.',
   'modal.options.modalSiapLabel': 'Modal Siap Distribusi: {amount}',
   'modal.options.empty':
     'Modal Siap kamu Rp 0. Tambah likuid (kas / deposito / RD / crypto) dulu biar opsi muncul.',
