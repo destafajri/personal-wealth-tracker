@@ -17,6 +17,9 @@ export default defineNuxtConfig({
   vite: {
     // @tailwindcss/vite ships Vite 7 types while Nuxt 3.21 graph uses Vite 5 — cast to bridge
     plugins: [tailwindcss() as never],
+    server: {
+      allowedHosts: ['.ngrok-free.app'],
+    },
   },
 
   nitro: {
