@@ -17,7 +17,7 @@
 // Emas drain order within: digital → fisikAntam → perhiasan18K → 14K → 10K (lowest
 // spread first). Saham drain: proportional across other emitens by current IDR value.
 
-import { ratePerGram, EMAS_CATEGORIES } from '~/lib/finance/emas'
+import { pawnedGramOf, ratePerGram, EMAS_CATEGORIES } from '~/lib/finance/emas'
 import { rateToIdr } from '~/lib/finance/fx'
 import { goalProgress } from '~/lib/finance/goals'
 import {
@@ -124,6 +124,10 @@ function drainCrypto(
 
 // Drain emas grams across categories in lowest-spread-first order. Each gram in a
 // category equals ratePerGram(cat, prices) IDR. Mutates snap.emas in place.
+//
+// Cap by CADANGAN (totalGrams − pawnedGramOf) so scenario can't "sell" gram yang
+// lagi digadai — pawned gold is collateralized and not liquidatable without tebus.
+// This mirrors the cadangan-only treatment of `sumEmasIdr` in Modal Siap (round-18).
 function drainEmas(
   snap: SnapshotState,
   remainingIdr: number,
@@ -144,12 +148,13 @@ function drainEmas(
             : cat === 'perhiasan14K'
               ? 'perhiasan14KGram'
               : 'perhiasan10KGram'
-    const grams = snap.emas[field] || 0
-    if (grams <= 0) continue
-    const availIdr = grams * rate
+    const totalGrams = snap.emas[field] || 0
+    const cadanganGrams = Math.max(0, totalGrams - pawnedGramOf(snap, cat))
+    if (cadanganGrams <= 0) continue
+    const availIdr = cadanganGrams * rate
     if (availIdr <= 0) continue
     const takeIdr = Math.min(availIdr, remainingIdr)
-    snap.emas[field] = grams - takeIdr / rate
+    snap.emas[field] = totalGrams - takeIdr / rate
     remainingIdr -= takeIdr
   }
   return remainingIdr

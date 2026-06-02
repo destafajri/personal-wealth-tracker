@@ -252,6 +252,54 @@ describe('runDeployPreview — drain priority', () => {
     expect(bbri.lot).toBe(30) // unchanged-by-drain + added
     expect(bbca.lot).toBeLessThan(20) // drained
   })
+
+  it('emas drain caps at cadangan (pawned grams stay locked even when emas+saham toggled IN)', () => {
+    // Codex round-19 regression: drainEmas walked total grams, so pawned gold could
+    // be "sold" by scenario. Now: emas drain cap = totalGrams − pawnedGramOf. With
+    // 50g digital + 20g pawned + saham fallback, request 35jt (> 30jt cadangan emas)
+    // must spill into saham, not nibble pawned grams.
+    const s = baseSnap()
+    s.emas.digitalGram = 50
+    s.gadai.push({
+      id: 'g1',
+      label: 'Old gadai',
+      jaminan: 'emas:digital',
+      gramTertahan: 20,
+      piutangIdr: 10_000_000,
+      bungaPerBulanPercent: 1.5,
+      tempoBulan: 4,
+    })
+    s.saham.push({ id: 's1', ticker: 'BBRI', lot: 0, hargaRataRata: 5_000, lotsTarget: 100 })
+    s.saham.push({ id: 's2', ticker: 'BBCA', lot: 20, hargaRataRata: 10_000 }) // 20jt
+    const prices = {
+      goldDigitalIdrPerGram: 1_000_000,
+      goldAntam1gIdr: null,
+      fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {},
+    }
+    // Buy 70 lots BBRI = 35jt. Drain order: liquid (0) → crypto (0) → SBN (off) →
+    // emas (cap 30jt cadangan) → saham (remaining 5jt from BBCA).
+    const action: DeployAction = {
+      kind: 'addStockLots',
+      stockId: 's1',
+      stockTicker: 'BBRI',
+      lotsToAdd: 70,
+      costIdr: 35_000_000,
+    }
+    const r = runDeployPreview(
+      { action, includes: ALL_INCLUDES },
+      s,
+      [],
+      { ...OPTS, prices: prices as never },
+    )
+    // Total grams reduced by 30g (cadangan) → 20g left, exactly matching pawned amount.
+    // BUG path would leave grams < 20 (pawned), violating ownership invariant.
+    expect(r.scenarioSnapshot.emas.digitalGram).toBeCloseTo(20, 4)
+    // BBCA picks up the 5jt remainder: 20jt − 5jt = 15jt → 15 lots.
+    const bbca = r.scenarioSnapshot.saham.find((x) => x.id === 's2')!
+    expect(bbca.lot).toBeCloseTo(15, 1)
+  })
 })
 
 describe('runDeployPreview — delta Modal Siap honors includes', () => {
