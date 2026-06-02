@@ -2,7 +2,7 @@
 // "Lunasi Utang Sekarang" capacity wizard UI. Single debt picker + payment input +
 // (Anuitas/Flat only) mode toggle. Debt list aggregates Cicilan Aktif + Utang Pribadi
 // + Gadai sorted by jatuh_tempo asc / insertion order (NEVER by rate — OJK §11.1).
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import InputCurrency from '~/components/common/InputCurrency.vue'
@@ -94,6 +94,21 @@ const selected = computed<DebtListItem | null>(() => {
 // Auto-default payment to sisa pokok when user picks a debt.
 watch(selected, (next) => {
   if (next) paymentIdr.value = next.sisaPokok
+})
+
+// Day 9 — Modal Options handoff prefills source/id/payment/mode so user lands on the
+// scenario directly. Read-and-clear so subsequent re-opens with no prefill don't
+// re-apply stale state.
+onMounted(() => {
+  const p = simulator.consumePrefill('lunasi')
+  if (!p) return
+  const target = allDebts.value.find(
+    (d) => d.source === p.input.source && d.id === p.input.id,
+  )
+  if (!target) return
+  selectedKey.value = target.key
+  paymentIdr.value = p.input.paymentIdr
+  if (p.input.modeAnuitas) modeAnuitas.value = p.input.modeAnuitas
 })
 
 const isAnuitasOrFlat = computed(

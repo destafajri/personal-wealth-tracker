@@ -4,6 +4,7 @@
 // so users can quickly add multiple goals of the same type.
 import { computed, ref, watch } from 'vue'
 import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
+import DisclaimerBanner from '~/components/common/DisclaimerBanner.vue'
 import InputCurrency from '~/components/common/InputCurrency.vue'
 import { t, type CopyKey } from '~/lib/copy/strings'
 import { useGoalsStore } from '~/stores/goals'
@@ -196,7 +197,12 @@ function submit() {
       </div>
     </div>
 
-    <div class="mt-5 flex flex-col items-start gap-2">
+    <DisclaimerBanner
+      class="mt-5"
+      :message="t('banner.goal.disclaimer')"
+    />
+
+    <div class="mt-3 flex flex-col items-start gap-2">
       <ButtonPrimary
         type="button"
         :disabled="submitDisabled"

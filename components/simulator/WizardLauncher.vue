@@ -37,7 +37,7 @@ const decisions: LauncherCard[] = [
 const capacity: LauncherCard[] = [
   { key: 'max-utang', labelKey: 'simulator.card.maxUtang.label', bodyKey: 'simulator.card.maxUtang.body', icon: Coins, enabled: true },
   { key: 'lunasi', labelKey: 'simulator.card.lunasi.label', bodyKey: 'simulator.card.lunasi.body', icon: PiggyBank, enabled: true },
-  { key: 'modal-options', labelKey: 'simulator.card.modalOptions.label', bodyKey: 'simulator.card.modalOptions.body', icon: Compass, enabled: false },
+  { key: 'modal-options', labelKey: 'simulator.card.modalOptions.label', bodyKey: 'simulator.card.modalOptions.body', icon: Compass, enabled: true },
 ]
 </script>
 

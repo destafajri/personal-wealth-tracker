@@ -3,6 +3,7 @@ import { X } from 'lucide-vue-next'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { metricExplainers, type ZoneLabel } from '~/lib/copy/metric-explainers'
 import { useMetricExplainer } from '~/composables/useMetricExplainer'
+import { t } from '~/lib/copy/strings'
 
 const { active, isOpen, close } = useMetricExplainer()
 const panelRef = ref<HTMLElement | null>(null)
@@ -136,7 +137,7 @@ onBeforeUnmount(() => {
             </h2>
             <button
               type="button"
-              aria-label="Tutup"
+              :aria-label="t('metric.explainer.modal.close')"
               class="rounded p-1 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-low)] hover:text-[var(--color-text-primary)]"
               @click="close"
             >
@@ -166,7 +167,7 @@ onBeforeUnmount(() => {
               <div
                 class="text-[10px] font-medium uppercase tracking-wide text-[var(--color-text-muted)]"
               >
-                Arti zona
+                {{ t('metric.explainer.modal.zonesTitle') }}
               </div>
               <ul class="space-y-2">
                 <li

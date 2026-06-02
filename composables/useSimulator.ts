@@ -8,6 +8,7 @@
 
 import { computed, ref } from 'vue'
 import type { AnyWizardResult, WizardKey } from '~/lib/types/wizard'
+import type { LunasiInput } from '~/lib/finance/wizards/lunasi-utang'
 
 const activeKey = ref<WizardKey | null>(null)
 // AnyWizardResult = WizardResult (decision wizards) | CapacityResult (Day 8 Max Utang,
@@ -15,21 +16,31 @@ const activeKey = ref<WizardKey | null>(null)
 const currentResult = ref<AnyWizardResult | null>(null)
 const previouslyFocused = ref<HTMLElement | null>(null)
 
+// Prefill payload — set by callers that want to seed a wizard's form (Day 9 Modal Options
+// handoff). Wizard component reads + clears on mount; missing payload = blank form.
+// Discriminated union keyed by wizardKey so each wizard claims its own shape; adding a
+// new wizard with prefill = add an arm here + read it in the wizard's onMounted.
+export type WizardPrefill =
+  | { wizardKey: 'lunasi'; input: LunasiInput }
+const pendingPrefill = ref<WizardPrefill | null>(null)
+
 export function useSimulator() {
   const isOpen = computed(() => activeKey.value !== null)
 
-  function open(key: WizardKey) {
+  function open(key: WizardKey, prefill?: WizardPrefill) {
     if (typeof document !== 'undefined') {
       const el = document.activeElement
       previouslyFocused.value = el instanceof HTMLElement ? el : null
     }
     activeKey.value = key
     currentResult.value = null
+    pendingPrefill.value = prefill ?? null
   }
 
   function close() {
     activeKey.value = null
     currentResult.value = null
+    pendingPrefill.value = null
     const target = previouslyFocused.value
     previouslyFocused.value = null
     if (target && typeof document !== 'undefined') target.focus()
@@ -39,5 +50,22 @@ export function useSimulator() {
     currentResult.value = r
   }
 
-  return { activeKey, currentResult, isOpen, open, close, setResult }
+  // Read-and-clear pattern: wizard calls this once in onMounted; subsequent reads return
+  // null so a stale prefill doesn't leak across re-opens with no payload.
+  function consumePrefill(forKey: WizardKey): WizardPrefill | null {
+    const p = pendingPrefill.value
+    if (!p || p.wizardKey !== forKey) return null
+    pendingPrefill.value = null
+    return p
+  }
+
+  return {
+    activeKey,
+    currentResult,
+    isOpen,
+    open,
+    close,
+    setResult,
+    consumePrefill,
+  }
 }

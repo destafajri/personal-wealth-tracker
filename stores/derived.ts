@@ -21,6 +21,7 @@ import {
 } from '~/lib/finance/metrics'
 import { calcGoalHealth, goalProgress, surplus } from '~/lib/finance/goals'
 import { breakdownGoldIdr } from '~/lib/finance/emas'
+import { runModalOptions } from '~/lib/finance/wizards/modal-options'
 import type { Goal } from '~/lib/types/goals'
 import type { PricesView, SnapshotState } from '~/lib/types/snapshot'
 
@@ -138,6 +139,18 @@ export const useDerivedStore = defineStore('derived', () => {
     })
   }
 
+  // Modal Likuid Options (Day 9). Auto-generated deployable Option[] from Modal Siap.
+  // Recomputes when any snapshot field, goal, or price changes — derived from the same
+  // snapshotState computed everything else reads. NO ranking; canonical order baked into
+  // the pure fn (debt-reduction → asset-acquisition → FI bucket).
+  const modalOptions = computed(() =>
+    runModalOptions(snapshotState.value, goalsStore.goals, {
+      fiMultiplier: FI_MULTIPLIER,
+      assumedAnnualReturnReal: goalsStore.assumedAnnualReturnReal,
+      prices: prices.value,
+    }),
+  )
+
   // No `isEmpty` gate here. The Screen-10 all-empty visual is handled in DashboardPanel
   // by always rendering HeroPair + MetricGrid; each MetricCard renders "—" + hint when
   // its underlying value is null (per-metric rule, D0.5). TopNav.downloadDisabled
@@ -169,5 +182,6 @@ export const useDerivedStore = defineStore('derived', () => {
     bungaDepositoMonthly,
     bungaDepositoAnnual,
     penghasilanMonthlyIdr,
+    modalOptions,
   }
 })

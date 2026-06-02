@@ -133,7 +133,7 @@ const zoneClass = computed(() => {
         {{ t('gadai.rasioTertahan') }}
         <button
           type="button"
-          aria-label="Penjelasan Rasio Tertahan"
+          :aria-label="t('metric.explainer.aria.rasioTertahan')"
           class="inline-flex h-4 w-4 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
           @click="explainer.open('rasioTertahan')"
         >

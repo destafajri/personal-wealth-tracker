@@ -20,7 +20,7 @@ const explainer = useMetricExplainer()
         </h3>
         <button
           type="button"
-          aria-label="Penjelasan Net Worth"
+          :aria-label="t('metric.explainer.aria.netWorth')"
           class="inline-flex h-4 w-4 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
           @click="explainer.open('netWorth')"
         >
@@ -45,7 +45,7 @@ const explainer = useMetricExplainer()
         </h3>
         <button
           type="button"
-          aria-label="Penjelasan Modal Siap"
+          :aria-label="t('metric.explainer.aria.modalSiap')"
           class="inline-flex h-4 w-4 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
           @click="explainer.open('modalSiap')"
         >

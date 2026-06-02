@@ -575,6 +575,74 @@ export const copy = {
   'wizard.lunasi.warning.zeroPayment': 'Isi jumlah bayar yang lebih dari 0.',
   'wizard.lunasi.warning.modalShortfall':
     'Modal Siap kamu gak cukup untuk bayar segini — sebagian aja yang ke-apply. Pertimbangkan partial pay lebih kecil atau tambah likuid dulu.',
+
+  // ----- wizard: Modal Likuid Options (Day 9) -----
+  // Headers + framing. NEVER "Rekomendasi" / "Pilihan terbaik" (OJK §11.1, PRD §9).
+  'modal.options.title': 'Opsi yang Bisa Dihitungkan',
+  'modal.options.subtitle':
+    'Daftar opsi deployment Modal Siap kamu. Bukan ranking — pilih sesuai prioritas kamu sendiri.',
+  'modal.options.modalSiapLabel': 'Modal Siap Distribusi: {amount}',
+  'modal.options.empty':
+    'Modal Siap kamu Rp 0. Tambah likuid (kas / deposito / RD / crypto) dulu biar opsi muncul.',
+  'modal.options.emergencyFundNote':
+    'Catatan: Pertimbangkan keep dana darurat 3–6 bulan pengeluaran terpisah dari Modal Siap Distribusi.',
+  'modal.options.hitung': 'Hitung',
+  'modal.options.hitungAria': 'Hitung opsi: {label}',
+
+  // Confirmation modal copy for asset-acquisition apply path.
+  'modal.options.confirm.title': 'Tambah aset langsung ke snapshot?',
+  'modal.options.confirm.body':
+    'Aksi ini akan menambah baris baru di snapshot kamu. Kamu bisa hapus kapan aja dari panel snapshot.',
+  'modal.options.confirm.confirm': 'Tambahkan',
+  'modal.options.confirm.cancel': 'Batal',
+  'modal.options.applied': 'Aset ditambahkan ke snapshot.',
+
+  // Per-option label/preview templates. Variables defined per row.
+  // Lunasi penuh cicilan
+  'modal.option.lunasiCicilan.label': 'Lunasi {label} ({amount})',
+  'modal.option.lunasiCicilan.preview':
+    'DSR {dsrBefore} → {dsrAfter} ({dsrDelta}); sisa modal {modalSisa}',
+  // Prepay parsial cicilan (Anuitas/Flat saja)
+  'modal.option.prepayCicilan.label': 'Prepay {label} ({amount})',
+  'modal.option.prepayCicilan.preview':
+    'Tenor mundur (cek di wizard Lunasi); sisa modal {modalSisa}',
+  // Utang pribadi
+  'modal.option.lunasiUtangPribadi.label': 'Lunasi {label} ({amount})',
+  'modal.option.lunasiUtangPribadi.preview':
+    'DSR {dsrBefore} → {dsrAfter}; sisa modal {modalSisa}',
+  // Gadai
+  'modal.option.lunasiGadai.label': 'Tebus {label} ({amount})',
+  'modal.option.lunasiGadai.preview':
+    'Aset gadai balik ke snapshot; sisa modal {modalSisa}',
+  // Beli saham (top per-emiten target gap)
+  'modal.option.beliSaham.label': 'Beli {ticker} {lots} lot ({amount})',
+  'modal.option.beliSaham.preview':
+    'Progress to lotsTarget {progressBefore} → {progressAfter}; drift {driftBefore} → {drift}',
+  // Tambah Reksa Dana — preview line varies by FI goal presence
+  'modal.option.tambahReksaDana.label': 'Tambah ke Reksa Dana',
+  'modal.option.tambahReksaDana.preview':
+    '+{amount} → proyeksi Goal FI maju ~{months}',
+  'modal.option.tambahReksaDana.previewNoGoal':
+    '+{amount} ke RD; kontribusi ke aset likuid (belum ada Goal FI, atau projection unreachable)',
+  // Tambah Deposito — same pattern
+  'modal.option.tambahDeposito.label': 'Tambah ke Deposito',
+  'modal.option.tambahDeposito.preview':
+    '+{amount} → proyeksi Goal FI maju ~{months}',
+  'modal.option.tambahDeposito.previewNoGoal':
+    '+{amount} ke Deposito; kontribusi ke aset likuid (belum ada Goal FI, atau projection unreachable)',
+  // Generic label used when constructing the new asset row from a modal option apply.
+  'modal.option.deployLabel': 'Tambahan dari Modal Siap',
+
+  // Day 9 — pre-existing aria-labels migrated from inline strings during ojk-lint sweep.
+  'metric.explainer.aria.netWorth': 'Penjelasan Net Worth',
+  'metric.explainer.aria.modalSiap': 'Penjelasan Modal Siap',
+  'metric.explainer.aria.rasioTertahan': 'Penjelasan Rasio Tertahan',
+  'metric.explainer.modal.close': 'Tutup',
+  'metric.explainer.modal.zonesTitle': 'Arti zona',
+
+  // OJK 3rd disclaimer layer (PRD §9 §11.3) — pre-goal-save banner copy.
+  'banner.goal.disclaimer':
+    'Goal di sini cuma alat tracking + proyeksi pakai asumsi return real kamu sendiri. Bukan target tunggal dan bukan jaminan tercapai.',
 } as const
 
 export type CopyKey = keyof typeof copy

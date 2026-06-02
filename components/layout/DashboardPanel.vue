@@ -11,6 +11,7 @@ import { defineAsyncComponent, h } from 'vue'
 import HeroPair from '~/components/dashboard/HeroPair.vue'
 import MetricGrid from '~/components/dashboard/MetricGrid.vue'
 import GoalSummaryCards from '~/components/dashboard/GoalSummaryCards.vue'
+import ModalOptionsPanel from '~/components/dashboard/ModalOptionsPanel.vue'
 import { t } from '~/lib/copy/strings'
 
 const ChartLoading = {
@@ -39,6 +40,7 @@ const SafeHavenBar = defineAsyncComponent({
   <section class="flex flex-col gap-4 p-2">
     <HeroPair />
     <MetricGrid />
+    <ModalOptionsPanel />
     <div class="grid gap-4 sm:grid-cols-2">
       <AllocationDonut />
       <SafeHavenBar />
