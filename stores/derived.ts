@@ -18,6 +18,7 @@ import {
   calcTotalDividendAnnual,
   calcTotalUtang,
   totalPenghasilanMonthly,
+  type ModalSiapIncludes,
 } from '~/lib/finance/metrics'
 import { calcGoalHealth, goalProgress, surplus } from '~/lib/finance/goals'
 import { breakdownGoldIdr } from '~/lib/finance/emas'
@@ -42,6 +43,30 @@ export const useDerivedStore = defineStore('derived', () => {
     priceView.value = next
   }
 
+  // Day 9 — user-configurable Modal Siap includes. Default = baseline PRD §11.4 (kas /
+  // deposito / RD / crypto only). Toggle ON pulls saham / emas / sbn into the headline
+  // at full live valuation; HeroPair shows inline disclaimer about spread/bea jual.
+  // Ephemeral (resets on refresh) — no localStorage layer in this app per architecture.
+  const modalSiapIncludes = ref<ModalSiapIncludes>({
+    saham: false,
+    emas: false,
+    sbn: false,
+  })
+
+  function toggleModalSiapInclude(category: keyof ModalSiapIncludes) {
+    modalSiapIncludes.value = {
+      ...modalSiapIncludes.value,
+      [category]: !modalSiapIncludes.value[category],
+    }
+  }
+
+  function setModalSiapInclude(
+    category: keyof ModalSiapIncludes,
+    value: boolean,
+  ) {
+    modalSiapIncludes.value = { ...modalSiapIncludes.value, [category]: value }
+  }
+
   // Snapshot state as a plain object (Pinia's reactive proxies are fine; metric functions
   // only read). Computed below re-runs when any snapshot field or priceView changes.
   const snapshotState = computed<SnapshotState>(() => ({
@@ -63,7 +88,9 @@ export const useDerivedStore = defineStore('derived', () => {
   const totalAset = computed(() => calcTotalAset(snapshotState.value, prices.value))
   const totalUtang = computed(() => calcTotalUtang(snapshotState.value))
   const netWorth = computed(() => calcNetWorth(snapshotState.value, prices.value))
-  const modalSiap = computed(() => calcModalSiap(snapshotState.value, prices.value))
+  const modalSiap = computed(() =>
+    calcModalSiap(snapshotState.value, prices.value, modalSiapIncludes.value),
+  )
   const dsr = computed(() => calcDsr(snapshotState.value, prices.value))
   const dar = computed(() => calcDar(snapshotState.value, prices.value))
   const runway = computed(() => calcRunway(snapshotState.value, prices.value))
@@ -148,6 +175,7 @@ export const useDerivedStore = defineStore('derived', () => {
       fiMultiplier: FI_MULTIPLIER,
       assumedAnnualReturnReal: goalsStore.assumedAnnualReturnReal,
       prices: prices.value,
+      includes: modalSiapIncludes.value,
     }),
   )
 
@@ -183,5 +211,8 @@ export const useDerivedStore = defineStore('derived', () => {
     bungaDepositoAnnual,
     penghasilanMonthlyIdr,
     modalOptions,
+    modalSiapIncludes,
+    toggleModalSiapInclude,
+    setModalSiapInclude,
   }
 })

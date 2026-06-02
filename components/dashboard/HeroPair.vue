@@ -1,12 +1,62 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Info } from 'lucide-vue-next'
 import { useDerivedStore } from '~/stores/derived'
+import { useSnapshotStore } from '~/stores/snapshot'
 import { useMetricExplainer } from '~/composables/useMetricExplainer'
 import { idr } from '~/lib/format/idr'
-import { t } from '~/lib/copy/strings'
+import {
+  sumEmasIdr,
+  sumSbnIdr,
+  sumStockIdr,
+  type ModalSiapIncludes,
+} from '~/lib/finance/metrics'
+import { t, type CopyKey } from '~/lib/copy/strings'
 
 const derived = useDerivedStore()
+const snapStore = useSnapshotStore()
 const explainer = useMetricExplainer()
+
+// Per-toggle visibility — hide chip when the category has Rp 0 (no rows / no value).
+// Avoids surfacing toggles user can't meaningfully act on. Reads via the public sum
+// helpers in lib/finance/metrics.ts to stay aligned with calcModalSiap's math.
+const snapshotView = computed(() => ({
+  penghasilan: snapStore.penghasilan,
+  penghasilanLain: snapStore.penghasilanLain,
+  pengeluaran: snapStore.pengeluaran,
+  asetLikuid: snapStore.asetLikuid,
+  asetNonLikuid: snapStore.asetNonLikuid,
+  emas: snapStore.emas,
+  saham: snapStore.saham,
+  crypto: snapStore.crypto,
+  cicilanAktif: snapStore.cicilanAktif,
+  utangPribadi: snapStore.utangPribadi,
+  gadai: snapStore.gadai,
+}))
+
+const sahamValue = computed(() =>
+  sumStockIdr(snapshotView.value.saham, derived.priceView ?? undefined),
+)
+const emasValue = computed(() =>
+  sumEmasIdr(snapshotView.value, derived.priceView ?? undefined),
+)
+const sbnValue = computed(() =>
+  sumSbnIdr(snapshotView.value, derived.priceView ?? undefined),
+)
+
+interface ToggleChip {
+  key: keyof ModalSiapIncludes
+  labelKey: CopyKey
+  hasValue: boolean
+}
+
+const chips = computed<ToggleChip[]>(() => [
+  { key: 'saham', labelKey: 'modal.siap.includes.saham', hasValue: sahamValue.value > 0 },
+  { key: 'emas', labelKey: 'modal.siap.includes.emas', hasValue: emasValue.value > 0 },
+  { key: 'sbn', labelKey: 'modal.siap.includes.sbn', hasValue: sbnValue.value > 0 },
+])
+
+const anyChipVisible = computed(() => chips.value.some((c) => c.hasValue))
 </script>
 
 <template>
@@ -57,6 +107,43 @@ const explainer = useMetricExplainer()
       </p>
       <p class="mt-1 text-[11px] italic text-[var(--color-text-muted)]">
         {{ t('metric.modalSiap.advisory') }}
+      </p>
+
+      <!--
+        Day 9 — Modal Siap include toggles. Chips for saham / emas / sbn render only
+        when the underlying category has value (no point toggling Rp 0). Click flips
+        the include state; reactively updates derived.modalSiap headline above.
+        Disclaimer below the chip row explains the realisasi-cair gap (spread / bea
+        jual not deducted from displayed value). Auto-off on conflict happens at the
+        Modal Options [Hitung] step, not here.
+      -->
+      <div v-if="anyChipVisible" class="mt-3 flex flex-wrap items-center gap-1.5">
+        <span class="text-[11px] font-medium text-[var(--color-text-muted)]">
+          {{ t('modal.siap.includes.label') }}
+        </span>
+        <button
+          v-for="chip in chips.filter((c) => c.hasValue)"
+          :key="chip.key"
+          type="button"
+          :aria-pressed="derived.modalSiapIncludes[chip.key]"
+          :aria-label="t('modal.siap.includes.aria.toggle', { category: t(chip.labelKey) })"
+          class="inline-flex items-center gap-1 rounded-[var(--radius-pill)] border px-2 py-0.5 text-[11px] font-medium transition"
+          :class="
+            derived.modalSiapIncludes[chip.key]
+              ? 'border-[var(--color-primary)] bg-[var(--color-primary-container)] text-[var(--color-primary-dark)]'
+              : 'border-[var(--color-border)] bg-[var(--color-surface-low)] text-[var(--color-text-secondary)] hover:border-[var(--color-text-secondary)]'
+          "
+          @click="derived.toggleModalSiapInclude(chip.key)"
+        >
+          <span aria-hidden="true">{{ derived.modalSiapIncludes[chip.key] ? '✓' : '+' }}</span>
+          {{ t(chip.labelKey) }}
+        </button>
+      </div>
+      <p
+        v-if="anyChipVisible"
+        class="mt-1.5 text-[10px] italic text-[var(--color-text-muted)]"
+      >
+        {{ t('modal.siap.includes.disclaimer') }}
       </p>
     </article>
   </div>

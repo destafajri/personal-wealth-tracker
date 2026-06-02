@@ -1,62 +1,53 @@
 <script setup lang="ts">
 // Day 9 — Modal Likuid Options as a wizard surface (capacity launcher entry). Renders
 // the same option list as the dashboard ModalOptionsPanel, just inside the WizardHost
-// modal chrome. Provides a second entry point for users who reach Modal Options via
-// /app/simulator instead of scrolling the dashboard right-rail.
+// modal chrome. Second entry point for users on /app/simulator who reach Modal Options
+// via the launcher card rather than the dashboard right rail.
 //
-// Lighter than the dashboard panel: no confirmation-flow inline UI. Confirmation lives
-// in the dashboard panel; this wizard view is primarily a "see the options" reference
-// that hands off to other wizards for the [Hitung] click. Apply-direct actions here
-// silently close the wizard + apply (the WizardHost backdrop replaces the inline
-// confirm card's modal framing).
+// Post-iteration: apply-direct path was dropped (user feedback "popup tanpa gangu data
+// snapshot"). [Hitung] now opens the relevant preview-only wizard — Lunasi for debt,
+// DeployPreview for asset acquisition — by replacing the active wizard in WizardHost.
+// Conflict auto-off (D9.10) mirrors the dashboard panel: include-toggle that matches
+// the option's conflictsWith key flips OFF before the inner wizard opens.
+import { ref } from 'vue'
 import { Compass } from 'lucide-vue-next'
 import { useDerivedStore } from '~/stores/derived'
-import { useSnapshotStore } from '~/stores/snapshot'
 import { useSimulator } from '~/composables/useSimulator'
 import { idr } from '~/lib/format/idr'
-import { t } from '~/lib/copy/strings'
-import type {
-  ApplyAction,
-  ModalOption,
-} from '~/lib/finance/wizards/modal-options'
+import { t, type CopyKey } from '~/lib/copy/strings'
+import type { ModalOption } from '~/lib/finance/wizards/modal-options'
 
 const derived = useDerivedStore()
-const snapStore = useSnapshotStore()
 const simulator = useSimulator()
 
-function hitung(opt: ModalOption) {
-  if (opt.handoff.kind === 'wizard') {
-    simulator.open(opt.handoff.wizardKey, {
-      wizardKey: opt.handoff.wizardKey,
-      input: opt.handoff.prefill,
-    })
-    return
-  }
-  // Apply-direct: confirm via JS native dialog (lightweight — wizard host already
-  // owns the modal chrome). Avoids stacking a second modal layer.
-  if (typeof window === 'undefined') return
-  const ok = window.confirm(
-    `${t('modal.options.confirm.title')}\n\n${opt.label}\n\n${t('modal.options.confirm.body')}`,
-  )
-  if (!ok) return
-  applyAction(opt.handoff.apply)
-  simulator.close()
+const conflictNotice = ref<string | null>(null)
+let noticeTimer: ReturnType<typeof setTimeout> | null = null
+
+function CATEGORY_LABEL_KEY(key: 'saham' | 'emas' | 'sbn'): CopyKey {
+  if (key === 'saham') return 'modal.siap.includes.saham'
+  if (key === 'emas') return 'modal.siap.includes.emas'
+  return 'modal.siap.includes.sbn'
 }
 
-function applyAction(action: ApplyAction) {
-  if (action.kind === 'addLiquidRow') {
-    snapStore.addLikuid(action.category, {
-      label: action.label,
-      amount: action.amountIdr,
-      currency: 'IDR',
+function hitung(opt: ModalOption) {
+  if (opt.conflictsWith && derived.modalSiapIncludes[opt.conflictsWith]) {
+    derived.setModalSiapInclude(opt.conflictsWith, false)
+    conflictNotice.value = t('wizard.deployPreview.conflictNotice', {
+      category: t(CATEGORY_LABEL_KEY(opt.conflictsWith)),
     })
-    return
+    if (noticeTimer) clearTimeout(noticeTimer)
+    noticeTimer = setTimeout(() => {
+      conflictNotice.value = null
+    }, 4000)
   }
-  if (action.kind === 'addStockLots') {
-    const target = snapStore.saham.find((s) => s.id === action.stockId)
-    if (!target) return
-    snapStore.updateSaham(action.stockId, { lot: target.lot + action.lotsToAdd })
-  }
+
+  if (opt.handoff.kind !== 'wizard') return
+  // Swap to the target wizard inside the same modal chrome. useSimulator.open will
+  // reset currentResult + accept a new prefill payload, so this is a clean handoff.
+  simulator.open(opt.handoff.wizardKey, {
+    wizardKey: opt.handoff.wizardKey,
+    input: opt.handoff.prefill,
+  } as Parameters<typeof simulator.open>[1])
 }
 </script>
 
@@ -74,6 +65,15 @@ function applyAction(action: ApplyAction) {
     <p class="tabular mt-3 text-sm text-[var(--color-text-primary)]">
       {{ t('modal.options.modalSiapLabel', { amount: idr(derived.modalOptions.modalSiapIdr) }) }}
     </p>
+
+    <div
+      v-if="conflictNotice"
+      role="status"
+      aria-live="polite"
+      class="mt-3 rounded-[var(--radius-card)] border border-[var(--color-warning-amber)] bg-[var(--color-warning-amber-soft)] p-2 text-xs text-[var(--color-warning-amber)]"
+    >
+      {{ conflictNotice }}
+    </div>
 
     <p
       v-if="derived.modalOptions.options.length === 0"

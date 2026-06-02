@@ -9,6 +9,7 @@
 import { computed, ref } from 'vue'
 import type { AnyWizardResult, WizardKey } from '~/lib/types/wizard'
 import type { LunasiInput } from '~/lib/finance/wizards/lunasi-utang'
+import type { DeployPrefill } from '~/lib/finance/wizards/modal-options'
 
 const activeKey = ref<WizardKey | null>(null)
 // AnyWizardResult = WizardResult (decision wizards) | CapacityResult (Day 8 Max Utang,
@@ -22,6 +23,7 @@ const previouslyFocused = ref<HTMLElement | null>(null)
 // new wizard with prefill = add an arm here + read it in the wizard's onMounted.
 export type WizardPrefill =
   | { wizardKey: 'lunasi'; input: LunasiInput }
+  | { wizardKey: 'deploy-preview'; input: DeployPrefill }
 const pendingPrefill = ref<WizardPrefill | null>(null)
 
 export function useSimulator() {
@@ -51,12 +53,16 @@ export function useSimulator() {
   }
 
   // Read-and-clear pattern: wizard calls this once in onMounted; subsequent reads return
-  // null so a stale prefill doesn't leak across re-opens with no payload.
-  function consumePrefill(forKey: WizardKey): WizardPrefill | null {
+  // null so a stale prefill doesn't leak across re-opens with no payload. Generic
+  // narrows the return type to the arm whose wizardKey matches `forKey` so callers
+  // don't have to re-narrow the input field manually.
+  function consumePrefill<K extends WizardKey>(
+    forKey: K,
+  ): Extract<WizardPrefill, { wizardKey: K }> | null {
     const p = pendingPrefill.value
     if (!p || p.wizardKey !== forKey) return null
     pendingPrefill.value = null
-    return p
+    return p as Extract<WizardPrefill, { wizardKey: K }>
   }
 
   return {

@@ -17,6 +17,7 @@ export type WizardKey =
   | 'max-utang'
   | 'lunasi'
   | 'modal-options'
+  | 'deploy-preview'
 
 // One side of a metric delta row (before or after). `value` is the raw number for math /
 // arrow direction; `display` is the user-facing string. `zone` populated only for metrics

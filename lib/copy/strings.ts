@@ -643,6 +643,34 @@ export const copy = {
   // OJK 3rd disclaimer layer (PRD §9 §11.3) — pre-goal-save banner copy.
   'banner.goal.disclaimer':
     'Goal di sini cuma alat tracking + proyeksi pakai asumsi return real kamu sendiri. Bukan target tunggal dan bukan jaminan tercapai.',
+
+  // Day 9 — Modal Siap include toggles (HeroPair). User-controlled inclusion of saham /
+  // emas / sbn into the headline at full live value. Disclaimer surfaces realisasi gap.
+  'modal.siap.includes.label': 'Termasuk:',
+  'modal.siap.includes.saham': 'Saham',
+  'modal.siap.includes.emas': 'Emas',
+  'modal.siap.includes.sbn': 'SBN',
+  'modal.siap.includes.disclaimer':
+    'Nilai realisasi cair bisa lebih rendah dari nilai tercatat (spread + bea jual).',
+  'modal.siap.includes.aria.toggle': 'Termasukkan {category} dalam Modal Siap',
+
+  // Day 9 — deploy-preview wizard (replaces apply-direct path; preview-only, no mutation).
+  'wizard.deployPreview.title': 'Preview Distribusi',
+  'wizard.deployPreview.subtitle':
+    'Simulasi distribusi Modal Siap — preview saja, tidak mengubah snapshot kamu.',
+  'wizard.deployPreview.summary.title': 'Ringkasan Aksi',
+  'wizard.deployPreview.summary.action.addLiquid': 'Tambah {amount} ke {category}',
+  'wizard.deployPreview.summary.action.addStock': 'Beli {ticker} {lots} lot ({amount})',
+  'wizard.deployPreview.summary.source':
+    'Sumber: tarik via waterfall kas → deposito → reksa dana → crypto.',
+  'wizard.deployPreview.warning.shortfall':
+    'Modal Siap kamu (likuid) gak cukup buat aksi ini — sebagian gak ke-cover di skenario. Tambah likuid dulu atau turunin amount.',
+  'wizard.deployPreview.note':
+    'Aksi ini tidak otomatis ke-apply ke snapshot. Buat eksekusi, tambah row-nya manual di panel Snapshot.',
+  'wizard.deployPreview.conflictNotice':
+    'Toggle {category} di Modal Siap di-off-in dulu karena lo lagi distribusi ke kategori itu (biar gak double-count).',
+  'wizard.deployPreview.category.reksaDana': 'Reksa Dana',
+  'wizard.deployPreview.category.deposito': 'Deposito',
 } as const
 
 export type CopyKey = keyof typeof copy

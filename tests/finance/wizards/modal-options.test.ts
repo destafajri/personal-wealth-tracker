@@ -64,8 +64,7 @@ describe('runModalOptions — cicilan options', () => {
     expect(opt).toBeTruthy()
     expect(opt!.amount).toBe(8_000_000)
     expect(opt!.handoff.kind).toBe('wizard')
-    if (opt!.handoff.kind === 'wizard') {
-      expect(opt!.handoff.wizardKey).toBe('lunasi')
+    if (opt!.handoff.kind === 'wizard' && opt!.handoff.wizardKey === 'lunasi') {
       expect(opt!.handoff.prefill.source).toBe('cicilan')
       expect(opt!.handoff.prefill.id).toBe('c1')
       expect(opt!.handoff.prefill.paymentIdr).toBe(8_000_000)
@@ -90,7 +89,7 @@ describe('runModalOptions — cicilan options', () => {
     const opt = r.options.find((o) => o.kind === 'prepay-cicilan')
     expect(opt).toBeTruthy()
     expect(opt!.amount).toBe(20_000_000)
-    if (opt!.handoff.kind === 'wizard') {
+    if (opt!.handoff.kind === 'wizard' && opt!.handoff.wizardKey === 'lunasi') {
       expect(opt!.handoff.prefill.modeAnuitas).toBe('tenor')
     }
   })
@@ -127,7 +126,10 @@ describe('runModalOptions — cicilan options', () => {
     const opts = r.options.filter((o) => o.kind === 'lunasi-utangPribadi')
     expect(opts).toHaveLength(1)
     expect(opts[0]!.amount).toBe(10_000_000)
-    if (opts[0]!.handoff.kind === 'wizard') {
+    if (
+      opts[0]!.handoff.kind === 'wizard' &&
+      opts[0]!.handoff.wizardKey === 'lunasi'
+    ) {
       expect(opts[0]!.handoff.prefill.source).toBe('utangPribadi')
     }
   })
@@ -147,7 +149,7 @@ describe('runModalOptions — cicilan options', () => {
     const opt = r.options.find((o) => o.kind === 'lunasi-gadai')
     expect(opt).toBeTruthy()
     expect(opt!.amount).toBe(15_000_000)
-    if (opt!.handoff.kind === 'wizard') {
+    if (opt!.handoff.kind === 'wizard' && opt!.handoff.wizardKey === 'lunasi') {
       expect(opt!.handoff.prefill.source).toBe('gadai')
     }
   })
@@ -173,10 +175,14 @@ describe('runModalOptions — saham option', () => {
     const r = runModalOptions(s, [], OPTS)
     const opt = r.options.find((o) => o.kind === 'beli-saham')
     expect(opt).toBeTruthy()
-    if (opt!.handoff.kind === 'apply' && opt!.handoff.apply.kind === 'addStockLots') {
-      expect(opt!.handoff.apply.stockId).toBe('s2')
+    if (
+      opt!.handoff.kind === 'wizard' &&
+      opt!.handoff.wizardKey === 'deploy-preview' &&
+      opt!.handoff.prefill.action.kind === 'addStockLots'
+    ) {
+      expect(opt!.handoff.prefill.action.stockId).toBe('s2')
       // 20jt / (6000 × 100) = 33.33 → floor 33 lots, gap 95 → buy 33
-      expect(opt!.handoff.apply.lotsToAdd).toBe(33)
+      expect(opt!.handoff.prefill.action.lotsToAdd).toBe(33)
     }
     expect(opt!.label).toMatch(/BMRI 33 lot/)
   })
@@ -237,7 +243,7 @@ describe('runModalOptions — FI bucket options', () => {
 })
 
 describe('runModalOptions — handoff payload integrity', () => {
-  it('all options carry valid handoff (wizard or apply with non-empty apply payload)', () => {
+  it('all options carry valid wizard handoff (lunasi for debt, deploy-preview for assets)', () => {
     const s = snapWithModal(100_000_000)
     s.cicilanAktif.push({
       id: 'c1',
@@ -266,14 +272,58 @@ describe('runModalOptions — handoff payload integrity', () => {
       expect(opt.label).toBeTruthy()
       expect(opt.impactPreview).toBeTruthy()
       expect(opt.amount).toBeGreaterThan(0)
-      expect(['wizard', 'apply']).toContain(opt.handoff.kind)
-      if (opt.handoff.kind === 'wizard') {
-        expect(opt.handoff.wizardKey).toBe('lunasi')
-        expect(opt.handoff.prefill).toBeTruthy()
-      } else {
-        expect(opt.handoff.apply).toBeTruthy()
-      }
+      expect(opt.handoff.kind).toBe('wizard')
+      expect(['lunasi', 'deploy-preview']).toContain(opt.handoff.wizardKey)
+      expect(opt.handoff.prefill).toBeTruthy()
     }
+  })
+
+  it('beli-saham option carries conflictsWith=saham flag', () => {
+    const s = snapWithModal(20_000_000)
+    s.saham.push({
+      id: 's1',
+      ticker: 'BBCA',
+      lot: 0,
+      hargaRataRata: 9_000,
+      lotsTarget: 10,
+    })
+    const r = runModalOptions(s, [], OPTS)
+    const beli = r.options.find((o) => o.kind === 'beli-saham')
+    expect(beli?.conflictsWith).toBe('saham')
+  })
+
+  it('cicilan + RD/deposito options have no conflictsWith', () => {
+    const s = snapWithModal(50_000_000)
+    s.cicilanAktif.push({
+      id: 'c1',
+      tipe: 'KK',
+      label: 'KK',
+      sisaPokok: 5_000_000,
+      cicilanPerBulan: 500_000,
+      jenisBunga: 'Revolving',
+    })
+    const r = runModalOptions(s, [], OPTS)
+    for (const opt of r.options) {
+      if (opt.kind === 'beli-saham') continue
+      expect(opt.conflictsWith).toBeUndefined()
+    }
+  })
+
+  it('includes={saham: true} inflates modalSiap headline with saham value', () => {
+    const s = snapWithModal(10_000_000)
+    s.saham.push({
+      id: 's1',
+      ticker: 'BBCA',
+      lot: 100,
+      hargaRataRata: 9_000,
+    })
+    const baseline = runModalOptions(s, [], OPTS)
+    const withSaham = runModalOptions(s, [], {
+      ...OPTS,
+      includes: { saham: true, emas: false, sbn: false },
+    })
+    // 100 lot × 100 × Rp 9_000 = Rp 90jt extra in headline
+    expect(withSaham.modalSiapIdr).toBe(baseline.modalSiapIdr + 90_000_000)
   })
 
   it('does not mutate input snapshot', () => {

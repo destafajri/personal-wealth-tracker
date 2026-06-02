@@ -7,14 +7,22 @@
 // (descriptive: "which emiten lags the lotsTarget by most lot"); FI options always RD →
 // Deposito (alphabetic, not preferred-first).
 //
-// Each option's [Hitung] handoff is one of two intents:
-//   - 'wizard': open the named wizard with prefill (Lunasi pre-filled for debt actions)
-//   - 'apply':  apply the action directly via a confirmation modal (asset acquisition —
-//     adds new asetLikuid row OR top-up saham lots). Per PRD §5.2.7 alternative path.
+// Day 9 lock (post-iteration): EVERY [Hitung] click opens a preview-only wizard. NEVER
+// mutates the real snapshot. Two wizard kinds:
+//   - 'lunasi'        → existing WizardLunasi pre-filled (debt actions; user can adjust
+//                        mode/amount before [Hitung] inside the wizard)
+//   - 'deploy-preview' → new WizardDeployPreview that runs an internal waterfall debit
+//                        (kas→deposito→RD→crypto, FX-aware) + asset add against a cloned
+//                        snapshot, renders Sebelum/Sesudah delta + Goal impact, NO Apply
+//                        button. User decides next steps manually in Snapshot panel.
 //
-// Impact preview computed by cloning + applying then reading targeted metric numbers
-// (DSR for debt, bobot/progress for saham, FI goal months shift for liquid deploy).
-// No mutation of `snap` here — clones inside.
+// The previous apply-direct path was dropped after user feedback "lebih baik popup tanpa
+// gangu data snapshot" — wizard purity invariant now uniform across all 6 wizards + the
+// 7th Modal Options handoff.
+//
+// `conflictsWith` flags the ModalSiap-include category whose toggle should auto-off
+// before the wizard opens (e.g., beli-saham conflicts with saham toggle — including
+// saham in Modal Siap while deploying TO saham double-counts the same rupiah).
 //
 // Per OJK copy guard (PRD §9): NO advisory verbs ("sebaiknya", "rekomendasi"). Headers
 // use "Opsi yang Bisa Dihitungkan" — never "Rekomendasi" or "Pilihan terbaik".
@@ -24,15 +32,15 @@ import {
   calcDsr,
   calcModalSiap,
   effectiveStockPrice,
+  type ModalSiapIncludes,
 } from '~/lib/finance/metrics'
 import { goalProgress } from '~/lib/finance/goals'
 import { idr } from '~/lib/format/idr'
 import { percent, pp } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
-import { cloneSnapshot, rid } from '~/lib/finance/wizards/_shared'
+import { cloneSnapshot } from '~/lib/finance/wizards/_shared'
 import type { Goal } from '~/lib/types/goals'
 import type {
-  AssetRow,
   CicilanRow,
   PricesView,
   SnapshotState,
@@ -51,10 +59,9 @@ export type ModalOptionKind =
   | 'tambah-reksaDana'
   | 'tambah-deposito'
 
-// Asset-acquisition apply payloads. Confirmation-modal handler reads `kind` to know
-// which store action to call. Kept narrow + serializable so the panel can store the
-// payload in a `ref` without leaking refs across components.
-export type ApplyAction =
+// Deploy-preview wizard input — carries the action description so WizardDeployPreview
+// can simulate it against a cloned snapshot. Kept narrow + serializable.
+export type DeployAction =
   | {
       kind: 'addLiquidRow'
       category: 'reksaDana' | 'deposito'
@@ -64,13 +71,22 @@ export type ApplyAction =
   | {
       kind: 'addStockLots'
       stockId: string
+      stockTicker: string
       lotsToAdd: number
       costIdr: number
     }
 
+export interface DeployPrefill {
+  action: DeployAction
+  // Echo the snapshot Modal Siap headline for the wizard's "Sumber" line. Source
+  // waterfall (kas→deposito→RD→crypto) is fixed inside the wizard; toggle-include is
+  // a display preference for the dashboard headline, NOT a waterfall selector.
+  modalSiapHeadline: number
+}
+
 export type ModalOptionHandoff =
   | { kind: 'wizard'; wizardKey: 'lunasi'; prefill: LunasiInput }
-  | { kind: 'apply'; apply: ApplyAction }
+  | { kind: 'wizard'; wizardKey: 'deploy-preview'; prefill: DeployPrefill }
 
 export interface ModalOption {
   id: string // stable v-for key
@@ -79,6 +95,10 @@ export interface ModalOption {
   impactPreview: string // descriptive — "DSR 33% → 31%; sisa modal Rp 44jt"
   amount: number // IDR deployed by this option
   handoff: ModalOptionHandoff
+  // Asset-include toggle whose ON state conflicts with this option (deploying TO that
+  // class while it's counted as available cash double-counts the same rupiah). UI
+  // auto-offs this toggle before opening the wizard. Undefined = no conflict.
+  conflictsWith?: keyof ModalSiapIncludes
 }
 
 export interface ModalOptionsResult {
@@ -318,14 +338,20 @@ function sahamOption(
     }),
     amount: costIdr,
     handoff: {
-      kind: 'apply',
-      apply: {
-        kind: 'addStockLots',
-        stockId: best.stock.id,
-        lotsToAdd: lotsToBuy,
-        costIdr,
+      kind: 'wizard',
+      wizardKey: 'deploy-preview',
+      prefill: {
+        action: {
+          kind: 'addStockLots',
+          stockId: best.stock.id,
+          stockTicker: best.stock.ticker,
+          lotsToAdd: lotsToBuy,
+          costIdr,
+        },
+        modalSiapHeadline: modalSiap,
       },
     },
+    conflictsWith: 'saham',
   }
 }
 
@@ -348,7 +374,10 @@ function fiBucketOptions(
   if (modalSiap <= 0) return []
   const fiGoal = goals.find((g) => g.kind === 'FI')
 
-  // Helper builds one bucket option (RD or Deposito).
+  // Helper builds one bucket option (RD or Deposito). Preview math runs against an
+  // in-memory clone with the new asset row pushed in — same shape as the deploy-preview
+  // wizard's internal simulation. Stays read-only; the real mutation NEVER happens.
+  const deployRowLabel = t('modal.option.deployLabel')
   function build(
     category: 'reksaDana' | 'deposito',
     kind: 'tambah-reksaDana' | 'tambah-deposito',
@@ -360,19 +389,6 @@ function fiBucketOptions(
       | 'modal.option.tambahReksaDana.previewNoGoal'
       | 'modal.option.tambahDeposito.previewNoGoal',
   ): ModalOption {
-    const row: AssetRow = {
-      id: rid(),
-      label: t('modal.option.deployLabel'),
-      amount: modalSiap,
-      currency: 'IDR',
-    }
-    const apply: ApplyAction = {
-      kind: 'addLiquidRow',
-      category,
-      label: row.label,
-      amountIdr: modalSiap,
-    }
-
     let preview = t(previewNoGoalKey, { amount: idr(modalSiap) })
     if (fiGoal) {
       const before = goalProgress(fiGoal, snap, {
@@ -383,7 +399,12 @@ function fiBucketOptions(
         prices,
       })
       const scn = cloneSnapshot(snap)
-      scn.asetLikuid[category].push(row)
+      scn.asetLikuid[category].push({
+        id: 'preview-only',
+        label: deployRowLabel,
+        amount: modalSiap,
+        currency: 'IDR',
+      })
       const after = goalProgress(fiGoal, scn, {
         fiMultiplier: opts.fiMultiplier,
         annualReturnReal: opts.assumedAnnualReturnReal,
@@ -412,7 +433,21 @@ function fiBucketOptions(
       label: t(labelKey),
       impactPreview: preview,
       amount: modalSiap,
-      handoff: { kind: 'apply', apply },
+      handoff: {
+        kind: 'wizard',
+        wizardKey: 'deploy-preview',
+        prefill: {
+          action: {
+            kind: 'addLiquidRow',
+            category,
+            label: deployRowLabel,
+            amountIdr: modalSiap,
+          },
+          modalSiapHeadline: modalSiap,
+        },
+      },
+      // RD/Deposito options don't conflict with toggle-include (those categories are
+      // always part of baseline Modal Siap — they can't be toggled). Only saham conflicts.
     }
   }
 
@@ -441,6 +476,11 @@ export interface ModalOptionsInput {
   assumedAnnualReturnReal: number
   today?: Date
   prices?: PricesView
+  // D9.8 — user-configurable Modal Siap includes (saham/emas/sbn). Default = none, which
+  // preserves baseline PRD §11.4 behavior. Inflated headline (when toggles ON) flows into
+  // every option's amount cap + impact preview's "sisa modal" line — keeps the panel's
+  // math consistent with the dashboard headline the user sees.
+  includes?: ModalSiapIncludes
 }
 
 export function runModalOptions(
@@ -448,8 +488,8 @@ export function runModalOptions(
   goals: Goal[],
   input: ModalOptionsInput,
 ): ModalOptionsResult {
-  const { prices } = input
-  const modalSiap = calcModalSiap(snap, prices)
+  const { prices, includes } = input
+  const modalSiap = calcModalSiap(snap, prices, includes)
 
   if (modalSiap <= 0) {
     return {

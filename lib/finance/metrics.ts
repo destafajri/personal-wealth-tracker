@@ -88,12 +88,24 @@ export function effectiveStockPrice(
   return livePrice ?? s.hargaRataRata
 }
 
-function sumStockIdr(stocks: StockHolding[], prices?: PricesView): number {
+export function sumStockIdr(stocks: StockHolding[], prices?: PricesView): number {
   return stocks.reduce(
     (s, h) =>
       s + h.lot * 100 * effectiveStockPrice(h, prices?.idxByTicker[h.ticker] ?? null),
     0,
   )
+}
+
+// Public so D9 ModalSiap include-toggle can pull emas valuation (totalGoldIdr) without
+// re-importing the breakdown helper. Mirrors sumStockIdr's exposure.
+export function sumEmasIdr(snap: SnapshotState, prices?: PricesView): number {
+  return sumGoldIdr(snap, prices)
+}
+
+// SBN row total (IDR-converted). Exposed for D9 ModalSiap include-toggle so callers
+// don't have to reach into asetLikuid.sbn directly.
+export function sumSbnIdr(snap: SnapshotState, prices?: PricesView): number {
+  return sumRowsToIdr(snap.asetLikuid.sbn, prices)
 }
 
 // Per-row annual potential dividend (IDR / tahun). Precedence: literal lastDividend wins
@@ -186,15 +198,38 @@ export function calcNetWorth(snap: SnapshotState, prices?: PricesView): number {
 // PRD §5.4 / §11.4: Kas + Deposito + RD + Crypto Liquid. No auto-subtract of emergency
 // buffer (D0.3); the dashboard surface adds the advisory copy "Pertimbangkan keep dana
 // darurat 3–6 bulan terpisah."
+//
+// Day 9 extension: optional `includes` object lets the dashboard user pull additional
+// asset classes (saham/emas/sbn) into the Modal Siap headline at FULL live valuation —
+// realisasi cair perlu user pahami sendiri (spread/bea jual surfaces as inline disclaimer
+// on HeroPair). When includes is omitted the formula stays the PRD §11.4 baseline so
+// non-toggle callers (wizards, options preview before D9.10 wiring) don't accidentally
+// inflate Modal Siap. Wizard delta tables MUST pass includes through so Sebelum/Sesudah
+// rows match the dashboard headline — otherwise `before` reads inflated, `after` reads
+// baseline, and the delta is meaningless.
 
-export function calcModalSiap(snap: SnapshotState, prices?: PricesView): number {
+export interface ModalSiapIncludes {
+  saham: boolean
+  emas: boolean
+  sbn: boolean
+}
+
+export function calcModalSiap(
+  snap: SnapshotState,
+  prices?: PricesView,
+  includes?: ModalSiapIncludes,
+): number {
   const a = snap.asetLikuid
-  return (
+  let total =
     sumRowsToIdr(a.kas, prices) +
     sumRowsToIdr(a.deposito, prices) +
     sumRowsToIdr(a.reksaDana, prices) +
     sumCryptoIdr(snap.crypto, prices)
-  )
+  if (!includes) return total
+  if (includes.saham) total += sumStockIdr(snap.saham, prices)
+  if (includes.emas) total += sumEmasIdr(snap, prices)
+  if (includes.sbn) total += sumSbnIdr(snap, prices)
+  return total
 }
 
 // Gaji Bersih → IDR. Stale FX rate falls through to 0 (consistent with asset-side rule);
