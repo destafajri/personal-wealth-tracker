@@ -1,5 +1,6 @@
 import { cadanganGoldIdr, totalGoldIdr } from '~/lib/finance/emas'
 import { rateToIdr, rowToIdr } from '~/lib/finance/fx'
+import { isRdJenisSafeHaven } from '~/lib/types/snapshot'
 import type {
   AssetRow,
   CryptoHolding,
@@ -343,13 +344,20 @@ export function calcSavingsRate(
   return ((peng - calcTotalPengeluaran(snap)) / peng) * 100
 }
 
-// ----- 7. Safe Haven — (Kas + Emas + RD + Deposito) / Total Aset (percent) -----
+// ----- 7. Safe Haven — (Kas + Deposito + SBN + RD-safe + Emas) / Total Aset (percent)
 
 // Absolute Rp breakdown used by both the Safe Haven ratio and the dashboard
 // SafeHavenBar chart. Exposing this as a single helper keeps the chart's slices
 // numerically aligned with the metric (no drift between visual and number).
+//
+// Day 9 (user feedback): SBN added to safe-haven aggregate. SBN ORI/SR/ST/SBR =
+// sovereign IDR fixed-coupon principal-guaranteed; classic safe-haven instrument
+// missed from the original PRD §5.4 formula. Also: RD filtered by `rdJenis` —
+// only defensif sub-types (RDPU + RD Pendapatan Tetap) count. Untagged RD rows
+// (rdJenis = undefined) still count as safe to preserve back-compat with pre-Day-9
+// snapshots; users tag-down to growth jenis (saham/indeks/campuran/lain) to exclude.
 export interface AssetBreakdown {
-  safeIdr: number // kas + deposito + RD + emas (per Safe Haven formula)
+  safeIdr: number
   totalIdr: number
 }
 
@@ -358,10 +366,12 @@ export function calcAssetBreakdown(
   prices?: PricesView,
 ): AssetBreakdown {
   const a = snap.asetLikuid
+  const safeRd = a.reksaDana.filter((r) => isRdJenisSafeHaven(r.rdJenis))
   const safeIdr =
     sumRowsToIdr(a.kas, prices) +
     sumRowsToIdr(a.deposito, prices) +
-    sumRowsToIdr(a.reksaDana, prices) +
+    sumRowsToIdr(a.sbn, prices) +
+    sumRowsToIdr(safeRd, prices) +
     sumGoldIdr(snap, prices)
   return { safeIdr, totalIdr: calcTotalAset(snap, prices) }
 }

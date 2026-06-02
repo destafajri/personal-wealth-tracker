@@ -554,17 +554,42 @@ describe('calcAssetBreakdown', () => {
     expect(b.totalIdr).toBe(0)
   })
 
-  it('safeIdr = kas + deposito + reksaDana + emas (per Safe Haven formula)', () => {
+  it('safeIdr = kas + deposito + sbn + RD-safe + emas (Day 9 formula incl SBN)', () => {
     const s = baseSnap()
     s.asetLikuid.kas.push(row(10_000_000))
     s.asetLikuid.deposito.push(row(20_000_000))
-    s.asetLikuid.reksaDana.push(row(30_000_000))
-    s.asetLikuid.sbn.push(row(40_000_000)) // SBN is NOT in safe haven
+    s.asetLikuid.reksaDana.push(row(30_000_000)) // untagged → safe per back-compat
+    s.asetLikuid.sbn.push(row(40_000_000)) // SBN now counts toward Safe Haven
     // emas: skip — totalGoldIdr requires prices; test the no-emas path here
     const b = calcAssetBreakdown(s)
-    expect(b.safeIdr).toBe(60_000_000)
-    // total = 60jt safe + 40jt sbn = 100jt
+    expect(b.safeIdr).toBe(100_000_000) // 10 + 20 + 30 + 40
     expect(b.totalIdr).toBe(100_000_000)
+  })
+
+  it('excludes RD-saham / indeks / campuran / lain from safeIdr', () => {
+    const s = baseSnap()
+    s.asetLikuid.kas.push(row(10_000_000))
+    s.asetLikuid.reksaDana.push({ ...row(20_000_000), rdJenis: 'pasarUang' })
+    s.asetLikuid.reksaDana.push({ ...row(30_000_000), rdJenis: 'saham' })
+    s.asetLikuid.reksaDana.push({ ...row(15_000_000), rdJenis: 'campuran' })
+    const b = calcAssetBreakdown(s)
+    // safe: kas 10 + RDPU 20 = 30jt (saham + campuran excluded)
+    expect(b.safeIdr).toBe(30_000_000)
+    expect(b.totalIdr).toBe(75_000_000) // 10 + 20 + 30 + 15
+  })
+
+  it('untagged RD rows count as safe (back-compat)', () => {
+    const s = baseSnap()
+    s.asetLikuid.reksaDana.push(row(50_000_000)) // no rdJenis
+    const b = calcAssetBreakdown(s)
+    expect(b.safeIdr).toBe(50_000_000)
+  })
+
+  it('RD-pendapatanTetap counts as safe', () => {
+    const s = baseSnap()
+    s.asetLikuid.reksaDana.push({ ...row(40_000_000), rdJenis: 'pendapatanTetap' })
+    const b = calcAssetBreakdown(s)
+    expect(b.safeIdr).toBe(40_000_000)
   })
 })
 

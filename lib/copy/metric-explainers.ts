@@ -162,8 +162,9 @@ export const metricExplainers: Record<ExplainerKey, ExplainerSpec> = {
   safeHaven: {
     title: 'Safe Haven Ratio',
     definition:
-      'Porsi aset kamu yang ada di instrumen "konservatif" — kas, deposito, reksa dana, dan emas. Sisanya (saham, properti, crypto, dll) tergolong growth-oriented.',
-    formula: 'Safe Haven = (Kas + Deposito + Reksa Dana + Emas) ÷ Total Aset × 100%',
+      'Porsi aset kamu yang ada di instrumen "konservatif" — kas, deposito, SBN/obligasi, reksa dana defensif (RDPU + RD Pendapatan Tetap), dan emas. Sisanya (saham, RD saham/indeks/campuran, properti, crypto, dll) tergolong growth-oriented.',
+    formula:
+      'Safe Haven = (Kas + Deposito + SBN + RD-defensif + Emas) ÷ Total Aset × 100%',
     zones: [
       {
         label: 'Konservatif',

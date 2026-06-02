@@ -13,10 +13,11 @@ const categories: {
   key: LiquidAssetCategory
   titleKey: string
   withInterest?: boolean
+  withRdJenis?: boolean
 }[] = [
   { key: 'kas', titleKey: 'snapshot.aset.kas' },
   { key: 'deposito', titleKey: 'snapshot.aset.deposito', withInterest: true },
-  { key: 'reksaDana', titleKey: 'snapshot.aset.reksaDana' },
+  { key: 'reksaDana', titleKey: 'snapshot.aset.reksaDana', withRdJenis: true },
   { key: 'sbn', titleKey: 'snapshot.aset.sbn', withInterest: true },
   // Crypto is no longer here — it lives in its own panel with per-row mode toggle
   // (live unit-based OR manual IDR). See components/snapshot/CryptoPanel.vue.
@@ -45,6 +46,7 @@ function label(key: string): string {
         :rows="snap.asetLikuid[cat.key]"
         show-currency
         :show-interest-rate="cat.withInterest"
+        :show-rd-jenis="cat.withRdJenis"
         @add="snap.addLikuid(cat.key)"
         @update:label="(id, value) => snap.updateLikuid(cat.key, id, { label: value })"
         @update:amount="
@@ -55,6 +57,12 @@ function label(key: string): string {
           (id, value) =>
             snap.updateLikuid(cat.key, id, {
               sukuBungaPercent: value === null || value <= 0 ? undefined : value,
+            })
+        "
+        @update:rd-jenis="
+          (id, value) =>
+            snap.updateLikuid(cat.key, id, {
+              rdJenis: value === null ? undefined : value,
             })
         "
         @remove="(id) => snap.removeLikuid(cat.key, id)"

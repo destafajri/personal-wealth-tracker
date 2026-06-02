@@ -6,7 +6,13 @@ import { idr } from '~/lib/format/idr'
 import { rateToIdr } from '~/lib/finance/fx'
 import { useDerivedStore } from '~/stores/derived'
 import { t } from '~/lib/copy/strings'
-import { CURRENCIES, type AssetRow, type Currency } from '~/lib/types/snapshot'
+import {
+  CURRENCIES,
+  RD_JENIS_LIST,
+  type AssetRow,
+  type Currency,
+  type RdJenis,
+} from '~/lib/types/snapshot'
 
 withDefaults(
   defineProps<{
@@ -17,8 +23,12 @@ withDefaults(
     // Sbn + deposito surface a per-row interest rate input. Drives the auto-derived
     // monthly bunga line in PenghasilanForm.
     showInterestRate?: boolean
+    // Reksa Dana panel surfaces a per-row jenis picker (RDPU / RDPT / Campuran /
+    // Saham / Indeks / Lain). Drives Safe Haven inclusion — only defensif jenis
+    // (RDPU + RDPT) count. Untagged rows treated as safe for back-compat.
+    showRdJenis?: boolean
   }>(),
-  { showCurrency: false, showInterestRate: false },
+  { showCurrency: false, showInterestRate: false, showRdJenis: false },
 )
 
 const emit = defineEmits<{
@@ -27,6 +37,7 @@ const emit = defineEmits<{
   'update:amount': [id: string, value: number | null]
   'update:currency': [id: string, value: Currency]
   'update:sukuBunga': [id: string, value: number | null]
+  'update:rdJenis': [id: string, value: RdJenis | null]
   remove: [id: string]
 }>()
 
@@ -114,6 +125,39 @@ function idrEquivalent(row: AssetRow): number | null {
           </template>
           <template v-else>{{ t('snapshot.row.fxStale') }}</template>
         </p>
+
+        <div
+          v-if="showRdJenis"
+          class="flex flex-wrap items-center gap-2 pl-2"
+        >
+          <label
+            :for="`rdJenis-${row.id}`"
+            class="text-[11px] text-[var(--color-text-muted)]"
+          >
+            {{ t('snapshot.aset.rdJenisLabel') }}
+          </label>
+          <select
+            :id="`rdJenis-${row.id}`"
+            :value="row.rdJenis ?? ''"
+            :aria-label="t('snapshot.aset.rdJenisAria')"
+            class="h-8 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-xs text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            @change="
+              emit(
+                'update:rdJenis',
+                row.id,
+                (($event.target as HTMLSelectElement).value || null) as RdJenis | null,
+              )
+            "
+          >
+            <option value="">{{ t('snapshot.aset.rdJenis.untagged') }}</option>
+            <option v-for="j in RD_JENIS_LIST" :key="j" :value="j">
+              {{ t(`snapshot.aset.rdJenis.${j}` as const) }}
+            </option>
+          </select>
+          <span class="text-[11px] italic text-[var(--color-text-muted)]">
+            {{ t('snapshot.aset.rdJenis.safeHavenHint') }}
+          </span>
+        </div>
 
         <div v-if="showInterestRate" class="flex items-center gap-2 pl-2">
           <label

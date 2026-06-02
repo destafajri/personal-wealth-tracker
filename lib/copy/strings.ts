@@ -278,6 +278,18 @@ export const copy = {
   'snapshot.aset.sukuBungaLabel': 'Bunga %/tahun',
   'snapshot.aset.sukuBungaAria': 'Suku bunga per tahun',
 
+  // Day 9 — Reksa Dana jenis picker. Drives Safe Haven inclusion.
+  'snapshot.aset.rdJenisLabel': 'Jenis',
+  'snapshot.aset.rdJenisAria': 'Jenis reksa dana',
+  'snapshot.aset.rdJenis.untagged': 'Belum dipilih',
+  'snapshot.aset.rdJenis.pasarUang': 'RDPU (Pasar Uang)',
+  'snapshot.aset.rdJenis.pendapatanTetap': 'RD Pendapatan Tetap',
+  'snapshot.aset.rdJenis.campuran': 'RD Campuran',
+  'snapshot.aset.rdJenis.saham': 'RD Saham',
+  'snapshot.aset.rdJenis.indeks': 'RD Indeks',
+  'snapshot.aset.rdJenis.lain': 'Lain (ETF / Syariah / Proteksi)',
+  'snapshot.aset.rdJenis.safeHavenHint': 'Safe Haven: RDPU + Pendapatan Tetap',
+
   'chart.allocation.title': 'Alokasi Saham',
   'chart.allocation.empty': 'Belum ada saham di portofolio.',
   'chart.allocation.legendTotal': 'Total',

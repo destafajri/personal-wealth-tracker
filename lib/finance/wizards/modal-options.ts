@@ -48,6 +48,12 @@ import type {
   StockHolding,
 } from '~/lib/types/snapshot'
 import type { LunasiInput } from '~/lib/finance/wizards/lunasi-utang'
+// DeployAction lives in deploy-preview.ts to break a circular dep (modal-options
+// imports deployablePool from there). Re-exported below so existing call sites keep
+// working.
+import type { DeployAction } from '~/lib/finance/wizards/deploy-preview'
+
+export type { DeployAction }
 
 // ----- types -----
 
@@ -61,12 +67,6 @@ export type ModalOptionKind =
   | 'tambah-deposito'
   | 'tambah-sbn'
   | 'tambah-emas'
-
-// DeployAction lives in deploy-preview.ts to break the circular dep (deploy-preview
-// imports deployablePool, modal-options needs the action shape). Re-exported here so
-// existing call sites keep working.
-import type { DeployAction } from '~/lib/finance/wizards/deploy-preview'
-export type { DeployAction }
 
 // Re-export ModalSiapIncludes type so wizards that import this module can read it
 // without a separate import from metrics.

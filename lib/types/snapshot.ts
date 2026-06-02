@@ -34,6 +34,42 @@ export interface AssetRow {
   // present here so the generic AssetRow shape can carry it without forking the type.
   // Drives the auto-derived monthly interest income row in PenghasilanForm.
   sukuBungaPercent?: number
+  // Day 9 — reksa dana sub-classification. Only meaningful for rows in
+  // asetLikuid.reksaDana; ignored on other categories (kas/deposito/sbn). Drives
+  // Safe Haven inclusion: pasarUang + pendapatanTetap = defensif; campuran/saham/
+  // indeks/lain = growth-oriented. Untagged (undefined) treated as safe by default
+  // to preserve back-compat with pre-Day-9 snapshots where all RD counted as safe.
+  rdJenis?: RdJenis
+}
+
+// Reksa Dana jenis per OJK classification. Display ordering follows defensif-first.
+export type RdJenis =
+  | 'pasarUang' // RDPU — money market, instrumen <1 tahun (deposit + obligasi pendek)
+  | 'pendapatanTetap' // RDPT — fixed income (obligasi pemerintah + korporasi)
+  | 'campuran' // RDC — balanced (~40-60% saham + obligasi)
+  | 'saham' // RDS — equity-dominant
+  | 'indeks' // RDI — index tracker (IDX30, LQ45, dll)
+  | 'lain' // ETF, syariah variants, proteksi, dll
+
+export const RD_JENIS_LIST: readonly RdJenis[] = [
+  'pasarUang',
+  'pendapatanTetap',
+  'campuran',
+  'saham',
+  'indeks',
+  'lain',
+] as const
+
+// Which jenis count toward Safe Haven. Untagged (undefined) ALSO treated as safe to
+// preserve back-compat — see AssetRow.rdJenis comment. UI surface helper text:
+// "Yang masuk Safe Haven: RDPU + RD Pendapatan Tetap."
+export const RD_JENIS_SAFE_HAVEN: ReadonlySet<RdJenis> = new Set([
+  'pasarUang',
+  'pendapatanTetap',
+])
+
+export function isRdJenisSafeHaven(j: RdJenis | undefined): boolean {
+  return j === undefined || RD_JENIS_SAFE_HAVEN.has(j)
 }
 
 export interface StockHolding {
