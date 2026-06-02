@@ -155,8 +155,8 @@ describe('runModalOptions — cicilan options', () => {
   })
 })
 
-describe('runModalOptions — saham option', () => {
-  it('picks emiten with largest lots gap, caps lots by modal affordance', () => {
+describe('runModalOptions — saham options', () => {
+  it('emits one option per emiten with target gap; largest gap first', () => {
     const s = snapWithModal(20_000_000)
     s.saham.push({
       id: 's1',
@@ -170,21 +170,70 @@ describe('runModalOptions — saham option', () => {
       ticker: 'BMRI',
       lot: 5,
       hargaRataRata: 6_000,
-      lotsTarget: 100, // gap 95 lots — bigger gap, should be picked
+      lotsTarget: 100, // gap 95 lots
     })
     const r = runModalOptions(s, [], OPTS)
-    const opt = r.options.find((o) => o.kind === 'beli-saham')
-    expect(opt).toBeTruthy()
+    const sahamOpts = r.options.filter((o) => o.kind === 'beli-saham')
+    expect(sahamOpts).toHaveLength(2)
+    // Largest-gap-first: BMRI (gap 95) before BBCA (gap 30)
+    expect(sahamOpts[0]!.label).toMatch(/BMRI/)
+    expect(sahamOpts[1]!.label).toMatch(/BBCA/)
+    // BMRI sizing: 20jt / (6000 × 100) = 33.33 → floor 33 lots, gap 95 → buy 33
     if (
-      opt!.handoff.kind === 'wizard' &&
-      opt!.handoff.wizardKey === 'deploy-preview' &&
-      opt!.handoff.prefill.action.kind === 'addStockLots'
+      sahamOpts[0]!.handoff.kind === 'wizard' &&
+      sahamOpts[0]!.handoff.wizardKey === 'deploy-preview' &&
+      sahamOpts[0]!.handoff.prefill.action.kind === 'addStockLots'
     ) {
-      expect(opt!.handoff.prefill.action.stockId).toBe('s2')
-      // 20jt / (6000 × 100) = 33.33 → floor 33 lots, gap 95 → buy 33
-      expect(opt!.handoff.prefill.action.lotsToAdd).toBe(33)
+      expect(sahamOpts[0]!.handoff.prefill.action.stockId).toBe('s2')
+      expect(sahamOpts[0]!.handoff.prefill.action.lotsToAdd).toBe(33)
     }
-    expect(opt!.label).toMatch(/BMRI 33 lot/)
+    // BBCA sizing: 20jt / (9000 × 100) = 22.22 → floor 22 lots, gap 30 → buy 22
+    if (
+      sahamOpts[1]!.handoff.kind === 'wizard' &&
+      sahamOpts[1]!.handoff.wizardKey === 'deploy-preview' &&
+      sahamOpts[1]!.handoff.prefill.action.kind === 'addStockLots'
+    ) {
+      expect(sahamOpts[1]!.handoff.prefill.action.stockId).toBe('s1')
+      expect(sahamOpts[1]!.handoff.prefill.action.lotsToAdd).toBe(22)
+    }
+  })
+
+  it('each emiten option is sized against full modalSiap independently (not cumulative)', () => {
+    // 100jt modal, 2 emitens both fitting → each option sized at modal-cap, not split.
+    const s = snapWithModal(100_000_000)
+    s.saham.push({
+      id: 's1',
+      ticker: 'BBCA',
+      lot: 0,
+      hargaRataRata: 10_000,
+      lotsTarget: 50,
+    })
+    s.saham.push({
+      id: 's2',
+      ticker: 'BBRI',
+      lot: 0,
+      hargaRataRata: 5_000,
+      lotsTarget: 100,
+    })
+    const r = runModalOptions(s, [], OPTS)
+    const sahamOpts = r.options.filter((o) => o.kind === 'beli-saham')
+    expect(sahamOpts).toHaveLength(2)
+    // BBRI: 100jt / 500_000 = 200 lots affordable, gap 100 → cap at gap = 100 lots
+    if (
+      sahamOpts[0]!.handoff.kind === 'wizard' &&
+      sahamOpts[0]!.handoff.wizardKey === 'deploy-preview' &&
+      sahamOpts[0]!.handoff.prefill.action.kind === 'addStockLots'
+    ) {
+      expect(sahamOpts[0]!.handoff.prefill.action.lotsToAdd).toBe(100)
+    }
+    // BBCA: 100jt / 1_000_000 = 100 lots affordable, gap 50 → cap at gap = 50 lots
+    if (
+      sahamOpts[1]!.handoff.kind === 'wizard' &&
+      sahamOpts[1]!.handoff.wizardKey === 'deploy-preview' &&
+      sahamOpts[1]!.handoff.prefill.action.kind === 'addStockLots'
+    ) {
+      expect(sahamOpts[1]!.handoff.prefill.action.lotsToAdd).toBe(50)
+    }
   })
 
   it('skips saham option when no emiten has lotsTarget', () => {

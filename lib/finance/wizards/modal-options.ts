@@ -275,84 +275,95 @@ function gadaiOptions(
   return out
 }
 
-// ----- saham option (top per-emiten target gap) -----
+// ----- saham options (one per emiten with target gap) -----
 
-// Pick the emiten with the largest lots-gap (lotsTarget − lot), then size the buy to
-// either close the gap fully or what modalSiap allows — whichever smaller. Lots are
-// integers; round down to nearest lot. Skipped when no emiten has a gap or no price.
-function sahamOption(
+// Emit one option per emiten that has (a) lotsTarget > 0 + (b) gap = lotsTarget − lot
+// > 0 + (c) live/override price > 0 + (d) modalSiap covers at least 1 lot. Each option
+// is INDEPENDENT — sized against full modalSiap (same as cicilan/utangPribadi/gadai
+// options which all assume "use full modal for THIS option"). User picks one to
+// preview; deploying to multiple = multiple [Hitung] clicks in succession.
+//
+// Sort by gap desc (largest-gap-first, descriptive ordering — NOT advice). Lots are
+// integers; round down to nearest lot.
+function sahamOptions(
   snap: SnapshotState,
   prices: PricesView | undefined,
   modalSiap: number,
-): ModalOption | null {
-  if (modalSiap <= 0) return null
-  if (snap.saham.length === 0) return null
+): ModalOption[] {
+  if (modalSiap <= 0) return []
+  if (snap.saham.length === 0) return []
 
-  let best: { stock: StockHolding; gap: number; price: number } | null = null
+  // First pass: enumerate eligible emitens with their gap + price.
+  const eligible: Array<{ stock: StockHolding; gap: number; price: number }> = []
   for (const s of snap.saham) {
     if (s.lotsTarget === undefined || s.lotsTarget <= 0) continue
     const gap = s.lotsTarget - s.lot
     if (gap <= 0) continue
     const price = effectiveStockPrice(s, prices?.idxByTicker[s.ticker] ?? null)
     if (price <= 0) continue
-    if (!best || gap > best.gap) best = { stock: s, gap, price }
+    eligible.push({ stock: s, gap, price })
   }
-  if (!best) return null
+  if (eligible.length === 0) return []
 
-  const costPerLot = best.price * 100
-  const maxAffordableLots = Math.floor(modalSiap / costPerLot)
-  if (maxAffordableLots <= 0) return null
-  const lotsToBuy = Math.min(best.gap, maxAffordableLots)
-  const costIdr = lotsToBuy * costPerLot
+  // Sort by gap desc — descriptive ordering, NOT advice ("biggest hole first").
+  eligible.sort((a, b) => b.gap - a.gap)
 
-  // Bobot Sebelum/Sesudah within the lotsTarget universe (Allocation Discipline scope).
+  // Allocation Discipline reads the FULL saham list (within lotsTarget universe).
+  // Compute baseline once; per-option scenario clones snap so the delta math reflects
+  // adding lots to THIS emiten only — each option is independent of the others.
   const disciplineBefore = calcAllocationDiscipline(snap.saham, prices)
-  const scn = cloneSnapshot(snap)
-  const idx = scn.saham.findIndex((x) => x.id === best!.stock.id)
-  if (idx !== -1) scn.saham[idx]!.lot += lotsToBuy
-  const disciplineAfter = calcAllocationDiscipline(scn.saham, prices)
 
-  // Progress to lotsTarget (current/lotsTarget percent).
-  const progressBefore =
-    best.stock.lotsTarget && best.stock.lotsTarget > 0
-      ? (best.stock.lot / best.stock.lotsTarget) * 100
-      : null
-  const progressAfter =
-    best.stock.lotsTarget && best.stock.lotsTarget > 0
-      ? ((best.stock.lot + lotsToBuy) / best.stock.lotsTarget) * 100
-      : null
+  const out: ModalOption[] = []
+  for (const e of eligible) {
+    const costPerLot = e.price * 100
+    const maxAffordableLots = Math.floor(modalSiap / costPerLot)
+    if (maxAffordableLots <= 0) continue
+    const lotsToBuy = Math.min(e.gap, maxAffordableLots)
+    const costIdr = lotsToBuy * costPerLot
 
-  return {
-    id: `beli-saham:${best.stock.id}`,
-    kind: 'beli-saham',
-    label: t('modal.option.beliSaham.label', {
-      ticker: best.stock.ticker,
-      lots: lotsToBuy,
-      amount: idr(costIdr),
-    }),
-    impactPreview: t('modal.option.beliSaham.preview', {
-      progressBefore: percent(progressBefore, 0),
-      progressAfter: percent(progressAfter, 0),
-      drift: disciplineAfter !== null ? `${disciplineAfter.toFixed(1)} pp` : '—',
-      driftBefore: disciplineBefore !== null ? `${disciplineBefore.toFixed(1)} pp` : '—',
-    }),
-    amount: costIdr,
-    handoff: {
-      kind: 'wizard',
-      wizardKey: 'deploy-preview',
-      prefill: {
-        action: {
-          kind: 'addStockLots',
-          stockId: best.stock.id,
-          stockTicker: best.stock.ticker,
-          lotsToAdd: lotsToBuy,
-          costIdr,
+    const scn = cloneSnapshot(snap)
+    const idx = scn.saham.findIndex((x) => x.id === e.stock.id)
+    if (idx !== -1) scn.saham[idx]!.lot += lotsToBuy
+    const disciplineAfter = calcAllocationDiscipline(scn.saham, prices)
+
+    const target = e.stock.lotsTarget!
+    const progressBefore = target > 0 ? (e.stock.lot / target) * 100 : null
+    const progressAfter = target > 0 ? ((e.stock.lot + lotsToBuy) / target) * 100 : null
+
+    out.push({
+      id: `beli-saham:${e.stock.id}`,
+      kind: 'beli-saham',
+      label: t('modal.option.beliSaham.label', {
+        ticker: e.stock.ticker,
+        lots: lotsToBuy,
+        amount: idr(costIdr),
+      }),
+      impactPreview: t('modal.option.beliSaham.preview', {
+        progressBefore: percent(progressBefore, 0),
+        progressAfter: percent(progressAfter, 0),
+        drift: disciplineAfter !== null ? `${disciplineAfter.toFixed(1)} pp` : '—',
+        driftBefore:
+          disciplineBefore !== null ? `${disciplineBefore.toFixed(1)} pp` : '—',
+      }),
+      amount: costIdr,
+      handoff: {
+        kind: 'wizard',
+        wizardKey: 'deploy-preview',
+        prefill: {
+          action: {
+            kind: 'addStockLots',
+            stockId: e.stock.id,
+            stockTicker: e.stock.ticker,
+            lotsToAdd: lotsToBuy,
+            costIdr,
+          },
+          modalSiapHeadline: modalSiap,
         },
-        modalSiapHeadline: modalSiap,
       },
-    },
-    conflictsWith: 'saham',
+      conflictsWith: 'saham',
+    })
   }
+  return out
 }
 
 // ----- FI bucket options (tambah RD / deposito) -----
@@ -505,8 +516,7 @@ export function runModalOptions(
     ...gadaiOptions(snap, prices, modalSiap),
   ]
 
-  const saham = sahamOption(snap, prices, modalSiap)
-  if (saham) options.push(saham)
+  options.push(...sahamOptions(snap, prices, modalSiap))
 
   options.push(...fiBucketOptions(snap, goals, prices, modalSiap, input))
 
