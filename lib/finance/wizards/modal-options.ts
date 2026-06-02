@@ -39,6 +39,7 @@ import { idr } from '~/lib/format/idr'
 import { percent, pp } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
 import { cloneSnapshot } from '~/lib/finance/wizards/_shared'
+import { deployablePool } from '~/lib/finance/wizards/deploy-preview'
 import type { Goal } from '~/lib/types/goals'
 import type {
   CicilanRow,
@@ -58,30 +59,26 @@ export type ModalOptionKind =
   | 'beli-saham'
   | 'tambah-reksaDana'
   | 'tambah-deposito'
+  | 'tambah-sbn'
+  | 'tambah-emas'
 
-// Deploy-preview wizard input — carries the action description so WizardDeployPreview
-// can simulate it against a cloned snapshot. Kept narrow + serializable.
-export type DeployAction =
-  | {
-      kind: 'addLiquidRow'
-      category: 'reksaDana' | 'deposito'
-      label: string
-      amountIdr: number
-    }
-  | {
-      kind: 'addStockLots'
-      stockId: string
-      stockTicker: string
-      lotsToAdd: number
-      costIdr: number
-    }
+// DeployAction lives in deploy-preview.ts to break the circular dep (deploy-preview
+// imports deployablePool, modal-options needs the action shape). Re-exported here so
+// existing call sites keep working.
+import type { DeployAction } from '~/lib/finance/wizards/deploy-preview'
+export type { DeployAction }
+
+// Re-export ModalSiapIncludes type so wizards that import this module can read it
+// without a separate import from metrics.
+export type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 export interface DeployPrefill {
   action: DeployAction
-  // Echo the snapshot Modal Siap headline for the wizard's "Sumber" line. Source
-  // waterfall (kas→deposito→RD→crypto) is fixed inside the wizard; toggle-include is
-  // a display preference for the dashboard headline, NOT a waterfall selector.
+  // Echo the snapshot Modal Siap headline for the wizard's "Sumber" line.
   modalSiapHeadline: number
+  // Toggle state at the time the option was generated — passed through so the wizard's
+  // internal drain pipeline knows which toggled-in classes are drainable.
+  includes: ModalSiapIncludes
 }
 
 export type ModalOptionHandoff =
@@ -93,12 +90,8 @@ export interface ModalOption {
   kind: ModalOptionKind
   label: string // headline — "Lunasi Kartu Kredit (Rp 8jt)"
   impactPreview: string // descriptive — "DSR 33% → 31%; sisa modal Rp 44jt"
-  amount: number // IDR deployed by this option
+  amount: number // IDR deployed by this option (already capped to deployable pool)
   handoff: ModalOptionHandoff
-  // Asset-include toggle whose ON state conflicts with this option (deploying TO that
-  // class while it's counted as available cash double-counts the same rupiah). UI
-  // auto-offs this toggle before opening the wizard. Undefined = no conflict.
-  conflictsWith?: keyof ModalSiapIncludes
 }
 
 export interface ModalOptionsResult {
@@ -278,19 +271,17 @@ function gadaiOptions(
 // ----- saham options (one per emiten with target gap) -----
 
 // Emit one option per emiten that has (a) lotsTarget > 0 + (b) gap = lotsTarget − lot
-// > 0 + (c) live/override price > 0 + (d) modalSiap covers at least 1 lot. Each option
-// is INDEPENDENT — sized against full modalSiap (same as cicilan/utangPribadi/gadai
-// options which all assume "use full modal for THIS option"). User picks one to
-// preview; deploying to multiple = multiple [Hitung] clicks in succession.
+// > 0 + (c) live/override price > 0 + (d) deployable pool covers at least 1 lot. Each
+// option's deployable pool = full Modal Siap (with includes) MINUS THIS emiten's own
+// current value (so the option doesn't pretend to "buy BBRI by selling BBRI"). User
+// picks one to preview per [Hitung]; deploying to multiple = multiple clicks.
 //
-// Sort by gap desc (largest-gap-first, descriptive ordering — NOT advice). Lots are
-// integers; round down to nearest lot.
+// Sort by gap desc (largest-gap-first, descriptive — NOT advice).
 function sahamOptions(
   snap: SnapshotState,
   prices: PricesView | undefined,
-  modalSiap: number,
+  includes: ModalSiapIncludes,
 ): ModalOption[] {
-  if (modalSiap <= 0) return []
   if (snap.saham.length === 0) return []
 
   // First pass: enumerate eligible emitens with their gap + price.
@@ -305,18 +296,20 @@ function sahamOptions(
   }
   if (eligible.length === 0) return []
 
-  // Sort by gap desc — descriptive ordering, NOT advice ("biggest hole first").
   eligible.sort((a, b) => b.gap - a.gap)
-
-  // Allocation Discipline reads the FULL saham list (within lotsTarget universe).
-  // Compute baseline once; per-option scenario clones snap so the delta math reflects
-  // adding lots to THIS emiten only — each option is independent of the others.
   const disciplineBefore = calcAllocationDiscipline(snap.saham, prices)
 
   const out: ModalOption[] = []
   for (const e of eligible) {
     const costPerLot = e.price * 100
-    const maxAffordableLots = Math.floor(modalSiap / costPerLot)
+    // Cap by deployable pool for THIS emiten — excludes the emiten's own current value
+    // so the option doesn't propose buying X by selling X.
+    const deployable = deployablePool(snap, prices, includes, {
+      kind: 'saham',
+      stockId: e.stock.id,
+    })
+    if (deployable <= 0) continue
+    const maxAffordableLots = Math.floor(deployable / costPerLot)
     if (maxAffordableLots <= 0) continue
     const lotsToBuy = Math.min(e.gap, maxAffordableLots)
     const costIdr = lotsToBuy * costPerLot
@@ -357,50 +350,64 @@ function sahamOptions(
             lotsToAdd: lotsToBuy,
             costIdr,
           },
-          modalSiapHeadline: modalSiap,
+          modalSiapHeadline: calcModalSiap(snap, prices, includes),
+          includes,
         },
       },
-      conflictsWith: 'saham',
     })
   }
   return out
 }
 
-// ----- FI bucket options (tambah RD / deposito) -----
+// ----- asset acquisition options (tambah RD / Deposito / SBN / Emas) -----
 
-// Always emit if Modal Siap > 0. Goal-months-shift computed against the FI goal if
-// present; for non-FI goals or when no FI goal exists, falls back to "kontribusi ke
-// likuid" framing (no goal shift line).
-function fiBucketOptions(
+// Each option's amount caps at deployablePool(snap, prices, includes, destination)
+// so distribusi math stays zero-sum (Net Worth invariant). For RD/Deposito + SBN +
+// emas, the "destination" overlap subtracts from Modal Siap so the option's amount
+// = what can ACTUALLY be moved into that bucket from other sources.
+//
+// FI bucket framing — when an FI goal exists, the preview line surfaces months-shift.
+// Otherwise falls back to no-goal preview copy. Goal-shift math runs against a clone
+// with the new row pushed in (preview only — never mutates real snap).
+function assetAcquisitionOptions(
   snap: SnapshotState,
   goals: Goal[],
   prices: PricesView | undefined,
-  modalSiap: number,
+  includes: ModalSiapIncludes,
   opts: {
     fiMultiplier: number
     assumedAnnualReturnReal: number
     today?: Date
   },
 ): ModalOption[] {
-  if (modalSiap <= 0) return []
+  const out: ModalOption[] = []
   const fiGoal = goals.find((g) => g.kind === 'FI')
-
-  // Helper builds one bucket option (RD or Deposito). Preview math runs against an
-  // in-memory clone with the new asset row pushed in — same shape as the deploy-preview
-  // wizard's internal simulation. Stays read-only; the real mutation NEVER happens.
   const deployRowLabel = t('modal.option.deployLabel')
-  function build(
-    category: 'reksaDana' | 'deposito',
-    kind: 'tambah-reksaDana' | 'tambah-deposito',
-    labelKey: 'modal.option.tambahReksaDana.label' | 'modal.option.tambahDeposito.label',
+
+  // Generic "tambah-likuid" builder (RD / Deposito / SBN — all AssetRow[] destinations).
+  function buildLiquidBucket(
+    category: 'reksaDana' | 'deposito' | 'sbn',
+    kind: 'tambah-reksaDana' | 'tambah-deposito' | 'tambah-sbn',
+    labelKey:
+      | 'modal.option.tambahReksaDana.label'
+      | 'modal.option.tambahDeposito.label'
+      | 'modal.option.tambahSbn.label',
     previewKey:
       | 'modal.option.tambahReksaDana.preview'
-      | 'modal.option.tambahDeposito.preview',
+      | 'modal.option.tambahDeposito.preview'
+      | 'modal.option.tambahSbn.preview',
     previewNoGoalKey:
       | 'modal.option.tambahReksaDana.previewNoGoal'
-      | 'modal.option.tambahDeposito.previewNoGoal',
-  ): ModalOption {
-    let preview = t(previewNoGoalKey, { amount: idr(modalSiap) })
+      | 'modal.option.tambahDeposito.previewNoGoal'
+      | 'modal.option.tambahSbn.previewNoGoal',
+  ): ModalOption | null {
+    const deployable = deployablePool(snap, prices, includes, {
+      kind: 'liquidCategory',
+      category,
+    })
+    if (deployable <= 0) return null
+
+    let preview = t(previewNoGoalKey, { amount: idr(deployable) })
     if (fiGoal) {
       const before = goalProgress(fiGoal, snap, {
         fiMultiplier: opts.fiMultiplier,
@@ -413,7 +420,7 @@ function fiBucketOptions(
       scn.asetLikuid[category].push({
         id: 'preview-only',
         label: deployRowLabel,
-        amount: modalSiap,
+        amount: deployable,
         currency: 'IDR',
       })
       const after = goalProgress(fiGoal, scn, {
@@ -428,13 +435,12 @@ function fiBucketOptions(
       if (bFin && aFin) {
         const shift = before.projection.months - after.projection.months
         const months = Math.abs(shift)
-        const fmt = months >= 12 ? `${(months / 12).toFixed(1)} tahun` : `${Math.round(months)} bulan`
+        const fmt =
+          months >= 12 ? `${(months / 12).toFixed(1)} tahun` : `${Math.round(months)} bulan`
         preview =
           shift > 0
-            ? t(previewKey, { amount: idr(modalSiap), months: fmt })
-            : t(previewNoGoalKey, { amount: idr(modalSiap) })
-      } else {
-        preview = t(previewNoGoalKey, { amount: idr(modalSiap) })
+            ? t(previewKey, { amount: idr(deployable), months: fmt })
+            : t(previewNoGoalKey, { amount: idr(deployable) })
       }
     }
 
@@ -443,7 +449,7 @@ function fiBucketOptions(
       kind,
       label: t(labelKey),
       impactPreview: preview,
-      amount: modalSiap,
+      amount: deployable,
       handoff: {
         kind: 'wizard',
         wizardKey: 'deploy-preview',
@@ -452,32 +458,64 @@ function fiBucketOptions(
             kind: 'addLiquidRow',
             category,
             label: deployRowLabel,
-            amountIdr: modalSiap,
+            amountIdr: deployable,
           },
-          modalSiapHeadline: modalSiap,
+          modalSiapHeadline: calcModalSiap(snap, prices, includes),
+          includes,
         },
       },
-      // RD/Deposito options don't conflict with toggle-include (those categories are
-      // always part of baseline Modal Siap — they can't be toggled). Only saham conflicts.
     }
   }
 
-  return [
-    build(
-      'reksaDana',
-      'tambah-reksaDana',
-      'modal.option.tambahReksaDana.label',
-      'modal.option.tambahReksaDana.preview',
-      'modal.option.tambahReksaDana.previewNoGoal',
-    ),
-    build(
-      'deposito',
-      'tambah-deposito',
-      'modal.option.tambahDeposito.label',
-      'modal.option.tambahDeposito.preview',
-      'modal.option.tambahDeposito.previewNoGoal',
-    ),
-  ]
+  // Emas option (destination = emas.digital, lowest-spread sub-category).
+  function buildEmasOption(): ModalOption | null {
+    const deployable = deployablePool(snap, prices, includes, { kind: 'emas' })
+    if (deployable <= 0) return null
+    return {
+      id: 'tambah-emas',
+      kind: 'tambah-emas',
+      label: t('modal.option.tambahEmas.label'),
+      impactPreview: t('modal.option.tambahEmas.preview', { amount: idr(deployable) }),
+      amount: deployable,
+      handoff: {
+        kind: 'wizard',
+        wizardKey: 'deploy-preview',
+        prefill: {
+          action: { kind: 'addEmasGram', amountIdr: deployable },
+          modalSiapHeadline: calcModalSiap(snap, prices, includes),
+          includes,
+        },
+      },
+    }
+  }
+
+  const rd = buildLiquidBucket(
+    'reksaDana',
+    'tambah-reksaDana',
+    'modal.option.tambahReksaDana.label',
+    'modal.option.tambahReksaDana.preview',
+    'modal.option.tambahReksaDana.previewNoGoal',
+  )
+  if (rd) out.push(rd)
+  const dep = buildLiquidBucket(
+    'deposito',
+    'tambah-deposito',
+    'modal.option.tambahDeposito.label',
+    'modal.option.tambahDeposito.preview',
+    'modal.option.tambahDeposito.previewNoGoal',
+  )
+  if (dep) out.push(dep)
+  const sbn = buildLiquidBucket(
+    'sbn',
+    'tambah-sbn',
+    'modal.option.tambahSbn.label',
+    'modal.option.tambahSbn.preview',
+    'modal.option.tambahSbn.previewNoGoal',
+  )
+  if (sbn) out.push(sbn)
+  const emas = buildEmasOption()
+  if (emas) out.push(emas)
+  return out
 }
 
 // ----- entry point -----
@@ -510,15 +548,20 @@ export function runModalOptions(
     }
   }
 
+  const effectiveIncludes: ModalSiapIncludes =
+    includes ?? { saham: false, emas: false, sbn: false }
+
   const options: ModalOption[] = [
     ...cicilanOptions(snap, prices, modalSiap),
     ...utangPribadiOptions(snap, prices, modalSiap),
     ...gadaiOptions(snap, prices, modalSiap),
   ]
 
-  options.push(...sahamOptions(snap, prices, modalSiap))
+  options.push(...sahamOptions(snap, prices, effectiveIncludes))
 
-  options.push(...fiBucketOptions(snap, goals, prices, modalSiap, input))
+  options.push(
+    ...assetAcquisitionOptions(snap, goals, prices, effectiveIncludes, input),
+  )
 
   return {
     modalSiapIdr: modalSiap,

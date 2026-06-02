@@ -630,6 +630,16 @@ export const copy = {
     '+{amount} → proyeksi Goal FI maju ~{months}',
   'modal.option.tambahDeposito.previewNoGoal':
     '+{amount} ke Deposito; kontribusi ke aset likuid (belum ada Goal FI, atau projection unreachable)',
+  // Tambah SBN — sama pattern; SBN harus di-toggle ON di Modal Siap biar overlap-aware
+  'modal.option.tambahSbn.label': 'Tambah ke SBN / Obligasi',
+  'modal.option.tambahSbn.preview':
+    '+{amount} → proyeksi Goal FI maju ~{months}',
+  'modal.option.tambahSbn.previewNoGoal':
+    '+{amount} ke SBN; kontribusi ke aset likuid (belum ada Goal FI, atau projection unreachable)',
+  // Tambah Emas — destination = emas digital (lowest spread). Amount → gram via live rate.
+  'modal.option.tambahEmas.label': 'Tambah ke Emas (digital)',
+  'modal.option.tambahEmas.preview':
+    '+{amount} jadi gram emas digital (Pegadaian hargaJual); hedge inflasi.',
   // Generic label used when constructing the new asset row from a modal option apply.
   'modal.option.deployLabel': 'Tambahan dari Modal Siap',
 
@@ -661,6 +671,7 @@ export const copy = {
   'wizard.deployPreview.summary.title': 'Ringkasan Aksi',
   'wizard.deployPreview.summary.action.addLiquid': 'Tambah {amount} ke {category}',
   'wizard.deployPreview.summary.action.addStock': 'Beli {ticker} {lots} lot ({amount})',
+  'wizard.deployPreview.summary.action.addEmas': 'Tambah {grams} gram emas digital ({amount})',
   'wizard.deployPreview.summary.source':
     'Sumber: tarik via waterfall kas → deposito → reksa dana → crypto.',
   'wizard.deployPreview.warning.shortfall':
@@ -671,6 +682,7 @@ export const copy = {
     'Toggle {category} di Modal Siap di-off-in dulu karena lo lagi distribusi ke kategori itu (biar gak double-count).',
   'wizard.deployPreview.category.reksaDana': 'Reksa Dana',
   'wizard.deployPreview.category.deposito': 'Deposito',
+  'wizard.deployPreview.category.sbn': 'SBN / Obligasi',
 } as const
 
 export type CopyKey = keyof typeof copy

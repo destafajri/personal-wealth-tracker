@@ -1,53 +1,27 @@
 <script setup lang="ts">
 // Day 9 — Modal Likuid Options panel (design-guidelines §8.20). Always-visible card
-// on the dashboard right rail when Modal Siap > 0. Renders the auto-generated option
-// list from derived.modalOptions; each [Hitung] opens the relevant wizard:
+// on the dashboard right rail when ≥1 option exists. Renders the auto-generated option
+// list from derived.modalOptions; each [Hitung] opens the relevant preview wizard:
 //   - lunasi/prepay/utangPribadi/gadai → WizardLunasi pre-filled
-//   - beli-saham / tambah-RD / tambah-deposito → WizardDeployPreview (preview-only)
+//   - beli-saham / tambah-RD / Deposito / SBN / Emas → WizardDeployPreview (preview-only)
 //
-// Conflict auto-off (D9.10): if an option has `conflictsWith` matching a Modal Siap
-// toggle currently ON, auto-off that toggle BEFORE opening the wizard. A transient
-// notice surfaces briefly so the user understands why their toggle changed (Modal
-// Siap headline recomputes reactively).
+// Per-option sizing capped by deployablePool (= Modal Siap − destination's own current
+// value) so distribusi math stays zero-sum (Net Worth invariant). Conflict auto-off
+// pattern from the earlier iteration was removed — toggle-include is now actually
+// drainable in the preview, so there's no double-count to avoid.
 //
 // NEVER ranked. Header: "Opsi yang Bisa Dihitungkan" (OJK §11.1).
-import { ref } from 'vue'
 import { Compass } from 'lucide-vue-next'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
 import { idr } from '~/lib/format/idr'
-import { t, type CopyKey } from '~/lib/copy/strings'
+import { t } from '~/lib/copy/strings'
 import type { ModalOption } from '~/lib/finance/wizards/modal-options'
 
 const derived = useDerivedStore()
 const simulator = useSimulator()
 
-// Transient conflict notice — set when auto-off fires; auto-clears after 4s. UI renders
-// as a soft amber strip at the top of the panel; not modal/blocking.
-const conflictNotice = ref<string | null>(null)
-let noticeTimer: ReturnType<typeof setTimeout> | null = null
-
-function CATEGORY_LABEL_KEY(key: 'saham' | 'emas' | 'sbn'): CopyKey {
-  if (key === 'saham') return 'modal.siap.includes.saham'
-  if (key === 'emas') return 'modal.siap.includes.emas'
-  return 'modal.siap.includes.sbn'
-}
-
 function hitung(opt: ModalOption) {
-  // Auto-off the conflicting include toggle (if any) before opening the wizard. Modal
-  // Siap recomputes reactively; the wizard's internal simulation reads the updated
-  // headline via prefill so the Sebelum/Sesudah math stays consistent.
-  if (opt.conflictsWith && derived.modalSiapIncludes[opt.conflictsWith]) {
-    derived.setModalSiapInclude(opt.conflictsWith, false)
-    conflictNotice.value = t('wizard.deployPreview.conflictNotice', {
-      category: t(CATEGORY_LABEL_KEY(opt.conflictsWith)),
-    })
-    if (noticeTimer) clearTimeout(noticeTimer)
-    noticeTimer = setTimeout(() => {
-      conflictNotice.value = null
-    }, 4000)
-  }
-
   if (opt.handoff.kind !== 'wizard') return
   simulator.open(opt.handoff.wizardKey, {
     wizardKey: opt.handoff.wizardKey,
@@ -77,17 +51,6 @@ function hitung(opt: ModalOption) {
     <p class="tabular mt-2 text-xs text-[var(--color-text-muted)]">
       {{ t('modal.options.modalSiapLabel', { amount: idr(derived.modalOptions.modalSiapIdr) }) }}
     </p>
-
-    <!-- Conflict auto-off notice (transient, 4s). aria-live=polite so screen readers
-         announce the change without stealing focus. -->
-    <div
-      v-if="conflictNotice"
-      role="status"
-      aria-live="polite"
-      class="mt-3 rounded-[var(--radius-card)] border border-[var(--color-warning-amber)] bg-[var(--color-warning-amber-soft)] p-2 text-xs text-[var(--color-warning-amber)]"
-    >
-      {{ conflictNotice }}
-    </div>
 
     <ol class="mt-3 space-y-2.5">
       <li

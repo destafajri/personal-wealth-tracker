@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   runModalOptions,
+  type ModalOption,
   type ModalOptionsInput,
 } from '~/lib/finance/wizards/modal-options'
 import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
@@ -327,8 +328,8 @@ describe('runModalOptions — handoff payload integrity', () => {
     }
   })
 
-  it('beli-saham option carries conflictsWith=saham flag', () => {
-    const s = snapWithModal(20_000_000)
+  it('no option carries a conflictsWith flag (auto-off pattern removed in D9 iteration 3)', () => {
+    const s = snapWithModal(50_000_000)
     s.saham.push({
       id: 's1',
       ticker: 'BBCA',
@@ -337,24 +338,10 @@ describe('runModalOptions — handoff payload integrity', () => {
       lotsTarget: 10,
     })
     const r = runModalOptions(s, [], OPTS)
-    const beli = r.options.find((o) => o.kind === 'beli-saham')
-    expect(beli?.conflictsWith).toBe('saham')
-  })
-
-  it('cicilan + RD/deposito options have no conflictsWith', () => {
-    const s = snapWithModal(50_000_000)
-    s.cicilanAktif.push({
-      id: 'c1',
-      tipe: 'KK',
-      label: 'KK',
-      sisaPokok: 5_000_000,
-      cicilanPerBulan: 500_000,
-      jenisBunga: 'Revolving',
-    })
-    const r = runModalOptions(s, [], OPTS)
     for (const opt of r.options) {
-      if (opt.kind === 'beli-saham') continue
-      expect(opt.conflictsWith).toBeUndefined()
+      expect(
+        (opt as ModalOption & { conflictsWith?: unknown }).conflictsWith,
+      ).toBeUndefined()
     }
   })
 

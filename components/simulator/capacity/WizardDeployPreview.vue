@@ -54,8 +54,10 @@ onMounted(() => {
   if (!p) return
   prefill.value = p.input
   // Auto-run preview on mount — wizard is preview-only so there's no "Hitung" step.
+  // Pass through the toggle-include snapshot so the drain pipeline knows which
+  // toggled-in classes are drainable (saham/emas/sbn).
   const r = runDeployPreview(
-    { action: p.input.action },
+    { action: p.input.action, includes: p.input.includes },
     snapshotView(),
     goalsStore.goals,
     {
