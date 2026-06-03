@@ -42,3 +42,5 @@ venv/
 .agents
 .claude
 skills-lock.json
+
+.review/
