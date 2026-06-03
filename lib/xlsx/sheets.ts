@@ -270,8 +270,14 @@ function snapshotEmasRow(
 }
 
 function snapshotCryptoRow(c: CryptoHolding, prices: PricesView): Row {
-  const labelExtra = c.label ? ` — ${c.label}` : ''
-  const label = `${c.coinId}${labelExtra}`
+  // Label = coinId only (canonical CoinGecko slug). Custom nickname (c.label)
+  // is preserved in _meta.data_json + the dashboard UI; mixing it into this
+  // cell as "bitcoin — BTC cold wallet" makes Phase-2 import ambiguous and
+  // looks awkward on first read.
+  const label = c.coinId
+  // source_currency carries the mode marker (unit / IDR / USD / KRW) — that's
+  // sufficient to round-trip the crypto mode on import. The coin info is
+  // already in the label column above.
   if (c.mode === 'unit') {
     const rate = prices.cryptoByCoinId[c.coinId]?.idr ?? null
     return [
@@ -279,7 +285,7 @@ function snapshotCryptoRow(c: CryptoHolding, prices: PricesView): Row {
       c.id,
       label,
       c.units,
-      `${c.coinId} unit`,
+      'unit',
       rate !== null ? c.units * rate : null,
       null,
       null,

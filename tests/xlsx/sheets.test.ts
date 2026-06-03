@@ -250,6 +250,28 @@ describe('buildSnapshot', () => {
     expect(gajiFx[5]).toBe(16_000_000)
   })
 
+  it('crypto rows: label = coinId only, source_currency = mode marker (unit/IDR/USD/KRW)', () => {
+    const snap = useSnapshotStore()
+    applyDemoSnapshot(snap)
+    const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
+    const cryptoRows = rows.filter((r) => r[0] === 'crypto')
+    expect(cryptoRows.length).toBeGreaterThan(0)
+    // Fixture seeds BTC (unit mode) + ETH (idr mode); both labels must be the
+    // canonical coinId only — no mixing with c.label or coin-name suffix.
+    const labels = cryptoRows.map((r) => String(r[2]))
+    expect(labels).toContain('bitcoin')
+    expect(labels).toContain('ethereum')
+    for (const r of cryptoRows) {
+      // Label must NOT contain " — " separator (sign of old "coinId — nickname"
+      // format) or a "unit" suffix (sign of old "coinId unit" in source_currency).
+      expect(String(r[2])).not.toContain(' — ')
+      expect(String(r[2])).not.toContain(' unit')
+      // source_currency must be a clean mode marker
+      const sc = String(r[4])
+      expect(['unit', 'IDR', 'USD', 'KRW']).toContain(sc)
+    }
+  })
+
   it('sukuBungaPercent + rdJenis ride in their own columns (cols 6 and 7)', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
