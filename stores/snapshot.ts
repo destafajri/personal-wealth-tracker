@@ -276,6 +276,11 @@ export const useSnapshotStore = defineStore('snapshot', () => {
   }
 
   function addPenghasilanLain(partial: Partial<AssetRow> = {}): AssetRow {
+    // Reuses AssetRow shape for field overlap (id/label/amount/currency), but
+    // sukuBungaPercent + rdJenis are intentionally NOT forwarded — those carry
+    // yield/RD-jenis semantics that only apply to deposito/SBN/reksaDana rows,
+    // not to income streams (gaji/sewa/freelance). Mirror precedent: addNonLikuid
+    // similarly drops `currency` because non-likuid is IDR-only by design.
     const row: AssetRow = {
       id: rid(),
       label: partial.label ?? '',
