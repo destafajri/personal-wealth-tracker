@@ -5,6 +5,9 @@ import DashboardPanel from '~/components/layout/DashboardPanel.vue'
 import FooterDisclaimer from '~/components/layout/FooterDisclaimer.vue'
 import MetricExplainerModal from '~/components/dashboard/MetricExplainerModal.vue'
 import SimHost from '~/components/simulator/SimHost.vue'
+import { useDirtyGuard } from '~/composables/useDirtyGuard'
+
+useDirtyGuard()
 </script>
 
 <template>

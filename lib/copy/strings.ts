@@ -20,6 +20,8 @@ export const copy = {
   'banner.simulation.disclaimer':
     'Hasil di sini cuma simulasi pakai data kamu. Cermat bukan penasihat keuangan atau produk berizin.',
 
+  'dialog.refresh': 'Data kamu belum tersimpan. Yakin mau refresh?',
+
   'snapshot.demo.banner':
     'Kamu lagi lihat data contoh — angka di sini cuma persona fiktif, bukan datamu.',
   'snapshot.demo.reset': 'Pakai data sendiri',
