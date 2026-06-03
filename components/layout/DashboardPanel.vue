@@ -7,12 +7,20 @@
 // Charts (D4.6) are async — ECharts bundle (~80kb gzip tree-shaken) only fetches when
 // the dashboard mounts, keeping the initial route payload lean. defineAsyncComponent
 // splits each into its own chunk in Vite.
-import { defineAsyncComponent, h } from 'vue'
+import { computed, defineAsyncComponent, h } from 'vue'
 import HeroPair from '~/components/dashboard/HeroPair.vue'
 import MetricGrid from '~/components/dashboard/MetricGrid.vue'
 import GoalSummaryCards from '~/components/dashboard/GoalSummaryCards.vue'
 import ModalOptionsPanel from '~/components/dashboard/ModalOptionsPanel.vue'
+import { useDerivedStore } from '~/stores/derived'
 import { t } from '~/lib/copy/strings'
+
+const derived = useDerivedStore()
+// D11.6 — gate chart mount on having any asset. Both charts only have meaning
+// once there's portfolio data; skipping them on empty state keeps the ECharts
+// chunk (~80 KB gzip) off the wire until the user enters their first row. The
+// async wrappers remain so the chunks split cleanly when they do load.
+const hasAnyAsset = computed(() => derived.totalAset > 0)
 
 const ChartLoading = {
   render() {
@@ -46,7 +54,7 @@ const SafeHavenBar = defineAsyncComponent({
     <HeroPair />
     <MetricGrid />
     <ModalOptionsPanel />
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div v-if="hasAnyAsset" class="grid gap-4 sm:grid-cols-2">
       <AllocationDonut />
       <SafeHavenBar />
     </div>
