@@ -185,7 +185,7 @@ export const copy = {
   'gadai.field.tempo': 'Tempo (bulan)',
   'gadai.field.tanggal': 'Jatuh tempo (opsional)',
   'gadai.field.asetRef': 'Aset yang dijaminkan',
-  'gadai.field.asetRef.pick': 'Pilih aset...',
+  'gadai.field.asetRef.pick': 'Pilih aset…',
   'gadai.asetRef.empty.properti':
     'Belum ada properti di snapshot. Tambah dulu di Aset non-likuid → Properti.',
   'gadai.asetRef.empty.kendaraan':
@@ -710,7 +710,7 @@ export const copy = {
   'sim.deployPreview.note':
     'Aksi ini tidak otomatis ke-apply ke snapshot. Buat eksekusi, tambah row-nya manual di panel Snapshot.',
   'sim.deployPreview.conflictNotice':
-    'Toggle {category} di Modal Siap di-off-in dulu karena lo lagi distribusi ke kategori itu (biar gak double-count).',
+    'Toggle {category} di Modal Siap di-off-in dulu karena kamu lagi distribusi ke kategori itu (biar gak double-count).',
   'sim.deployPreview.category.reksaDana': 'Reksa Dana',
   'sim.deployPreview.category.deposito': 'Deposito',
   'sim.deployPreview.category.sbn': 'SBN / Obligasi',
