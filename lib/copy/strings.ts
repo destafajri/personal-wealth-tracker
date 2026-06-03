@@ -420,6 +420,10 @@ export const copy = {
   'sim.host.close': 'Tutup simulasi',
   'sim.host.loading': 'Memuat simulasi…',
 
+  // D11.4 — Screen 13 mobile fallback strings.
+  'mobile.viewDashboard': '↓ Lihat dashboard',
+  'mobile.desktopHint': 'Lebih nyaman di desktop',
+
   'sim.kpr.title': 'Mau KPR?',
   'sim.kpr.subtitle': 'Isi spesifikasi KPR untuk lihat dampak ke metrik + goals.',
   'sim.kpr.form.label': 'Nama / catatan (opsional)',
