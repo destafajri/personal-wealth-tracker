@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FooterDisclaimer from '~/components/layout/FooterDisclaimer.vue'
 import { t } from '~/lib/copy/strings'
 </script>
 
