@@ -42,5 +42,5 @@ Copies of the Claude Code agent memory entries built up during MVP development. 
 
 ## Next phases
 
-- [`../2_import_valid_xlsx/`](../2_import_valid_xlsx/) — xlsx import round-trip
-- [`../3_improvement_ui_snapshot/`](../3_improvement_ui_snapshot/) — UI polish for snapshot flow
+- [`../2_improvement_ui_snapshot/`](../2_improvement_ui_snapshot/) — UI revamp (split-screen snapshot flow + visual polish); swapped ahead of xlsx 2026-06-03 per user preference
+- [`../3_import_valid_xlsx/`](../3_import_valid_xlsx/) — xlsx import round-trip (deferred behind revamp)
