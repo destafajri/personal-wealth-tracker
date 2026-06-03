@@ -22,7 +22,7 @@ export const copy = {
 
   'snapshot.demo.banner':
     'Kamu lagi lihat data contoh — angka di sini cuma persona fiktif, bukan datamu.',
-  'snapshot.demo.reset': 'Mulai dari kosong',
+  'snapshot.demo.reset': 'Pakai data sendiri',
 
   // ----- app shell -----
   'nav.track': 'Track',

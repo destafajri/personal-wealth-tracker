@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { applyDemoSnapshot } from '~/lib/fixtures/demoSnapshot'
+import { applyDemoSnapshot, triggerDemoFromQuery } from '~/lib/fixtures/demoSnapshot'
 import { useSnapshotStore } from '~/stores/snapshot'
 
 describe('applyDemoSnapshot', () => {
@@ -75,5 +75,37 @@ describe('applyDemoSnapshot', () => {
     snap.reset()
     expect(snap.isDemo).toBe(false)
     expect(snap.saham.length).toBe(0)
+  })
+})
+
+describe('triggerDemoFromQuery', () => {
+  beforeEach(() => setActivePinia(createPinia()))
+
+  it("seeds + cleans URL when route.query.demo === '1'", () => {
+    const snap = useSnapshotStore()
+    const router = { replace: vi.fn() }
+    const route = { query: { demo: '1', other: 'keep' } }
+
+    const fired = triggerDemoFromQuery(snap, route, router)
+
+    expect(fired).toBe(true)
+    expect(snap.isDemo).toBe(true)
+    expect(snap.saham.length).toBeGreaterThan(0)
+    // demo key dropped from the URL; other params preserved.
+    expect(router.replace).toHaveBeenCalledTimes(1)
+    expect(router.replace).toHaveBeenCalledWith({ query: { other: 'keep' } })
+  })
+
+  it('is a no-op when ?demo is missing or not exactly "1"', () => {
+    const snap = useSnapshotStore()
+    const router = { replace: vi.fn() }
+
+    expect(triggerDemoFromQuery(snap, { query: {} }, router)).toBe(false)
+    expect(triggerDemoFromQuery(snap, { query: { demo: '0' } }, router)).toBe(false)
+    expect(triggerDemoFromQuery(snap, { query: { demo: 'true' } }, router)).toBe(false)
+
+    expect(snap.isDemo).toBe(false)
+    expect(snap.saham.length).toBe(0)
+    expect(router.replace).not.toHaveBeenCalled()
   })
 })

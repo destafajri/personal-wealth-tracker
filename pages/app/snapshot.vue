@@ -15,7 +15,7 @@ import UtangPribadiPanel from '~/components/snapshot/UtangPribadiPanel.vue'
 import GadaiPanel from '~/components/snapshot/GadaiPanel.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
-import { applyDemoSnapshot } from '~/lib/fixtures/demoSnapshot'
+import { triggerDemoFromQuery } from '~/lib/fixtures/demoSnapshot'
 import {
   useCryptoPrices,
   useFxRates,
@@ -37,17 +37,12 @@ const derived = useDerivedStore()
 const route = useRoute()
 const router = useRouter()
 
-// Demo seed — fires whenever the URL carries ?demo=1. applyDemoSnapshot calls
-// snap.reset() internally so the demo always wins over whatever is there (clicking
-// the demo link is an explicit intent to see the persona, not a request to merge).
-// After seeding we drop the query so a refresh doesn't re-trigger; demo state lives
-// on snap.isDemo so the banner survives route nav and the "Mulai dari Snapshot"
-// link's onClick reset wipes both data + flag in one shot.
+// Demo seed — delegated to triggerDemoFromQuery so the trigger + URL-cleanup
+// logic stays unit-testable without mounting the page. The fixture wipes the
+// store before seeding, so the demo CTA always wins (explicit intent to view
+// the persona). isDemo on the store keeps the banner visible across route nav.
 onMounted(() => {
-  if (route.query.demo === '1') {
-    applyDemoSnapshot(snap)
-    router.replace({ query: { ...route.query, demo: undefined } })
-  }
+  triggerDemoFromQuery(snap, route, router)
 })
 function resetDemo() {
   snap.reset()

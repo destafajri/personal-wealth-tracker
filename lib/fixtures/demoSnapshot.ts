@@ -66,7 +66,7 @@ export function applyDemoSnapshot(snap: SnapshotStore): void {
     { ticker: 'ADRO', lot: 10, avg: 1900, target: 30, divYield: 7.0 },
     { ticker: 'TLKM', lot: 5, avg: 2500, target: 25, divYield: 5.7 },
     { ticker: 'SIDO', lot: 50, avg: 320, target: 200, divYield: 6.0 },
-    { ticker: 'UNTR', lot: 1, avg: 18500, target: 5, divYield: 6.0 },
+    { ticker: 'UNTR', lot: 2, avg: 18500, target: 5, divYield: 6.0 },
     { ticker: 'PTBA', lot: 10, avg: 2300, target: 30, divYield: 10.0 },
     { ticker: 'PGAS', lot: 10, avg: 1500, target: 30, divYield: 8.0 },
     { ticker: 'BNGA', lot: 20, avg: 1400, target: 100, divYield: 7.5 },
@@ -138,4 +138,31 @@ export function applyDemoSnapshot(snap: SnapshotStore): void {
   })
 
   snap.setDemo(true)
+}
+
+// Minimal subset of vue-router's RouteLocationNormalized + Router so the helper
+// is testable without pulling in a fake router. The page passes `useRoute()`
+// and `useRouter()` straight through; tests pass plain mocks.
+interface DemoRouteLike {
+  query: Record<string, string | string[] | undefined | null>
+}
+interface DemoRouterLike {
+  replace(loc: { query: Record<string, string | string[] | undefined | null> }): unknown
+}
+
+// Glue between snapshot.vue's onMounted and applyDemoSnapshot. Lives here (not in
+// the page) so we can unit-test the trigger + URL-cleanup behavior without
+// mounting the page or wiring Nuxt's auto-imports. The page is then a thin
+// 1-line delegate — if the helper test passes and the page calls it, behavior
+// is covered. Returns true if a seed was applied (useful in tests).
+export function triggerDemoFromQuery(
+  snap: SnapshotStore,
+  route: DemoRouteLike,
+  router: DemoRouterLike,
+): boolean {
+  if (route.query.demo !== '1') return false
+  applyDemoSnapshot(snap)
+  const { demo: _demo, ...rest } = route.query
+  router.replace({ query: rest })
+  return true
 }
