@@ -16,16 +16,8 @@ import * as XLSX from 'xlsx'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { applyDemoSnapshot } from '~/lib/fixtures/demoSnapshot'
-import {
-  SCHEMA_VERSION,
-  buildCicilanAktif,
-  buildGoals,
-  buildMeta,
-  buildPerEmiten,
-  buildRingkasan,
-  buildSnapshot,
-  type XlsxContext,
-} from '~/lib/xlsx/sheets'
+import { SCHEMA_VERSION, type XlsxContext } from '~/lib/xlsx/sheets'
+import { buildWorkbook } from '~/lib/xlsx/workbook'
 import { FI_MULTIPLIER, useGoalsStore } from '~/stores/goals'
 import { useSnapshotStore } from '~/stores/snapshot'
 import type { PricesView, SnapshotState } from '~/lib/types/snapshot'
@@ -97,53 +89,6 @@ function makeCtx(
   }
 }
 
-// Mirrors composables/useXlsx.ts. Kept here as a plain function so we can
-// drive it without the Pinia composable + dynamic-import dance; the result
-// is the same workbook layout the production code emits.
-function assembleWorkbook(ctx: XlsxContext): XLSX.WorkBook {
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(
-    wb,
-    XLSX.utils.aoa_to_sheet(buildRingkasan(ctx)),
-    'Ringkasan',
-  )
-  XLSX.utils.book_append_sheet(
-    wb,
-    XLSX.utils.aoa_to_sheet(buildSnapshot(ctx.snap, ctx.prices)),
-    'Snapshot',
-  )
-  XLSX.utils.book_append_sheet(
-    wb,
-    XLSX.utils.aoa_to_sheet(buildPerEmiten(ctx.snap.saham, ctx.prices)),
-    'Per-Emiten',
-  )
-  XLSX.utils.book_append_sheet(
-    wb,
-    XLSX.utils.aoa_to_sheet(buildCicilanAktif(ctx.snap.cicilanAktif)),
-    'Cicilan-Aktif',
-  )
-  XLSX.utils.book_append_sheet(
-    wb,
-    XLSX.utils.aoa_to_sheet(
-      buildGoals(ctx.goals, ctx.snap, {
-        fiMultiplier: ctx.fiMultiplier,
-        annualReturnReal: ctx.annualReturnReal,
-        prices: ctx.prices,
-      }),
-    ),
-    'Goals',
-  )
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(buildMeta(ctx)), '_meta')
-
-  const metaIdx = wb.SheetNames.indexOf('_meta')
-  if (metaIdx >= 0) {
-    wb.Workbook = wb.Workbook ?? { Sheets: [] }
-    wb.Workbook.Sheets = wb.Workbook.Sheets ?? []
-    wb.Workbook.Sheets[metaIdx] = { ...wb.Workbook.Sheets[metaIdx], Hidden: 1 }
-  }
-  return wb
-}
-
 describe('xlsx integration (write → read round-trip)', () => {
   let workdir: string
 
@@ -157,7 +102,7 @@ describe('xlsx integration (write → read round-trip)', () => {
     applyDemoSnapshot(snap)
     const goals = useGoalsStore()
     const ctx = makeCtx(snapStateFrom(snap), goals.goals)
-    const wb = assembleWorkbook(ctx)
+    const wb = buildWorkbook(ctx, XLSX)
     const out = join(workdir, 'smoke.xlsx')
     XLSX.writeFile(wb, out)
 
@@ -181,7 +126,7 @@ describe('xlsx integration (write → read round-trip)', () => {
     applyDemoSnapshot(snap)
     const goals = useGoalsStore()
     const ctx = makeCtx(snapStateFrom(snap), goals.goals)
-    const wb = assembleWorkbook(ctx)
+    const wb = buildWorkbook(ctx, XLSX)
     const out = join(workdir, 'meta.xlsx')
     XLSX.writeFile(wb, out)
 
@@ -208,7 +153,7 @@ describe('xlsx integration (write → read round-trip)', () => {
     applyDemoSnapshot(snap)
     const goals = useGoalsStore()
     const ctx = makeCtx(snapStateFrom(snap), goals.goals)
-    const wb = assembleWorkbook(ctx)
+    const wb = buildWorkbook(ctx, XLSX)
     const out = join(workdir, 'snapshot.xlsx')
     XLSX.writeFile(wb, out)
 
@@ -238,7 +183,7 @@ describe('xlsx integration (write → read round-trip)', () => {
     applyDemoSnapshot(snap)
     const goals = useGoalsStore()
     const ctx = makeCtx(snapStateFrom(snap), goals.goals)
-    const wb = assembleWorkbook(ctx)
+    const wb = buildWorkbook(ctx, XLSX)
     const out = join(workdir, 'peremiten.xlsx')
     XLSX.writeFile(wb, out)
 

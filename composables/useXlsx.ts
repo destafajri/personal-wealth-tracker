@@ -8,16 +8,8 @@ import { useDerivedStore } from '~/stores/derived'
 import { FI_MULTIPLIER, useGoalsStore } from '~/stores/goals'
 import { useSnapshotStore } from '~/stores/snapshot'
 import type { PricesView, SnapshotState } from '~/lib/types/snapshot'
-import {
-  SCHEMA_VERSION,
-  buildCicilanAktif,
-  buildGoals,
-  buildMeta,
-  buildPerEmiten,
-  buildRingkasan,
-  buildSnapshot,
-  type XlsxContext,
-} from '~/lib/xlsx/sheets'
+import { SCHEMA_VERSION, type XlsxContext } from '~/lib/xlsx/sheets'
+import { buildWorkbook } from '~/lib/xlsx/workbook'
 
 const FILENAME_PREFIX = 'cermat-snapshot'
 
@@ -107,59 +99,11 @@ export function useXlsx() {
       annualReturnReal: goalsStore.assumedAnnualReturnReal,
     }
 
+    // Dynamic import keeps initial bundle small (~700KB stays out per PRD §8).
+    // Both the composable + the round-trip integration test feed into
+    // buildWorkbook so they can't drift from production assembly behavior.
     const XLSX = await import('xlsx')
-    const wb = XLSX.utils.book_new()
-
-    XLSX.utils.book_append_sheet(
-      wb,
-      XLSX.utils.aoa_to_sheet(buildRingkasan(ctx)),
-      'Ringkasan',
-    )
-    XLSX.utils.book_append_sheet(
-      wb,
-      XLSX.utils.aoa_to_sheet(buildSnapshot(ctx.snap, ctx.prices)),
-      'Snapshot',
-    )
-    XLSX.utils.book_append_sheet(
-      wb,
-      XLSX.utils.aoa_to_sheet(buildPerEmiten(ctx.snap.saham, ctx.prices)),
-      'Per-Emiten',
-    )
-    XLSX.utils.book_append_sheet(
-      wb,
-      XLSX.utils.aoa_to_sheet(buildCicilanAktif(ctx.snap.cicilanAktif)),
-      'Cicilan-Aktif',
-    )
-    XLSX.utils.book_append_sheet(
-      wb,
-      XLSX.utils.aoa_to_sheet(
-        buildGoals(ctx.goals, ctx.snap, {
-          fiMultiplier: ctx.fiMultiplier,
-          annualReturnReal: ctx.annualReturnReal,
-          prices: ctx.prices,
-        }),
-      ),
-      'Goals',
-    )
-    XLSX.utils.book_append_sheet(
-      wb,
-      XLSX.utils.aoa_to_sheet(buildMeta(ctx)),
-      '_meta',
-    )
-
-    // Mark _meta hidden. SheetJS reads Workbook.Sheets[i].Hidden when writing
-    // — 1 = "hidden" (Excel-style), 2 = "very hidden" (unhidable from UI).
-    // Use 1 so power users can unhide for inspection if curious.
-    const metaIdx = wb.SheetNames.indexOf('_meta')
-    if (metaIdx >= 0) {
-      wb.Workbook = wb.Workbook ?? { Sheets: [] }
-      wb.Workbook.Sheets = wb.Workbook.Sheets ?? []
-      wb.Workbook.Sheets[metaIdx] = {
-        ...wb.Workbook.Sheets[metaIdx],
-        Hidden: 1,
-      }
-    }
-
+    const wb = buildWorkbook(ctx, XLSX)
     XLSX.writeFile(wb, `${FILENAME_PREFIX}-${todayISO()}.xlsx`)
   }
 
