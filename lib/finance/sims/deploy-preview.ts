@@ -1,6 +1,6 @@
-// Day 9 (iteration 3) — "Deploy Preview" wizard. Preview-only path for Modal Likuid
+// Day 9 (iteration 3) — "Deploy Preview" simulator. Preview-only path for Modal Likuid
 // Options asset acquisition (Tambah RD / Deposito / SBN / Emas / Beli Saham). User
-// flow: click [Hitung] → wizard opens with prefilled action → simulation rendered →
+// flow: click [Hitung] → simulator opens with prefilled action → simulation rendered →
 // close (no mutation to real snapshot).
 //
 // Key invariant (user feedback): distribusi is ZERO-SUM. Net Worth before ≡ after. The
@@ -34,7 +34,7 @@ import {
   computeStandardDelta,
   rid,
   waterfallDebit,
-} from '~/lib/finance/wizards/_shared'
+} from '~/lib/finance/sims/_shared'
 import type { Goal } from '~/lib/types/goals'
 import type {
   AssetRow,
@@ -43,12 +43,12 @@ import type {
   PricesView,
   SnapshotState,
 } from '~/lib/types/snapshot'
-import type { WizardResult } from '~/lib/types/wizard'
+import type { SimResult } from '~/lib/types/sim'
 import type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 // DeployAction lives here (not in modal-options.ts) to break a circular dep — modal-options
 // imports deployablePool from this file, so the shared type has to live downstream.
-// Asset-acquisition options each pre-shape one of these arms; the wizard component reads
+// Asset-acquisition options each pre-shape one of these arms; the simulator component reads
 // it from useSimulator's prefill payload + runs the simulation.
 export type DeployAction =
   | {
@@ -297,7 +297,7 @@ function drainAll(
 // ----- destination's requested IDR (sized by caller) -----
 
 // The action carries the requested IDR amount embedded in its fields. We re-extract
-// here so the wizard runs an integrity check (caller's option generator may have used
+// here so the simulator runs an integrity check (caller's option generator may have used
 // a stale Modal Siap before the user toggled chips off).
 function requestedIdrFromAction(action: DeployAction): number {
   if (action.kind === 'addLiquidRow') return Math.max(0, action.amountIdr)
@@ -318,7 +318,7 @@ export function runDeployPreview(
     assumedAnnualReturnReal: number
     today?: Date
   },
-): WizardResult {
+): SimResult {
   const { prices } = opts
   const scenarioSnapshot = cloneSnapshot(snap)
   const requested = requestedIdrFromAction(input.action)
@@ -347,7 +347,7 @@ export function runDeployPreview(
 
   const warnings: string[] = []
   if (shortfallIdr > 0 || requested > deployable) {
-    warnings.push(t('wizard.deployPreview.warning.shortfall'))
+    warnings.push(t('sim.deployPreview.warning.shortfall'))
   }
 
   return {
@@ -428,12 +428,12 @@ export function formatDeployActionSummary(
   if (action.kind === 'addLiquidRow') {
     const categoryKey =
       action.category === 'reksaDana'
-        ? 'wizard.deployPreview.category.reksaDana'
+        ? 'sim.deployPreview.category.reksaDana'
         : action.category === 'deposito'
-          ? 'wizard.deployPreview.category.deposito'
-          : 'wizard.deployPreview.category.sbn'
+          ? 'sim.deployPreview.category.deposito'
+          : 'sim.deployPreview.category.sbn'
     return {
-      headline: t('wizard.deployPreview.summary.action.addLiquid', {
+      headline: t('sim.deployPreview.summary.action.addLiquid', {
         amount: formatAmount(action.amountIdr),
         category: t(categoryKey),
       }),
@@ -444,7 +444,7 @@ export function formatDeployActionSummary(
     const target = snap.saham.find((s) => s.id === action.stockId)
     const ticker = action.stockTicker || target?.ticker || '—'
     return {
-      headline: t('wizard.deployPreview.summary.action.addStock', {
+      headline: t('sim.deployPreview.summary.action.addStock', {
         ticker,
         lots: action.lotsToAdd,
         amount: formatAmount(action.costIdr),
@@ -456,7 +456,7 @@ export function formatDeployActionSummary(
   const digitalRate = ratePerGram('digital', prices)
   const grams = digitalRate > 0 ? (action.amountIdr / digitalRate).toFixed(2) : '0.00'
   return {
-    headline: t('wizard.deployPreview.summary.action.addEmas', {
+    headline: t('sim.deployPreview.summary.action.addEmas', {
       grams,
       amount: formatAmount(action.amountIdr),
     }),

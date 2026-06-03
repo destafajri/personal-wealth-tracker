@@ -389,8 +389,8 @@ export const copy = {
   // ----- simulator (Decide tab) -----
   'simulator.title': 'Simulator',
   'simulator.subtitle': 'Simulasi keputusan keuangan besar — semua hitungan pakai data snapshot kamu.',
-  'simulator.launcher.decisions': 'Wizard Keputusan ("Mau gw X?")',
-  'simulator.launcher.capacity': 'Wizard Kapasitas ("Bisa gw apa?")',
+  'simulator.launcher.decisions': 'Simulasi Keputusan',
+  'simulator.launcher.capacity': 'Cek Kapasitas',
 
   'simulator.card.kpr.label': 'Mau KPR',
   'simulator.card.kpr.body': 'Cek dampak ambil KPR baru ke metrik + goals.',
@@ -408,40 +408,40 @@ export const copy = {
   'simulator.card.modalOptions.body': 'Opsi distribusi modal likuid.',
   'simulator.card.soon': 'Soon',
 
-  'wizard.host.close': 'Tutup wizard',
+  'sim.host.close': 'Tutup simulasi',
 
-  'wizard.kpr.title': 'Mau KPR?',
-  'wizard.kpr.subtitle': 'Isi spesifikasi KPR untuk lihat dampak ke metrik + goals.',
-  'wizard.kpr.form.label': 'Nama / catatan (opsional)',
-  'wizard.kpr.form.labelPlaceholder': 'mis. Rumah Bandung 2028',
-  'wizard.kpr.form.hargaRumah': 'Harga rumah',
-  'wizard.kpr.form.dpPercent': 'DP (%)',
-  'wizard.kpr.form.tenor': 'Tenor (tahun)',
-  'wizard.kpr.form.bunga': 'Suku bunga (%/tahun)',
-  'wizard.kpr.form.jenisBunga': 'Jenis bunga',
-  'wizard.kpr.form.submit': 'Hitung skenario',
-  'wizard.kpr.form.reset': 'Reset',
+  'sim.kpr.title': 'Mau KPR?',
+  'sim.kpr.subtitle': 'Isi spesifikasi KPR untuk lihat dampak ke metrik + goals.',
+  'sim.kpr.form.label': 'Nama / catatan (opsional)',
+  'sim.kpr.form.labelPlaceholder': 'mis. Rumah Bandung 2028',
+  'sim.kpr.form.hargaRumah': 'Harga rumah',
+  'sim.kpr.form.dpPercent': 'DP (%)',
+  'sim.kpr.form.tenor': 'Tenor (tahun)',
+  'sim.kpr.form.bunga': 'Suku bunga (%/tahun)',
+  'sim.kpr.form.jenisBunga': 'Jenis bunga',
+  'sim.kpr.form.submit': 'Hitung skenario',
+  'sim.kpr.form.reset': 'Reset',
 
-  'wizard.kpr.summary.title': 'Ringkasan KPR',
-  'wizard.kpr.summary.dp': 'DP: {amount}',
-  'wizard.kpr.summary.pokok': 'Pokok pinjaman: {amount}',
-  'wizard.kpr.summary.cicilan': 'Cicilan/bulan: {amount}',
-  'wizard.kpr.summary.totalBunga': 'Total bunga (sepanjang tenor): {amount}',
+  'sim.kpr.summary.title': 'Ringkasan KPR',
+  'sim.kpr.summary.dp': 'DP: {amount}',
+  'sim.kpr.summary.pokok': 'Pokok pinjaman: {amount}',
+  'sim.kpr.summary.cicilan': 'Cicilan/bulan: {amount}',
+  'sim.kpr.summary.totalBunga': 'Total bunga (sepanjang tenor): {amount}',
 
-  'wizard.delta.title': 'Dampak ke Metrik',
-  'wizard.delta.col.metric': 'Metrik',
-  'wizard.delta.col.before': 'Sebelum',
-  'wizard.delta.col.after': 'Sesudah',
-  'wizard.delta.col.delta': 'Δ',
+  'sim.delta.title': 'Dampak ke Metrik',
+  'sim.delta.col.metric': 'Metrik',
+  'sim.delta.col.before': 'Sebelum',
+  'sim.delta.col.after': 'Sesudah',
+  'sim.delta.col.delta': 'Δ',
 
-  'wizard.goalImpact.title': 'Dampak ke Goals',
-  'wizard.goalImpact.empty': 'Belum ada goal. Tambah dulu di tab Plan biar kelihatan dampaknya.',
-  'wizard.goalImpact.shift.late': '{label}: mundur ~{months} bulan',
-  'wizard.goalImpact.shift.early': '{label}: lebih cepat ~{months} bulan',
-  'wizard.goalImpact.shift.none': '{label}: gak berubah',
-  'wizard.goalImpact.unreachable': '{label}: jadi tidak tercapai dengan alokasi sekarang',
+  'sim.goalImpact.title': 'Dampak ke Goals',
+  'sim.goalImpact.empty': 'Belum ada goal. Tambah dulu di tab Plan biar kelihatan dampaknya.',
+  'sim.goalImpact.shift.late': '{label}: mundur ~{months} bulan',
+  'sim.goalImpact.shift.early': '{label}: lebih cepat ~{months} bulan',
+  'sim.goalImpact.shift.none': '{label}: gak berubah',
+  'sim.goalImpact.unreachable': '{label}: jadi tidak tercapai dengan alokasi sekarang',
 
-  'wizard.warning.dpExceedsLiquid':
+  'sim.warning.dpExceedsLiquid':
     'DP melebihi tabungan + deposito + reksa dana kamu — turunin DP% atau tambah likuid dulu. (Saham, crypto, emas, SBN tidak otomatis ditarik di skenario ini.)',
 
   'metric.label.netWorth': 'Net Worth',
@@ -452,148 +452,148 @@ export const copy = {
   'metric.label.savingsRate': 'Savings Rate',
   'metric.label.safeHaven': 'Safe Haven',
 
-  // ----- wizard: Mau Gadai -----
-  'wizard.gadai.title': 'Mau Gadai?',
-  'wizard.gadai.subtitle': 'Simulasi gadai aset (emas / properti / kendaraan) → cash piutang.',
-  'wizard.gadai.form.label': 'Nama / catatan (opsional)',
-  'wizard.gadai.form.labelPlaceholder': 'mis. Gadai emas Antam 20g',
-  'wizard.gadai.form.jaminan': 'Jenis jaminan',
-  'wizard.gadai.form.gram': 'Gram tertahan',
-  'wizard.gadai.form.asetRef': 'Pilih aset',
-  'wizard.gadai.form.asetRefEmpty': '— belum ada aset di kategori ini —',
-  'wizard.gadai.form.piutang': 'Piutang diterima (Rp)',
-  'wizard.gadai.form.bunga': 'Bunga (%/bulan)',
-  'wizard.gadai.form.tempo': 'Tempo (bulan)',
-  'wizard.gadai.form.submit': 'Hitung skenario',
+  // ----- sim: Mau Gadai -----
+  'sim.gadai.title': 'Mau Gadai?',
+  'sim.gadai.subtitle': 'Simulasi gadai aset (emas / properti / kendaraan) → cash piutang.',
+  'sim.gadai.form.label': 'Nama / catatan (opsional)',
+  'sim.gadai.form.labelPlaceholder': 'mis. Gadai emas Antam 20g',
+  'sim.gadai.form.jaminan': 'Jenis jaminan',
+  'sim.gadai.form.gram': 'Gram tertahan',
+  'sim.gadai.form.asetRef': 'Pilih aset',
+  'sim.gadai.form.asetRefEmpty': '— belum ada aset di kategori ini —',
+  'sim.gadai.form.piutang': 'Piutang diterima (Rp)',
+  'sim.gadai.form.bunga': 'Bunga (%/bulan)',
+  'sim.gadai.form.tempo': 'Tempo (bulan)',
+  'sim.gadai.form.submit': 'Hitung skenario',
 
-  'wizard.gadai.summary.title': 'Ringkasan Gadai',
-  'wizard.gadai.summary.piutang': 'Piutang diterima: {amount}',
-  'wizard.gadai.summary.totalBunga': 'Total bunga selama tempo: {amount}',
+  'sim.gadai.summary.title': 'Ringkasan Gadai',
+  'sim.gadai.summary.piutang': 'Piutang diterima: {amount}',
+  'sim.gadai.summary.totalBunga': 'Total bunga selama tempo: {amount}',
 
-  'wizard.gadai.warning.zeroPiutang': 'Isi piutang yang kamu terima dari Pegadaian.',
-  'wizard.gadai.warning.zeroGram': 'Untuk jaminan emas, isi gram yang tertahan.',
-  'wizard.gadai.warning.gramExceedsOwned':
+  'sim.gadai.warning.zeroPiutang': 'Isi piutang yang kamu terima dari Pegadaian.',
+  'sim.gadai.warning.zeroGram': 'Untuk jaminan emas, isi gram yang tertahan.',
+  'sim.gadai.warning.gramExceedsOwned':
     'Mau gadai {requested}g tapi cuma punya {available}g yang available di kategori ini.',
-  'wizard.gadai.form.gramAvailable':
+  'sim.gadai.form.gramAvailable':
     'Tersedia: {available}g (total ownership dikurang yang sudah digadai).',
 
-  'wizard.gadai.jaminan.emasDigital': 'Emas digital (Pegadaian / e-mas)',
-  'wizard.gadai.jaminan.emasFisikAntam': 'Emas fisik Antam',
-  'wizard.gadai.jaminan.emasPerhiasan18K': 'Perhiasan emas 18K',
-  'wizard.gadai.jaminan.emasPerhiasan14K': 'Perhiasan emas 14K',
-  'wizard.gadai.jaminan.emasPerhiasan10K': 'Perhiasan emas 10K',
-  'wizard.gadai.jaminan.properti': 'Properti (SHM/SHGB)',
-  'wizard.gadai.jaminan.kendaraan': 'Kendaraan (BPKB)',
+  'sim.gadai.jaminan.emasDigital': 'Emas digital (Pegadaian / e-mas)',
+  'sim.gadai.jaminan.emasFisikAntam': 'Emas fisik Antam',
+  'sim.gadai.jaminan.emasPerhiasan18K': 'Perhiasan emas 18K',
+  'sim.gadai.jaminan.emasPerhiasan14K': 'Perhiasan emas 14K',
+  'sim.gadai.jaminan.emasPerhiasan10K': 'Perhiasan emas 10K',
+  'sim.gadai.jaminan.properti': 'Properti (SHM/SHGB)',
+  'sim.gadai.jaminan.kendaraan': 'Kendaraan (BPKB)',
 
-  // ----- wizard: Mau Cicil -----
-  'wizard.cicil.title': 'Mau Cicil?',
-  'wizard.cicil.subtitle': 'Simulasi cicilan KPM / elektronik / KK / paylater / pinjol (non-KPR).',
-  'wizard.cicil.form.label': 'Nama / catatan (opsional)',
-  'wizard.cicil.form.labelPlaceholder': 'mis. Motor Honda',
-  'wizard.cicil.form.tipe': 'Tipe cicilan',
-  'wizard.cicil.form.harga': 'Harga barang',
-  'wizard.cicil.form.dp': 'DP (%)',
-  'wizard.cicil.form.tenor': 'Tenor (bulan)',
-  'wizard.cicil.form.bunga': 'Suku bunga (%/tahun)',
-  'wizard.cicil.form.jenisBunga': 'Jenis bunga',
-  'wizard.cicil.form.asetKategori': 'Kategori aset (opsional)',
-  'wizard.cicil.form.asetSkip': '— skip aset tracking —',
-  'wizard.cicil.form.asetValue': 'Nilai aset',
-  'wizard.cicil.form.asetHint': 'Isi kalau pembelian ini bisa di-track sebagai aset (mis. motor → kendaraan). Skip untuk KK/Paylater.',
-  'wizard.cicil.form.submit': 'Hitung skenario',
+  // ----- sim: Mau Cicil -----
+  'sim.cicil.title': 'Mau Cicil?',
+  'sim.cicil.subtitle': 'Simulasi cicilan KPM / elektronik / KK / paylater / pinjol (non-KPR).',
+  'sim.cicil.form.label': 'Nama / catatan (opsional)',
+  'sim.cicil.form.labelPlaceholder': 'mis. Motor Honda',
+  'sim.cicil.form.tipe': 'Tipe cicilan',
+  'sim.cicil.form.harga': 'Harga barang',
+  'sim.cicil.form.dp': 'DP (%)',
+  'sim.cicil.form.tenor': 'Tenor (bulan)',
+  'sim.cicil.form.bunga': 'Suku bunga (%/tahun)',
+  'sim.cicil.form.jenisBunga': 'Jenis bunga',
+  'sim.cicil.form.asetKategori': 'Kategori aset (opsional)',
+  'sim.cicil.form.asetSkip': '— skip aset tracking —',
+  'sim.cicil.form.asetValue': 'Nilai aset',
+  'sim.cicil.form.asetHint': 'Isi kalau pembelian ini bisa di-track sebagai aset (mis. motor → kendaraan). Skip untuk KK/Paylater.',
+  'sim.cicil.form.submit': 'Hitung skenario',
 
-  'wizard.cicil.summary.title': 'Ringkasan Cicilan',
-  'wizard.cicil.summary.dp': 'DP: {amount}',
-  'wizard.cicil.summary.pokok': 'Pokok pinjaman: {amount}',
-  'wizard.cicil.summary.cicilan': 'Cicilan/bulan: {amount}',
-  'wizard.cicil.summary.totalBunga': 'Total bunga (sepanjang tenor): {amount}',
+  'sim.cicil.summary.title': 'Ringkasan Cicilan',
+  'sim.cicil.summary.dp': 'DP: {amount}',
+  'sim.cicil.summary.pokok': 'Pokok pinjaman: {amount}',
+  'sim.cicil.summary.cicilan': 'Cicilan/bulan: {amount}',
+  'sim.cicil.summary.totalBunga': 'Total bunga (sepanjang tenor): {amount}',
 
-  // ----- wizard: Custom -----
-  'wizard.custom.title': 'Skenario Custom',
-  'wizard.custom.subtitle': 'Tambah 1 cicilan + opsional 1 aset. Buat skenario bebas yang gak fit wizard standar.',
-  'wizard.custom.cicilan.title': 'Cicilan baru',
-  'wizard.custom.cicilan.label': 'Nama',
-  'wizard.custom.cicilan.tipe': 'Tipe',
-  'wizard.custom.cicilan.sisaPokok': 'Sisa pokok',
-  'wizard.custom.cicilan.cicilanPerBulan': 'Cicilan/bulan',
-  'wizard.custom.cicilan.jenisBunga': 'Jenis bunga',
-  'wizard.custom.cicilan.sukuBunga': 'Suku bunga %/tahun (opsional)',
-  'wizard.custom.cicilan.tenor': 'Tenor sisa bulan (opsional)',
-  'wizard.custom.aset.title': 'Tambah aset (opsional)',
-  'wizard.custom.aset.skipHint': 'Kosongkan kategori kalau cuma simulasi cicilan tanpa nambah aset.',
-  'wizard.custom.aset.kategori': 'Kategori',
-  'wizard.custom.aset.none': '— skip aset —',
-  'wizard.custom.aset.label': 'Nama',
-  'wizard.custom.aset.amount': 'Nilai',
-  'wizard.custom.aset.currency': 'Mata uang',
-  'wizard.custom.form.submit': 'Hitung skenario',
+  // ----- sim: Custom -----
+  'sim.custom.title': 'Skenario Custom',
+  'sim.custom.subtitle': 'Tambah 1 cicilan + opsional 1 aset. Buat skenario bebas yang gak fit simulasi standar.',
+  'sim.custom.cicilan.title': 'Cicilan baru',
+  'sim.custom.cicilan.label': 'Nama',
+  'sim.custom.cicilan.tipe': 'Tipe',
+  'sim.custom.cicilan.sisaPokok': 'Sisa pokok',
+  'sim.custom.cicilan.cicilanPerBulan': 'Cicilan/bulan',
+  'sim.custom.cicilan.jenisBunga': 'Jenis bunga',
+  'sim.custom.cicilan.sukuBunga': 'Suku bunga %/tahun (opsional)',
+  'sim.custom.cicilan.tenor': 'Tenor sisa bulan (opsional)',
+  'sim.custom.aset.title': 'Tambah aset (opsional)',
+  'sim.custom.aset.skipHint': 'Kosongkan kategori kalau cuma simulasi cicilan tanpa nambah aset.',
+  'sim.custom.aset.kategori': 'Kategori',
+  'sim.custom.aset.none': '— skip aset —',
+  'sim.custom.aset.label': 'Nama',
+  'sim.custom.aset.amount': 'Nilai',
+  'sim.custom.aset.currency': 'Mata uang',
+  'sim.custom.form.submit': 'Hitung skenario',
 
-  // ----- wizard: Max Utang Aman (capacity) -----
-  'wizard.maxUtang.title': 'Max Utang Aman',
-  'wizard.maxUtang.subtitle':
+  // ----- sim: Max Utang Aman (capacity) -----
+  'sim.maxUtang.title': 'Max Utang Aman',
+  'sim.maxUtang.subtitle':
     'Berapa max cicilan baru/bulan biar DSR tetap aman (di bawah target)?',
-  'wizard.maxUtang.form.targetDsr': 'Target DSR (%)',
-  'wizard.maxUtang.form.targetDsrHelp': 'Default 30% (sehat band per dashboard).',
-  'wizard.maxUtang.form.tipe': 'Mau utang apa? (pilih satu atau lebih)',
-  'wizard.maxUtang.form.tipeKpr': 'KPR (rumah)',
-  'wizard.maxUtang.form.tipeKpm': 'KPM (motor/mobil)',
-  'wizard.maxUtang.form.tipePaylater': 'Paylater / cicilan barang',
-  'wizard.maxUtang.form.tipeEmpty': 'Pilih minimal 1 tipe utang.',
-  'wizard.maxUtang.form.advancedToggle': 'Tampilkan override',
-  'wizard.maxUtang.form.kprTenor': 'Tenor (tahun)',
-  'wizard.maxUtang.form.kprBunga': 'Bunga (%/tahun)',
-  'wizard.maxUtang.form.tenorBulan': 'Tenor (bulan)',
-  'wizard.maxUtang.form.bunga': 'Bunga (%/tahun)',
-  'wizard.maxUtang.form.submit': 'Hitung skenario',
+  'sim.maxUtang.form.targetDsr': 'Target DSR (%)',
+  'sim.maxUtang.form.targetDsrHelp': 'Default 30% (sehat band per dashboard).',
+  'sim.maxUtang.form.tipe': 'Mau utang apa? (pilih satu atau lebih)',
+  'sim.maxUtang.form.tipeKpr': 'KPR (rumah)',
+  'sim.maxUtang.form.tipeKpm': 'KPM (motor/mobil)',
+  'sim.maxUtang.form.tipePaylater': 'Paylater / cicilan barang',
+  'sim.maxUtang.form.tipeEmpty': 'Pilih minimal 1 tipe utang.',
+  'sim.maxUtang.form.advancedToggle': 'Tampilkan override',
+  'sim.maxUtang.form.kprTenor': 'Tenor (tahun)',
+  'sim.maxUtang.form.kprBunga': 'Bunga (%/tahun)',
+  'sim.maxUtang.form.tenorBulan': 'Tenor (bulan)',
+  'sim.maxUtang.form.bunga': 'Bunga (%/tahun)',
+  'sim.maxUtang.form.submit': 'Hitung skenario',
 
-  'wizard.maxUtang.hero.label': 'Max cicilan baru / bulan',
-  'wizard.maxUtang.warning.noPenghasilan':
+  'sim.maxUtang.hero.label': 'Max cicilan baru / bulan',
+  'sim.maxUtang.warning.noPenghasilan':
     'Belum ada penghasilan di snapshot. Isi gaji bersih dulu di tab Track.',
-  'wizard.maxUtang.warning.zeroHeadroom':
+  'sim.maxUtang.warning.zeroHeadroom':
     'Cicilan kamu sekarang sudah di atas target DSR — gak ada headroom untuk utang baru.',
-  'wizard.maxUtang.warning.burnOverIncome':
+  'sim.maxUtang.warning.burnOverIncome':
     'Pengeluaran total kamu sudah lebih besar dari penghasilan — headroom ini misleading. Cek pos lifestyle / cicilan dulu.',
 
-  'wizard.maxUtang.scenarios.title': 'Setara dengan',
-  'wizard.maxUtang.scenario.kpr.label': 'Setara KPR',
-  'wizard.maxUtang.scenario.kpr.body':
+  'sim.maxUtang.scenarios.title': 'Setara dengan',
+  'sim.maxUtang.scenario.kpr.label': 'Setara KPR',
+  'sim.maxUtang.scenario.kpr.body':
     'Sampai ~{harga} harga rumah ({tenor} tahun, DP 20%, bunga {bunga}% Anuitas).',
-  'wizard.maxUtang.scenario.kpm.label': 'Setara KPM (motor/mobil)',
-  'wizard.maxUtang.scenario.kpm.body':
+  'sim.maxUtang.scenario.kpm.label': 'Setara KPM (motor/mobil)',
+  'sim.maxUtang.scenario.kpm.body':
     'Sampai ~{harga} harga kendaraan ({tenor} bln, DP 20%, bunga {bunga}% Anuitas).',
-  'wizard.maxUtang.scenario.paylater.label': 'Setara Paylater / cicilan barang',
-  'wizard.maxUtang.scenario.paylater.body':
+  'sim.maxUtang.scenario.paylater.label': 'Setara Paylater / cicilan barang',
+  'sim.maxUtang.scenario.paylater.body':
     'Sampai ~{harga} harga barang ({tenor} bln, bunga {bunga}%/tahun).',
 
-  // ----- wizard: Lunasi Utang (capacity) -----
-  'wizard.lunasi.title': 'Lunasi Utang Sekarang',
-  'wizard.lunasi.subtitle':
+  // ----- sim: Lunasi Utang (capacity) -----
+  'sim.lunasi.title': 'Lunasi Utang Sekarang',
+  'sim.lunasi.subtitle':
     'Bayar utang dari Modal Siap kamu. Pilih utang yang mau dilunasi + jumlah bayar.',
-  'wizard.lunasi.form.debt': 'Pilih utang',
-  'wizard.lunasi.form.debtEmpty': 'Belum ada utang aktif di snapshot kamu.',
-  'wizard.lunasi.form.payment': 'Jumlah bayar (Rp)',
-  'wizard.lunasi.form.paymentHelp': 'Default = sisa pokok (lunas). Edit untuk bayar partial.',
-  'wizard.lunasi.form.modeTitle': 'Behavior untuk Anuitas / Flat',
-  'wizard.lunasi.form.modeTenor': 'Tenor lebih cepat (cicilan/bln tetap)',
-  'wizard.lunasi.form.modeCicilan': 'Cicilan turun (tenor tetap)',
-  'wizard.lunasi.form.submit': 'Hitung skenario',
+  'sim.lunasi.form.debt': 'Pilih utang',
+  'sim.lunasi.form.debtEmpty': 'Belum ada utang aktif di snapshot kamu.',
+  'sim.lunasi.form.payment': 'Jumlah bayar (Rp)',
+  'sim.lunasi.form.paymentHelp': 'Default = sisa pokok (lunas). Edit untuk bayar partial.',
+  'sim.lunasi.form.modeTitle': 'Behavior untuk Anuitas / Flat',
+  'sim.lunasi.form.modeTenor': 'Tenor lebih cepat (cicilan/bln tetap)',
+  'sim.lunasi.form.modeCicilan': 'Cicilan turun (tenor tetap)',
+  'sim.lunasi.form.submit': 'Hitung skenario',
 
-  'wizard.lunasi.debt.cicilanLabel': '{label} ({tipe}) — sisa {amount}',
-  'wizard.lunasi.debt.utangLabel': '{label} (utang pribadi) — sisa {amount}',
-  'wizard.lunasi.debt.gadaiLabel': '{label} (gadai) — piutang {amount}',
+  'sim.lunasi.debt.cicilanLabel': '{label} ({tipe}) — sisa {amount}',
+  'sim.lunasi.debt.utangLabel': '{label} (utang pribadi) — sisa {amount}',
+  'sim.lunasi.debt.gadaiLabel': '{label} (gadai) — piutang {amount}',
 
-  'wizard.lunasi.summary.title': 'Ringkasan Pembayaran',
-  'wizard.lunasi.summary.paid': 'Yang dibayar: {amount}',
-  'wizard.lunasi.summary.lunas': 'Status: LUNAS ✓ (utang dihapus dari snapshot)',
-  'wizard.lunasi.summary.postSisa': 'Sisa pokok setelah lunasi: {amount}',
-  'wizard.lunasi.summary.postCicilan': 'Cicilan/bulan jadi: {amount}',
-  'wizard.lunasi.summary.postTenor': 'Tenor sisa: {months} bulan',
+  'sim.lunasi.summary.title': 'Ringkasan Pembayaran',
+  'sim.lunasi.summary.paid': 'Yang dibayar: {amount}',
+  'sim.lunasi.summary.lunas': 'Status: LUNAS ✓ (utang dihapus dari snapshot)',
+  'sim.lunasi.summary.postSisa': 'Sisa pokok setelah lunasi: {amount}',
+  'sim.lunasi.summary.postCicilan': 'Cicilan/bulan jadi: {amount}',
+  'sim.lunasi.summary.postTenor': 'Tenor sisa: {months} bulan',
 
-  'wizard.lunasi.warning.zeroPayment': 'Isi jumlah bayar yang lebih dari 0.',
-  'wizard.lunasi.warning.modalShortfall':
+  'sim.lunasi.warning.zeroPayment': 'Isi jumlah bayar yang lebih dari 0.',
+  'sim.lunasi.warning.modalShortfall':
     'Modal Siap kamu gak cukup untuk bayar segini — sebagian aja yang ke-apply. Pertimbangkan partial pay lebih kecil atau tambah likuid dulu.',
 
-  // ----- wizard: Modal Likuid Options (Day 9) -----
+  // ----- sim: Modal Likuid Options (Day 9) -----
   // Headers + framing. NEVER "Rekomendasi" / "Pilihan terbaik" (OJK §11.1, PRD §9).
   'modal.options.title': 'Opsi yang Bisa Dihitungkan',
   'modal.options.subtitle':
@@ -622,7 +622,7 @@ export const copy = {
   // Prepay parsial cicilan (Anuitas/Flat saja)
   'modal.option.prepayCicilan.label': 'Prepay {label} ({amount})',
   'modal.option.prepayCicilan.preview':
-    'Tenor mundur (cek di wizard Lunasi); sisa modal {modalSisa}',
+    'Tenor mundur (lihat detailnya di simulasi Lunasi); sisa modal {modalSisa}',
   // Utang pribadi
   'modal.option.lunasiUtangPribadi.label': 'Lunasi {label} ({amount})',
   'modal.option.lunasiUtangPribadi.preview':
@@ -681,25 +681,25 @@ export const copy = {
     'Nilai realisasi cair bisa lebih rendah dari nilai tercatat (spread + bea jual).',
   'modal.siap.includes.aria.toggle': 'Termasukkan {category} dalam Modal Siap',
 
-  // Day 9 — deploy-preview wizard (replaces apply-direct path; preview-only, no mutation).
-  'wizard.deployPreview.title': 'Preview Distribusi',
-  'wizard.deployPreview.subtitle':
+  // Day 9 — deploy-preview simulator (replaces apply-direct path; preview-only, no mutation).
+  'sim.deployPreview.title': 'Preview Distribusi',
+  'sim.deployPreview.subtitle':
     'Simulasi distribusi Modal Siap — preview saja, tidak mengubah snapshot kamu.',
-  'wizard.deployPreview.summary.title': 'Ringkasan Aksi',
-  'wizard.deployPreview.summary.action.addLiquid': 'Tambah {amount} ke {category}',
-  'wizard.deployPreview.summary.action.addStock': 'Beli {ticker} {lots} lot ({amount})',
-  'wizard.deployPreview.summary.action.addEmas': 'Tambah {grams} gram emas digital ({amount})',
-  'wizard.deployPreview.summary.source':
+  'sim.deployPreview.summary.title': 'Ringkasan Aksi',
+  'sim.deployPreview.summary.action.addLiquid': 'Tambah {amount} ke {category}',
+  'sim.deployPreview.summary.action.addStock': 'Beli {ticker} {lots} lot ({amount})',
+  'sim.deployPreview.summary.action.addEmas': 'Tambah {grams} gram emas digital ({amount})',
+  'sim.deployPreview.summary.source':
     'Sumber: tarik via waterfall kas → deposito → reksa dana → crypto.',
-  'wizard.deployPreview.warning.shortfall':
+  'sim.deployPreview.warning.shortfall':
     'Modal Siap kamu (likuid) gak cukup buat aksi ini — sebagian gak ke-cover di skenario. Tambah likuid dulu atau turunin amount.',
-  'wizard.deployPreview.note':
+  'sim.deployPreview.note':
     'Aksi ini tidak otomatis ke-apply ke snapshot. Buat eksekusi, tambah row-nya manual di panel Snapshot.',
-  'wizard.deployPreview.conflictNotice':
+  'sim.deployPreview.conflictNotice':
     'Toggle {category} di Modal Siap di-off-in dulu karena lo lagi distribusi ke kategori itu (biar gak double-count).',
-  'wizard.deployPreview.category.reksaDana': 'Reksa Dana',
-  'wizard.deployPreview.category.deposito': 'Deposito',
-  'wizard.deployPreview.category.sbn': 'SBN / Obligasi',
+  'sim.deployPreview.category.reksaDana': 'Reksa Dana',
+  'sim.deployPreview.category.deposito': 'Deposito',
+  'sim.deployPreview.category.sbn': 'SBN / Obligasi',
 } as const
 
 export type CopyKey = keyof typeof copy

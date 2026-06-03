@@ -1,50 +1,50 @@
 <script setup lang="ts">
-// Global modal host for all 6 wizards — mounted once in layouts/app.vue. Reads
-// useSimulator.activeKey to decide which wizard component to render. Owns:
-//   - DisclaimerBanner (1 of 3 OJK layers — required pre-wizard)
+// Global modal host for all 6 simulators — mounted once in layouts/app.vue. Reads
+// useSimulator.activeKey to decide which simulator component to render. Owns:
+//   - DisclaimerBanner (1 of 3 OJK layers — required pre-simulator)
 //   - Escape / backdrop-click / focus-restore (same pattern as MetricExplainerModal)
 //   - Body-scroll lock when open
 //
-// Why a single global host (vs per-wizard modal): keeps disclaimer + a11y wiring in
-// one place; per Day 6 → Day 8, each new wizard plugs in via the keyed v-if below.
+// Why a single global host (vs per-simulator modal): keeps disclaimer + a11y wiring in
+// one place; per Day 6 → Day 8, each new simulator plugs in via the keyed v-if below.
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { X } from 'lucide-vue-next'
 import DisclaimerBanner from '~/components/common/DisclaimerBanner.vue'
-import WizardMauKpr from '~/components/simulator/decisions/WizardMauKpr.vue'
-import WizardMauGadai from '~/components/simulator/decisions/WizardMauGadai.vue'
-import WizardMauCicil from '~/components/simulator/decisions/WizardMauCicil.vue'
-import WizardCustom from '~/components/simulator/decisions/WizardCustom.vue'
-import WizardMaxUtang from '~/components/simulator/capacity/WizardMaxUtang.vue'
-import WizardLunasiUtang from '~/components/simulator/capacity/WizardLunasiUtang.vue'
-import WizardModalOptions from '~/components/simulator/capacity/WizardModalOptions.vue'
-import WizardDeployPreview from '~/components/simulator/capacity/WizardDeployPreview.vue'
+import SimMauKpr from '~/components/simulator/decisions/SimMauKpr.vue'
+import SimMauGadai from '~/components/simulator/decisions/SimMauGadai.vue'
+import SimMauCicil from '~/components/simulator/decisions/SimMauCicil.vue'
+import SimCustom from '~/components/simulator/decisions/SimCustom.vue'
+import SimMaxUtang from '~/components/simulator/capacity/SimMaxUtang.vue'
+import SimLunasiUtang from '~/components/simulator/capacity/SimLunasiUtang.vue'
+import SimModalOptions from '~/components/simulator/capacity/SimModalOptions.vue'
+import SimDeployPreview from '~/components/simulator/capacity/SimDeployPreview.vue'
 import { useSimulator } from '~/composables/useSimulator'
 import { t, type CopyKey } from '~/lib/copy/strings'
 
 const { activeKey, isOpen, close } = useSimulator()
 const panelRef = ref<HTMLElement | null>(null)
 
-// Codex round-13: dialog accessible name must reflect the active wizard, not the
-// hard-coded KPR title. Maps each WizardKey to its localized title; unknown keys
+// Codex round-13: dialog accessible name must reflect the active simulator, not the
+// hard-coded KPR title. Maps each SimKey to its localized title; unknown keys
 // fall through to the generic Simulator label.
 const titleKey = computed<CopyKey>(() => {
   switch (activeKey.value) {
     case 'kpr':
-      return 'wizard.kpr.title'
+      return 'sim.kpr.title'
     case 'gadai':
-      return 'wizard.gadai.title'
+      return 'sim.gadai.title'
     case 'cicil':
-      return 'wizard.cicil.title'
+      return 'sim.cicil.title'
     case 'custom':
-      return 'wizard.custom.title'
+      return 'sim.custom.title'
     case 'max-utang':
-      return 'wizard.maxUtang.title'
+      return 'sim.maxUtang.title'
     case 'lunasi':
-      return 'wizard.lunasi.title'
+      return 'sim.lunasi.title'
     case 'modal-options':
       return 'modal.options.title'
     case 'deploy-preview':
-      return 'wizard.deployPreview.title'
+      return 'sim.deployPreview.title'
     case null:
     default:
       return 'simulator.title'
@@ -134,18 +134,18 @@ onBeforeUnmount(() => {
         ref="panelRef"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="wizard-host-title"
+        aria-labelledby="sim-host-title"
         tabindex="-1"
         class="w-full max-w-2xl rounded-[var(--radius-card)] bg-[var(--color-surface-card)] shadow-[var(--shadow-modal)] outline-none"
       >
         <header
           class="flex items-start justify-between gap-3 border-b border-[var(--color-border)] px-5 py-4"
         >
-          <h2 id="wizard-host-title" class="sr-only">{{ t(titleKey) }}</h2>
+          <h2 id="sim-host-title" class="sr-only">{{ t(titleKey) }}</h2>
           <DisclaimerBanner />
           <button
             type="button"
-            :aria-label="t('wizard.host.close')"
+            :aria-label="t('sim.host.close')"
             class="shrink-0 rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-low)] hover:text-[var(--color-text-primary)]"
             @click="close"
           >
@@ -154,14 +154,14 @@ onBeforeUnmount(() => {
         </header>
 
         <div class="px-5 py-5">
-          <WizardMauKpr v-if="activeKey === 'kpr'" />
-          <WizardMauGadai v-else-if="activeKey === 'gadai'" />
-          <WizardMauCicil v-else-if="activeKey === 'cicil'" />
-          <WizardCustom v-else-if="activeKey === 'custom'" />
-          <WizardMaxUtang v-else-if="activeKey === 'max-utang'" />
-          <WizardLunasiUtang v-else-if="activeKey === 'lunasi'" />
-          <WizardModalOptions v-else-if="activeKey === 'modal-options'" />
-          <WizardDeployPreview v-else-if="activeKey === 'deploy-preview'" />
+          <SimMauKpr v-if="activeKey === 'kpr'" />
+          <SimMauGadai v-else-if="activeKey === 'gadai'" />
+          <SimMauCicil v-else-if="activeKey === 'cicil'" />
+          <SimCustom v-else-if="activeKey === 'custom'" />
+          <SimMaxUtang v-else-if="activeKey === 'max-utang'" />
+          <SimLunasiUtang v-else-if="activeKey === 'lunasi'" />
+          <SimModalOptions v-else-if="activeKey === 'modal-options'" />
+          <SimDeployPreview v-else-if="activeKey === 'deploy-preview'" />
         </div>
       </div>
     </div>

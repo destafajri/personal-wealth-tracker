@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   runLunasiUtang,
   type LunasiInput,
-} from '~/lib/finance/wizards/lunasi-utang'
+} from '~/lib/finance/sims/lunasi-utang'
 import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
 
 function richSnap(): SnapshotState {

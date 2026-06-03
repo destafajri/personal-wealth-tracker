@@ -1,4 +1,4 @@
-// "Max Utang Aman" capacity wizard. Reverse-solve: given current penghasilan + existing
+// "Max Utang Aman" capacity simulator. Reverse-solve: given current penghasilan + existing
 // cicilan + target DSR, what's the MAX new monthly cicilan that keeps DSR under target?
 // Then translate that cicilan into 3 equivalent scenarios (KPR / KPM / Paylater) so user
 // sees what kind of debt actually fits the headroom.
@@ -17,9 +17,9 @@ import type {
   PricesView,
   SnapshotState,
 } from '~/lib/types/snapshot'
-import type { CapacityResult, CapacityScenario } from '~/lib/types/wizard'
+import type { CapacityResult, CapacityScenario } from '~/lib/types/sim'
 
-// User picks 1+ utang tipes — wizard renders 1 scenario per picked tipe so user bisa
+// User picks 1+ utang tipes — simulator renders 1 scenario per picked tipe so user bisa
 // compare (mis. KPR vs KPM kalau lagi mikir antara dua). Empty array → no scenarios.
 export type MaxUtangTipe = 'kpr' | 'kpm' | 'paylater'
 
@@ -60,10 +60,10 @@ export function runMaxUtang(
   const warnings: string[] = []
 
   if (penghasilan <= 0) {
-    warnings.push(t('wizard.maxUtang.warning.noPenghasilan'))
+    warnings.push(t('sim.maxUtang.warning.noPenghasilan'))
     return {
       heroValue: 0,
-      heroLabel: t('wizard.maxUtang.hero.label'),
+      heroLabel: t('sim.maxUtang.hero.label'),
       scenarios: [],
       warnings,
     }
@@ -73,11 +73,11 @@ export function runMaxUtang(
   const maxNewCicilan = Math.max(0, maxTotalCicilan - currentCicilan)
 
   if (maxNewCicilan <= 0) {
-    warnings.push(t('wizard.maxUtang.warning.zeroHeadroom'))
+    warnings.push(t('sim.maxUtang.warning.zeroHeadroom'))
     // Companion advisory: suggest paying existing debt or boosting income.
     return {
       heroValue: 0,
-      heroLabel: t('wizard.maxUtang.hero.label'),
+      heroLabel: t('sim.maxUtang.hero.label'),
       scenarios: [],
       warnings,
     }
@@ -87,7 +87,7 @@ export function runMaxUtang(
   // because user is bleeding cash. Surface as warning but still compute scenarios.
   const totalBurn = calcTotalPengeluaran(snap)
   if (totalBurn > penghasilan) {
-    warnings.push(t('wizard.maxUtang.warning.burnOverIncome'))
+    warnings.push(t('sim.maxUtang.warning.burnOverIncome'))
   }
 
   // Render canonical order (kpr → kpm → paylater) regardless of pick-array order, so the
@@ -102,7 +102,7 @@ export function runMaxUtang(
 
   return {
     heroValue: maxNewCicilan,
-    heroLabel: t('wizard.maxUtang.hero.label'),
+    heroLabel: t('sim.maxUtang.hero.label'),
     scenarios,
     warnings,
   }
@@ -123,8 +123,8 @@ function buildScenario(
     const harga = pokok / 0.8
     return {
       key: 'kpr',
-      label: t('wizard.maxUtang.scenario.kpr.label'),
-      description: t('wizard.maxUtang.scenario.kpr.body', {
+      label: t('sim.maxUtang.scenario.kpr.label'),
+      description: t('sim.maxUtang.scenario.kpr.body', {
         harga: idr(harga),
         tenor: tenorTahun,
         bunga,
@@ -138,8 +138,8 @@ function buildScenario(
     const harga = pokok / 0.8
     return {
       key: 'kpm',
-      label: t('wizard.maxUtang.scenario.kpm.label'),
-      description: t('wizard.maxUtang.scenario.kpm.body', {
+      label: t('sim.maxUtang.scenario.kpm.label'),
+      description: t('sim.maxUtang.scenario.kpm.body', {
         harga: idr(harga),
         tenor: tenorBulan,
         bunga,
@@ -152,8 +152,8 @@ function buildScenario(
   const pokok = anuitasInversePokok(maxNewCicilan, bunga, tenorBulan)
   return {
     key: 'paylater',
-    label: t('wizard.maxUtang.scenario.paylater.label'),
-    description: t('wizard.maxUtang.scenario.paylater.body', {
+    label: t('sim.maxUtang.scenario.paylater.label'),
+    description: t('sim.maxUtang.scenario.paylater.body', {
       harga: idr(pokok),
       tenor: tenorBulan,
       bunga,

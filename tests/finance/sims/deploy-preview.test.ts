@@ -3,7 +3,7 @@ import {
   deployablePool,
   runDeployPreview,
   type DeployAction,
-} from '~/lib/finance/wizards/deploy-preview'
+} from '~/lib/finance/sims/deploy-preview'
 import { calcModalSiap, calcNetWorth, type ModalSiapIncludes } from '~/lib/finance/metrics'
 import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
 
@@ -304,7 +304,7 @@ describe('runDeployPreview — drain priority', () => {
 
 describe('runDeployPreview — delta Modal Siap honors includes', () => {
   // Codex round-17: computeStandardDelta was using baseline calcModalSiap regardless
-  // of input.includes, so wizard Sebelum/Sesudah drifted from the dashboard headline
+  // of input.includes, so simulator Sebelum/Sesudah drifted from the dashboard headline
   // whenever user toggled saham/emas/sbn ON. These two cases pin the contract.
 
   it('Sebelum Modal Siap matches headline when saham toggled IN', () => {

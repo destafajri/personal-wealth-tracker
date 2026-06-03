@@ -1,22 +1,22 @@
 <script setup lang="ts">
-// Custom wizard UI — minimal scope (locked): 1 required cicilan + 1 optional asset.
+// Custom simulator UI — minimal scope (locked): 1 required cicilan + 1 optional asset.
 import { computed, ref } from 'vue'
 import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import InputCurrency from '~/components/common/InputCurrency.vue'
-import WizardDeltaTable from '~/components/simulator/WizardDeltaTable.vue'
+import SimDeltaTable from '~/components/simulator/SimDeltaTable.vue'
 import {
   runCustom,
   type AnyAssetCategory,
   type CustomInput,
-} from '~/lib/finance/wizards/custom'
+} from '~/lib/finance/sims/custom'
 import { t, type CopyKey } from '~/lib/copy/strings'
 import { FI_MULTIPLIER, useGoalsStore } from '~/stores/goals'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
 import { CURRENCIES, type CicilanTipe, type Currency, type JenisBunga } from '~/lib/types/snapshot'
-import type { GoalDelta, WizardResult } from '~/lib/types/wizard'
+import type { GoalDelta, SimResult } from '~/lib/types/sim'
 
 const snapStore = useSnapshotStore()
 const goalsStore = useGoalsStore()
@@ -66,7 +66,7 @@ const asetKategori = ref<AnyAssetCategory | ''>('')
 const asetAmount = ref<number | null>(null)
 const asetCurrency = ref<Currency>('IDR')
 
-const result = computed<WizardResult | null>(() => {
+const result = computed<SimResult | null>(() => {
   const r = simulator.currentResult.value
   if (r === null || !('delta' in r)) return null
   return r
@@ -134,13 +134,13 @@ function reset() {
 }
 
 function goalImpactMessage(g: GoalDelta): string {
-  if (g.unreachable) return t('wizard.goalImpact.unreachable', { label: g.goalLabel })
+  if (g.unreachable) return t('sim.goalImpact.unreachable', { label: g.goalLabel })
   if (Math.abs(g.monthsShift) < 0.5)
-    return t('wizard.goalImpact.shift.none', { label: g.goalLabel })
+    return t('sim.goalImpact.shift.none', { label: g.goalLabel })
   const abs = Math.abs(Math.round(g.monthsShift))
   return g.monthsShift > 0
-    ? t('wizard.goalImpact.shift.late', { label: g.goalLabel, months: abs })
-    : t('wizard.goalImpact.shift.early', { label: g.goalLabel, months: abs })
+    ? t('sim.goalImpact.shift.late', { label: g.goalLabel, months: abs })
+    : t('sim.goalImpact.shift.early', { label: g.goalLabel, months: abs })
 }
 
 const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
@@ -154,21 +154,21 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
   <div class="space-y-6">
     <header>
       <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">
-        {{ t('wizard.custom.title') }}
+        {{ t('sim.custom.title') }}
       </h2>
       <p class="mt-1 text-sm text-[var(--color-text-secondary)]">
-        {{ t('wizard.custom.subtitle') }}
+        {{ t('sim.custom.subtitle') }}
       </p>
     </header>
 
     <!-- Cicilan section -->
     <section class="space-y-3">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
-        {{ t('wizard.custom.cicilan.title') }}
+        {{ t('sim.custom.cicilan.title') }}
       </h3>
       <div class="grid gap-3 sm:grid-cols-2">
         <label class="block text-xs sm:col-span-2">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.cicilan.label') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.cicilan.label') }}</span>
           <input
             v-model="cicilanLabel"
             type="text"
@@ -177,7 +177,7 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
         </label>
 
         <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.cicilan.tipe') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.cicilan.tipe') }}</span>
           <select
             v-model="cicilanTipe"
             class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
@@ -187,7 +187,7 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
         </label>
 
         <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.cicilan.jenisBunga') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.cicilan.jenisBunga') }}</span>
           <select
             v-model="cicilanJenisBunga"
             class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
@@ -197,21 +197,21 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
         </label>
 
         <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.cicilan.sisaPokok') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.cicilan.sisaPokok') }}</span>
           <div class="mt-1">
             <InputCurrency v-model="cicilanSisaPokok" />
           </div>
         </label>
 
         <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.cicilan.cicilanPerBulan') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.cicilan.cicilanPerBulan') }}</span>
           <div class="mt-1">
             <InputCurrency v-model="cicilanPerBulan" />
           </div>
         </label>
 
         <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.cicilan.sukuBunga') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.cicilan.sukuBunga') }}</span>
           <input
             v-model.number="cicilanSukuBunga"
             type="number"
@@ -222,7 +222,7 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
         </label>
 
         <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.cicilan.tenor') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.cicilan.tenor') }}</span>
           <input
             v-model.number="cicilanTenorBulan"
             type="number"
@@ -237,24 +237,24 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
     <!-- Aset section (optional) -->
     <section class="space-y-3">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
-        {{ t('wizard.custom.aset.title') }}
+        {{ t('sim.custom.aset.title') }}
       </h3>
-      <p class="text-[11px] text-[var(--color-text-muted)]">{{ t('wizard.custom.aset.skipHint') }}</p>
+      <p class="text-[11px] text-[var(--color-text-muted)]">{{ t('sim.custom.aset.skipHint') }}</p>
       <div class="grid gap-3 sm:grid-cols-2">
         <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.aset.kategori') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.aset.kategori') }}</span>
           <select
             v-model="asetKategori"
             class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
           >
             <option v-for="o in ASET_OPTIONS" :key="o || 'none'" :value="o">
-              {{ o || t('wizard.custom.aset.none') }}
+              {{ o || t('sim.custom.aset.none') }}
             </option>
           </select>
         </label>
 
         <label v-if="asetKategori !== ''" class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.aset.label') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.aset.label') }}</span>
           <input
             v-model="asetLabel"
             type="text"
@@ -263,14 +263,14 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
         </label>
 
         <label v-if="asetKategori !== ''" class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.aset.amount') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.aset.amount') }}</span>
           <div class="mt-1">
             <InputCurrency v-model="asetAmount" />
           </div>
         </label>
 
         <label v-if="asetKategori !== '' && isLiquidCat" class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.custom.aset.currency') }}</span>
+          <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.custom.aset.currency') }}</span>
           <select
             v-model="asetCurrency"
             class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
@@ -283,9 +283,9 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
 
     <div class="flex flex-wrap items-center gap-3">
       <ButtonPrimary :disabled="!canSubmit" @click="submit">
-        {{ t('wizard.custom.form.submit') }}
+        {{ t('sim.custom.form.submit') }}
       </ButtonPrimary>
-      <ButtonGhost v-if="result" @click="reset">{{ t('wizard.kpr.form.reset') }}</ButtonGhost>
+      <ButtonGhost v-if="result" @click="reset">{{ t('sim.kpr.form.reset') }}</ButtonGhost>
     </div>
 
     <template v-if="result">
@@ -299,17 +299,17 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
 
       <section>
         <h3 class="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.delta.title') }}
+          {{ t('sim.delta.title') }}
         </h3>
-        <WizardDeltaTable :delta="result.delta" />
+        <SimDeltaTable :delta="result.delta" />
       </section>
 
       <section>
         <h3 class="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.goalImpact.title') }}
+          {{ t('sim.goalImpact.title') }}
         </h3>
         <p v-if="result.goalImpact.length === 0" class="text-sm text-[var(--color-text-muted)]">
-          {{ t('wizard.goalImpact.empty') }}
+          {{ t('sim.goalImpact.empty') }}
         </p>
         <ul v-else class="space-y-2">
           <li

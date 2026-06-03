@@ -3,7 +3,7 @@ import {
   runModalOptions,
   type ModalOption,
   type ModalOptionsInput,
-} from '~/lib/finance/wizards/modal-options'
+} from '~/lib/finance/sims/modal-options'
 import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
 import type { Goal } from '~/lib/types/goals'
 
@@ -64,8 +64,8 @@ describe('runModalOptions — cicilan options', () => {
     const opt = r.options.find((o) => o.kind === 'lunasi-cicilan')
     expect(opt).toBeTruthy()
     expect(opt!.amount).toBe(8_000_000)
-    expect(opt!.handoff.kind).toBe('wizard')
-    if (opt!.handoff.kind === 'wizard' && opt!.handoff.wizardKey === 'lunasi') {
+    expect(opt!.handoff.kind).toBe('sim')
+    if (opt!.handoff.kind === 'sim' && opt!.handoff.simKey === 'lunasi') {
       expect(opt!.handoff.prefill.source).toBe('cicilan')
       expect(opt!.handoff.prefill.id).toBe('c1')
       expect(opt!.handoff.prefill.paymentIdr).toBe(8_000_000)
@@ -90,7 +90,7 @@ describe('runModalOptions — cicilan options', () => {
     const opt = r.options.find((o) => o.kind === 'prepay-cicilan')
     expect(opt).toBeTruthy()
     expect(opt!.amount).toBe(20_000_000)
-    if (opt!.handoff.kind === 'wizard' && opt!.handoff.wizardKey === 'lunasi') {
+    if (opt!.handoff.kind === 'sim' && opt!.handoff.simKey === 'lunasi') {
       expect(opt!.handoff.prefill.modeAnuitas).toBe('tenor')
     }
   })
@@ -128,8 +128,8 @@ describe('runModalOptions — cicilan options', () => {
     expect(opts).toHaveLength(1)
     expect(opts[0]!.amount).toBe(10_000_000)
     if (
-      opts[0]!.handoff.kind === 'wizard' &&
-      opts[0]!.handoff.wizardKey === 'lunasi'
+      opts[0]!.handoff.kind === 'sim' &&
+      opts[0]!.handoff.simKey === 'lunasi'
     ) {
       expect(opts[0]!.handoff.prefill.source).toBe('utangPribadi')
     }
@@ -150,7 +150,7 @@ describe('runModalOptions — cicilan options', () => {
     const opt = r.options.find((o) => o.kind === 'lunasi-gadai')
     expect(opt).toBeTruthy()
     expect(opt!.amount).toBe(15_000_000)
-    if (opt!.handoff.kind === 'wizard' && opt!.handoff.wizardKey === 'lunasi') {
+    if (opt!.handoff.kind === 'sim' && opt!.handoff.simKey === 'lunasi') {
       expect(opt!.handoff.prefill.source).toBe('gadai')
     }
   })
@@ -181,8 +181,8 @@ describe('runModalOptions — saham options', () => {
     expect(sahamOpts[1]!.label).toMatch(/BBCA/)
     // BMRI sizing: 20jt / (6000 × 100) = 33.33 → floor 33 lots, gap 95 → buy 33
     if (
-      sahamOpts[0]!.handoff.kind === 'wizard' &&
-      sahamOpts[0]!.handoff.wizardKey === 'deploy-preview' &&
+      sahamOpts[0]!.handoff.kind === 'sim' &&
+      sahamOpts[0]!.handoff.simKey === 'deploy-preview' &&
       sahamOpts[0]!.handoff.prefill.action.kind === 'addStockLots'
     ) {
       expect(sahamOpts[0]!.handoff.prefill.action.stockId).toBe('s2')
@@ -190,8 +190,8 @@ describe('runModalOptions — saham options', () => {
     }
     // BBCA sizing: 20jt / (9000 × 100) = 22.22 → floor 22 lots, gap 30 → buy 22
     if (
-      sahamOpts[1]!.handoff.kind === 'wizard' &&
-      sahamOpts[1]!.handoff.wizardKey === 'deploy-preview' &&
+      sahamOpts[1]!.handoff.kind === 'sim' &&
+      sahamOpts[1]!.handoff.simKey === 'deploy-preview' &&
       sahamOpts[1]!.handoff.prefill.action.kind === 'addStockLots'
     ) {
       expect(sahamOpts[1]!.handoff.prefill.action.stockId).toBe('s1')
@@ -221,16 +221,16 @@ describe('runModalOptions — saham options', () => {
     expect(sahamOpts).toHaveLength(2)
     // BBRI: 100jt / 500_000 = 200 lots affordable, gap 100 → cap at gap = 100 lots
     if (
-      sahamOpts[0]!.handoff.kind === 'wizard' &&
-      sahamOpts[0]!.handoff.wizardKey === 'deploy-preview' &&
+      sahamOpts[0]!.handoff.kind === 'sim' &&
+      sahamOpts[0]!.handoff.simKey === 'deploy-preview' &&
       sahamOpts[0]!.handoff.prefill.action.kind === 'addStockLots'
     ) {
       expect(sahamOpts[0]!.handoff.prefill.action.lotsToAdd).toBe(100)
     }
     // BBCA: 100jt / 1_000_000 = 100 lots affordable, gap 50 → cap at gap = 50 lots
     if (
-      sahamOpts[1]!.handoff.kind === 'wizard' &&
-      sahamOpts[1]!.handoff.wizardKey === 'deploy-preview' &&
+      sahamOpts[1]!.handoff.kind === 'sim' &&
+      sahamOpts[1]!.handoff.simKey === 'deploy-preview' &&
       sahamOpts[1]!.handoff.prefill.action.kind === 'addStockLots'
     ) {
       expect(sahamOpts[1]!.handoff.prefill.action.lotsToAdd).toBe(50)
@@ -293,7 +293,7 @@ describe('runModalOptions — FI bucket options', () => {
 })
 
 describe('runModalOptions — handoff payload integrity', () => {
-  it('all options carry valid wizard handoff (lunasi for debt, deploy-preview for assets)', () => {
+  it('all options carry valid simulator handoff (lunasi for debt, deploy-preview for assets)', () => {
     const s = snapWithModal(100_000_000)
     s.cicilanAktif.push({
       id: 'c1',
@@ -322,8 +322,8 @@ describe('runModalOptions — handoff payload integrity', () => {
       expect(opt.label).toBeTruthy()
       expect(opt.impactPreview).toBeTruthy()
       expect(opt.amount).toBeGreaterThan(0)
-      expect(opt.handoff.kind).toBe('wizard')
-      expect(['lunasi', 'deploy-preview']).toContain(opt.handoff.wizardKey)
+      expect(opt.handoff.kind).toBe('sim')
+      expect(['lunasi', 'deploy-preview']).toContain(opt.handoff.simKey)
       expect(opt.handoff.prefill).toBeTruthy()
     }
   })

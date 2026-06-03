@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// "Max Utang Aman" capacity wizard UI. Different shape from decision wizards: no delta
+// "Max Utang Aman" capacity simulator UI. Different shape from decision simulators: no delta
 // table; instead a large hero number + 3 equivalent scenarios. Advanced KPR overrides
 // (tenor/bunga) start collapsed per design-guidelines §8.18 — keep the default flow
 // 1-input (target DSR) → result.
@@ -11,13 +11,13 @@ import {
   runMaxUtang,
   type MaxUtangInput,
   type MaxUtangTipe,
-} from '~/lib/finance/wizards/max-utang'
+} from '~/lib/finance/sims/max-utang'
 import { idr } from '~/lib/format/idr'
 import { t, type CopyKey } from '~/lib/copy/strings'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
-import type { CapacityResult } from '~/lib/types/wizard'
+import type { CapacityResult } from '~/lib/types/sim'
 
 const snapStore = useSnapshotStore()
 const derived = useDerivedStore()
@@ -44,12 +44,12 @@ const paylaterTenorBulan = ref<number>(12)
 const paylaterBungaPercent = ref<number>(24)
 
 const TIPE_LABEL: Record<MaxUtangTipe, CopyKey> = {
-  kpr: 'wizard.maxUtang.form.tipeKpr',
-  kpm: 'wizard.maxUtang.form.tipeKpm',
-  paylater: 'wizard.maxUtang.form.tipePaylater',
+  kpr: 'sim.maxUtang.form.tipeKpr',
+  kpm: 'sim.maxUtang.form.tipeKpm',
+  paylater: 'sim.maxUtang.form.tipePaylater',
 }
 
-// CapacityResult narrowing: simulator.currentResult is AnyWizardResult — narrow via
+// CapacityResult narrowing: simulator.currentResult is AnySimResult — narrow via
 // 'heroValue' check (only CapacityResult has it).
 const result = computed<CapacityResult | null>(() => {
   const r = simulator.currentResult.value
@@ -121,18 +121,18 @@ function reset() {
   <div class="space-y-6">
     <header>
       <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">
-        {{ t('wizard.maxUtang.title') }}
+        {{ t('sim.maxUtang.title') }}
       </h2>
       <p class="mt-1 text-sm text-[var(--color-text-secondary)]">
-        {{ t('wizard.maxUtang.subtitle') }}
+        {{ t('sim.maxUtang.subtitle') }}
       </p>
     </header>
 
     <section class="space-y-3">
-      <!-- Tipe utang checkboxes: pick 1+ — wizard renders 1 scenario per pick. -->
+      <!-- Tipe utang checkboxes: pick 1+ — simulator renders 1 scenario per pick. -->
       <fieldset class="space-y-2">
         <legend class="text-xs font-medium text-[var(--color-text-secondary)]">
-          {{ t('wizard.maxUtang.form.tipe') }}
+          {{ t('sim.maxUtang.form.tipe') }}
         </legend>
         <div class="grid gap-2 sm:grid-cols-3">
           <label
@@ -158,13 +158,13 @@ function reset() {
           v-if="tipes.length === 0"
           class="text-[11px] text-[var(--color-danger-rose)]"
         >
-          {{ t('wizard.maxUtang.form.tipeEmpty') }}
+          {{ t('sim.maxUtang.form.tipeEmpty') }}
         </p>
       </fieldset>
 
       <label class="block text-xs">
         <span class="font-medium text-[var(--color-text-secondary)]">
-          {{ t('wizard.maxUtang.form.targetDsr') }}
+          {{ t('sim.maxUtang.form.targetDsr') }}
         </span>
         <input
           v-model.number="targetDsrPercent"
@@ -175,7 +175,7 @@ function reset() {
           class="mt-1 h-10 w-full max-w-xs rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm tabular text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
         >
         <p class="mt-1 text-[11px] text-[var(--color-text-muted)]">
-          {{ t('wizard.maxUtang.form.targetDsrHelp') }}
+          {{ t('sim.maxUtang.form.targetDsrHelp') }}
         </p>
       </label>
     </section>
@@ -186,18 +186,18 @@ function reset() {
       @toggle="showAdvanced = ($event.target as HTMLDetailsElement).open"
     >
       <summary class="cursor-pointer text-xs font-medium text-[var(--color-text-secondary)]">
-        {{ t('wizard.maxUtang.form.advancedToggle') }}
+        {{ t('sim.maxUtang.form.advancedToggle') }}
       </summary>
 
       <!-- Override sections: render 1 grid per picked tipe. -->
       <div v-if="tipes.includes('kpr')" class="mt-3">
         <h4 class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
-          {{ t('wizard.maxUtang.form.tipeKpr') }}
+          {{ t('sim.maxUtang.form.tipeKpr') }}
         </h4>
         <div class="grid gap-3 sm:grid-cols-2">
           <label class="block text-xs">
             <span class="font-medium text-[var(--color-text-secondary)]">
-              {{ t('wizard.maxUtang.form.kprTenor') }}
+              {{ t('sim.maxUtang.form.kprTenor') }}
             </span>
             <input
               v-model.number="kprTenorTahun"
@@ -210,7 +210,7 @@ function reset() {
           </label>
           <label class="block text-xs">
             <span class="font-medium text-[var(--color-text-secondary)]">
-              {{ t('wizard.maxUtang.form.kprBunga') }}
+              {{ t('sim.maxUtang.form.kprBunga') }}
             </span>
             <input
               v-model.number="kprBungaPercent"
@@ -226,12 +226,12 @@ function reset() {
 
       <div v-if="tipes.includes('kpm')" class="mt-4">
         <h4 class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
-          {{ t('wizard.maxUtang.form.tipeKpm') }}
+          {{ t('sim.maxUtang.form.tipeKpm') }}
         </h4>
         <div class="grid gap-3 sm:grid-cols-2">
           <label class="block text-xs">
             <span class="font-medium text-[var(--color-text-secondary)]">
-              {{ t('wizard.maxUtang.form.tenorBulan') }}
+              {{ t('sim.maxUtang.form.tenorBulan') }}
             </span>
             <input
               v-model.number="kpmTenorBulan"
@@ -244,7 +244,7 @@ function reset() {
           </label>
           <label class="block text-xs">
             <span class="font-medium text-[var(--color-text-secondary)]">
-              {{ t('wizard.maxUtang.form.bunga') }}
+              {{ t('sim.maxUtang.form.bunga') }}
             </span>
             <input
               v-model.number="kpmBungaPercent"
@@ -260,12 +260,12 @@ function reset() {
 
       <div v-if="tipes.includes('paylater')" class="mt-4">
         <h4 class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
-          {{ t('wizard.maxUtang.form.tipePaylater') }}
+          {{ t('sim.maxUtang.form.tipePaylater') }}
         </h4>
         <div class="grid gap-3 sm:grid-cols-2">
           <label class="block text-xs">
             <span class="font-medium text-[var(--color-text-secondary)]">
-              {{ t('wizard.maxUtang.form.tenorBulan') }}
+              {{ t('sim.maxUtang.form.tenorBulan') }}
             </span>
             <input
               v-model.number="paylaterTenorBulan"
@@ -278,7 +278,7 @@ function reset() {
           </label>
           <label class="block text-xs">
             <span class="font-medium text-[var(--color-text-secondary)]">
-              {{ t('wizard.maxUtang.form.bunga') }}
+              {{ t('sim.maxUtang.form.bunga') }}
             </span>
             <input
               v-model.number="paylaterBungaPercent"
@@ -295,9 +295,9 @@ function reset() {
 
     <div class="flex flex-wrap items-center gap-3">
       <ButtonPrimary :disabled="!canSubmit" @click="submit">
-        {{ t('wizard.maxUtang.form.submit') }}
+        {{ t('sim.maxUtang.form.submit') }}
       </ButtonPrimary>
-      <ButtonGhost v-if="result" @click="reset">{{ t('wizard.kpr.form.reset') }}</ButtonGhost>
+      <ButtonGhost v-if="result" @click="reset">{{ t('sim.kpr.form.reset') }}</ButtonGhost>
     </div>
 
     <template v-if="result">
@@ -325,7 +325,7 @@ function reset() {
 
       <section v-if="result.scenarios.length > 0">
         <h3 class="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.maxUtang.scenarios.title') }}
+          {{ t('sim.maxUtang.scenarios.title') }}
         </h3>
         <ul class="space-y-2">
           <li

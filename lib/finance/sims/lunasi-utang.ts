@@ -1,4 +1,4 @@
-// "Lunasi Utang Sekarang" capacity wizard. User picks a debt + payment amount; we apply
+// "Lunasi Utang Sekarang" capacity simulator. User picks a debt + payment amount; we apply
 // to scenarioSnapshot and show delta + goal impact.
 //
 // Debt scope (locked Day 8): Cicilan Aktif + Utang Pribadi + Gadai (all 3 sources that
@@ -25,7 +25,7 @@ import {
   computeGoalImpact,
   computeStandardDelta,
   waterfallDebit,
-} from '~/lib/finance/wizards/_shared'
+} from '~/lib/finance/sims/_shared'
 import { t } from '~/lib/copy/strings'
 import type { Goal } from '~/lib/types/goals'
 import type {
@@ -33,7 +33,7 @@ import type {
   PricesView,
   SnapshotState,
 } from '~/lib/types/snapshot'
-import type { WizardResult } from '~/lib/types/wizard'
+import type { SimResult } from '~/lib/types/sim'
 import type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 export type LunasiSource = 'cicilan' | 'utangPribadi' | 'gadai'
@@ -178,10 +178,10 @@ function applyLunasiToScenario(
   return { actualPayment, sourceDeficit, lunasCompleted: false }
 }
 
-// Extra metadata surfaced via WizardResult.warnings + a special "post-pay" warning that
+// Extra metadata surfaced via SimResult.warnings + a special "post-pay" warning that
 // UI components parse to render the per-jenisBunga shift line. Kept in warnings array
-// (vs adding a custom field) so the base WizardResult shape stays stable for Day-7
-// decision wizards.
+// (vs adding a custom field) so the base SimResult shape stays stable for Day-7
+// decision simulators.
 export interface LunasiExtras {
   applyResult: ApplyResult
 }
@@ -197,7 +197,7 @@ export function runLunasiUtang(
     today?: Date
     includes?: ModalSiapIncludes
   },
-): WizardResult & { applyResult: ApplyResult } {
+): SimResult & { applyResult: ApplyResult } {
   const { prices } = opts
   const scenarioSnapshot = cloneSnapshot(snap)
   const applyResult = applyLunasiToScenario(scenarioSnapshot, input, prices?.fxRates)
@@ -207,10 +207,10 @@ export function runLunasiUtang(
 
   const warnings: string[] = []
   if (input.paymentIdr <= 0) {
-    warnings.push(t('wizard.lunasi.warning.zeroPayment'))
+    warnings.push(t('sim.lunasi.warning.zeroPayment'))
   }
   if (applyResult.sourceDeficit > 0) {
-    warnings.push(t('wizard.lunasi.warning.modalShortfall'))
+    warnings.push(t('sim.lunasi.warning.modalShortfall'))
   }
 
   return {

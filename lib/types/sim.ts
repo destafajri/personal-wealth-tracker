@@ -1,15 +1,15 @@
-// Wizard domain types — shared by all 6 wizards (4 decision + 2 capacity). Each wizard
-// exports its own input type + a `run()` pure function that returns WizardResult; the
-// UI is a thin renderer of `delta` + `goalImpact`.
+// Simulator domain types — shared by all 6 simulators (4 decision + 2 capacity). Each
+// simulator exports its own input type + a `run()` pure function that returns SimResult;
+// the UI is a thin renderer of `delta` + `goalImpact`.
 
 import type { Goal, GoalStatus } from '~/lib/types/goals'
 import type { SnapshotState } from '~/lib/types/snapshot'
 import type { Zone } from '~/lib/finance/thresholds'
 
-// Stable string keys for wizard identification (URL/state/launcher). Capacity wizards
+// Stable string keys for simulator identification (URL/state/launcher). Capacity sims
 // (Day 8+) and custom (Day 7) included so the launcher/host can reference them now
 // even though the run-functions ship later.
-export type WizardKey =
+export type SimKey =
   | 'kpr'
   | 'gadai'
   | 'cicil'
@@ -29,7 +29,7 @@ export interface DeltaSide {
 }
 
 // Direction = is the delta "good" for the user? Drives arrow + color. Independent from
-// up/down — DSR going UP is "worse"; Runway going UP is "better". Wizard math owns the bias.
+// up/down — DSR going UP is "worse"; Runway going UP is "better". Simulator math owns the bias.
 export type DeltaDirection = 'better' | 'worse' | 'neutral'
 
 export interface DeltaRow {
@@ -53,10 +53,10 @@ export interface GoalDelta {
   unreachable: boolean
 }
 
-// All wizards return this shape. `scenarioSnapshot` and `scenarioGoals` are the cloned-
-// and-mutated state so callers can re-run analyses (e.g., chaining wizards). `warnings`
+// All simulators return this shape. `scenarioSnapshot` and `scenarioGoals` are the cloned-
+// and-mutated state so callers can re-run analyses (e.g., chaining simulations). `warnings`
 // surfaces non-blocking concerns like "DP exceeds liquid" — UI renders them inline.
-export interface WizardResult {
+export interface SimResult {
   scenarioSnapshot: SnapshotState
   scenarioGoals: Goal[]
   delta: DeltaRow[]
@@ -64,7 +64,7 @@ export interface WizardResult {
   warnings: string[]
 }
 
-// Capacity wizards (Day 8: Max Utang Aman; Modal Options later) don't mutate snapshot —
+// Capacity sims (Day 8: Max Utang Aman; Modal Options later) don't mutate snapshot —
 // they answer "what's the max headroom?" with a hero number + equivalent scenarios. No
 // delta table because there's no Sesudah snapshot to diff against.
 export interface CapacityScenario {
@@ -82,4 +82,4 @@ export interface CapacityResult {
 
 // Discriminator for useSimulator.currentResult — UI components narrow by activeKey
 // or by `'heroValue' in result` check.
-export type AnyWizardResult = WizardResult | CapacityResult
+export type AnySimResult = SimResult | CapacityResult

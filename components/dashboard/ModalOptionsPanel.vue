@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // Day 9 — Modal Likuid Options panel (design-guidelines §8.20). Always-visible card
 // on the dashboard right rail when ≥1 option exists. Renders the auto-generated option
-// list from derived.modalOptions; each [Hitung] opens the relevant preview wizard:
-//   - lunasi/prepay/utangPribadi/gadai → WizardLunasi pre-filled
-//   - beli-saham / tambah-RD / Deposito / SBN / Emas → WizardDeployPreview (preview-only)
+// list from derived.modalOptions; each [Hitung] opens the relevant preview simulator:
+//   - lunasi/prepay/utangPribadi/gadai → SimLunasi pre-filled
+//   - beli-saham / tambah-RD / Deposito / SBN / Emas → SimDeployPreview (preview-only)
 //
 // Per-option sizing capped by deployablePool (= Modal Siap − destination's own current
 // value) so distribusi math stays zero-sum (Net Worth invariant). Conflict auto-off
@@ -16,15 +16,15 @@ import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
-import type { ModalOption } from '~/lib/finance/wizards/modal-options'
+import type { ModalOption } from '~/lib/finance/sims/modal-options'
 
 const derived = useDerivedStore()
 const simulator = useSimulator()
 
 function hitung(opt: ModalOption) {
-  if (opt.handoff.kind !== 'wizard') return
-  simulator.open(opt.handoff.wizardKey, {
-    wizardKey: opt.handoff.wizardKey,
+  if (opt.handoff.kind !== 'sim') return
+  simulator.open(opt.handoff.simKey, {
+    simKey: opt.handoff.simKey,
     input: opt.handoff.prefill,
   } as Parameters<typeof simulator.open>[1])
 }

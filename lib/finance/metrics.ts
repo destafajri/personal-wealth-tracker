@@ -211,8 +211,8 @@ export function calcNetWorth(snap: SnapshotState, prices?: PricesView): number {
 // without tebus utang gadai first, and the gadai cash is already booked under kas).
 // Realisasi cair perlu user pahami sendiri (spread/bea jual surfaces as inline disclaimer
 // on HeroPair). When includes is omitted the formula stays the PRD §11.4 baseline so
-// non-toggle callers (wizards, options preview before D9.10 wiring) don't accidentally
-// inflate Modal Siap. Wizard delta tables MUST pass includes through so Sebelum/Sesudah
+// non-toggle callers (simulators, options preview before D9.10 wiring) don't accidentally
+// inflate Modal Siap. Simulator delta tables MUST pass includes through so Sebelum/Sesudah
 // rows match the dashboard headline — otherwise `before` reads inflated, `after` reads
 // baseline, and the delta is meaningless.
 
@@ -390,7 +390,7 @@ export function calcSafeHaven(snap: SnapshotState, prices?: PricesView): number 
 }
 
 // ----- 8. Allocation Discipline — avg pp drift across stocks (Day 4 will surface, but
-// expose the function now for consistency / wizard prep) -----
+// expose the function now for consistency / simulator prep) -----
 
 // Discipline universe = rows where the user set `lotsTarget`. Target bobot is derived
 // from `lotsTarget × price` (not an explicit `bobotTargetPercent`), so the metric

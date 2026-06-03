@@ -1,17 +1,17 @@
 <script setup lang="ts">
-// "Mau Gadai?" wizard UI. Conditional form: gram input for emas:* jaminans, asetRefId
+// "Mau Gadai?" simulator UI. Conditional form: gram input for emas:* jaminans, asetRefId
 // dropdown for properti / kendaraan (sourced from existing snapshot rows so user can
 // pick which collateral they'd pawn).
 import { computed, ref, watch } from 'vue'
 import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import InputCurrency from '~/components/common/InputCurrency.vue'
-import WizardDeltaTable from '~/components/simulator/WizardDeltaTable.vue'
+import SimDeltaTable from '~/components/simulator/SimDeltaTable.vue'
 import {
   computeGadai,
   runMauGadai,
   type GadaiInput,
-} from '~/lib/finance/wizards/mau-gadai'
+} from '~/lib/finance/sims/mau-gadai'
 import { availableGramOf, emasCategoryOfJaminan } from '~/lib/finance/emas'
 import { idr } from '~/lib/format/idr'
 import { t, type CopyKey } from '~/lib/copy/strings'
@@ -20,7 +20,7 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
 import type { GadaiJaminanKind } from '~/lib/types/snapshot'
-import type { GoalDelta, WizardResult } from '~/lib/types/wizard'
+import type { GoalDelta, SimResult } from '~/lib/types/sim'
 
 const snapStore = useSnapshotStore()
 const goalsStore = useGoalsStore()
@@ -38,13 +38,13 @@ const JAMINAN_OPTIONS: ReadonlyArray<GadaiJaminanKind> = [
 ]
 
 const JAMINAN_LABEL: Record<GadaiJaminanKind, CopyKey> = {
-  'emas:digital': 'wizard.gadai.jaminan.emasDigital',
-  'emas:fisikAntam': 'wizard.gadai.jaminan.emasFisikAntam',
-  'emas:perhiasan18K': 'wizard.gadai.jaminan.emasPerhiasan18K',
-  'emas:perhiasan14K': 'wizard.gadai.jaminan.emasPerhiasan14K',
-  'emas:perhiasan10K': 'wizard.gadai.jaminan.emasPerhiasan10K',
-  properti: 'wizard.gadai.jaminan.properti',
-  kendaraan: 'wizard.gadai.jaminan.kendaraan',
+  'emas:digital': 'sim.gadai.jaminan.emasDigital',
+  'emas:fisikAntam': 'sim.gadai.jaminan.emasFisikAntam',
+  'emas:perhiasan18K': 'sim.gadai.jaminan.emasPerhiasan18K',
+  'emas:perhiasan14K': 'sim.gadai.jaminan.emasPerhiasan14K',
+  'emas:perhiasan10K': 'sim.gadai.jaminan.emasPerhiasan10K',
+  properti: 'sim.gadai.jaminan.properti',
+  kendaraan: 'sim.gadai.jaminan.kendaraan',
 }
 
 const label = ref('')
@@ -56,7 +56,7 @@ const bungaPerBulanPercent = ref<number>(1.5)
 const tempoBulan = ref<number>(4)
 
 const isEmas = computed(() => jaminan.value.startsWith('emas:'))
-const result = computed<WizardResult | null>(() => {
+const result = computed<SimResult | null>(() => {
   const r = simulator.currentResult.value
   if (r === null || !('delta' in r)) return null
   return r
@@ -158,13 +158,13 @@ const summary = computed(() => {
 })
 
 function goalImpactMessage(g: GoalDelta): string {
-  if (g.unreachable) return t('wizard.goalImpact.unreachable', { label: g.goalLabel })
+  if (g.unreachable) return t('sim.goalImpact.unreachable', { label: g.goalLabel })
   if (Math.abs(g.monthsShift) < 0.5)
-    return t('wizard.goalImpact.shift.none', { label: g.goalLabel })
+    return t('sim.goalImpact.shift.none', { label: g.goalLabel })
   const abs = Math.abs(Math.round(g.monthsShift))
   return g.monthsShift > 0
-    ? t('wizard.goalImpact.shift.late', { label: g.goalLabel, months: abs })
-    : t('wizard.goalImpact.shift.early', { label: g.goalLabel, months: abs })
+    ? t('sim.goalImpact.shift.late', { label: g.goalLabel, months: abs })
+    : t('sim.goalImpact.shift.early', { label: g.goalLabel, months: abs })
 }
 
 const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
@@ -178,26 +178,26 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
   <div class="space-y-6">
     <header>
       <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">
-        {{ t('wizard.gadai.title') }}
+        {{ t('sim.gadai.title') }}
       </h2>
       <p class="mt-1 text-sm text-[var(--color-text-secondary)]">
-        {{ t('wizard.gadai.subtitle') }}
+        {{ t('sim.gadai.subtitle') }}
       </p>
     </header>
 
     <section class="grid gap-3 sm:grid-cols-2">
       <label class="block text-xs sm:col-span-2">
-        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.gadai.form.label') }}</span>
+        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.gadai.form.label') }}</span>
         <input
           v-model="label"
           type="text"
-          :placeholder="t('wizard.gadai.form.labelPlaceholder')"
+          :placeholder="t('sim.gadai.form.labelPlaceholder')"
           class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
         >
       </label>
 
       <label class="block text-xs sm:col-span-2">
-        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.gadai.form.jaminan') }}</span>
+        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.gadai.form.jaminan') }}</span>
         <select
           v-model="jaminan"
           class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
@@ -208,7 +208,7 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
 
       <!-- Conditional: emas → gram input. properti/kendaraan → asetRef picker. -->
       <label v-if="isEmas" class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.gadai.form.gram') }}</span>
+        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.gadai.form.gram') }}</span>
         <input
           v-model.number="gramTertahan"
           type="number"
@@ -222,21 +222,21 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
         >
           {{
             gramOverOwned
-              ? t('wizard.gadai.warning.gramExceedsOwned', {
+              ? t('sim.gadai.warning.gramExceedsOwned', {
                 requested: gramTertahan.toString(),
                 available: availableGrams.toFixed(2),
               })
-              : t('wizard.gadai.form.gramAvailable', { available: availableGrams.toFixed(2) })
+              : t('sim.gadai.form.gramAvailable', { available: availableGrams.toFixed(2) })
           }}
         </p>
       </label>
       <label v-else class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.gadai.form.asetRef') }}</span>
+        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.gadai.form.asetRef') }}</span>
         <select
           v-model="asetRefId"
           class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-low)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
         >
-          <option value="" disabled>{{ t('wizard.gadai.form.asetRefEmpty') }}</option>
+          <option value="" disabled>{{ t('sim.gadai.form.asetRefEmpty') }}</option>
           <option v-for="row in refRows" :key="row.id" :value="row.id">
             {{ row.label || '(tanpa nama)' }} — {{ idr(row.amount) }}
           </option>
@@ -244,14 +244,14 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
       </label>
 
       <label class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.gadai.form.piutang') }}</span>
+        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.gadai.form.piutang') }}</span>
         <div class="mt-1">
           <InputCurrency v-model="piutangIdr" />
         </div>
       </label>
 
       <label class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.gadai.form.bunga') }}</span>
+        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.gadai.form.bunga') }}</span>
         <input
           v-model.number="bungaPerBulanPercent"
           type="number"
@@ -263,7 +263,7 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
       </label>
 
       <label class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('wizard.gadai.form.tempo') }}</span>
+        <span class="font-medium text-[var(--color-text-secondary)]">{{ t('sim.gadai.form.tempo') }}</span>
         <input
           v-model.number="tempoBulan"
           type="number"
@@ -277,19 +277,19 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
 
     <div class="flex flex-wrap items-center gap-3">
       <ButtonPrimary :disabled="!canSubmit" @click="submit">
-        {{ t('wizard.gadai.form.submit') }}
+        {{ t('sim.gadai.form.submit') }}
       </ButtonPrimary>
-      <ButtonGhost v-if="result" @click="reset">{{ t('wizard.kpr.form.reset') }}</ButtonGhost>
+      <ButtonGhost v-if="result" @click="reset">{{ t('sim.kpr.form.reset') }}</ButtonGhost>
     </div>
 
     <template v-if="result && summary">
       <section class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-low)] p-4">
         <h3 class="mb-2 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.gadai.summary.title') }}
+          {{ t('sim.gadai.summary.title') }}
         </h3>
         <ul class="grid gap-1 text-sm text-[var(--color-text-secondary)] sm:grid-cols-2">
-          <li>{{ t('wizard.gadai.summary.piutang', { amount: idr(summary.piutang) }) }}</li>
-          <li>{{ t('wizard.gadai.summary.totalBunga', { amount: idr(summary.totalBunga) }) }}</li>
+          <li>{{ t('sim.gadai.summary.piutang', { amount: idr(summary.piutang) }) }}</li>
+          <li>{{ t('sim.gadai.summary.totalBunga', { amount: idr(summary.totalBunga) }) }}</li>
         </ul>
       </section>
 
@@ -303,17 +303,17 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
 
       <section>
         <h3 class="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.delta.title') }}
+          {{ t('sim.delta.title') }}
         </h3>
-        <WizardDeltaTable :delta="result.delta" />
+        <SimDeltaTable :delta="result.delta" />
       </section>
 
       <section>
         <h3 class="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.goalImpact.title') }}
+          {{ t('sim.goalImpact.title') }}
         </h3>
         <p v-if="result.goalImpact.length === 0" class="text-sm text-[var(--color-text-muted)]">
-          {{ t('wizard.goalImpact.empty') }}
+          {{ t('sim.goalImpact.empty') }}
         </p>
         <ul v-else class="space-y-2">
           <li

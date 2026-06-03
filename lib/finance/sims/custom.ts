@@ -1,4 +1,4 @@
-// "Custom" wizard — free-form delta. Locked-minimal scope (per Day 7 decision):
+// "Custom" simulator — free-form delta. Locked-minimal scope (per Day 7 decision):
 //   - Required: 1 cicilan row (label/tipe/sisaPokok/cicilanPerBulan/jenisBunga + optional
 //     sukuBunga + tenor).
 //   - Optional: 1 asset row (any liquid or non-liquid category; liquid supports currency).
@@ -6,14 +6,14 @@
 // No DP / waterfall here — user states the cicilan + asset directly. Use case: "gimana
 // kalau pinjam ke teman 50jt cicil 1jt/bln dan pakai sebagian buat tambahin RD?".
 // For more complex flows (multi-row, change penghasilan, etc), user should use
-// dedicated wizards or edit the snapshot directly.
+// dedicated simulators or edit the snapshot directly.
 
 import {
   cloneSnapshot,
   computeGoalImpact,
   computeStandardDelta,
   rid,
-} from '~/lib/finance/wizards/_shared'
+} from '~/lib/finance/sims/_shared'
 import type { Goal } from '~/lib/types/goals'
 import type {
   AssetRow,
@@ -26,7 +26,7 @@ import type {
   PricesView,
   SnapshotState,
 } from '~/lib/types/snapshot'
-import type { WizardResult } from '~/lib/types/wizard'
+import type { SimResult } from '~/lib/types/sim'
 import type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 export type AnyAssetCategory = LiquidAssetCategory | NonLiquidAssetCategory
@@ -99,7 +99,7 @@ export function runCustom(
     today?: Date
     includes?: ModalSiapIncludes
   },
-): WizardResult {
+): SimResult {
   const { prices } = opts
   const scenarioSnapshot = cloneSnapshot(snap)
   applyCustomToScenario(scenarioSnapshot, input)

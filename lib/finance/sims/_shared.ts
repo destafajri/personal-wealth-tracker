@@ -1,7 +1,7 @@
-// Shared helpers across all wizards (mau-kpr/mau-gadai/mau-cicil/custom + Day-8 capacity).
+// Shared helpers across all simulators (mau-kpr/mau-gadai/mau-cicil/custom + Day-8 capacity).
 // Extracted from Day-6 mau-kpr.ts so the 7-metric delta block + goal-impact projection
-// re-run don't get copy-pasted 4–7 times. Any new metric or wizard-shared formatter
-// rule belongs here so the wizards stay declarative.
+// re-run don't get copy-pasted 4–7 times. Any new metric or simulator-shared formatter
+// rule belongs here so the simulators stay declarative.
 
 import { rateToIdr } from '~/lib/finance/fx'
 import { goalProgress } from '~/lib/finance/goals'
@@ -32,7 +32,7 @@ import type {
   DeltaRow,
   DeltaSide,
   GoalDelta,
-} from '~/lib/types/wizard'
+} from '~/lib/types/sim'
 
 // ----- clone + ID -----
 
@@ -112,7 +112,7 @@ function sideMonths(value: number | null, metricKey: string): DeltaSide {
   }
 }
 
-// Direction = "is this delta good for the user?" — independent from up/down. Each wizard
+// Direction = "is this delta good for the user?" — independent from up/down. Each simulator
 // passes the bias per metric (DSR↑=worse, Runway↑=better).
 export function computeDirection(
   before: number | null,
@@ -151,14 +151,14 @@ function deltaMonths(before: number | null, after: number | null): string {
 
 // ----- standard 7-metric delta -----
 
-// Returns the 7-metric delta block used by every decision + capacity wizard. Each
-// wizard can post-process if it needs custom rows; for KPR/Gadai/Cicil/Custom the
+// Returns the 7-metric delta block used by every decision + capacity simulator. Each
+// simulator can post-process if it needs custom rows; for KPR/Gadai/Cicil/Custom the
 // block is identical.
 //
 // `includes` mirrors the dashboard's Modal Siap toggle (saham/emas/sbn) so Sebelum
 // matches the headline the user just saw on HeroPair. Omitting it falls back to
 // baseline (kas+depo+RD+crypto); callers that don't have the user's toggle state
-// in scope can skip it, but production wizard components SHOULD pass it.
+// in scope can skip it, but production simulator components SHOULD pass it.
 export function computeStandardDelta(
   before: SnapshotState,
   after: SnapshotState,

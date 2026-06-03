@@ -1,4 +1,4 @@
-// "Mau Gadai?" wizard. Pawn an asset (emas / properti / kendaraan) → get cash piutang.
+// "Mau Gadai?" simulator. Pawn an asset (emas / properti / kendaraan) → get cash piutang.
 //
 // Effects on scenario:
 //   1) Add gadai row (jaminan kind + gramTertahan or asetRefId + piutangIdr + bunga + tempo).
@@ -9,7 +9,7 @@
 //      user still OWNS those grams (this is how the snapshot already models gadai).
 //
 // Cicilan effect on DSR/Runway: GadaiRow has no `cicilanPerBulan` field, so DSR is
-// untouched by this wizard. DAR/NetWorth use the piutangIdr directly via calcTotalUtang.
+// untouched by this simulator. DAR/NetWorth use the piutangIdr directly via calcTotalUtang.
 // Bunga accrues monthly off-snapshot — surfaced only as the warning summary; user
 // pays it when tebus / lunas.
 
@@ -19,7 +19,7 @@ import {
   computeGoalImpact,
   computeStandardDelta,
   rid,
-} from '~/lib/finance/wizards/_shared'
+} from '~/lib/finance/sims/_shared'
 import { t } from '~/lib/copy/strings'
 import type { Goal } from '~/lib/types/goals'
 import type {
@@ -28,7 +28,7 @@ import type {
   PricesView,
   SnapshotState,
 } from '~/lib/types/snapshot'
-import type { WizardResult } from '~/lib/types/wizard'
+import type { SimResult } from '~/lib/types/sim'
 import type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 export interface GadaiInput {
@@ -89,7 +89,7 @@ export function runMauGadai(
     today?: Date
     includes?: ModalSiapIncludes
   },
-): WizardResult {
+): SimResult {
   const { prices } = opts
   const scenarioSnapshot = cloneSnapshot(snap)
   applyGadaiToScenario(scenarioSnapshot, input)
@@ -98,9 +98,9 @@ export function runMauGadai(
   const goalImpact = computeGoalImpact(goals, snap, scenarioSnapshot, opts)
 
   const warnings: string[] = []
-  if (input.piutangIdr <= 0) warnings.push(t('wizard.gadai.warning.zeroPiutang'))
+  if (input.piutangIdr <= 0) warnings.push(t('sim.gadai.warning.zeroPiutang'))
   if (input.jaminan.startsWith('emas:') && (input.gramTertahan ?? 0) <= 0) {
-    warnings.push(t('wizard.gadai.warning.zeroGram'))
+    warnings.push(t('sim.gadai.warning.zeroGram'))
   }
   // Codex round-13: gram ownership invariant. snap.emas.{cat}Gram = TOTAL ownership
   // (at home + already pawned); user can only pawn what's still available at home.
@@ -113,7 +113,7 @@ export function runMauGadai(
       const requested = input.gramTertahan ?? 0
       if (requested > available + 1e-6) {
         warnings.push(
-          t('wizard.gadai.warning.gramExceedsOwned', {
+          t('sim.gadai.warning.gramExceedsOwned', {
             requested: requested.toString(),
             available: available.toFixed(2),
           }),

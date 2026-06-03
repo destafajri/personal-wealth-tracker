@@ -22,7 +22,7 @@ import {
 } from '~/lib/finance/metrics'
 import { calcGoalHealth, goalProgress, surplus } from '~/lib/finance/goals'
 import { breakdownGoldIdr } from '~/lib/finance/emas'
-import { runModalOptions } from '~/lib/finance/wizards/modal-options'
+import { runModalOptions } from '~/lib/finance/sims/modal-options'
 import type { Goal } from '~/lib/types/goals'
 import type { PricesView, SnapshotState } from '~/lib/types/snapshot'
 

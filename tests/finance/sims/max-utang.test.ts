@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   runMaxUtang,
   type MaxUtangInput,
-} from '~/lib/finance/wizards/max-utang'
+} from '~/lib/finance/sims/max-utang'
 import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
 
 function baseSnap(): SnapshotState {

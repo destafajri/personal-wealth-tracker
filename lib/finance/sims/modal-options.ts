@@ -3,25 +3,25 @@
 //
 // NO ranking (PRD §5.2.7 + OJK §11.1). Canonical order: debt-reduction → asset-acquisition
 // → FI bucket. Within each category, no rate sort — debt rows follow jatuh_tempo asc /
-// insertion order (same convention as Lunasi wizard); saham follows largest-gap-first
+// insertion order (same convention as Lunasi simulator); saham follows largest-gap-first
 // (descriptive: "which emiten lags the lotsTarget by most lot"); FI options always RD →
 // Deposito (alphabetic, not preferred-first).
 //
-// Day 9 lock (post-iteration): EVERY [Hitung] click opens a preview-only wizard. NEVER
-// mutates the real snapshot. Two wizard kinds:
-//   - 'lunasi'        → existing WizardLunasi pre-filled (debt actions; user can adjust
-//                        mode/amount before [Hitung] inside the wizard)
-//   - 'deploy-preview' → new WizardDeployPreview that runs an internal waterfall debit
+// Day 9 lock (post-iteration): EVERY [Hitung] click opens a preview-only simulator. NEVER
+// mutates the real snapshot. Two simulator kinds:
+//   - 'lunasi'        → existing SimLunasi pre-filled (debt actions; user can adjust
+//                        mode/amount before [Hitung] inside the simulator)
+//   - 'deploy-preview' → new SimDeployPreview that runs an internal waterfall debit
 //                        (kas→deposito→RD→crypto, FX-aware) + asset add against a cloned
 //                        snapshot, renders Sebelum/Sesudah delta + Goal impact, NO Apply
 //                        button. User decides next steps manually in Snapshot panel.
 //
 // The previous apply-direct path was dropped after user feedback "lebih baik popup tanpa
-// gangu data snapshot" — wizard purity invariant now uniform across all 6 wizards + the
+// gangu data snapshot" — simulator purity invariant now uniform across all 6 simulators + the
 // 7th Modal Options handoff.
 //
 // `conflictsWith` flags the ModalSiap-include category whose toggle should auto-off
-// before the wizard opens (e.g., beli-saham conflicts with saham toggle — including
+// before the simulator opens (e.g., beli-saham conflicts with saham toggle — including
 // saham in Modal Siap while deploying TO saham double-counts the same rupiah).
 //
 // Per OJK copy guard (PRD §9): NO advisory verbs ("sebaiknya", "rekomendasi"). Headers
@@ -38,8 +38,8 @@ import { goalProgress } from '~/lib/finance/goals'
 import { idr } from '~/lib/format/idr'
 import { percent, pp } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
-import { cloneSnapshot } from '~/lib/finance/wizards/_shared'
-import { deployablePool } from '~/lib/finance/wizards/deploy-preview'
+import { cloneSnapshot } from '~/lib/finance/sims/_shared'
+import { deployablePool } from '~/lib/finance/sims/deploy-preview'
 import type { Goal } from '~/lib/types/goals'
 import type {
   CicilanRow,
@@ -47,11 +47,11 @@ import type {
   SnapshotState,
   StockHolding,
 } from '~/lib/types/snapshot'
-import type { LunasiInput } from '~/lib/finance/wizards/lunasi-utang'
+import type { LunasiInput } from '~/lib/finance/sims/lunasi-utang'
 // DeployAction lives in deploy-preview.ts to break a circular dep (modal-options
 // imports deployablePool from there). Re-exported below so existing call sites keep
 // working.
-import type { DeployAction } from '~/lib/finance/wizards/deploy-preview'
+import type { DeployAction } from '~/lib/finance/sims/deploy-preview'
 
 export type { DeployAction }
 
@@ -68,22 +68,22 @@ export type ModalOptionKind =
   | 'tambah-sbn'
   | 'tambah-emas'
 
-// Re-export ModalSiapIncludes type so wizards that import this module can read it
+// Re-export ModalSiapIncludes type so simulators that import this module can read it
 // without a separate import from metrics.
 export type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 export interface DeployPrefill {
   action: DeployAction
-  // Echo the snapshot Modal Siap headline for the wizard's "Sumber" line.
+  // Echo the snapshot Modal Siap headline for the simulator's "Sumber" line.
   modalSiapHeadline: number
-  // Toggle state at the time the option was generated — passed through so the wizard's
+  // Toggle state at the time the option was generated — passed through so the simulator's
   // internal drain pipeline knows which toggled-in classes are drainable.
   includes: ModalSiapIncludes
 }
 
 export type ModalOptionHandoff =
-  | { kind: 'wizard'; wizardKey: 'lunasi'; prefill: LunasiInput }
-  | { kind: 'wizard'; wizardKey: 'deploy-preview'; prefill: DeployPrefill }
+  | { kind: 'sim'; simKey: 'lunasi'; prefill: LunasiInput }
+  | { kind: 'sim'; simKey: 'deploy-preview'; prefill: DeployPrefill }
 
 export interface ModalOption {
   id: string // stable v-for key
@@ -151,7 +151,7 @@ function makeLunasiOption(
     } else {
       // Prepay path — for legibility model as 'tenor' mode (cicilan unchanged, tenor
       // shortens). We don't recompute tenor in this preview; the user opens Lunasi
-      // wizard for the precise figure. cicilanPerBulan stays — so DSR doesn't change
+      // simulator for the precise figure. cicilanPerBulan stays — so DSR doesn't change
       // until full lunas. That's intentional: prepay impact preview surfaces "tenor
       // mundur" framing through the label, not via DSR delta.
       target.sisaPokok = newSisa
@@ -189,7 +189,7 @@ function makeLunasiOption(
       modalSisa: idr(Math.max(0, modalAfter)),
     }),
     amount: paymentIdr,
-    handoff: { kind: 'wizard', wizardKey: 'lunasi', prefill },
+    handoff: { kind: 'sim', simKey: 'lunasi', prefill },
   }
 }
 
@@ -229,7 +229,7 @@ function utangPribadiOptions(
         modalSisa: idr(Math.max(0, modalAfter)),
       }),
       amount: u.sisaPokok,
-      handoff: { kind: 'wizard', wizardKey: 'lunasi', prefill },
+      handoff: { kind: 'sim', simKey: 'lunasi', prefill },
     })
   }
   return out
@@ -262,7 +262,7 @@ function gadaiOptions(
         modalSisa: idr(Math.max(0, modalAfter)),
       }),
       amount: g.piutangIdr,
-      handoff: { kind: 'wizard', wizardKey: 'lunasi', prefill },
+      handoff: { kind: 'sim', simKey: 'lunasi', prefill },
     })
   }
   return out
@@ -340,8 +340,8 @@ function sahamOptions(
       }),
       amount: costIdr,
       handoff: {
-        kind: 'wizard',
-        wizardKey: 'deploy-preview',
+        kind: 'sim',
+        simKey: 'deploy-preview',
         prefill: {
           action: {
             kind: 'addStockLots',
@@ -451,8 +451,8 @@ function assetAcquisitionOptions(
       impactPreview: preview,
       amount: deployable,
       handoff: {
-        kind: 'wizard',
-        wizardKey: 'deploy-preview',
+        kind: 'sim',
+        simKey: 'deploy-preview',
         prefill: {
           action: {
             kind: 'addLiquidRow',
@@ -478,8 +478,8 @@ function assetAcquisitionOptions(
       impactPreview: t('modal.option.tambahEmas.preview', { amount: idr(deployable) }),
       amount: deployable,
       handoff: {
-        kind: 'wizard',
-        wizardKey: 'deploy-preview',
+        kind: 'sim',
+        simKey: 'deploy-preview',
         prefill: {
           action: { kind: 'addEmasGram', amountIdr: deployable },
           modalSiapHeadline: calcModalSiap(snap, prices, includes),

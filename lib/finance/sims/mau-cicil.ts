@@ -1,5 +1,5 @@
-// "Mau Cicil?" wizard — generic installment (non-KPR). Covers KPM / BANK_KTA / PINJOL /
-// PAYLATER / KK / LAIN. KPR has its own wizard (different mental model: home + DP large).
+// "Mau Cicil?" simulator — generic installment (non-KPR). Covers KPM / BANK_KTA / PINJOL /
+// PAYLATER / KK / LAIN. KPR has its own simulator (different mental model: home + DP large).
 //
 // Effects on scenario (mirror mau-kpr.ts but no auto-property):
 //   1) Add cicilan row (Anuitas/Flat) — pokok = harga − DP, cicilan via amortization.ts.
@@ -15,7 +15,7 @@ import {
   computeStandardDelta,
   rid,
   waterfallDebit,
-} from '~/lib/finance/wizards/_shared'
+} from '~/lib/finance/sims/_shared'
 import { t } from '~/lib/copy/strings'
 import type { Goal } from '~/lib/types/goals'
 import type {
@@ -26,11 +26,11 @@ import type {
   PricesView,
   SnapshotState,
 } from '~/lib/types/snapshot'
-import type { WizardResult } from '~/lib/types/wizard'
+import type { SimResult } from '~/lib/types/sim'
 import type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
-// KPR excluded — has its own wizard. KK is technically Revolving but we keep it under
-// this wizard with Anuitas/Flat options (user can switch later in Cicilan Aktif panel).
+// KPR excluded — has its own simulator. KK is technically Revolving but we keep it under
+// this simulator with Anuitas/Flat options (user can switch later in Cicilan Aktif panel).
 export type CicilTipe = Exclude<CicilanTipe, 'KPR'>
 
 export interface CicilInput {
@@ -123,7 +123,7 @@ export function runMauCicil(
     today?: Date
     includes?: ModalSiapIncludes
   },
-): WizardResult {
+): SimResult {
   const { prices } = opts
   const computed = computeCicil(input)
   const scenarioSnapshot = cloneSnapshot(snap)
@@ -138,7 +138,7 @@ export function runMauCicil(
   const goalImpact = computeGoalImpact(goals, snap, scenarioSnapshot, opts)
 
   const warnings: string[] = []
-  if (dpShortfall > 0) warnings.push(t('wizard.warning.dpExceedsLiquid'))
+  if (dpShortfall > 0) warnings.push(t('sim.warning.dpExceedsLiquid'))
 
   return {
     scenarioSnapshot,

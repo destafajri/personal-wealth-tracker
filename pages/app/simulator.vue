@@ -1,13 +1,13 @@
 <script setup lang="ts">
-// Decide tab → Simulator (wizard launcher). Right-rail dashboard provided by
-// layouts/app.vue. Page hosts WizardLauncher only; the actual wizard modal lives on
-// the layout via WizardHost so it can be triggered from anywhere (snapshot dashboard
+// Decide tab → Simulator (simulator launcher). Right-rail dashboard provided by
+// layouts/app.vue. Page hosts SimLauncher only; the actual simulator modal lives on
+// the layout via SimHost so it can be triggered from anywhere (snapshot dashboard
 // quick actions, future deep-linking, etc).
 //
-// Mirror snapshot/goals pages: pipe prices into derived so the wizard's delta math
+// Mirror snapshot/goals pages: pipe prices into derived so the simulator's delta math
 // reads the same FX-aware valuations the dashboard shows.
 import { computed, watchEffect } from 'vue'
-import WizardLauncher from '~/components/simulator/WizardLauncher.vue'
+import SimLauncher from '~/components/simulator/SimLauncher.vue'
 import { t } from '~/lib/copy/strings'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
@@ -75,6 +75,6 @@ watchEffect(() => {
       {{ t('simulator.title') }}
     </h1>
     <p class="text-sm text-[var(--color-text-secondary)]">{{ t('simulator.subtitle') }}</p>
-    <WizardLauncher />
+    <SimLauncher />
   </div>
 </template>

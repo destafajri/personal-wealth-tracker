@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Day 9 — Deploy Preview wizard. Triggered from ModalOptionsPanel / WizardModalOptions
+// Day 9 — Deploy Preview simulator. Triggered from ModalOptionsPanel / SimModalOptions
 // for asset-acquisition options (Tambah RD / Tambah Deposito / Beli Saham). Renders
 // the simulation Sebelum/Sesudah + goal impact + warnings, with NO Apply button.
 //
@@ -10,21 +10,21 @@
 // Source waterfall is fixed (kas → deposito → reksaDana, FX-aware) inside the pure fn
 // runDeployPreview. We intentionally don't expose a per-row picker here — user feedback
 // "popup tanpa gangu data snapshot" preferred this lean read-only path; precise
-// placement happens in /app/snapshot, this wizard is just the simulation.
+// placement happens in /app/snapshot, this simulator is just the simulation.
 import { computed, onMounted, ref } from 'vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
-import WizardDeltaTable from '~/components/simulator/WizardDeltaTable.vue'
+import SimDeltaTable from '~/components/simulator/SimDeltaTable.vue'
 import {
   formatDeployActionSummary,
   runDeployPreview,
-} from '~/lib/finance/wizards/deploy-preview'
+} from '~/lib/finance/sims/deploy-preview'
 import { t } from '~/lib/copy/strings'
 import { FI_MULTIPLIER, useGoalsStore } from '~/stores/goals'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
-import type { DeployPrefill } from '~/lib/finance/wizards/modal-options'
-import type { GoalDelta, WizardResult } from '~/lib/types/wizard'
+import type { DeployPrefill } from '~/lib/finance/sims/modal-options'
+import type { GoalDelta, SimResult } from '~/lib/types/sim'
 
 const snapStore = useSnapshotStore()
 const goalsStore = useGoalsStore()
@@ -53,7 +53,7 @@ onMounted(() => {
   const p = simulator.consumePrefill('deploy-preview')
   if (!p) return
   prefill.value = p.input
-  // Auto-run preview on mount — wizard is preview-only so there's no "Hitung" step.
+  // Auto-run preview on mount — simulator is preview-only so there's no "Hitung" step.
   // Pass through the toggle-include snapshot so the drain pipeline knows which
   // toggled-in classes are drainable (saham/emas/sbn).
   const r = runDeployPreview(
@@ -69,8 +69,8 @@ onMounted(() => {
   simulator.setResult(r)
 })
 
-// Narrow useSimulator.currentResult (AnyWizardResult) to WizardResult via 'delta' guard.
-const result = computed<WizardResult | null>(() => {
+// Narrow useSimulator.currentResult (AnySimResult) to SimResult via 'delta' guard.
+const result = computed<SimResult | null>(() => {
   const r = simulator.currentResult.value
   if (r === null || !('delta' in r)) return null
   return r
@@ -86,14 +86,14 @@ const summary = computed(() => {
 })
 
 function goalShiftLabel(g: GoalDelta): string {
-  if (g.unreachable) return t('wizard.goalImpact.unreachable', { label: g.goalLabel })
+  if (g.unreachable) return t('sim.goalImpact.unreachable', { label: g.goalLabel })
   if (Math.abs(g.monthsShift) < 0.5) {
-    return t('wizard.goalImpact.shift.none', { label: g.goalLabel })
+    return t('sim.goalImpact.shift.none', { label: g.goalLabel })
   }
   const months = Math.abs(g.monthsShift).toFixed(1)
   return g.monthsShift > 0
-    ? t('wizard.goalImpact.shift.late', { label: g.goalLabel, months })
-    : t('wizard.goalImpact.shift.early', { label: g.goalLabel, months })
+    ? t('sim.goalImpact.shift.late', { label: g.goalLabel, months })
+    : t('sim.goalImpact.shift.early', { label: g.goalLabel, months })
 }
 </script>
 
@@ -101,10 +101,10 @@ function goalShiftLabel(g: GoalDelta): string {
   <div>
     <header>
       <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
-        {{ t('wizard.deployPreview.title') }}
+        {{ t('sim.deployPreview.title') }}
       </h3>
       <p class="mt-1 text-xs text-[var(--color-text-secondary)]">
-        {{ t('wizard.deployPreview.subtitle') }}
+        {{ t('sim.deployPreview.subtitle') }}
       </p>
     </header>
 
@@ -113,22 +113,22 @@ function goalShiftLabel(g: GoalDelta): string {
       class="mt-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-low)] p-4"
     >
       <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">
-        {{ t('wizard.deployPreview.summary.title') }}
+        {{ t('sim.deployPreview.summary.title') }}
       </h4>
       <p class="tabular mt-2 text-sm text-[var(--color-text-primary)]">
         {{ summary.headline }}
       </p>
       <p class="mt-1 text-xs text-[var(--color-text-secondary)]">
-        {{ t('wizard.deployPreview.summary.source') }}
+        {{ t('sim.deployPreview.summary.source') }}
       </p>
     </section>
 
     <template v-if="result">
       <section class="mt-4">
         <h4 class="mb-2 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.delta.title') }}
+          {{ t('sim.delta.title') }}
         </h4>
-        <WizardDeltaTable :delta="result.delta" />
+        <SimDeltaTable :delta="result.delta" />
       </section>
 
       <section
@@ -136,7 +136,7 @@ function goalShiftLabel(g: GoalDelta): string {
         class="mt-4 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-low)] p-4"
       >
         <h4 class="mb-2 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.goalImpact.title') }}
+          {{ t('sim.goalImpact.title') }}
         </h4>
         <ul class="space-y-1 text-sm text-[var(--color-text-secondary)]">
           <li v-for="g in result.goalImpact" :key="g.goalId">
@@ -156,12 +156,12 @@ function goalShiftLabel(g: GoalDelta): string {
     </template>
 
     <p class="mt-4 text-[11px] italic text-[var(--color-text-muted)]">
-      {{ t('wizard.deployPreview.note') }}
+      {{ t('sim.deployPreview.note') }}
     </p>
 
     <div class="mt-4 flex justify-end">
       <ButtonGhost @click="simulator.close()">
-        {{ t('wizard.host.close') }}
+        {{ t('sim.host.close') }}
       </ButtonGhost>
     </div>
   </div>

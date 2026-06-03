@@ -1,25 +1,25 @@
 <script setup lang="ts">
-// "Lunasi Utang Sekarang" capacity wizard UI. Single debt picker + payment input +
+// "Lunasi Utang Sekarang" capacity simulator UI. Single debt picker + payment input +
 // (Anuitas/Flat only) mode toggle. Debt list aggregates Cicilan Aktif + Utang Pribadi
 // + Gadai sorted by jatuh_tempo asc / insertion order (NEVER by rate — OJK §11.1).
 import { computed, onMounted, ref, watch } from 'vue'
 import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import InputCurrency from '~/components/common/InputCurrency.vue'
-import WizardDeltaTable from '~/components/simulator/WizardDeltaTable.vue'
+import SimDeltaTable from '~/components/simulator/SimDeltaTable.vue'
 import {
   runLunasiUtang,
   type LunasiAnuitasMode,
   type LunasiInput,
   type LunasiSource,
-} from '~/lib/finance/wizards/lunasi-utang'
+} from '~/lib/finance/sims/lunasi-utang'
 import { idr } from '~/lib/format/idr'
 import { t, type CopyKey } from '~/lib/copy/strings'
 import { FI_MULTIPLIER, useGoalsStore } from '~/stores/goals'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
-import type { GoalDelta, WizardResult } from '~/lib/types/wizard'
+import type { GoalDelta, SimResult } from '~/lib/types/sim'
 import type { JenisBunga } from '~/lib/types/snapshot'
 
 const snapStore = useSnapshotStore()
@@ -132,12 +132,12 @@ const canSubmit = computed(() => {
   return true
 })
 
-// WizardResult narrowing: simulator stores AnyWizardResult. Narrow via 'delta' check
+// SimResult narrowing: simulator stores AnySimResult. Narrow via 'delta' check
 // (CapacityResult doesn't have delta).
-const result = computed<(WizardResult & { applyResult?: ReturnType<typeof runLunasiUtang>['applyResult'] }) | null>(() => {
+const result = computed<(SimResult & { applyResult?: ReturnType<typeof runLunasiUtang>['applyResult'] }) | null>(() => {
   const r = simulator.currentResult.value
   if (r === null || !('delta' in r)) return null
-  return r as WizardResult & { applyResult?: ReturnType<typeof runLunasiUtang>['applyResult'] }
+  return r as SimResult & { applyResult?: ReturnType<typeof runLunasiUtang>['applyResult'] }
 })
 
 function snapshotView() {
@@ -180,10 +180,10 @@ function reset() {
 function debtListLabel(d: DebtListItem): string {
   const labelKey: CopyKey =
     d.source === 'cicilan'
-      ? 'wizard.lunasi.debt.cicilanLabel'
+      ? 'sim.lunasi.debt.cicilanLabel'
       : d.source === 'utangPribadi'
-      ? 'wizard.lunasi.debt.utangLabel'
-      : 'wizard.lunasi.debt.gadaiLabel'
+      ? 'sim.lunasi.debt.utangLabel'
+      : 'sim.lunasi.debt.gadaiLabel'
   if (d.source === 'cicilan') {
     return t(labelKey, { label: d.label, tipe: d.jenisBunga ?? '', amount: idr(d.sisaPokok) })
   }
@@ -191,13 +191,13 @@ function debtListLabel(d: DebtListItem): string {
 }
 
 function goalImpactMessage(g: GoalDelta): string {
-  if (g.unreachable) return t('wizard.goalImpact.unreachable', { label: g.goalLabel })
+  if (g.unreachable) return t('sim.goalImpact.unreachable', { label: g.goalLabel })
   if (Math.abs(g.monthsShift) < 0.5)
-    return t('wizard.goalImpact.shift.none', { label: g.goalLabel })
+    return t('sim.goalImpact.shift.none', { label: g.goalLabel })
   const abs = Math.abs(Math.round(g.monthsShift))
   return g.monthsShift > 0
-    ? t('wizard.goalImpact.shift.late', { label: g.goalLabel, months: abs })
-    : t('wizard.goalImpact.shift.early', { label: g.goalLabel, months: abs })
+    ? t('sim.goalImpact.shift.late', { label: g.goalLabel, months: abs })
+    : t('sim.goalImpact.shift.early', { label: g.goalLabel, months: abs })
 }
 
 const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
@@ -211,21 +211,21 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
   <div class="space-y-6">
     <header>
       <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">
-        {{ t('wizard.lunasi.title') }}
+        {{ t('sim.lunasi.title') }}
       </h2>
       <p class="mt-1 text-sm text-[var(--color-text-secondary)]">
-        {{ t('wizard.lunasi.subtitle') }}
+        {{ t('sim.lunasi.subtitle') }}
       </p>
     </header>
 
     <section v-if="allDebts.length === 0" class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] px-3 py-3 text-sm text-[var(--color-text-muted)]">
-      {{ t('wizard.lunasi.form.debtEmpty') }}
+      {{ t('sim.lunasi.form.debtEmpty') }}
     </section>
 
     <section v-else class="space-y-3">
       <label class="block text-xs">
         <span class="font-medium text-[var(--color-text-secondary)]">
-          {{ t('wizard.lunasi.form.debt') }}
+          {{ t('sim.lunasi.form.debt') }}
         </span>
         <select
           v-model="selectedKey"
@@ -240,7 +240,7 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
 
       <label v-if="selected" class="block text-xs">
         <span class="font-medium text-[var(--color-text-secondary)]">
-          {{ t('wizard.lunasi.form.payment') }}
+          {{ t('sim.lunasi.form.payment') }}
         </span>
         <div class="mt-1">
           <InputCurrency v-model="paymentIdr" />
@@ -252,14 +252,14 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
           {{
             paymentOverSisa
               ? `Maksimum: ${idr(selected.sisaPokok)} (sisa pokok)`
-              : t('wizard.lunasi.form.paymentHelp')
+              : t('sim.lunasi.form.paymentHelp')
           }}
         </p>
       </label>
 
       <fieldset v-if="isAnuitasOrFlat" class="space-y-2">
         <legend class="text-xs font-medium text-[var(--color-text-secondary)]">
-          {{ t('wizard.lunasi.form.modeTitle') }}
+          {{ t('sim.lunasi.form.modeTitle') }}
         </legend>
         <label class="flex items-center gap-2 text-sm">
           <input
@@ -269,7 +269,7 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
             value="tenor"
             class="accent-[var(--color-primary)]"
           >
-          {{ t('wizard.lunasi.form.modeTenor') }}
+          {{ t('sim.lunasi.form.modeTenor') }}
         </label>
         <label class="flex items-center gap-2 text-sm">
           <input
@@ -279,38 +279,38 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
             value="cicilan"
             class="accent-[var(--color-primary)]"
           >
-          {{ t('wizard.lunasi.form.modeCicilan') }}
+          {{ t('sim.lunasi.form.modeCicilan') }}
         </label>
       </fieldset>
     </section>
 
     <div v-if="allDebts.length > 0" class="flex flex-wrap items-center gap-3">
       <ButtonPrimary :disabled="!canSubmit" @click="submit">
-        {{ t('wizard.lunasi.form.submit') }}
+        {{ t('sim.lunasi.form.submit') }}
       </ButtonPrimary>
-      <ButtonGhost v-if="result" @click="reset">{{ t('wizard.kpr.form.reset') }}</ButtonGhost>
+      <ButtonGhost v-if="result" @click="reset">{{ t('sim.kpr.form.reset') }}</ButtonGhost>
     </div>
 
     <template v-if="result">
       <section class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-low)] p-4">
         <h3 class="mb-2 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.lunasi.summary.title') }}
+          {{ t('sim.lunasi.summary.title') }}
         </h3>
         <ul class="grid gap-1 text-sm text-[var(--color-text-secondary)] sm:grid-cols-2">
           <li v-if="result.applyResult">
-            {{ t('wizard.lunasi.summary.paid', { amount: idr(result.applyResult.actualPayment) }) }}
+            {{ t('sim.lunasi.summary.paid', { amount: idr(result.applyResult.actualPayment) }) }}
           </li>
           <li v-if="result.applyResult?.lunasCompleted">
-            {{ t('wizard.lunasi.summary.lunas') }}
+            {{ t('sim.lunasi.summary.lunas') }}
           </li>
           <li v-else-if="result.applyResult?.postSisaPokok !== undefined">
-            {{ t('wizard.lunasi.summary.postSisa', { amount: idr(result.applyResult.postSisaPokok) }) }}
+            {{ t('sim.lunasi.summary.postSisa', { amount: idr(result.applyResult.postSisaPokok) }) }}
           </li>
           <li v-if="result.applyResult?.postCicilanPerBulan !== undefined && !result.applyResult.lunasCompleted">
-            {{ t('wizard.lunasi.summary.postCicilan', { amount: idr(result.applyResult.postCicilanPerBulan) }) }}
+            {{ t('sim.lunasi.summary.postCicilan', { amount: idr(result.applyResult.postCicilanPerBulan) }) }}
           </li>
           <li v-if="result.applyResult?.postTenorBulan !== undefined && !result.applyResult.lunasCompleted">
-            {{ t('wizard.lunasi.summary.postTenor', { months: result.applyResult.postTenorBulan }) }}
+            {{ t('sim.lunasi.summary.postTenor', { months: result.applyResult.postTenorBulan }) }}
           </li>
         </ul>
       </section>
@@ -325,17 +325,17 @@ const STATUS_LABEL: Record<GoalDelta['beforeStatus'], CopyKey> = {
 
       <section>
         <h3 class="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.delta.title') }}
+          {{ t('sim.delta.title') }}
         </h3>
-        <WizardDeltaTable :delta="result.delta" />
+        <SimDeltaTable :delta="result.delta" />
       </section>
 
       <section>
         <h3 class="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
-          {{ t('wizard.goalImpact.title') }}
+          {{ t('sim.goalImpact.title') }}
         </h3>
         <p v-if="result.goalImpact.length === 0" class="text-sm text-[var(--color-text-muted)]">
-          {{ t('wizard.goalImpact.empty') }}
+          {{ t('sim.goalImpact.empty') }}
         </p>
         <ul v-else class="space-y-2">
           <li

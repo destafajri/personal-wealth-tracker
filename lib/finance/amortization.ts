@@ -1,4 +1,4 @@
-// Loan amortization — pure functions. Used by Day 6+ wizards; ships in Day 3 with tests so
+// Loan amortization — pure functions. Used by Day 6+ simulators; ships in Day 3 with tests so
 // the math is locked before UI consumes it.
 //
 // Conventions:

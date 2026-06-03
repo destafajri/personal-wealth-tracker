@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeKpr, runMauKpr, type KprInput } from '~/lib/finance/wizards/mau-kpr'
+import { computeKpr, runMauKpr, type KprInput } from '~/lib/finance/sims/mau-kpr'
 import { emptySnapshot, type PricesView, type SnapshotState } from '~/lib/types/snapshot'
 import type { Goal } from '~/lib/types/goals'
 

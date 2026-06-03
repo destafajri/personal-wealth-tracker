@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Shared 4-col delta table (Metrik | Sebelum | Sesudah | Δ). Used by all 6 wizards —
+// Shared 4-col delta table (Metrik | Sebelum | Sesudah | Δ). Used by all 6 simulators —
 // any styling drift here flows everywhere, so the table stays minimal + tokens-only.
 //
 // Coloring rule: `after.zone` drives the cell tint (sehat/waspada/bahaya soft bg).
@@ -7,7 +7,7 @@
 // and zone are independent: a metric can be "worse" but still in 'sehat' zone (just
 // got closer to waspada).
 import { t } from '~/lib/copy/strings'
-import type { DeltaDirection, DeltaRow } from '~/lib/types/wizard'
+import type { DeltaDirection, DeltaRow } from '~/lib/types/sim'
 import type { Zone } from '~/lib/finance/thresholds'
 
 defineProps<{ delta: DeltaRow[] }>()
@@ -35,10 +35,10 @@ function afterCellClass(zone: Zone | undefined): string {
     <table class="w-full border-collapse text-sm">
       <thead>
         <tr class="border-b border-[var(--color-border)] text-left text-xs uppercase tracking-wide text-[var(--color-text-muted)]">
-          <th class="py-2 pr-3 font-medium">{{ t('wizard.delta.col.metric') }}</th>
-          <th class="py-2 pr-3 font-medium">{{ t('wizard.delta.col.before') }}</th>
-          <th class="py-2 pr-3 font-medium">{{ t('wizard.delta.col.after') }}</th>
-          <th class="py-2 font-medium">{{ t('wizard.delta.col.delta') }}</th>
+          <th class="py-2 pr-3 font-medium">{{ t('sim.delta.col.metric') }}</th>
+          <th class="py-2 pr-3 font-medium">{{ t('sim.delta.col.before') }}</th>
+          <th class="py-2 pr-3 font-medium">{{ t('sim.delta.col.after') }}</th>
+          <th class="py-2 font-medium">{{ t('sim.delta.col.delta') }}</th>
         </tr>
       </thead>
       <tbody>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// Day 9 — Modal Likuid Options as a wizard surface (capacity launcher entry). Renders
-// the same option list as the dashboard ModalOptionsPanel inside the WizardHost modal
+// Day 9 — Modal Likuid Options as a simulator surface (capacity launcher entry). Renders
+// the same option list as the dashboard ModalOptionsPanel inside the SimHost modal
 // chrome. Second entry point for users on /app/simulator who reach Modal Options via
 // the launcher card rather than the dashboard right rail.
 //
@@ -11,17 +11,17 @@ import { useDerivedStore } from '~/stores/derived'
 import { useSimulator } from '~/composables/useSimulator'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
-import type { ModalOption } from '~/lib/finance/wizards/modal-options'
+import type { ModalOption } from '~/lib/finance/sims/modal-options'
 
 const derived = useDerivedStore()
 const simulator = useSimulator()
 
 function hitung(opt: ModalOption) {
-  if (opt.handoff.kind !== 'wizard') return
-  // Swap to the target wizard inside the same modal chrome. useSimulator.open will
+  if (opt.handoff.kind !== 'sim') return
+  // Swap to the target simulator inside the same modal chrome. useSimulator.open will
   // reset currentResult + accept a new prefill payload, so this is a clean handoff.
-  simulator.open(opt.handoff.wizardKey, {
-    wizardKey: opt.handoff.wizardKey,
+  simulator.open(opt.handoff.simKey, {
+    simKey: opt.handoff.simKey,
     input: opt.handoff.prefill,
   } as Parameters<typeof simulator.open>[1])
 }

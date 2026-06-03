@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { runCustom, type CustomInput } from '~/lib/finance/wizards/custom'
+import { runCustom, type CustomInput } from '~/lib/finance/sims/custom'
 import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
 
 function baseSnap(): SnapshotState {

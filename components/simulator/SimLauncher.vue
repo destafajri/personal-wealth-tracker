@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Wizard launcher grid — 4 decision + 3 capacity cards. Only KPR is wired for Day 6;
+// Simulator launcher grid — 4 decision + 3 capacity cards. Only KPR is wired for Day 6;
 // the rest stay rendered with "Soon" badges (Disabled + Soon, locked decision) so the
 // user sees the full product surface without dead-end clicks.
 import {
@@ -13,19 +13,19 @@ import {
 } from 'lucide-vue-next'
 import { t, type CopyKey } from '~/lib/copy/strings'
 import { useSimulator } from '~/composables/useSimulator'
-import type { WizardKey } from '~/lib/types/wizard'
+import type { SimKey } from '~/lib/types/sim'
 
 const { open } = useSimulator()
 
 interface LauncherCard {
-  key: WizardKey
+  key: SimKey
   labelKey: CopyKey
   bodyKey: CopyKey
   icon: typeof Home
   enabled: boolean
 }
 
-// Decision wizards ("Mau gw X?") — Day 6+7: all 4 live. Capacity Day 8.
+// Decision simulators ("Mau gw X?") — Day 6+7: all 4 live. Capacity Day 8.
 const decisions: LauncherCard[] = [
   { key: 'kpr', labelKey: 'simulator.card.kpr.label', bodyKey: 'simulator.card.kpr.body', icon: Home, enabled: true },
   { key: 'gadai', labelKey: 'simulator.card.gadai.label', bodyKey: 'simulator.card.gadai.body', icon: Gem, enabled: true },
@@ -33,7 +33,7 @@ const decisions: LauncherCard[] = [
   { key: 'custom', labelKey: 'simulator.card.custom.label', bodyKey: 'simulator.card.custom.body', icon: Settings2, enabled: true },
 ]
 
-// Capacity wizards ("Bisa gw apa?") — Day 8: Max Utang + Lunasi. Modal Options Day 9.
+// Capacity simulators ("Bisa gw apa?") — Day 8: Max Utang + Lunasi. Modal Options Day 9.
 const capacity: LauncherCard[] = [
   { key: 'max-utang', labelKey: 'simulator.card.maxUtang.label', bodyKey: 'simulator.card.maxUtang.body', icon: Coins, enabled: true },
   { key: 'lunasi', labelKey: 'simulator.card.lunasi.label', bodyKey: 'simulator.card.lunasi.body', icon: PiggyBank, enabled: true },
@@ -84,7 +84,7 @@ const capacity: LauncherCard[] = [
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <!--
           Codex round-14: capacity section was hardcoded as non-interactive div w/ cursor-
-          not-allowed (carry-over from Day-6 when all capacity wizards were Soon). Mirror
+          not-allowed (carry-over from Day-6 when all capacity simulators were Soon). Mirror
           the decisions section's `<component :is>` dispatch so card.enabled actually wires
           the click + button affordance. Soon badge stays only for !enabled cards.
         -->

@@ -3,7 +3,7 @@ import {
   computeGadai,
   runMauGadai,
   type GadaiInput,
-} from '~/lib/finance/wizards/mau-gadai'
+} from '~/lib/finance/sims/mau-gadai'
 import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
 
 function baseInput(): GadaiInput {

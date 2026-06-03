@@ -3,7 +3,7 @@ import {
   computeCicil,
   runMauCicil,
   type CicilInput,
-} from '~/lib/finance/wizards/mau-cicil'
+} from '~/lib/finance/sims/mau-cicil'
 import { emptySnapshot, type PricesView, type SnapshotState } from '~/lib/types/snapshot'
 
 function emptyPrices(): PricesView {

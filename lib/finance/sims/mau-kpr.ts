@@ -1,11 +1,11 @@
-// "Mau KPR?" wizard — first decision wizard, sets the pattern for the rest.
+// "Mau KPR?" simulator — first decision simulator, sets the pattern for the rest.
 //
 // Pure function. Never mutates the input snapshot. Returns a fresh scenarioSnapshot
 // (clone + KPR effects applied) + computed delta vs. the original. UI layer just renders.
 //
 // KPR effects on scenario:
 //   1) Add cicilan KPR row (Anuitas default) — pokok = harga − DP, cicilan computed via
-//      lib/finance/amortization.ts so wizard math matches the canonical schedule.
+//      lib/finance/amortization.ts so simulator math matches the canonical schedule.
 //   2) Add property row to asetNonLikuid.properti — nilai = full harga rumah (locked
 //      decision: better Net Worth framing than DP-only equity accounting).
 //   3) Debit DP via waterfall kas → deposito → reksaDana (locked decision). FX-aware
@@ -21,7 +21,7 @@ import {
   computeStandardDelta,
   rid,
   waterfallDebit,
-} from '~/lib/finance/wizards/_shared'
+} from '~/lib/finance/sims/_shared'
 import { t } from '~/lib/copy/strings'
 import type { Goal } from '~/lib/types/goals'
 import type {
@@ -31,7 +31,7 @@ import type {
   PricesView,
   SnapshotState,
 } from '~/lib/types/snapshot'
-import type { WizardResult } from '~/lib/types/wizard'
+import type { SimResult } from '~/lib/types/sim'
 import type { ModalSiapIncludes } from '~/lib/finance/metrics'
 
 export interface KprInput {
@@ -113,7 +113,7 @@ export function runMauKpr(
     today?: Date
     includes?: ModalSiapIncludes
   },
-): WizardResult {
+): SimResult {
   const { prices } = opts
   const computed = computeKpr(input)
   const scenarioSnapshot = cloneSnapshot(snap)
@@ -128,7 +128,7 @@ export function runMauKpr(
   const goalImpact = computeGoalImpact(goals, snap, scenarioSnapshot, opts)
 
   const warnings: string[] = []
-  if (dpShortfall > 0) warnings.push(t('wizard.warning.dpExceedsLiquid'))
+  if (dpShortfall > 0) warnings.push(t('sim.warning.dpExceedsLiquid'))
 
   return {
     scenarioSnapshot,
