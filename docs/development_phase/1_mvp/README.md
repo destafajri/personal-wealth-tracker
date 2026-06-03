@@ -8,10 +8,23 @@ Canonical docs for the MVP phase live in [`docs/ide_3/`](../../ide_3/) (kept as 
 
 ## Agent memory snapshots (Phase-1 era)
 
-Copies of the Claude Code agent memory entries built up during MVP development. The live versions sit in `~/.claude/projects/.../memory/` (per-machine, not source-controlled); these are the in-repo archive snapshot.
+Copies of the Claude Code agent memory entries built up during MVP development. The live versions sit in `~/.claude/projects/.../memory/` (per-machine, not source-controlled); these are the in-repo archive snapshot at end-of-MVP (2026-06-03).
 
-- [Nuxt component subdir prefix](./feedback-nuxt-component-subdir-prefix.md) — the FooterDisclaimer silent-fail lesson from Day 10 smoke
-- [Cermat phase folders](./reference-cermat-phase-folders.md) — when to write to `docs/ide_3/` vs `docs/development_phase/`
+**Process / workflow:**
+- [Codex review workflow](./feedback-codex-review-workflow.md) — external review cadence between phases
+- [No-overclaim checklist](./feedback-no-overclaim-checklist.md) — verify claims against actual code before writing status
+- [Spec workflow](./feedback-spec-workflow.md) — propose+tradeoff → ask → batched edits → summary
+
+**Technical gotchas:**
+- [Nuxt component subdir prefix](./feedback-nuxt-component-subdir-prefix.md) — `components/layout/X.vue` auto-imports as `<LayoutX/>`; bare name silently fails
+- [Vue/Nuxt typecheck = vue-tsc](./feedback-typecheck-vue-projects.md) — `tsc` skips setup blocks + templates; always use `vue-tsc`
+- [Nuxt vercel-edge preview](./feedback-nuxt-vercel-edge-preview.md) — `nuxt preview` blocked by vercel-edge preset; needs deploy or preset swap for local production Lighthouse
+
+**References:**
+- [Cermat phase folders](./reference-cermat-phase-folders.md) — `docs/ide_3/` vs `docs/development_phase/` split
+- [Stitch UI tool](./reference-stitch.md) — user feeds design-guidelines §9 into Stitch; Claude reviews outputs against PRD/MVP+OJK
+
+> Not archived: `project-cermat-state.md` (74 KB mutation log — too noisy for a snapshot; superseded by [`journey-and-features.md`](./journey-and-features.md) above) and `MEMORY.md` (just an index over the live memory dir).
 
 ## Core specs
 
