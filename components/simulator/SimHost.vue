@@ -7,19 +7,39 @@
 //
 // Why a single global host (vs per-simulator modal): keeps disclaimer + a11y wiring in
 // one place; per Day 6 → Day 8, each new simulator plugs in via the keyed v-if below.
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import type { Component } from 'vue'
+import { computed, defineAsyncComponent, defineComponent, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { X } from 'lucide-vue-next'
 import DisclaimerBanner from '~/components/common/DisclaimerBanner.vue'
-import SimMauKpr from '~/components/simulator/decisions/SimMauKpr.vue'
-import SimMauGadai from '~/components/simulator/decisions/SimMauGadai.vue'
-import SimMauCicil from '~/components/simulator/decisions/SimMauCicil.vue'
-import SimCustom from '~/components/simulator/decisions/SimCustom.vue'
-import SimMaxUtang from '~/components/simulator/capacity/SimMaxUtang.vue'
-import SimLunasiUtang from '~/components/simulator/capacity/SimLunasiUtang.vue'
-import SimModalOptions from '~/components/simulator/capacity/SimModalOptions.vue'
-import SimDeployPreview from '~/components/simulator/capacity/SimDeployPreview.vue'
 import { useSimulator } from '~/composables/useSimulator'
 import { t, type CopyKey } from '~/lib/copy/strings'
+
+// D11.6 — defer the 8 simulator bundles out of the app shell. Each chunk only
+// fetches when its v-if becomes true (i.e. the user actually opens that sim).
+// Shared loading state keeps the modal from popping in empty during the
+// first-click chunk fetch on slow connections.
+const SimLoading = defineComponent({
+  name: 'SimLoading',
+  setup() {
+    return () =>
+      h(
+        'p',
+        { class: 'py-8 text-center text-sm text-[var(--color-text-muted)]' },
+        t('sim.host.loading'),
+      )
+  },
+})
+const asyncSim = (loader: () => Promise<{ default: Component }>) =>
+  defineAsyncComponent({ loader, loadingComponent: SimLoading })
+
+const SimMauKpr = asyncSim(() => import('~/components/simulator/decisions/SimMauKpr.vue'))
+const SimMauGadai = asyncSim(() => import('~/components/simulator/decisions/SimMauGadai.vue'))
+const SimMauCicil = asyncSim(() => import('~/components/simulator/decisions/SimMauCicil.vue'))
+const SimCustom = asyncSim(() => import('~/components/simulator/decisions/SimCustom.vue'))
+const SimMaxUtang = asyncSim(() => import('~/components/simulator/capacity/SimMaxUtang.vue'))
+const SimLunasiUtang = asyncSim(() => import('~/components/simulator/capacity/SimLunasiUtang.vue'))
+const SimModalOptions = asyncSim(() => import('~/components/simulator/capacity/SimModalOptions.vue'))
+const SimDeployPreview = asyncSim(() => import('~/components/simulator/capacity/SimDeployPreview.vue'))
 
 const { activeKey, isOpen, close } = useSimulator()
 const panelRef = ref<HTMLElement | null>(null)

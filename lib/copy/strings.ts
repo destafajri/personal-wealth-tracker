@@ -411,6 +411,7 @@ export const copy = {
   'simulator.card.soon': 'Soon',
 
   'sim.host.close': 'Tutup simulasi',
+  'sim.host.loading': 'Memuat simulasi…',
 
   'sim.kpr.title': 'Mau KPR?',
   'sim.kpr.subtitle': 'Isi spesifikasi KPR untuk lihat dampak ke metrik + goals.',
