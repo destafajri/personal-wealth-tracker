@@ -13,7 +13,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import * as XLSX from 'xlsx'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { applyDemoSnapshot } from '~/lib/fixtures/demoSnapshot'
 import { SCHEMA_VERSION, type XlsxContext } from '~/lib/xlsx/sheets'
@@ -97,6 +97,12 @@ describe('xlsx integration (write → read round-trip)', () => {
     workdir = mkdtempSync(join(tmpdir(), 'cermat-xlsx-'))
   })
 
+  // Run even when the test body throws — otherwise mid-run failures leak
+  // tmp dirs across test runs (Codex hygiene note 2026-06-03).
+  afterEach(() => {
+    rmSync(workdir, { recursive: true, force: true })
+  })
+
   it('produces 6 sheets in order, _meta marked hidden', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
@@ -118,7 +124,6 @@ describe('xlsx integration (write → read round-trip)', () => {
     const metaIdx = reopened.SheetNames.indexOf('_meta')
     const wbMeta = reopened.Workbook?.Sheets?.[metaIdx]
     expect(wbMeta?.Hidden).toBe(1)
-    rmSync(workdir, { recursive: true, force: true })
   })
 
   it('_meta round-trips schema_version + JSON state intact', () => {
@@ -145,7 +150,6 @@ describe('xlsx integration (write → read round-trip)', () => {
     }
     expect(parsed.snapshot.saham.length).toBe(snap.saham.length)
     expect(parsed.goals.fiMultiplier).toBe(FI_MULTIPLIER)
-    rmSync(workdir, { recursive: true, force: true })
   })
 
   it('Snapshot sheet preserves 8-col parser-friendly schema + sample IDR identity', () => {
@@ -175,7 +179,6 @@ describe('xlsx integration (write → read round-trip)', () => {
     const gajiRow = rows.find((r) => r[0] === 'penghasilan')!
     expect(gajiRow[1]).toBe('gaji') // singleton id key
     expect(gajiRow[3]).toBe(gajiRow[5]) // value_source === value_idr for IDR
-    rmSync(workdir, { recursive: true, force: true })
   })
 
   it('Per-Emiten sheet preserves id + ticker for every saham row (target_bobot dropped)', () => {
@@ -200,6 +203,5 @@ describe('xlsx integration (write → read round-trip)', () => {
     expect(tickers).toContain('BBRI')
     expect(tickers).toContain('BMRI')
     expect(tickers).toContain('BBCA')
-    rmSync(workdir, { recursive: true, force: true })
   })
 })
