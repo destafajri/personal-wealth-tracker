@@ -142,12 +142,16 @@ export function applyDemoSnapshot(snap: SnapshotStore): void {
 
 // Minimal subset of vue-router's RouteLocationNormalized + Router so the helper
 // is testable without pulling in a fake router. The page passes `useRoute()`
-// and `useRouter()` straight through; tests pass plain mocks.
+// and `useRouter()` straight through; tests pass plain mocks. Value type must
+// match vue-router's LocationQuery exactly (string | null, possibly arrayed)
+// — narrower won't accept the real `useRoute().query`.
+type DemoQueryValue = string | null
+type DemoQuery = Record<string, DemoQueryValue | DemoQueryValue[]>
 interface DemoRouteLike {
-  query: Record<string, string | string[] | undefined | null>
+  query: DemoQuery
 }
 interface DemoRouterLike {
-  replace(loc: { query: Record<string, string | string[] | undefined | null> }): unknown
+  replace(loc: { query: DemoQuery }): unknown
 }
 
 // Glue between snapshot.vue's onMounted and applyDemoSnapshot. Lives here (not in
