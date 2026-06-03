@@ -33,12 +33,28 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'theme-color', content: '#1b4332' },
         {
           name: 'description',
           content:
             'Track, plan, dan simulasi keputusan finansial. Tanpa daftar, tanpa cloud — data kamu tetap di komputer kamu.',
         },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: 'Cermat — Cek keuangan kamu dalam 10 menit' },
+        {
+          property: 'og:description',
+          content:
+            'Track, plan, dan simulasi keputusan finansial. Tanpa daftar, tanpa cloud — data kamu tetap di komputer kamu.',
+        },
+        { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:title', content: 'Cermat — Cek keuangan kamu dalam 10 menit' },
+        {
+          name: 'twitter:description',
+          content:
+            'Track, plan, dan simulasi keputusan finansial. Tanpa daftar, tanpa cloud — data kamu tetap di komputer kamu.',
+        },
       ],
+      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     },
   },
 

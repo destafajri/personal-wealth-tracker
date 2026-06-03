@@ -211,8 +211,8 @@ Resolve the open items from `cermat-tech-design-en.md` §15 that block early day
 - [ ] D10.1 — `composables/useXlsx.ts` — SheetJS async; build sheets: Ringkasan, Snapshot, Per-Emiten, Cicilan-Aktif, Goals, Skenario, Kapasitas + hidden `_meta` (schema version + state JSON, per PRD §7)
 - [ ] D10.2 — Wire Download button in `TopNav` — disabled until ≥1 asset (tooltip "Tambahkan minimal 1 aset"); post-download toast (`download.confirm`)
 - [ ] D10.3 — Verify workbook opens cleanly in Excel + Google Sheets (number formats, no `#REF`)
-- [ ] D10.4 — Landing polish: spacing, copy, responsive hero; optional Plausible on `/` (D0.6)
-- [ ] D10.5 — `public/robots.txt` (disallow `/app/*`); favicon; meta tags
+- [x] D10.4 — Landing polish: spacing, copy, responsive hero; optional Plausible on `/` (D0.6) _(Plausible skipped — defer with D0.6)_
+- [x] D10.5 — `public/robots.txt` (disallow `/app/*`); favicon; meta tags
 
 **Done:** Download produces a clean file (7 visible sheets + hidden `_meta`) that opens in Excel/Sheets; landing polished; robots/meta set.
 **Depends on:** D3–D9.

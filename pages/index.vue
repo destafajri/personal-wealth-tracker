@@ -21,13 +21,13 @@ function startFresh() {
 
 <template>
   <section class="mx-auto max-w-[1100px] px-6 py-16 sm:px-10 sm:py-24">
-    <div class="text-center">
+    <div class="mx-auto max-w-3xl text-center">
       <h1
-        class="text-3xl font-bold leading-tight tracking-tight text-[var(--color-primary-dark)] sm:text-5xl"
+        class="text-3xl font-bold leading-tight tracking-tight text-balance text-[var(--color-primary-dark)] sm:text-5xl"
       >
         {{ t('landing.hero.title') }}
       </h1>
-      <p class="mt-4 text-lg text-[var(--color-text-secondary)] sm:text-xl">
+      <p class="mt-4 text-lg text-[var(--color-text-secondary)] text-balance sm:text-xl">
         {{ t('landing.hero.subtitle') }}
       </p>
       <p class="mt-2 text-sm text-[var(--color-text-muted)]">
