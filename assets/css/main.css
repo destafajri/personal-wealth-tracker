@@ -6,7 +6,10 @@
   --color-primary-container: #274e3d;
   --color-accent-emerald: #2d6a4f;
   --color-accent-emerald-soft: #86af99;
-  --color-warning-amber: #d97706;
+  /* D11.5 a11y: bumped from #d97706 (Tailwind amber-600) to #b45309 (amber-700)
+     so text-on-amber-soft pairs pass WCAG AA. Visual identity stays
+     recognizably amber; only ~1 shade darker. */
+  --color-warning-amber: #b45309;
   --color-warning-amber-soft: #fde8c8;
   --color-danger-rose: #be123c;
   --color-danger-rose-soft: #fde2e8;
@@ -41,6 +44,17 @@
     background: var(--color-surface);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
+  }
+
+  /* D11.5 — explicit focus-visible ring across all keyboard-actionable
+     elements. Browser defaults are inconsistent and often invisible against
+     the surface palette; the brand-primary outline is reliably visible.
+     Uses :focus-visible (NOT :focus) so mouse clicks don't paint rings on
+     buttons after press. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 }
 

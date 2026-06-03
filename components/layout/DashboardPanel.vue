@@ -37,7 +37,12 @@ const SafeHavenBar = defineAsyncComponent({
 </script>
 
 <template>
-  <section class="flex flex-col gap-4 p-2">
+  <!--
+    D11.5 — aria-live="polite" so screen readers announce metric updates as
+    the user fills in / edits snapshot rows. "polite" (not "assertive")
+    avoids interrupting in-progress typing.
+  -->
+  <section class="flex flex-col gap-4 p-2" aria-live="polite" aria-atomic="false">
     <HeroPair />
     <MetricGrid />
     <ModalOptionsPanel />
