@@ -32,6 +32,7 @@ export const copy = {
   'nav.soon': 'Soon',
   'nav.download.label': 'Unduh xlsx',
   'nav.download.empty': 'Tambah minimal 1 aset dulu',
+  'nav.download.pending': 'Menyusun…',
   'nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
 
   // ----- snapshot page -----
