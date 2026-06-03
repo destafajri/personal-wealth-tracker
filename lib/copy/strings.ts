@@ -22,6 +22,13 @@ export const copy = {
 
   'dialog.refresh': 'Data kamu belum tersimpan. Yakin mau refresh?',
 
+  // D11.2 — Screen 12 negative Net Worth Status framing. Per design-guidelines
+  // §10 + OJK posture: "Status" only, NEVER "Saran"/"Sebaiknya". Descriptive
+  // composition, no prescription. Renders below the rose-tinted NW number in
+  // HeroPair when derived.netWorth < 0.
+  'metric.netWorth.statusNegative':
+    'Status: Aset bersih negatif. Utang {liabilities} melebihi total aset {assets}. Cek komposisi utang & likuiditas di panel kanan buat evaluasi posisi kamu.',
+
   'snapshot.demo.banner':
     'Kamu lagi lihat data contoh — angka di sini cuma persona fiktif, bukan datamu.',
   'snapshot.demo.reset': 'Pakai data sendiri',

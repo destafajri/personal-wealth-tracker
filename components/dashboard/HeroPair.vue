@@ -85,6 +85,23 @@ const anyChipVisible = computed(() => chips.value.some((c) => c.hasValue))
       >
         {{ idr(derived.netWorth) }}
       </p>
+      <!--
+        D11.2 — Screen 12 Status framing. Only renders when NW is actually
+        negative; uses "Status" (descriptive), never "Saran" (advisory) per
+        OJK posture. Numbers are absolute IDR so the sentence reads cleanly
+        regardless of locale formatting.
+      -->
+      <p
+        v-if="derived.netWorth < 0"
+        class="mt-2 rounded-md bg-[var(--color-surface-low)] p-2 text-xs leading-relaxed text-[var(--color-text-secondary)]"
+      >
+        {{
+          t('metric.netWorth.statusNegative', {
+            liabilities: idr(derived.totalUtang),
+            assets: idr(derived.totalAset),
+          })
+        }}
+      </p>
     </article>
     <article
       class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
