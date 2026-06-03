@@ -33,6 +33,14 @@ export const useSnapshotStore = defineStore('snapshot', () => {
   const cicilanAktif = ref<CicilanRow[]>([])
   const utangPribadi = ref<UtangPribadiRow[]>([])
   const gadai = ref<GadaiRow[]>([])
+  // Demo session flag — true after applyDemoSnapshot seeds the store, false on reset
+  // or fresh init. Persists across route nav (Pinia is global) so banner + "Mulai dari
+  // Snapshot" cleanup behave consistently regardless of which page mounts/unmounts.
+  const isDemo = ref(false)
+
+  function setDemo(value: boolean) {
+    isDemo.value = value
+  }
 
   // ----- mutations: asset rows -----
 
@@ -299,6 +307,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     cicilanAktif.value = []
     utangPribadi.value = []
     gadai.value = []
+    isDemo.value = false
   }
 
   return {
@@ -316,6 +325,8 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     cicilanAktif,
     utangPribadi,
     gadai,
+    isDemo,
+    setDemo,
     addLikuid,
     updateLikuid,
     removeLikuid,

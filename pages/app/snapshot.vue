@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { computed, watchEffect } from 'vue'
+import { computed, onMounted, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { Info, X } from 'lucide-vue-next'
 import { t } from '~/lib/copy/strings'
 import PenghasilanForm from '~/components/snapshot/PenghasilanForm.vue'
 import PengeluaranForm from '~/components/snapshot/PengeluaranForm.vue'
@@ -13,6 +15,7 @@ import UtangPribadiPanel from '~/components/snapshot/UtangPribadiPanel.vue'
 import GadaiPanel from '~/components/snapshot/GadaiPanel.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
+import { applyDemoSnapshot } from '~/lib/fixtures/demoSnapshot'
 import {
   useCryptoPrices,
   useFxRates,
@@ -31,6 +34,24 @@ useSeoMeta({ title: `${t('snapshot.title')} — ${t('brand.name')}` })
 
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
+const route = useRoute()
+const router = useRouter()
+
+// Demo seed — fires whenever the URL carries ?demo=1. applyDemoSnapshot calls
+// snap.reset() internally so the demo always wins over whatever is there (clicking
+// the demo link is an explicit intent to see the persona, not a request to merge).
+// After seeding we drop the query so a refresh doesn't re-trigger; demo state lives
+// on snap.isDemo so the banner survives route nav and the "Mulai dari Snapshot"
+// link's onClick reset wipes both data + flag in one shot.
+onMounted(() => {
+  if (route.query.demo === '1') {
+    applyDemoSnapshot(snap)
+    router.replace({ query: { ...route.query, demo: undefined } })
+  }
+})
+function resetDemo() {
+  snap.reset()
+}
 
 // Live prices: gold, FX, and the top-52 crypto catalog fire once per session (the
 // endpoints/composables handle caching). IDX is gated on having tickers because Yahoo's
@@ -81,6 +102,21 @@ watchEffect(() => {
 <template>
   <div class="space-y-5">
     <h1 class="sr-only">{{ t('snapshot.title') }}</h1>
+    <div
+      v-if="snap.isDemo"
+      class="flex items-start gap-3 rounded-[var(--radius-card)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 px-4 py-3 text-sm text-[var(--color-text-secondary)]"
+    >
+      <Info class="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-primary)]" />
+      <p class="flex-1">{{ t('snapshot.demo.banner') }}</p>
+      <button
+        type="button"
+        class="inline-flex items-center gap-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 py-1 text-xs font-medium text-[var(--color-text-primary)] hover:border-[var(--color-primary)]"
+        @click="resetDemo"
+      >
+        <X class="h-3 w-3" />
+        {{ t('snapshot.demo.reset') }}
+      </button>
+    </div>
     <PenghasilanForm />
     <PengeluaranForm />
     <AsetLikuidPanel />

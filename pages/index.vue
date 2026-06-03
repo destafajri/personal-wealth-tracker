@@ -1,12 +1,22 @@
 <script setup lang="ts">
 import { ArrowRight } from 'lucide-vue-next'
 import { t } from '~/lib/copy/strings'
+import { useSnapshotStore } from '~/stores/snapshot'
 
 definePageMeta({ layout: 'default' })
 useSeoMeta({
   title: `${t('brand.name')} — ${t('brand.tagline')}`,
   description: `${t('landing.hero.subtitle')} ${t('landing.hero.trust')}`,
 })
+
+const snap = useSnapshotStore()
+
+// "Mulai dari Snapshot" semantically means "start fresh". If a prior demo (or any
+// stale data) is still in the Pinia store, wipe it before navigating so the form
+// renders empty. The demo card does its own seeding on the destination side.
+function startFresh() {
+  snap.reset()
+}
 </script>
 
 <template>
@@ -29,6 +39,7 @@ useSeoMeta({
       <NuxtLink
         to="/app/snapshot"
         class="group flex flex-col rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-hero)] transition-colors hover:border-[var(--color-primary)] sm:p-8"
+        @click="startFresh"
       >
         <span class="text-base font-semibold text-[var(--color-text-primary)] sm:text-lg">
           {{ t('landing.cta.snapshot.label') }}
