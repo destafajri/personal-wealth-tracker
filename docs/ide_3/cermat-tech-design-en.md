@@ -117,7 +117,7 @@ cermat/
 │       ├── index.vue             # redirect → /app/snapshot
 │       ├── snapshot.vue          # left panel content for Snapshot tab (Screens 2, 3, 10, 11, 12)
 │       ├── goals.vue             # Screen 4
-│       └── simulator.vue         # Screen 5 — wizard launcher
+│       └── simulator.vue         # Screen 5 — simulator launcher
 │
 ├── components/
 │   ├── common/
@@ -131,7 +131,7 @@ cermat/
 │   │   ├── PillStale.vue
 │   │   ├── StatusDot.vue
 │   │   ├── ThresholdBar.vue
-│   │   └── DisclaimerBanner.vue  # OJK pre-wizard banner
+│   │   └── DisclaimerBanner.vue  # OJK pre-simulator banner
 │   ├── layout/
 │   │   ├── TopNav.vue
 │   │   ├── TabBar.vue
@@ -160,23 +160,23 @@ cermat/
 │   │   ├── GoalSummaryCards.vue
 │   │   └── ModalOptionsPanel.vue # §8.20
 │   └── simulator/
-│       ├── WizardLauncher.vue
-│       ├── WizardHost.vue        # global modal host bound to useSimulator()
-│       ├── WizardDeltaTable.vue  # 4-col reusable (Metrik|Sebelum|Sesudah|Δ)
+│       ├── SimLauncher.vue
+│       ├── SimHost.vue        # global modal host bound to useSimulator()
+│       ├── SimDeltaTable.vue  # 4-col reusable (Metrik|Sebelum|Sesudah|Δ)
 │       ├── decisions/
-│       │   ├── WizardMauKpr.vue
-│       │   ├── WizardMauGadai.vue
-│       │   ├── WizardMauCicil.vue
-│       │   └── WizardCustom.vue
+│       │   ├── SimMauKpr.vue
+│       │   ├── SimMauGadai.vue
+│       │   ├── SimMauCicil.vue
+│       │   └── SimCustom.vue
 │       └── capacity/
-│           ├── WizardMaxUtang.vue
-│           ├── WizardLunasiUtang.vue
-│           └── WizardModalOptions.vue
+│           ├── SimMaxUtang.vue
+│           ├── SimLunasiUtang.vue
+│           └── SimModalOptions.vue
 │
 ├── composables/
 │   ├── usePrices.ts              # client-side fetch + 15-min memo of /api/prices/*
 │   ├── useXlsx.ts                # client-side workbook builder
-│   ├── useSimulator.ts           # open/close wizard, current scenario state
+│   ├── useSimulator.ts           # open/close simulator, current scenario state
 │   └── useDirtyGuard.ts          # beforeunload listener
 │
 ├── stores/                       # Pinia (auto-imported by @pinia/nuxt)
@@ -191,7 +191,7 @@ cermat/
 │   │   ├── amortization.ts       # anuitas, flat, floating, revolving (min-payment model)
 │   │   ├── goals.ts              # FI formula, goal projection, contribution-needed
 │   │   ├── thresholds.ts         # zone(value, metric) → 'sehat'|'waspada'|'bahaya'
-│   │   └── wizards/
+│   │   └── simulators/
 │   │       ├── mau-kpr.ts
 │   │       ├── mau-gadai.ts
 │   │       ├── mau-cicil.ts
@@ -210,7 +210,7 @@ cermat/
 │   └── types/
 │       ├── snapshot.ts           # Asset, Debt, Stock, Gadai interfaces
 │       ├── goals.ts
-│       └── wizard.ts             # Scenario, Delta, Option types
+│       └── simulator.ts             # Scenario, Delta, Option types
 │
 ├── server/
 │   └── api/
@@ -228,7 +228,7 @@ cermat/
     │   ├── metrics.test.ts
     │   ├── amortization.test.ts
     │   ├── goals.test.ts
-    │   └── wizards.test.ts
+    │   └── simulators.test.ts
     ├── copy/
     │   └── ojk-lint.test.ts
     └── format/
@@ -248,7 +248,7 @@ Two layouts:
 - `<TabBar>` at top of left panel
 - 45/55 grid below: `<slot/>` (the page) on left, `<DashboardPanel>` on right (sticky)
 - `<FooterDisclaimer>` at the bottom of the page (outside the grid)
-- `<WizardHost>` mounted at layout level so any tab can open wizards
+- `<SimHost>` mounted at layout level so any tab can open simulators
 
 ```vue
 <!-- layouts/app.vue (sketch) -->
@@ -267,13 +267,13 @@ Two layouts:
       </div>
     </div>
     <FooterDisclaimer />
-    <WizardHost />
+    <SimHost />
   </div>
 </template>
 ```
 
 **Why nested routes (`/app/snapshot`, `/app/goals`, `/app/simulator`) and not state-driven tabs:**
-- Deep-linkable: a user pasting `/app/simulator` opens the wizard launcher directly.
+- Deep-linkable: a user pasting `/app/simulator` opens the simulator launcher directly.
 - Browser back works naturally between tabs.
 - Lazy bundle per tab (Nuxt auto-splits).
 - Shared dashboard is preserved via the layout `<aside>` — `<DashboardPanel>` re-renders zero times when switching tabs.
@@ -426,7 +426,7 @@ export const useDerivedStore = defineStore('derived', () => {
   const priceView = ref<PricesView | null>(null)
 
   // Layout/dashboard pipes prices in via setPrices(). The store stays pure (no I/O,
-  // no Nuxt-bound composables inside the setup) — wizard code paths can stub it.
+  // no Nuxt-bound composables inside the setup) — simulator code paths can stub it.
   function setPrices(next: PricesView | null) { priceView.value = next }
 
   const netWorth = computed(() => calcNetWorth(snap.$state, prices.value))
@@ -444,7 +444,7 @@ export const useDerivedStore = defineStore('derived', () => {
 })
 ```
 
-**Why this split:** wizard scenarios run `calcDsr(modifiedState, …)` against a *cloned* snapshot — pure functions make "Sebelum vs Sesudah" computation trivial. The store is just a view.
+**Why this split:** simulator scenarios run `calcDsr(modifiedState, …)` against a *cloned* snapshot — pure functions make "Sebelum vs Sesudah" computation trivial. The store is just a view.
 
 ---
 
@@ -499,13 +499,13 @@ export function revolving(sisaPokok: number, bungaPerBulan: number, minPaymentRa
 
 `Amortization` includes: `cicilanPerBulan`, `totalBunga`, `totalBayar`, `schedule[]` (month → pokok/bunga/sisa).
 
-### 6.3 Wizard engines — `lib/finance/wizards/*.ts`
+### 6.3 Simulator engines — `lib/finance/sims/*.ts`
 
-Each wizard exports a single pure function `run(input, snap, goals, opts) → WizardResult`. **Purity invariant (locked Day 6):** wizards NEVER mutate the real snapshot/goals stores — they deep-clone the snapshot, mutate the clone, and return it. Caller (UI) just renders. Drift here = race conditions + breaks Sebelum/Sesudah framing.
+Each simulator exports a single pure function `run(input, snap, goals, opts) → SimResult`. **Purity invariant (locked Day 6):** simulators NEVER mutate the real snapshot/goals stores — they deep-clone the snapshot, mutate the clone, and return it. Caller (UI) just renders. Drift here = race conditions + breaks Sebelum/Sesudah framing.
 
-`WizardResult` shape:
+`SimResult` shape:
 ```ts
-export interface WizardResult {
+export interface SimResult {
   scenarioSnapshot: SnapshotState           // cloned + mutated
   scenarioGoals: Goal[]                     // KPR doesn't add/remove goals; passes through
   delta: DeltaRow[]                         // 7 metric rows (NW, ModalSiap, DSR, DAR, Runway, SR, SafeHaven)
@@ -538,7 +538,7 @@ export interface GoalDelta {
 }
 ```
 
-`<WizardDeltaTable :delta="result.delta" />` is the shared renderer of the 4-col table — every wizard uses it. Zone-tint on `after` cell (sehat/waspada/bahaya soft bg via existing `--color-accent-emerald-soft` etc); direction-color on Δ (emerald/rose/muted). Zone and direction are independent — a metric can be `worse` but still in `sehat`.
+`<SimDeltaTable :delta="result.delta" />` is the shared renderer of the 4-col table — every simulator uses it. Zone-tint on `after` cell (sehat/waspada/bahaya soft bg via existing `--color-accent-emerald-soft` etc); direction-color on Δ (emerald/rose/muted). Zone and direction are independent — a metric can be `worse` but still in `sehat`.
 
 #### Goal impact
 
@@ -554,20 +554,20 @@ const goalImpact = goals.map((g) => {
 })
 ```
 
-Same `goalProgress` from `lib/finance/goals.ts` (§6.4) — wizard math reconciles with `/app/goals` card math automatically.
+Same `goalProgress` from `lib/finance/goals.ts` (§6.4) — simulator math reconciles with `/app/goals` card math automatically.
 
 #### Day-6 locked decisions for `runMauKpr`
 
-1. **Wizard mounted globally.** `<WizardHost>` lives once in `layouts/app.vue` (Teleport-to-body, focus trap, Esc/backdrop close, body-overflow snapshot/restore). Triggers from any page call `useSimulator().open('kpr')` — keyed `v-if` inside `WizardHost` dispatches to the right wizard component. Don't fork per-page modals.
+1. **Simulator mounted globally.** `<SimHost>` lives once in `layouts/app.vue` (Teleport-to-body, focus trap, Esc/backdrop close, body-overflow snapshot/restore). Triggers from any page call `useSimulator().open('kpr')` — keyed `v-if` inside `SimHost` dispatches to the right simulator component. Don't fork per-page modals.
 2. **DP source = waterfall kas → deposito → reksaDana.** Simplest realistic model without an extra UI input. On shortfall: kas drained to 0; `warnings.push('DP melebihi modal likuid')` — simulation still computes so user sees the gap.
 3. **Property added at full `hargaRumah`** to `scenarioSnapshot.asetNonLikuid.properti`. Reflects "real estate as aset" mental model; Net Worth ≈ (aset+1.2B) − (utang+960jt). DP-only equity accounting considered + rejected.
-4. **Cicilan KPR row** rides on `anuitas()` / `flat()` from `amortization.ts` — wizard cicilan = canonical schedule (no drift).
+4. **Cicilan KPR row** rides on `anuitas()` / `flat()` from `amortization.ts` — simulator cicilan = canonical schedule (no drift).
 5. **Snapshot cloned via `JSON.parse(JSON.stringify(snap))`.** SnapshotState is plain data (no Dates / functions / Maps), so safe. `structuredClone` not used — Vitest path more predictable.
 6. **`useSimulator` = module-scoped `ref` (not Pinia),** mirroring `useMetricExplainer`. Captures `previouslyFocused` at `open()` time for focus restore on `close()`.
 
 ### 6.4 Goal projection — `lib/finance/goals.ts`
 
-Single projection model, pure functions (PRD §5.8.2). Powers goal cards **and** wizard goal-deltas.
+Single projection model, pure functions (PRD §5.8.2). Powers goal cards **and** simulator goal-deltas.
 
 ```ts
 export function fiNumber(monthlyExpense: number, multiplier = 300): number  // PRD §5.8.1
@@ -592,7 +592,7 @@ export function goalStatus(projectedDate: string | null, targetDate: string): 'o
 - **Bucket tagging = category-level** (locked Day 5): user multi-selects from `GoalBucketCategory` (10 categories mirroring snapshot asset taxonomy). `DEFAULT_BUCKETS.FI = wealth-building 7`; other kinds empty (user picks per goal). Per-row tagging considered + skipped — adding later = schema migration on `Goal.buckets`.
 - **One FI goal max per snapshot** (locked Day 5). `store.addGoal({kind:'FI'})` returns `null` when `hasFiGoal === true`. `GoalForm` disables submit + shows hint.
 - **`FI_MULTIPLIER = 300`** = exported const (NOT a ref) from `stores/goals.ts`. Flipping at runtime would invalidate every projection silently; per D0.2.
-- **Wizard delta:** re-run `projectCompletion` against the cloned/mutated snapshot → year-shift = *"FI mundur ~N tahun"*. Same pure fn, no special-casing. `monthsShift=0 + unreachable=true` when either before-or-after projection is `Infinity` (surface via flag instead of faking a number).
+- **Simulator delta:** re-run `projectCompletion` against the cloned/mutated snapshot → year-shift = *"FI mundur ~N tahun"*. Same pure fn, no special-casing. `monthsShift=0 + unreachable=true` when either before-or-after projection is `Infinity` (surface via flag instead of faking a number).
 
 ### 6.5 Emas valuation — `lib/finance/emas.ts`
 
@@ -804,8 +804,8 @@ Component code uses utility classes (`bg-primary`, `text-danger-rose`, `rounded-
 | Per-Emiten | `useSnapshotStore().saham` |
 | Cicilan-Aktif | `useSnapshotStore().cicilanAktif` |
 | Goals | `useGoalsStore().goals` |
-| Skenario | last computed `WizardResult` (if any) |
-| Kapasitas | last computed Capacity wizard result (if any) |
+| Skenario | last computed `SimResult` (if any) |
+| Kapasitas | last computed Capacity simulator result (if any) |
 | `_meta` (hidden) | schema version + JSON-stringified state (snapshot + goals + scenarios) — per PRD §7; enables Phase-2 xlsx round-trip import. Cheap to keep now even though import is out of MVP scope. |
 
 Download triggered from `<TopNav>` button. Disabled until at least one asset exists (tooltip per spec §8.1).
@@ -849,9 +849,9 @@ export function lintCopy(strings: Record<string, string>): LintViolation[] {…}
 
 Runs as a Vitest test (`tests/copy/ojk-lint.test.ts`) on every commit. Also scans component templates for inline Indonesian strings as a soft warning.
 
-### 10.3 Pre-wizard banner enforcement
+### 10.3 Pre-simulator banner enforcement
 
-`<DisclaimerBanner>` is a required slot in `<WizardHost>` — wizards cannot render without it. Type-enforced.
+`<DisclaimerBanner>` is a required slot in `<SimHost>` — simulators cannot render without it. Type-enforced.
 
 ---
 
@@ -874,9 +874,9 @@ Runs as a Vitest test (`tests/copy/ojk-lint.test.ts`) on every commit. Also scan
 | `lib/finance/*` | Vitest, pure-fn tests with fixture snapshots | 100% branches on metric formulas + amortization edge cases (revolving, floating, fully-prepaid) |
 | `lib/copy/*` | Vitest, scans `copy` registry | 0 forbidden lemma matches |
 | `lib/format/parse-currency` | Vitest table-driven | All input variants (`25jt`, `25 juta`, `25.000.000`, `25,000,000`, `25 ribu`) |
-| Wizard engines | Vitest with golden-output fixtures | Sebelum/Sesudah deltas match expected for 1–2 canonical scenarios per wizard |
+| Simulator engines | Vitest with golden-output fixtures | Sebelum/Sesudah deltas match expected for 1–2 canonical scenarios per simulator |
 | Server `/api/prices/*` | Nitro test handler + mocked `$fetch` | Cache miss/hit, stale fallback, bad ticker rejection |
-| E2E smoke (Day 11) | Playwright | Landing → Snapshot fill → KPR wizard → xlsx download |
+| E2E smoke (Day 11) | Playwright | Landing → Snapshot fill → KPR simulator → xlsx download |
 
 CI runs on every push (Vercel preview + GitHub Actions for tests).
 
@@ -900,10 +900,10 @@ CI runs on every push (Vercel preview + GitHub Actions for tests).
 | `/app/snapshot` TTI (4G, empty state) | < 3.5s |
 | Lighthouse Performance | ≥ 85 (MVP Day 11 acceptance) |
 | Initial JS (landing) | < 80 KB gzip |
-| Initial JS (`/app/*`) | < 250 KB gzip (defer wizard bundles via async components) |
+| Initial JS (`/app/*`) | < 250 KB gzip (defer simulator bundles via async components) |
 
 Defer-load per route:
-- Wizard modal Vue components — `defineAsyncComponent`
+- Simulator modal Vue components — `defineAsyncComponent`
 - ECharts — async, only on first dashboard mount
 - SheetJS — async, only on first export click
 
@@ -925,9 +925,9 @@ These must be answered before code that depends on them:
 | 8 | Plausible analytics on `/` landing — yes/no? | Day 10 (landing polish), low risk |
 | 9 | ~~Bucket tagging UX — category-level multi-select, or per-row?~~ **RESOLVED Day 5:** category-level (10 `GoalBucketCategory` mirroring snapshot taxonomy). Per-row = schema migration if revisited. | ~~Day 5~~ done |
 | 10 | ~~Goal Health placement — chip vs 7th MetricGrid card?~~ **RESOLVED Day 5 (carries Codex round-4):** chip beside Goals panel + GoalSummaryCards on dashboard rail. NEVER MetricGrid. | ~~Day 5~~ done |
-| 11 | ~~Decision-wizard DP source — explicit picker, waterfall, or proportional?~~ **RESOLVED Day 6:** waterfall kas → deposito → reksaDana; shortfall triggers `warnings.push()` instead of negative balances. | ~~Day 6~~ done |
-| 12 | ~~Decision-wizard property accounting — full `hargaRumah`, DP-only, or skip?~~ **RESOLVED Day 6:** full `hargaRumah` added to `asetNonLikuid.properti`. Net Worth framing matches reality. | ~~Day 6~~ done |
-| 13 | ~~WizardLauncher — render all 7 cards w/ Soon, or only enabled?~~ **RESOLVED Day 6:** all 7 always rendered, non-built ones disabled + Soon badge. Match TabBar pattern. | ~~Day 6~~ done |
+| 11 | ~~Decision-simulator DP source — explicit picker, waterfall, or proportional?~~ **RESOLVED Day 6:** waterfall kas → deposito → reksaDana; shortfall triggers `warnings.push()` instead of negative balances. | ~~Day 6~~ done |
+| 12 | ~~Decision-simulator property accounting — full `hargaRumah`, DP-only, or skip?~~ **RESOLVED Day 6:** full `hargaRumah` added to `asetNonLikuid.properti`. Net Worth framing matches reality. | ~~Day 6~~ done |
+| 13 | ~~SimLauncher — render all 7 cards w/ Soon, or only enabled?~~ **RESOLVED Day 6:** all 7 always rendered, non-built ones disabled + Soon badge. Match TabBar pattern. | ~~Day 6~~ done |
 
 D0 items #1–#7 closed before/during Day 1–4. #9–#13 closed in Day 5–6 build phases.
 

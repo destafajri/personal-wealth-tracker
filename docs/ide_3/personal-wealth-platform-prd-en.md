@@ -43,7 +43,7 @@ Cermat is that unified product.
 - Currently maintains a complex personal xlsx
 - Wants per-emiten depth + goal-aware decision support + capacity reasoning
 
-**Both personas served by one product** via progressive disclosure. Basic users see Snapshot + Wizards. Advanced users unlock Per-Emiten and Multi-Goal tracking. No "Pro mode" toggle — the UI scales gracefully.
+**Both personas served by one product** via progressive disclosure. Basic users see Snapshot + Simulators. Advanced users unlock Per-Emiten and Multi-Goal tracking. No "Pro mode" toggle — the UI scales gracefully.
 
 ### 1.3 Why now
 
@@ -60,8 +60,8 @@ Cermat is that unified product.
 
 1. User completes Snapshot (basic OR per-emiten depth) in <10 minutes
 2. User defines 1+ goal in <2 minutes (FI goal auto-computes target = expenses × 300)
-3. User runs a **decision wizard** ("Mau X?") in <2 minutes; sees side-by-side with delta on all metrics + goal impact
-4. User runs a **capacity wizard** ("Bisa apa?" / "Berapa max?") in <2 minutes
+3. User runs a **decision simulator** ("Mau X?") in <2 minutes; sees side-by-side with delta on all metrics + goal impact
+4. User runs a **capacity simulator** ("Bisa apa?" / "Berapa max?") in <2 minutes
 5. **8 health metrics + 1 capacity metric (Modal Siap Distribusi)** with thresholds + plain-Indonesian explainers where applicable
 6. **Live IDX prices** for per-emiten stocks (Yahoo Finance via `BBCA.JK`), live USD/IDR, live gold/gram
 7. xlsx export contains snapshot + per-emiten + goals + scenarios + capacity outputs — opens cleanly in Excel/Sheets
@@ -110,12 +110,12 @@ Cermat is that unified product.
 │     System computes: progress, monthly contribution needed,           │
 │                      projected completion date                        │
 │                                                                       │
-│  STEP 3A — DECIDE / DECISION WIZARDS (forward: "Mau X?")              │
+│  STEP 3A — DECIDE / DECISION SIMULATORS (forward: "Mau X?")              │
 │     KPR / Gadai Emas / Cicilan / Custom                               │
 │     Side-by-side: "Posisi Sekarang" | "Setelah Skenario"             │
 │     Delta on every metric AND every goal projection                   │
 │                                                                       │
-│  STEP 3B — DISCOVER / CAPACITY WIZARDS (reverse: "Bisa apa?")         │
+│  STEP 3B — DISCOVER / CAPACITY SIMULATORS (reverse: "Bisa apa?")         │
 │     Max Utang Aman / Lunasi Utang / Modal Likuid Options              │
 │     Compute: "what is the maximum / optimal / available?"             │
 │                                                                       │
@@ -141,23 +141,23 @@ Cermat is that unified product.
 | 6 | Fills Pengeluaran + Utang | DSR, Savings Rate, Runway activate with colors | Self-recognition |
 | 7 | Sees 9 metrics computed | Hero Net Worth + Modal Siap Distribusi prominent + 7 supporting cards, allocation donut, Safe Haven bar | **★ Critical baseline moment** |
 | 8 | Goes to "Goals" tab → adds Financial Independence goal | FI target auto-computes: Rp 5.4M (= pengeluaran Rp 18jt × 300). Progress 18%, kontribusi 4.2jt/bln needed. | Plan becomes tangible |
-| 9 | Clicks "Coba Simulasi → Mau KPR" *(Decision Wizard)* | Wizard opens; current state mirrored on right | Curious + slightly anxious |
+| 9 | Clicks "Coba Simulasi → Mau KPR" *(Decision Simulator)* | Simulator opens; current state mirrored on right | Curious + slightly anxious |
 | 10 | Inputs KPR: 1.2M / 20% DP / 20 yr / 7% | Side-by-side: DSR 22% → 38% (Sehat → Waspada). Runway 8 → 4 mo. **Goal FI: mundur 3 tahun.** | **★★ THE killer moment** |
 | 11 | Tweaks tenor to 25 yr | DSR drops to 33%; FI shift becomes 2 years instead of 3 | Engaged, exploring |
-| 12 | Goes back, tries "Max Utang Aman" *(Capacity Wizard)* | Panel: *"Berdasarkan gaji + cicilan aktif, max cicilan baru biar DSR Sehat: Rp 3.9jt/bln. Setara KPR ~Rp 480jt @ 15 thn @ 7%."* | Reverse insight |
+| 12 | Goes back, tries "Max Utang Aman" *(Capacity Simulator)* | Panel: *"Berdasarkan gaji + cicilan aktif, max cicilan baru biar DSR Sehat: Rp 3.9jt/bln. Setara KPR ~Rp 480jt @ 15 thn @ 7%."* | Reverse insight |
 | 13 | Tries "Modal Likuid Options" | Panel auto-generates: *"Modal Siap Rp 52jt. Opsi: lunasi KK → DSR −2pp; prepay KPR → tenor mundur 14 bln; beli BBCA 30 lot → bobot naik..."* | Discovery |
 | 14 | Clicks "Download .xlsx" | `cermat-snapshot-2026-05-26.xlsx` downloads — 7 sheets | Ownership |
 | 15 | Closes tab | Nothing persists | Done |
 
 **Make-or-break moments:**
-- **Step 10**: First decision wizard with goal impact + threshold flip
+- **Step 10**: First decision simulator with goal impact + threshold flip
 - **Step 13**: First time user sees "what they CAN do" instead of just "what they SHOULD know"
 
 ### 4.2 Alternate flow — "Coba dengan data contoh"
 
 Sample profile pre-fills: gaji 18jt, emas 30gr, BBCA 50 lot / target 200, tabungan 80jt, KPR sisa 600jt, goal "FI by 2035" tagged.
 
-User can jump straight to wizards. CTA at the bottom: *"Suka tools-nya? Ganti dengan data kamu sendiri →"*
+User can jump straight to simulators. CTA at the bottom: *"Suka tools-nya? Ganti dengan data kamu sendiri →"*
 
 ### 4.3 Edge cases
 
@@ -169,8 +169,8 @@ User can jump straight to wizards. CTA at the bottom: *"Suka tools-nya? Ganti de
 | Gold price API fails | Cached + STALE badge + manual override |
 | IDX price API fails per-ticker | Cached value + STALE badge per row + manual price field |
 | IDX API fully down | Banner + global manual override on all per-emiten cards |
-| User runs wizard before completing Snapshot | Banner: *"Lengkapi Penghasilan & Pengeluaran biar simulasi akurat"* + skip option |
-| Wizard input pushes DSR >100% | Red display, copy: *"Skenario ini melebihi kemampuan bayar — DSR tembus 100%"* (descriptive, no advice) |
+| User runs simulator before completing Snapshot | Banner: *"Lengkapi Penghasilan & Pengeluaran biar simulasi akurat"* + skip option |
+| Simulator input pushes DSR >100% | Red display, copy: *"Skenario ini melebihi kemampuan bayar — DSR tembus 100%"* (descriptive, no advice) |
 | **Max Utang Aman computes 0 or negative** | Copy: *"DSR kamu sudah di atas threshold sehat (>30%). Tidak ada ruang untuk tambah cicilan tanpa lewat Waspada."* |
 | **Lunasi Utang exceeds Modal Siap** | Copy: *"Modal Siap (Rp 52jt) tidak cukup untuk lunasi total Rp 75jt. Bisa lunasi sebagian."* + slider for partial |
 | Goal target date in the past | Validation: pick future date |
@@ -227,15 +227,15 @@ Two structured sub-modules. No flat outstanding fields — everything goes throu
 - **Cicilan Aktif** — one row per amortizing debt: KPR / KPM / Pinjaman Bank-KTA / Pinjol / Paylater / KK / Lain (see §5.3.1)
 - **Gadai Pegadaian** — collateralized gold pawn (see §5.3.2)
 
-Both modules feed Total Utang (DAR) and Cicilan Aktif Total (DSR) aggregates in §5.4, and both expose selectable rows to the Lunasi Utang Wizard (§5.2.6) and Modal Options panel (§5.2.7).
+Both modules feed Total Utang (DAR) and Cicilan Aktif Total (DSR) aggregates in §5.4, and both expose selectable rows to the Lunasi Utang Simulator (§5.2.6) and Modal Options panel (§5.2.7).
 
 **Rules:** Empty = 0, inline editing, auto-format IDR, lenient parsing (`25jt`, `25 juta`, etc.).
 
-### 5.2 Scenario Simulator — Two Wizard Families, 7 Wizards Total
+### 5.2 Scenario Simulator — Two Simulator Families, 7 Simulators Total
 
-Same structural pattern for all wizards: modal opens, snapshot mirrored on right, wizard form on left, side-by-side comparison panel below, "Simpan Skenario" / "Edit Snapshot" / "Tutup" at bottom.
+Same structural pattern for all simulators: modal opens, snapshot mirrored on right, simulator form on left, side-by-side comparison panel below, "Simpan Skenario" / "Edit Snapshot" / "Tutup" at bottom.
 
-### 5.2.A Decision Wizards (4) — *forward-looking* "Mau gw X?"
+### 5.2.A Decision Simulators (4) — *forward-looking* "Mau gw X?"
 
 **Each reports goal impact in addition to metric deltas.** Example KPR output:
 
@@ -248,30 +248,30 @@ Same structural pattern for all wizards: modal opens, snapshot mirrored on right
 | Modal Siap Distribusi | Rp 52jt | Rp 28jt | ▼ −24 (DP) |
 | **Goal: FI 2035** | On-Track | Off-Track (mundur ~3 tahun) | ▼ |
 
-#### 5.2.1 Wizard "Mau Ambil KPR"
+#### 5.2.1 Simulator "Mau Ambil KPR"
 **Inputs:** Harga rumah, DP%, Tenor, Suku bunga, Tipe bunga (Anuitas / Flat / Floating)
 **Computed:** Cicilan/bulan, Total bunga
 **Effect:** Net Worth (property +, DP cash −, KPR debt +); DSR + new cicilan; goal projections shift
 
-#### 5.2.2 Wizard "Mau Gadai Emas"
+#### 5.2.2 Simulator "Mau Gadai Emas"
 **Inputs:** Gram pawned, Tempo, Bunga/bulan (default 1.5%), Taksiran% (default 80%)
 **Computed:** Modal cair, Total Beban, Defisit/bulan, Rasio Tertahan
 **Effect:** Kas + Modal cair; Emas Tertahan + grams; Utang Gadai + Modal
 
-#### 5.2.3 Wizard "Mau Cicil"
+#### 5.2.3 Simulator "Mau Cicil"
 **Inputs:** Kategori, Harga, DP, Tenor, Bunga
 **Computed:** Cicilan/bulan
 **Effect:** Standard cicilan effect on Net Worth + DSR
 
-#### 5.2.4 Wizard "Custom Skenario"
+#### 5.2.4 Simulator "Custom Skenario"
 **Inputs:** Free-form: pick fields, adjust by delta or new value, label scenario
 **Effect:** Apply deltas, recompute all metrics + goals
 
-### 5.2.B Capacity Wizards (3) — *reverse-looking* "Bisa apa?" / "Berapa max?"
+### 5.2.B Capacity Simulators (3) — *reverse-looking* "Bisa apa?" / "Berapa max?"
 
-These wizards do not take a hypothetical *decision* as input — instead they **derive what the user CAN do** given current state.
+These simulators do not take a hypothetical *decision* as input — instead they **derive what the user CAN do** given current state.
 
-#### 5.2.5 Wizard "Max Utang Aman"
+#### 5.2.5 Simulator "Max Utang Aman"
 
 **Inputs:** Choice of debt type (KPR / KPM / Cicil umum). For KPR: tenor + assumed rate (defaults 15 thn / 7%).
 **Computed:**
@@ -284,7 +284,7 @@ max_new_cicilan = (Penghasilan × 0.30) − Cicilan_Aktif
 
 If user already at >30% DSR: *"DSR kamu sudah di atas threshold sehat. Tidak ada ruang untuk tambah cicilan tanpa lewat Waspada."*
 
-#### 5.2.6 Wizard "Lunasi Utang Sekarang"
+#### 5.2.6 Simulator "Lunasi Utang Sekarang"
 
 **Inputs:** Select debt row from §5.3.1 Cicilan Aktif OR §5.3.2 Gadai. Full or Partial amount. Slider from 0 to min(debt_principal, Modal_Siap).
 **Computed:**
@@ -298,7 +298,7 @@ If user already at >30% DSR: *"DSR kamu sudah di atas threshold sehat. Tidak ada
 **Output:** side-by-side metric impact + descriptive summary.
 > *"Lunasi Kartu Kredit Rp 8jt dari Modal Siap (Rp 52jt → Rp 44jt). DSR turun 33% → 31%, masih di zona Waspada tapi lebih dekat ke Sehat. Goal FI tidak terdampak."*
 
-#### 5.2.7 Wizard "Modal Likuid Options" — auto-generated panel
+#### 5.2.7 Simulator "Modal Likuid Options" — auto-generated panel
 
 Not user-input-driven. Auto-analyzes current state and lists deployable options with impact preview. Always visible on dashboard when Modal Siap > 0.
 
@@ -313,13 +313,13 @@ Not user-input-driven. Auto-analyzes current state and lists deployable options 
 > 4. **Tambah ke Reksa Dana** → kontribusi Goal FI; +Rp 52jt mendorong proyeksi FI ~6 bulan
 > 5. **Tambah Deposito** → kontribusi Goal FI; +Rp 52jt mendorong proyeksi FI ~6 bulan
 
-Each option is a clickable button that opens the relevant wizard with values pre-filled, OR applies the option directly with a confirmation modal.
+Each option is a clickable button that opens the relevant simulator with values pre-filled, OR applies the option directly with a confirmation modal.
 
 **Insight copy rules apply** — never *"sebaiknya lunasi KK dulu"*, always *"opsi yang bisa dihitungkan"*.
 
 ### 5.3 Active Debt Modules
 
-Two structured sub-modules — amortizing debt (§5.3.1) and collateralized gold pawn (§5.3.2). Both feed DSR + DAR (§5.4) and both expose selectable rows to the Lunasi Utang wizard (§5.2.6) and Modal Options panel (§5.2.7). All non-Gadai active debt routes through §5.3.1 — there are no flat "Sisa KPR" / "Sisa KPM" fields anywhere else in the app.
+Two structured sub-modules — amortizing debt (§5.3.1) and collateralized gold pawn (§5.3.2). Both feed DSR + DAR (§5.4) and both expose selectable rows to the Lunasi Utang simulator (§5.2.6) and Modal Options panel (§5.2.7). All non-Gadai active debt routes through §5.3.1 — there are no flat "Sisa KPR" / "Sisa KPM" fields anywhere else in the app.
 
 #### 5.3.1 Cicilan Aktif
 
@@ -449,8 +449,8 @@ Single button: **"Download .xlsx"** in header.
 | `Per-Emiten` | One row per saham: lots, target, bobot, dividend, valuasi, progress |
 | `Cicilan-Aktif` | One row per active debt: tipe, label, sisa pokok, cicilan/bln, bunga, tenor sisa, jenis bunga, total beban sisa |
 | `Goals` | One row per goal: type, target, bucket, progress, monthly contribution needed, projected completion |
-| `Skenario` | Saved decision-wizard scenarios with inputs and before/after metric + goal deltas |
-| `Kapasitas` | Capacity wizard outputs: max safe debt, debt-repayment simulations, modal options ranked by impact |
+| `Skenario` | Saved decision-simulator scenarios with inputs and before/after metric + goal deltas |
+| `Kapasitas` | Capacity simulator outputs: max safe debt, debt-repayment simulations, modal options ranked by impact |
 | `_meta` (hidden) | Schema version + JSON state |
 
 **Default filename:** `cermat-snapshot-YYYY-MM-DD.xlsx`
@@ -517,7 +517,7 @@ If Pengeluaran Bulanan is not yet entered, FI goal creation is blocked with prom
 - Multiple goals supported (cap: 5 goals)
 - Bucket can include partial asset categories (e.g., 50% of cash + all of RD)
 - Goal cards on dashboard show: target amount, % progress bar, projected date, status badge
-- Simulator wizards (Decision & Capacity) report **per-goal impact** in the side-by-side panel
+- Simulator simulators (Decision & Capacity) report **per-goal impact** in the side-by-side panel
 
 **Insight copy rules apply:**
 - ✅ *"Goal FI projected selesai 2038 — 3 tahun lebih lambat dari target 2035."*
@@ -525,13 +525,13 @@ If Pengeluaran Bulanan is not yet entered, FI goal creation is blocked with prom
 
 #### 5.8.2 Projection model (proyeksi penyelesaian goal)
 
-Satu model untuk semua goal — dipakai goal card **dan** delta wizard (sumber angka *"FI mundur 3 tahun"*).
+Satu model untuk semua goal — dipakai goal card **dan** delta simulator (sumber angka *"FI mundur 3 tahun"*).
 
 **Inflow (kapasitas → alokasi):**
 - **Surplus bulanan** = `Penghasilan − Total Pengeluaran` (§5.1.3) = kapasitas nabung total.
 - Tiap goal punya `monthly_allocation_idr`, **default = surplus ÷ jumlah goal aktif**, editable.
 - `Σ monthly_allocation_idr` ditampilkan vs surplus; kalau melebihi → warning **deskriptif**: *"Total alokasi goal (Rp 7jt) lebih besar dari surplus (Rp 6jt)."* (fakta, bukan saran).
-- **Kenapa default surplus, bukan input wajib:** biar wizard cascade otomatis — KPR → cicilan↑ → Total Pengeluaran↑ → surplus↓ → alokasi default↓ → proyeksi mundur, tanpa user ngapa-ngapain.
+- **Kenapa default surplus, bukan input wajib:** biar simulator cascade otomatis — KPR → cicilan↑ → Total Pengeluaran↑ → surplus↓ → alokasi default↓ → proyeksi mundur, tanpa user ngapa-ngapain.
 
 **Asumsi return — satu knob global:**
 - `assumed_annual_return_real` (default **5%**, *real* / sudah dipotong inflasi), user-editable, ditandai **pill ESTIMASI** + disclaimer.
@@ -546,7 +546,7 @@ projected_date  = future_value(current_progress, inflow_goal, return_real) capai
 status          = projected_date vs target_date → On-Track / At-Risk / Off-Track
 ```
 
-**Wizard delta** (mis. Mau KPR): DP nyedot `current_progress` bucket + cicilan baru ngecilin surplus → `inflow_goal`↓ → `projected_date` mundur. Selisih tahun = *"FI mundur ~N tahun"*.
+**Simulator delta** (mis. Mau KPR): DP nyedot `current_progress` bucket + cicilan baru ngecilin surplus → `inflow_goal`↓ → `projected_date` mundur. Selisih tahun = *"FI mundur ~N tahun"*.
 
 **Unreachable:** kalau `inflow_goal ≤ 0` atau growth ga nyampe target → `projected_date = null`, card tampil *"Belum tercapai dengan alokasi sekarang"* (deskriptif, tanpa saran).
 
@@ -563,7 +563,7 @@ status          = projected_date vs target_date → On-Track / At-Risk / Off-Tra
 | Platform | Web, desktop-first, mobile-tolerated |
 | Browser | Latest Chrome, Safari, Firefox, Edge |
 | Language | Bahasa Indonesia primary, casual register ("kamu") |
-| Performance | Dashboard recalc <300ms with 25-stock portfolio + 5 goals; wizard apply <500ms; capacity wizards <200ms (pure derivations) |
+| Performance | Dashboard recalc <300ms with 25-stock portfolio + 5 goals; simulator apply <500ms; capacity simulators <200ms (pure derivations) |
 | Privacy | **No user financial data leaves the browser.** Only price-fetch calls go to backend, with no user payload attached |
 | Persistence | None server-side. No localStorage. |
 | Accessibility | WCAG AA contrast; full keyboard navigation; ARIA live regions on metric / goal / capacity cards |
@@ -588,8 +588,8 @@ status          = projected_date vs target_date → On-Track / At-Risk / Off-Tra
 **`Per-Emiten`:** `id, ticker, lots_current, lots_target, price_live, valuasi, bobot_live, progress_pct, avg_dividend_yield, last_dividend, potential_dividend` — `target_bobot` dropped because the UI hides that field today (Day 4.7 decision); `id` added for round-trip identity.
 **`Cicilan-Aktif`:** `cicilan_id, tipe, label, sisa_pokok, cicilan_per_bulan, suku_bunga, tenor_sisa_bulan, jenis_bunga, total_beban_sisa, tanggal_jatuh_tempo`
 **`Goals`:** `goal_id, goal_type, label, target_amount, target_date, fi_multiplier, bucket_json, current_progress, monthly_contribution_needed, status, projected_completion`
-**`Skenario`:** `scenario_id, scenario_label, wizard_type, input_json, before_metrics_json, after_metrics_json, before_goals_json, after_goals_json, created_at`
-**`Kapasitas`:** `output_id, wizard_type, computed_at, input_json, output_json` (stores max-utang results, lunasi-utang simulations, modal-options snapshots)
+**`Skenario`:** `scenario_id, scenario_label, simulator_type, input_json, before_metrics_json, after_metrics_json, before_goals_json, after_goals_json, created_at`
+**`Kapasitas`:** `output_id, simulator_type, computed_at, input_json, output_json` (stores max-utang results, lunasi-utang simulations, modal-options snapshots)
 **`Ringkasan`:** display-only
 
 ---
@@ -624,7 +624,7 @@ Bundle size mitigation: lazy-load the chart lib (vue-echarts) and SheetJS (~700K
 
 ## 9. ⚠️ Compliance & OJK Risk Mitigation
 
-> **Non-negotiable.** Cermat is "advice-adjacent" across decision wizards, capacity wizards, per-emiten cards, AND goal cards. Every surface must adhere to the rules below.
+> **Non-negotiable.** Cermat is "advice-adjacent" across decision simulators, capacity simulators, per-emiten cards, AND goal cards. Every surface must adhere to the rules below.
 
 ### 9.1 Hard rules (zero exceptions)
 
@@ -666,7 +666,7 @@ Persistent footer on every screen:
 
 > *"Cermat adalah kalkulator dan alat bantu visualisasi data kamu sendiri. Bukan saran investasi, perencanaan keuangan, atau produk keuangan tertentu. Selalu konsultasi profesional bersertifikat untuk keputusan besar."*
 
-Prominent version before every Wizard and before saving a Goal:
+Prominent version before every Simulator and before saving a Goal:
 
 > *"⚠️ Hasil simulasi adalah ilustrasi berdasarkan input kamu — bukan jaminan dan bukan saran. Konsultasi profesional sebelum keputusan final."*
 
@@ -678,8 +678,8 @@ Before launch, review:
 3. **Modal Siap Distribusi explainer**
 4. **Per-emiten card explainers**
 5. **Goal card explainers**
-6. **Decision wizard side-by-side panel labels**
-7. **Capacity wizard outputs** — especially Modal Options auto-generated list
+6. **Decision simulator side-by-side panel labels**
+7. **Capacity simulator outputs** — especially Modal Options auto-generated list
 8. **Empty-state and error microcopy**
 
 Estimated ~60 strings total (added ~10 for capacity surfaces). PM + (ideally) legal-savvy advisor review before launch.
@@ -703,8 +703,8 @@ Modal Options panel must use *"Opsi yang bisa dihitungkan"*, never *"Rekomendasi
 - New user completes Snapshot (basic) in <10 min
 - New user completes Snapshot (with per-emiten) in <20 min
 - User adds 1+ goal (FI auto-formula working) in <2 min
-- User runs **decision wizard** + sees side-by-side with metric + goal deltas in <2 min
-- User runs **capacity wizard** + sees descriptive output in <2 min
+- User runs **decision simulator** + sees side-by-side with metric + goal deltas in <2 min
+- User runs **capacity simulator** + sees descriptive output in <2 min
 - All 9 metrics + per-emiten + goals + capacity outputs compute correctly across **15 test scenarios**
 - All ~60 Insight copy strings written, PM-reviewed, audited against §9
 - xlsx export downloads, opens in Excel + Google Sheets, contains 8 sheets
@@ -714,16 +714,16 @@ Modal Options panel must use *"Opsi yang bisa dihitungkan"*, never *"Rekomendasi
 
 ### 10.2 User-facing demo criteria
 
-- Hero demo path runs in **60 seconds**: landing → "Coba dengan data contoh" → Goal FI visible → KPR wizard → **verdict flip + goal shift** → Capacity wizard "Max Utang" → reveal max safe → Modal Options panel → done
+- Hero demo path runs in **60 seconds**: landing → "Coba dengan data contoh" → Goal FI visible → KPR simulator → **verdict flip + goal shift** → Capacity simulator "Max Utang" → reveal max safe → Modal Options panel → done
 - Two visible reactions in 60s: DSR badge color flip + Goal date moving back
-- Capacity wizard creates a "second wow" by answering reverse question
+- Capacity simulator creates a "second wow" by answering reverse question
 - Mobile renders gracefully
 
 ### 10.3 Post-launch (90 days)
 
 - 500+ unique visitors complete Snapshot
-- ≥150 visitors run at least one Decision Wizard
-- ≥100 visitors run at least one Capacity Wizard
+- ≥150 visitors run at least one Decision Simulator
+- ≥100 visitors run at least one Capacity Simulator
 - ≥100 visitors add at least one Goal
 - p50 time on page ≥6 min
 - ≥10 unsolicited mentions (r/finansial, X, Telegram FIRE groups)
@@ -736,14 +736,14 @@ Modal Options panel must use *"Opsi yang bisa dihitungkan"*, never *"Rekomendasi
 2. **IDX live price source** — Yahoo Finance via `BBCA.JK` (recommended), Goapi.id (paid), or Stockbit unofficial (risky)?
 3. ~~**FI formula multiplier** — Lock to 300 (4% safe withdrawal), or expose multiplier (240/300/360) as user-configurable?~~ **Closed 2026-05-31 (D0.2):** locked to `300`. Formula rendered inline on FiGoalCard so the assumption is visible; no dropdown for MVP.
 4. ~~**Modal Siap Distribusi formula** — Cash + Deposito + RD + Crypto liquid? Or also subtract emergency-fund buffer (6× expenses)? Or let user tag which assets are "deployable"?~~ **Closed Day 3 (D0.3):** Kas + Deposito + RD + Crypto Liquid; no auto-subtract; emergency buffer surfaces as advisory copy only.
-5. **Capacity wizard scope** — Ship all 3 (Max Utang + Lunasi + Modal Options), or top 2 only?
+5. **Capacity simulator scope** — Ship all 3 (Max Utang + Lunasi + Modal Options), or top 2 only?
 6. **Modal Options ranking** — How are options ordered in the panel? By "biggest metric improvement", by IDR amount, by user preference? *(Recommend: by category — debt reduction → asset acquisition — without "best to worst" framing to avoid prescriptive UX.)*
 7. **Max Utang Aman threshold** — Lock to DSR<30%, or let user pick the threshold (Sehat/Waspada)?
 8. **Lunasi Utang tenor handling** — When partial KPR repayment: shorten tenor (default) or reduce cicilan? Or let user toggle?
 9. **Per-emiten depth** — Lots + target + bobot + dual dividend (no ladders), or include ladders?
 10. **Goal types** — 4 templates (DP Rumah / Dana Pendidikan / FI / Custom). Confirm.
 11. **Goal cap** — 5 goals max? More?
-12. **OJK disclaimer placement** — Footer + pre-wizard + pre-goal-save — how prominent?
+12. **OJK disclaimer placement** — Footer + pre-simulator + pre-goal-save — how prominent?
 13. **Snapshot-first or simulator-first?** — Recommend snapshot-first with "Coba dengan data contoh" escape.
 14. **Mobile investment** — Desktop-first, or invest because most Indonesians are on phones?
 15. **Sample data profile** — Conservative (Sari) or sophisticated (Bayu) for "Coba dengan data contoh"?
@@ -759,8 +759,8 @@ Modal Options panel must use *"Opsi yang bisa dihitungkan"*, never *"Rekomendasi
 - **xlsx import** / round-trip + schema migration
 - localStorage autosave with opt-in
 - Multi-scenario comparison (3-way: Snapshot vs. A vs. B)
-- Additional decision wizards: *Mau pindah kerja*, *Mau resign + bisnis*, *Mau anak*
-- Additional capacity wizards: *Optimal Allocation* (rebalance to target bobot), *Goal Acceleration Options*
+- Additional decision simulators: *Mau pindah kerja*, *Mau resign + bisnis*, *Mau anak*
+- Additional capacity simulators: *Optimal Allocation* (rebalance to target bobot), *Goal Acceleration Options*
 - Per-emiten accumulation ladders (10/30/50/70/80/100% milestones)
 - Tax estimator (PPh21, capital gains, dividend tax)
 - English language toggle

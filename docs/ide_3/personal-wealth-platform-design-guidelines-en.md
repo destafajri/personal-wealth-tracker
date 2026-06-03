@@ -57,7 +57,7 @@ elevation:
   level_0: none                                  # Background
   level_1: 1px solid #E5E7EB                     # Cards, inputs (border-based, not shadow)
   level_2: 0px 4px 12px rgba(0,0,0,0.03)         # Hero metric pair only (Net Worth + Modal Siap)
-  level_modal: 0px 20px 40px rgba(0,0,0,0.08)    # Wizard modals, confirm dialogs
+  level_modal: 0px 20px 40px rgba(0,0,0,0.08)    # Simulator modals, confirm dialogs
 ---
 
 # Cermat — Complete Design Prompt for Stitch
@@ -71,8 +71,8 @@ elevation:
 **Cermat** is a privacy-first web app for Indonesian adults to:
 - **Track** their full financial picture (with live IDX stock prices and per-emiten accumulation)
 - **Plan** life goals (DP rumah, FI = expenses × 300, dana pendidikan, custom)
-- **Decide** big decisions via forward-looking wizards (Mau KPR? Mau Gadai? Mau cicil?)
-- **Discover** capacity-based options via reverse-looking wizards (Berapa max utang aman? Apa yang bisa gw lakukan dengan modal likuid?)
+- **Decide** big decisions via forward-looking simulators (Mau KPR? Mau Gadai? Mau cicil?)
+- **Discover** capacity-based options via reverse-looking simulators (Berapa max utang aman? Apa yang bisa gw lakukan dengan modal likuid?)
 
 **Core promises:**
 1. No signup. No account. No server-side persistence of user data.
@@ -227,7 +227,7 @@ Mobile is **functional, not delightful** — don't over-invest.
 3 tabs in the input panel:
 1. **Snapshot** — Aset, Pengeluaran, Utang (Cicilan Aktif rows + Gadai), with per-emiten Saham subsection
 2. **Goals** — Multi-goal list with FI auto-formula
-3. **Simulator** — Wizard launcher: Decision (4) and Capacity (3)
+3. **Simulator** — Simulator launcher: Decision (4) and Capacity (3)
 
 Active tab has `#1B4332` underline (2px), inactive tabs use `#6B7280` text.
 
@@ -242,7 +242,7 @@ Flat tonal system — depth is built with color layers, not drop shadows.
 | **Level 0** | `#F8F9F5` background | Page canvas |
 | **Level 1** | `#FFFFFF` + `1px solid #E5E7EB` border | Cards, inputs, asset rows |
 | **Level 2** | Level 1 + `0px 4px 12px rgba(0,0,0,0.03)` | **Net Worth + Modal Siap hero pair only** |
-| **Modal** | `0px 20px 40px rgba(0,0,0,0.08)` | Wizard modals, confirm dialogs |
+| **Modal** | `0px 20px 40px rgba(0,0,0,0.08)` | Simulator modals, confirm dialogs |
 | **Drop zone idle** | `2px dashed #C1C8C2` on `#F8F9F5` | (Reserved — import is roadmap, not in scope) |
 
 **Hover states:** subtle 2% darker background, never an elevation change.
@@ -256,7 +256,7 @@ Soft, precise. Not cartoonish, not institutional.
 | Component | Radius |
 |---|---|
 | Inputs, buttons, asset rows | **4px** (`radius_input`) |
-| Cards, metric cards, sub-panels, wizard modals | **8px** (`radius_card`) |
+| Cards, metric cards, sub-panels, simulator modals | **8px** (`radius_card`) |
 | Status dots, LIVE / ESTIMASI / STALE pills | **fully rounded** (`radius_pill`) |
 | Donut chart strokes | **flat caps** (preserves data-fidelity feel) |
 | Progress bar fills | flat caps |
@@ -513,19 +513,19 @@ Two structured panels live inside the Utang section — Cicilan Aktif (§8.14.1)
 - Progress bar same accent-emerald-soft fill pattern as per-emiten cards
 - FI multiplier shown inline (`× 300`) highlights the formula explicitly (descriptive, not advice; D0.2 closed = no dropdown for MVP)
 
-### 8.16 Wizard Launcher (Simulator tab)
+### 8.16 Simulator Launcher (Simulator tab)
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │  Simulator                                                            │
 │                                                                       │
-│  ▾ Wizard Keputusan ("Mau gw X?")                                    │
+│  ▾ Simulasi Keputusan ("Mau gw X?")                                    │
 │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐│
 │  │ 🏠 Mau KPR   │ │ 🥇 Mau Gadai │ │ 🚗 Mau Cicil │ │ ⚙️ Custom    ││
 │  │ ────────►    │ │ ────────►    │ │ ────────►    │ │ ────────►    ││
 │  └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘│
 │                                                                       │
-│  ▾ Wizard Kapasitas ("Bisa gw apa?")                                 │
+│  ▾ Cek Kapasitas ("Bisa gw apa?")                                 │
 │  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐     │
 │  │ 💰 Max Utang     │ │ 💸 Lunasi Utang  │ │ 🎯 Modal Options │     │
 │  │   Aman          │ │   Sekarang       │ │                  │     │
@@ -536,9 +536,9 @@ Two structured panels live inside the Utang section — Cicilan Aktif (§8.14.1)
 
 - Two families clearly visually separated
 - Cards have 1px border, hover-darken background, 8px radius
-- Click opens modal wizard
+- Click opens modal simulator
 
-### 8.17 Wizard Modal — Decision (e.g., Mau KPR)
+### 8.17 Simulator Modal — Decision (e.g., Mau KPR)
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -586,7 +586,7 @@ Two structured panels live inside the Utang section — Cicilan Aktif (§8.14.1)
 - Goal impact section is visually separated (different background tint or divider)
 - Bottom: 3 action buttons
 
-### 8.18 Wizard Modal — Capacity (e.g., Max Utang Aman)
+### 8.18 Simulator Modal — Capacity (e.g., Max Utang Aman)
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -617,16 +617,16 @@ Two structured panels live inside the Utang section — Cicilan Aktif (§8.14.1)
 │  │  • Cicil elektronik ~Rp 70jt @ 24 bulan                       │  │
 │  └──────────────────────────────────────────────────────────────┘  │
 │                                                                       │
-│  [Simpan Kapasitas]  [Coba Wizard "Mau KPR"]  [Tutup]               │
+│  [Simpan Kapasitas]  [Coba Simulator "Mau KPR"]  [Tutup]               │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
 - Same modal pattern but no side-by-side (this is a single-direction calculation)
 - Result number is hero-style (32–40px tabular)
 - Companion list of equivalent scenarios in different debt categories
-- CTA to launch related Decision wizard with pre-filled value
+- CTA to launch related Decision simulator with pre-filled value
 
-### 8.19 Wizard Modal — Lunasi Utang
+### 8.19 Simulator Modal — Lunasi Utang
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -690,7 +690,7 @@ Always-visible card below the Net Worth + Modal Siap hero pair, when Modal Siap 
 ```
 
 - Header label: **"Opsi yang Bisa Dihitungkan"** — NEVER "Rekomendasi" or "Pilihan terbaik"
-- Each option: descriptive impact preview + `[Hitung]` button → opens relevant wizard with values pre-filled
+- Each option: descriptive impact preview + `[Hitung]` button → opens relevant simulator with values pre-filled
 - Options grouped by category (debt reduction, asset acquisition, FI bucket) without ranking
 - Footer note about emergency fund — neutral, informational
 
@@ -835,19 +835,19 @@ Sticky dashboard on right.
 
 ---
 
-### Screen 5 — Simulator Tab (Wizard Launcher)
+### Screen 5 — Simulator Tab (Simulator Launcher)
 
-Simulator tab active. Show the wizard launcher with both families clearly grouped:
-- **Wizard Keputusan** (4 cards): Mau KPR / Mau Gadai / Mau Cicil / Custom
-- **Wizard Kapasitas** (3 cards): Max Utang Aman / Lunasi Utang / Modal Options
+Simulator tab active. Show the simulator launcher with both families clearly grouped:
+- **Simulasi Keputusan** (4 cards): Mau KPR / Mau Gadai / Mau Cicil / Custom
+- **Cek Kapasitas** (3 cards): Max Utang Aman / Lunasi Utang / Modal Options
 
 Sticky dashboard on right.
 
 ---
 
-### Screen 6 — Wizard Modal "Mau KPR" with side-by-side result
+### Screen 6 — Simulator Modal "Mau KPR" with side-by-side result
 
-Generate the wizard modal in the **filled-in + result-rendered** state, showing:
+Generate the simulator modal in the **filled-in + result-rendered** state, showing:
 - OJK disclaimer banner at top
 - Input form (left): Harga 1.2M / DP 20% / Tenor 20 thn / Bunga 7% / Anuitas
 - Computed: Cicilan Rp 9.3jt/bln, Total bunga Rp 1.032M
@@ -858,9 +858,9 @@ Generate the wizard modal in the **filled-in + result-rendered** state, showing:
 
 ---
 
-### Screen 7 — Wizard Modal "Max Utang Aman" with output
+### Screen 7 — Simulator Modal "Max Utang Aman" with output
 
-Capacity wizard modal showing:
+Capacity simulator modal showing:
 - OJK disclaimer
 - Optional input (tenor, rate) collapsed by default
 - **Hero output**: "Max cicilan baru: Rp 3.900.000 / bulan" (large tabular)
@@ -869,9 +869,9 @@ Capacity wizard modal showing:
 
 ---
 
-### Screen 8 — Wizard Modal "Lunasi Utang"
+### Screen 8 — Simulator Modal "Lunasi Utang"
 
-Capacity wizard modal showing:
+Capacity simulator modal showing:
 - "Modal Siap tersedia: Rp 52jt" banner
 - Radio list of debts **sourced dynamically from Cicilan Aktif (§8.14.1) + Gadai (§8.14.2)** — each row shows `tipe` icon + `label` + `jenis_bunga` pill + `sisa_pokok`
 - Slider for partial amount (0 → min(sisa_pokok, Modal Siap))
@@ -944,9 +944,9 @@ Single representative screen showing:
 
 ---
 
-### Screen 14 — Wizard Modal "Mau Gadai Emas" (variant)
+### Screen 14 — Simulator Modal "Mau Gadai Emas" (variant)
 
-Generate as a sibling to Screen 6 to validate the wizard pattern works across decision-types. Show:
+Generate as a sibling to Screen 6 to validate the simulator pattern works across decision-types. Show:
 - Inputs: Gram 20 / Tempo 4 bln / Bunga 1.5%/bln / Taksiran 80%
 - Computed: Modal cair Rp ~20jt, Total Beban, Defisit/bulan
 - Side-by-side: Kas naik, Emas Tertahan naik, Rasio Tertahan shift
@@ -965,7 +965,7 @@ These strings carry most of the product's emotional weight. They must be perfect
 | `tagline.hero` | Landing | *"Aman gak kalau gw [KPR / Gadai / Cicil]? Berapa max utang yang aman? Cek dalam 10 menit. Tanpa daftar. Tanpa cloud."* |
 | `footer.privacy` | All screens | *"🔒 100% client-side · Data kamu tetap di komputer kamu sendiri"* |
 | `footer.ojk` | All screens | *"Cermat adalah kalkulator dan alat bantu visualisasi. Bukan saran investasi atau perencanaan keuangan profesional."* |
-| `dialog.wizard.disclaimer` | Pre-wizard | *"⚠️ Hasil simulasi adalah ilustrasi berdasarkan input kamu — bukan jaminan dan bukan saran. Konsultasi profesional sebelum keputusan final."* |
+| `dialog.simulator.disclaimer` | Pre-simulator | *"⚠️ Hasil simulasi adalah ilustrasi berdasarkan input kamu — bukan jaminan dan bukan saran. Konsultasi profesional sebelum keputusan final."* |
 | `dialog.refresh` | Beforeunload | *"Data kamu belum tersimpan. Yakin mau refresh?"* |
 | `empty.nudge` | Empty input | *"Mulai dari sini ↑ — isi yang paling gampang dulu"* |
 | `empty.goal` | No goals yet | *"Tambah goal pertama kamu — DP rumah? Dana pendidikan? FI?"* |
@@ -1014,7 +1014,7 @@ Cermat is "advice-adjacent" by design. To stay clear of OJK regulation around fi
 **Cicilan Aktif panel** is the second-most at-risk surface — it shows debt rows side by side, including high-rate Pinjol next to low-rate KPR. Guard rails:
 - The aggregate-strip line MUST stay descriptive: *"Cicilan terbesar: KPR (87% dari total)"* — NEVER prescriptive (*"Fokus lunasi yang terbesar dulu"*, *"Pinjol rate-nya paling tinggi — bayar dulu"*).
 - Sort order of rows is `tanggal_jatuh_tempo` ascending OR insertion order — NEVER ranked by "urgency" or "rate". Ranking by rate implies prescriptive ordering.
-- The Lunasi Utang wizard radio list (§8.19) inherits the same sort — no high-rate-first.
+- The Lunasi Utang simulator radio list (§8.19) inherits the same sort — no high-rate-first.
 
 ### 11.2 Copy rules
 
@@ -1027,7 +1027,7 @@ Cermat is "advice-adjacent" by design. To stay clear of OJK regulation around fi
 
 Three layers:
 1. **Footer (persistent)** — every screen
-2. **Pre-wizard banner** — top of every wizard modal
+2. **Pre-simulator banner** — top of every simulator modal
 3. **Pre-goal-save banner** — confirmation when saving a goal
 
 If you remove any of these, flag PM before doing so.
@@ -1072,7 +1072,7 @@ If you remove any of these, flag PM before doing so.
 | 3 | Metric card component (green/amber/rose variants + empty) | Figma component |
 | 4 | **Hero metric pair** (Net Worth + Modal Siap Distribusi) | Figma component |
 | 5 | **Goal card** (standard + FI variant with multiplier) | Figma component |
-| 6 | **Wizard modal** (Decision variant + Capacity variant + Lunasi Utang variant) | Figma components |
+| 6 | **Simulator modal** (Decision variant + Capacity variant + Lunasi Utang variant) | Figma components |
 | 7 | **Modal Likuid Options panel** with auto-generated option list | Figma component |
 | 8 | Gadai panel (safe + waspada + risiko likuidasi variants) | Figma component |
 | 8b | **Cicilan Aktif panel** (row component with 4 jenis_bunga variants: Anuitas/Flat/Floating/Revolving × collapsed/expanded; plus empty-state, missing-bunga warning, aggregate strip) | Figma component |

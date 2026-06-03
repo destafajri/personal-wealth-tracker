@@ -28,26 +28,26 @@ User inputs current state via a guided form. Includes:
 
 Power users see per-emiten depth. Basic users can leave the stocks section empty and use only the cash/property/debt fields. **Progressive disclosure** — advanced fields collapsed by default.
 
-### Mode 2 — Simulator ⭐ (the killer feature — two wizard families, 7 wizards)
+### Mode 2 — Simulator ⭐ (the killer feature — two simulator families, 7 simulators)
 
-**Family A — Decision Wizards (4): "Mau gw X?"** *(forward-looking)*
+**Family A — Decision Simulators (4): "Mau gw X?"** *(forward-looking)*
 
-| Wizard | Inputs | Reveals |
+| Simulator | Inputs | Reveals |
 |---|---|---|
 | **"Mau ambil KPR"** | Harga rumah, DP, tenor, suku bunga | DSR + Runway shift + **goal impact** (e.g., "FI mundur 3 tahun") |
 | **"Mau Gadai Emas"** | Gram pawned, tempo, bunga | Modal cair, Defisit/bulan, Rasio Tertahan |
 | **"Mau cicil"** (kendaraan/elektronik) | Harga, DP, tenor, bunga | DSR after new cicilan + impact on Savings Rate |
 | **"Custom skenario"** | Free-form tweaks | Side-by-side delta on all metrics + goal shifts |
 
-**Family B — Capacity Wizards (3): "Bisa gw apa?" / "Berapa max?"** *(reverse-looking)*
+**Family B — Capacity Simulators (3): "Bisa gw apa?" / "Berapa max?"** *(reverse-looking)*
 
-| Wizard | What it answers | Sample output |
+| Simulator | What it answers | Sample output |
 |---|---|---|
 | **"Max Utang Aman"** | Given current income + cicilan aktif, what's the max NEW monthly cicilan that keeps DSR below "Waspada" threshold? | *"Berdasarkan gaji Rp 18jt + cicilan aktif Rp 1.5jt, max cicilan baru biar DSR di zona Sehat: Rp 3.9jt/bln. Setara KPR ~Rp 480jt @ 15 tahun @ 7%, atau cicil mobil ~Rp 200jt @ 5 tahun @ 8%."* |
 | **"Lunasi Utang Sekarang"** | If user pays off a specific debt (full or partial) from liquid capital, what changes? | Select any debt row from Cicilan Aktif or Gadai → preview side-by-side: liquid drops, debt principal drops, DSR drops, goals shift. For Anuitas/Flat: toggle tenor-shortens vs. cicilan-reduces. For Revolving (KK/Paylater/Pinjol): sisa pokok drops directly. |
 | **"Modal Likuid Options"** | Auto-generated list of deployable actions from Modal Siap Distribusi with impact preview | *"Modal Siap Rp 52jt. Opsi yang dihitungkan: lunasi KK (Rp 8jt) → DSR −2pp; prepay KPR (Rp 20jt) → tenor mundur 14 bln; beli BBCA 30 lot (Rp 18jt) → bobot 15→18%; tambah RD → kontribusi Goal FI."* |
 
-Each wizard renders **side-by-side**: *"Posisi Sekarang"* vs. *"Setelah Skenario"*, every metric with delta (▲ / ▼ / ●) and threshold flip (Sehat → Waspada → Bahaya). **Goal projections also shift.**
+Each simulator renders **side-by-side**: *"Posisi Sekarang"* vs. *"Setelah Skenario"*, every metric with delta (▲ / ▼ / ●) and threshold flip (Sehat → Waspada → Bahaya). **Goal projections also shift.**
 
 ### Mode 3 — Goals (with FI auto-formula)
 
@@ -100,7 +100,7 @@ Indonesian adults face a small number of large, mostly-irreversible financial de
 - **Friend/family anecdotes** are heavily survivor-biased
 - **Nothing answers "apa yang bisa gw lakukan sekarang?"** — capacity questions are uniquely absent from existing tools
 
-**Cermat unifies four mental models** — Track (Snapshot), Plan (Goals), Decide (Decision Wizards), and Discover (Capacity Wizards) — in one privacy-respecting product.
+**Cermat unifies four mental models** — Track (Snapshot), Plan (Goals), Decide (Decision Simulators), and Discover (Capacity Simulators) — in one privacy-respecting product.
 
 ### The differentiating angle
 
@@ -124,20 +124,20 @@ Indonesian adults face a small number of large, mostly-irreversible financial de
 | 3 | Snapshot form — basic sections + **Cicilan Aktif row-based table** + 9 metrics (incl. Modal Siap Distribusi) | All metrics compute live; multiple debt rows addable with per-jenis-bunga behavior |
 | 4 | Snapshot form — per-emiten Saham subsection with live prices | Per-emiten cards render; live IDX prices update |
 | 5 | Goals module — CRUD + bucket tagging + **FI auto-formula** | Multiple goals addable; FI target auto-computes from expenses × 300 |
-| 6 | **Decision wizards** — "Mau KPR" + side-by-side with goal impact | KPR wizard shows DSR + goal shift |
-| 7 | **Decision wizards** — "Mau Gadai" + "Mau cicil" + Custom | All 4 decision wizards functional |
-| 8 | **Capacity wizards** — "Max Utang Aman" + "Lunasi Utang" | Both compute live; descriptive output |
-| 9 | **Capacity wizards** — "Modal Likuid Options" panel + Insight engine | Auto-generated options list working; ~50 copy strings audited for OJK |
+| 6 | **Decision simulators** — "Mau KPR" + side-by-side with goal impact | KPR simulator shows DSR + goal shift |
+| 7 | **Decision simulators** — "Mau Gadai" + "Mau cicil" + Custom | All 4 decision simulators functional |
+| 8 | **Capacity simulators** — "Max Utang Aman" + "Lunasi Utang" | Both compute live; descriptive output |
+| 9 | **Capacity simulators** — "Modal Likuid Options" panel + Insight engine | Auto-generated options list working; ~50 copy strings audited for OJK |
 | 10 | xlsx export (7 visible: Ringkasan, Snapshot, Per-Emiten, Cicilan-Aktif, Goals, Skenario, Kapasitas + hidden `_meta`) + landing polish | Downloads clean, opens in Excel/Sheets |
 | 11 | Microcopy pass, OJK disclaimer, edge states, mobile-tolerance | Lighthouse ≥85; ready to ship |
 
 **If running tight, drop in this order:**
-1. Wizard "Custom skenario"
-2. Wizard "Modal Likuid Options" (keep Max Utang + Lunasi Utang since those are highest-value capacity tools)
+1. Simulator "Custom skenario"
+2. Simulator "Modal Likuid Options" (keep Max Utang + Lunasi Utang since those are highest-value capacity tools)
 3. Mobile polish (just stack with hint)
 4. xlsx export sheets beyond Snapshot + Per-Emiten
 
-**Hard floor for a viable launch:** Snapshot (basic + per-emiten) + KPR wizard + Max Utang Aman + Lunasi Utang + Goal tracker with FI formula + 9 metrics + xlsx export. ~8 days minimum.
+**Hard floor for a viable launch:** Snapshot (basic + per-emiten) + KPR simulator + Max Utang Aman + Lunasi Utang + Goal tracker with FI formula + 9 metrics + xlsx export. ~8 days minimum.
 
 ---
 
@@ -168,7 +168,7 @@ Indonesian adults face a small number of large, mostly-irreversible financial de
 2. **IDX live price source** — Yahoo Finance via `BBCA.JK` (recommended), Goapi.id (paid), or Stockbit unofficial (risky)?
 3. ~~**FI formula multiplier** — Lock to 300 (4% safe withdrawal), or expose multiplier slider for user (240/300/360)?~~ **Closed 2026-05-31 (D0.2):** locked to `300`. No slider for MVP.
 4. **Modal Siap Distribusi formula** — Cash + Deposito + RD + Crypto liquid? Or also subtract emergency-fund buffer (6× expenses)?
-5. **Capacity wizard scope** — Ship all 3 (Max Utang + Lunasi + Modal Options), or only top 2?
+5. **Capacity simulator scope** — Ship all 3 (Max Utang + Lunasi + Modal Options), or only top 2?
 6. **Disclaimer copy** — Must be ironclad. Anchor: *"Cermat adalah kalkulator dan alat bantu visualisasi. Bukan saran investasi atau perencanaan keuangan profesional."*
 7. **Goal types** — 4 templates (DP Rumah / Dana Pendidikan / FI / Custom). Confirm.
 8. **Per-emiten depth** — Lots + target + bobot + dual dividend (no ladders) for initial scope. Confirm.
@@ -193,7 +193,7 @@ Indonesian adults face a small number of large, mostly-irreversible financial de
 
 **Indonesian adults track their finances, set life goals, and make 1–3 big financial decisions per year** — KPR, kendaraan, gadai, FI plan, dana pendidikan, mulai investasi rutin. Today's toolkit is fragmented: Stockbit for stocks, Bibit for RD, custom xlsx for accumulation tracking, no one for scenario simulation, no one for capacity reasoning, no one for goal-aware decision support.
 
-**Cermat is a unified privacy-first artifact** for that workflow. Track → Plan (Goals) → Decide (Decision Wizards) → Discover (Capacity Wizards). No signup, no leak, no advice — just better tooling.
+**Cermat is a unified privacy-first artifact** for that workflow. Track → Plan (Goals) → Decide (Decision Simulators) → Discover (Capacity Simulators). No signup, no leak, no advice — just better tooling.
 
 It also happens to be:
 - Shippable in ~11 days solo with AI assistance

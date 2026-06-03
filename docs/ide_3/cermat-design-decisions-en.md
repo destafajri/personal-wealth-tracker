@@ -36,7 +36,7 @@ This doc captures decisions made after reviewing Stitch-generated UI outputs aga
 
 **Why this over sidebar:** maximizes horizontal real estate for the dense 45/55 split-panel; matches what 4 of 5 Stitch Snapshot screens already prototyped; cleaner mobile fallback.
 
-### 2.2 Wizard delta layout — **4-column table**
+### 2.2 Simulator delta layout — **4-column table**
 
 Format: `Metrik | Sebelum | Sesudah | Δ`
 
@@ -57,7 +57,7 @@ Format: `Metrik | Sebelum | Sesudah | Δ`
 - Color: green when delta improves health, amber/rose when it degrades, neutral otherwise. **No prescriptive copy** — only state the change.
 - Goal rows appear in the same table — goal name in col 1, status in cols 2/3, year-shift in col 4
 - Header row sticky inside scrollable container
-- Applies to all 7 wizards (4 Decision + 3 Capacity)
+- Applies to all 7 simulators (4 Decision + 3 Capacity)
 
 **Why this over vertical cards:** scales to 9 metrics + 2-3 goal rows without exploding vertical height; matches "Smart Spreadsheet" principle from DESIGN.md §2; PRD already wrote the canonical example.
 
@@ -83,7 +83,7 @@ Format: `Metrik | Sebelum | Sesudah | Δ`
 | `cermat_snapshot_debt_gadai_entry_simulation` | Canonical Snapshot full layout (left input + right dashboard) |
 | `cermat_snapshot_add_cicilan_simulation` | Inline KPR simulation card pattern (left panel) |
 | `cermat_snapshot_add_gadai_simulation_state` | Single-gadai simulation pattern |
-| `cermat_snapshot_tambah_emas_simulation` | Wizard drill-down chrome + OJK disclaimer banner |
+| `cermat_snapshot_tambah_emas_simulation` | Simulator drill-down chrome + OJK disclaimer banner |
 | `cermat/DESIGN.md` | Design tokens (colors, type, spacing, radius) — adopt as-is |
 
 ### DROP (hallucinations)
@@ -97,7 +97,7 @@ Format: `Metrik | Sebelum | Sesudah | Δ`
 
 | Source | Salvage |
 |---|---|
-| `cermat_snapshot_synced_simulated` | The wizard modal pattern at the bottom (Simulasi Pelunasan KPR with 3-col compare). Reformat as 4-col table per §2.2 above, keep the chrome (modal header, close button, footer with Batal/Terapkan). |
+| `cermat_snapshot_synced_simulated` | The simulator modal pattern at the bottom (Simulasi Pelunasan KPR with 3-col compare). Reformat as 4-col table per §2.2 above, keep the chrome (modal header, close button, footer with Batal/Terapkan). |
 
 ### FIX (small hallucinations across kept screens)
 
@@ -114,12 +114,12 @@ Stitch did not generate, but patterns from kept screens extrapolate cleanly:
 | Missing screen | Extrapolate from |
 |---|---|
 | **Goals page** (Mode 3 — CRUD, FI auto-formula, bucket tagging) | Snapshot left/right split: left = goal form (type, target, date, bucket tags), right = goal cards + Goal Health chip + projected timeline |
-| **Wizard: Mau Gadai Emas** (dedicated) | Tambah Emas drill-down chrome + 4-col delta table |
-| **Wizard: Mau cicil** | KPR inline card pattern, lifted into dedicated wizard chrome |
-| **Wizard: Custom Skenario** | Same chrome + free-form delta sliders |
-| **Wizard: Max Utang Aman** (Capacity) | Capacity reveals as a panel result, not a side-by-side. Show input form (target DSR threshold) + 3-row output table (max cicilan/bln; equivalent KPR; equivalent KPM) |
-| **Wizard: Lunasi Utang** | Selectable debt-row picker + slider for partial → 4-col delta table |
-| **Wizard: Modal Likuid Options** | Existing "Opsi yang Bisa Dihitungkan" panel on Snapshot already does this. Drill-down per option = Tambah Emas pattern. |
+| **Simulator: Mau Gadai Emas** (dedicated) | Tambah Emas drill-down chrome + 4-col delta table |
+| **Simulator: Mau cicil** | KPR inline card pattern, lifted into dedicated simulator chrome |
+| **Simulator: Custom Skenario** | Same chrome + free-form delta sliders |
+| **Simulator: Max Utang Aman** (Capacity) | Capacity reveals as a panel result, not a side-by-side. Show input form (target DSR threshold) + 3-row output table (max cicilan/bln; equivalent KPR; equivalent KPM) |
+| **Simulator: Lunasi Utang** | Selectable debt-row picker + slider for partial → 4-col delta table |
+| **Simulator: Modal Likuid Options** | Existing "Opsi yang Bisa Dihitungkan" panel on Snapshot already does this. Drill-down per option = Tambah Emas pattern. |
 | **Edge states** (stale price badge, empty form, gold API fail, etc.) | Standard component variants per PRD §5.4–5.8 |
 | **Mobile fallback** | "Better on Desktop" advisory + stacked single-column flow — design at MVP Day 11 |
 
