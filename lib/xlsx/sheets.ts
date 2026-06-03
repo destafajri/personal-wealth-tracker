@@ -113,115 +113,114 @@ export function buildRingkasan(ctx: XlsxContext): Row[] {
 }
 
 // ===== Snapshot =====
-// 5-column hybrid layout per user decision 2026-06-03: section, label,
-// value_source, source_currency, value_idr. value_source is the raw user
-// input in its native unit (USD amount, gram of emas, BTC unit, etc).
-// value_idr is the IDR-normalized figure used by aggregates — null when
-// FX or commodity prices aren't loaded (better than a misleading 0).
+// 8-column parser-friendly schema per user decision 2026-06-03 (Phase-2
+// import readiness):
+//   section, id, label, value_source, source_currency, value_idr,
+//   suku_bunga_percent, rd_jenis
 //
-// This deviates from PRD §7's original 4-column (`value_idr`, `unit_or_currency`)
-// shape, which collapsed source value and IDR into one ambiguous cell. The
-// hybrid preserves traceability ("kamu masukin USD 1000, kurs 16k, jadi
-// IDR 16jt") without losing round-trip data — _meta.data_json still carries
-// the full raw state.
+// - `id` enables round-trip identity. For array-backed rows (penghasilanLain,
+//   asetLikuid, asetNonLikuid, crypto, cicilan, utang, gadai) it's the row's
+//   uuid. For singleton/keyed records (penghasilan gaji, pengeluaran, emas
+//   per-kategori) it's a stable string key so importers can match deterministically.
+// - `suku_bunga_percent` + `rd_jenis` previously encoded inline in the label
+//   ("Deposito BCA 12bln @4.25%/thn") — now split into their own cells so
+//   future importers don't need regex parsing.
+// - Crypto/gadai rows are still emitted but stay LOSSY (mode/jaminan/etc not
+//   carried). Round-trip those via _meta.data_json (canonical source of truth).
 export const SNAPSHOT_HEADER: Row = [
   'section',
+  'id',
   'label',
   'value_source',
   'source_currency',
   'value_idr',
+  'suku_bunga_percent',
+  'rd_jenis',
 ]
 
 export function buildSnapshot(snap: SnapshotState, prices: PricesView): Row[] {
   const rows: Row[] = [SNAPSHOT_HEADER]
   const fx = prices.fxRates
 
-  // Penghasilan
-  rows.push(snapshotMoneyRow(
-    'penghasilan',
-    'Gaji Bersih',
-    snap.penghasilan.amount,
-    snap.penghasilan.currency,
-    fx,
-  ))
-  for (const r of snap.penghasilanLain) {
-    rows.push(snapshotMoneyRow(
-      'penghasilanLain',
-      r.label,
-      r.amount,
-      r.currency ?? 'IDR',
+  // Penghasilan — singleton gaji + array of "lain"
+  rows.push(
+    snapshotMoneyRow(
+      'penghasilan',
+      'gaji',
+      'Gaji Bersih',
+      snap.penghasilan.amount,
+      snap.penghasilan.currency,
       fx,
-    ))
+    ),
+  )
+  for (const r of snap.penghasilanLain) {
+    rows.push(
+      snapshotMoneyRow('penghasilanLain', r.id, r.label, r.amount, r.currency ?? 'IDR', fx),
+    )
   }
 
   // Pengeluaran (IDR only by design)
-  rows.push(snapshotMoneyRow('pengeluaran', 'Pokok', snap.pengeluaran.pokok, 'IDR', fx))
-  rows.push(snapshotMoneyRow('pengeluaran', 'Lifestyle', snap.pengeluaran.lifestyle, 'IDR', fx))
+  rows.push(snapshotMoneyRow('pengeluaran', 'pokok', 'Pokok', snap.pengeluaran.pokok, 'IDR', fx))
+  rows.push(
+    snapshotMoneyRow('pengeluaran', 'lifestyle', 'Lifestyle', snap.pengeluaran.lifestyle, 'IDR', fx),
+  )
 
-  // Aset likuid — sukuBungaPercent / rdJenis surfaced inline in label
+  // Aset likuid — sukuBungaPercent + rdJenis now ride in their own cells.
   for (const cat of ['kas', 'deposito', 'reksaDana', 'sbn'] as const) {
     for (const r of snap.asetLikuid[cat]) {
-      const extra =
-        r.sukuBungaPercent !== undefined
-          ? ` @${r.sukuBungaPercent}%/thn`
-          : r.rdJenis !== undefined
-            ? ` [${r.rdJenis}]`
-            : ''
-      rows.push(snapshotMoneyRow(
-        `asetLikuid.${cat}`,
-        `${r.label}${extra}`,
-        r.amount,
-        r.currency ?? 'IDR',
-        fx,
-      ))
+      rows.push(
+        snapshotMoneyRow(
+          `asetLikuid.${cat}`,
+          r.id,
+          r.label,
+          r.amount,
+          r.currency ?? 'IDR',
+          fx,
+          r.sukuBungaPercent,
+          r.rdJenis,
+        ),
+      )
     }
   }
 
   // Aset non-likuid (IDR only)
   for (const cat of ['properti', 'kendaraan', 'pensiun'] as const) {
     for (const r of snap.asetNonLikuid[cat]) {
-      rows.push(snapshotMoneyRow(`asetNonLikuid.${cat}`, r.label, r.amount, 'IDR', fx))
+      rows.push(
+        snapshotMoneyRow(`asetNonLikuid.${cat}`, r.id, r.label, r.amount, 'IDR', fx),
+      )
     }
   }
 
-  // Emas — value_source = gram, value_idr = gram × ratePerGram(cat) (null if
-  // gold prices not loaded). source_currency reads "gram" to make the column
-  // self-documenting at a glance.
-  rows.push(snapshotEmasRow('Digital', snap.emas.digitalGram, 'digital', prices))
-  rows.push(snapshotEmasRow('Fisik Antam', snap.emas.fisikAntamGram, 'fisikAntam', prices))
-  rows.push(snapshotEmasRow('Perhiasan 18K', snap.emas.perhiasan18KGram, 'perhiasan18K', prices))
-  rows.push(snapshotEmasRow('Perhiasan 14K', snap.emas.perhiasan14KGram, 'perhiasan14K', prices))
-  rows.push(snapshotEmasRow('Perhiasan 10K', snap.emas.perhiasan10KGram, 'perhiasan10K', prices))
+  // Emas — id = category key (stable across exports; importer maps back via setEmas).
+  rows.push(snapshotEmasRow('digital', 'Digital', snap.emas.digitalGram, 'digital', prices))
+  rows.push(snapshotEmasRow('fisikAntam', 'Fisik Antam', snap.emas.fisikAntamGram, 'fisikAntam', prices))
+  rows.push(snapshotEmasRow('perhiasan18K', 'Perhiasan 18K', snap.emas.perhiasan18KGram, 'perhiasan18K', prices))
+  rows.push(snapshotEmasRow('perhiasan14K', 'Perhiasan 14K', snap.emas.perhiasan14KGram, 'perhiasan14K', prices))
+  rows.push(snapshotEmasRow('perhiasan10K', 'Perhiasan 10K', snap.emas.perhiasan10KGram, 'perhiasan10K', prices))
 
-  // Crypto — per-row, mode-aware. Unit mode: source = units, IDR via
-  // cryptoByCoinId[coinId].idr. Currency modes: source = amount in fiat,
-  // IDR via fxRates (USD/KRW) or direct (IDR mode).
+  // Crypto — emit value_idr only; mode/coin/cost-basis live in _meta. Lossy
+  // by design (user picked narrow refactor; full crypto detail spinout was
+  // not in scope).
   for (const c of snap.crypto) {
     rows.push(snapshotCryptoRow(c, prices))
   }
 
   // Cicilan + utang pribadi + gadai listed under utang side as sisa pokok.
-  // All IDR by design (no foreign-currency debt support yet).
+  // Detail lives in Cicilan-Aktif sheet (cicilan), and in _meta.data_json
+  // (utangPribadi tempo/cicilan fields, gadai jaminan/gram/asetRef fields).
   for (const c of snap.cicilanAktif) {
-    rows.push(snapshotMoneyRow(
-      'cicilanAktif',
-      `[${c.tipe}] ${c.label}`,
-      c.sisaPokok,
-      'IDR',
-      fx,
-    ))
+    rows.push(
+      snapshotMoneyRow('cicilanAktif', c.id, `[${c.tipe}] ${c.label}`, c.sisaPokok, 'IDR', fx),
+    )
   }
   for (const u of snap.utangPribadi) {
-    rows.push(snapshotMoneyRow('utangPribadi', u.label, u.sisaPokok, 'IDR', fx))
+    rows.push(snapshotMoneyRow('utangPribadi', u.id, u.label, u.sisaPokok, 'IDR', fx))
   }
   for (const g of snap.gadai) {
-    rows.push(snapshotMoneyRow(
-      'gadai',
-      `${g.label} [${g.jaminan}]`,
-      g.piutangIdr,
-      'IDR',
-      fx,
-    ))
+    rows.push(
+      snapshotMoneyRow('gadai', g.id, `${g.label} [${g.jaminan}]`, g.piutangIdr, 'IDR', fx),
+    )
   }
 
   return rows
@@ -231,15 +230,28 @@ export function buildSnapshot(snap: SnapshotState, prices: PricesView): Row[] {
 
 function snapshotMoneyRow(
   section: string,
+  id: string,
   label: string,
   amount: number,
   currency: Currency,
   fx: FxRatesMap,
+  sukuBungaPercent?: number,
+  rdJenis?: string,
 ): Row {
-  return [section, label, amount, currency, moneyToIdrOrNull(amount, currency, fx)]
+  return [
+    section,
+    id,
+    label,
+    amount,
+    currency,
+    moneyToIdrOrNull(amount, currency, fx),
+    sukuBungaPercent ?? null,
+    rdJenis ?? null,
+  ]
 }
 
 function snapshotEmasRow(
+  id: string,
   label: string,
   gram: number,
   cat: EmasCategory,
@@ -247,10 +259,13 @@ function snapshotEmasRow(
 ): Row {
   return [
     'emas',
+    id,
     label,
     gram,
     'gram',
     emasIdrOrNull(gram, cat, prices),
+    null,
+    null,
   ]
 }
 
@@ -261,24 +276,29 @@ function snapshotCryptoRow(c: CryptoHolding, prices: PricesView): Row {
     const rate = prices.cryptoByCoinId[c.coinId]?.idr ?? null
     return [
       'crypto',
+      c.id,
       label,
       c.units,
       `${c.coinId} unit`,
       rate !== null ? c.units * rate : null,
+      null,
+      null,
     ]
   }
-  // idr / usd / krw modes: source amount in fiat, IDR via FX (or identity)
   if (c.mode === 'idr') {
-    return ['crypto', label, c.amount, 'IDR', c.amount]
+    return ['crypto', c.id, label, c.amount, 'IDR', c.amount, null, null]
   }
   const fxKey: Exclude<Currency, 'IDR'> = c.mode === 'usd' ? 'USD' : 'KRW'
   const rate = prices.fxRates[fxKey]
   return [
     'crypto',
+    c.id,
     label,
     c.amount,
     fxKey,
     rate !== null ? c.amount * rate : null,
+    null,
+    null,
   ]
 }
 
@@ -305,15 +325,20 @@ function emasIdrOrNull(
 }
 
 // ===== Per-Emiten =====
-// Columns per PRD §7. Uses the same effectiveStockPrice precedence as the
-// dashboard so per-emiten card values reconcile with the workbook.
+// Uses the same effectiveStockPrice precedence as the dashboard so per-emiten
+// card values reconcile with the workbook. PRD §7 originally listed
+// `target_bobot` as a column, but the Day 4.7 product decision hid that field
+// from the UI (lib/types/snapshot.ts:80-83 — "Currently NOT fed into any
+// metric"); column dropped here to avoid a perma-null column. `id` added at
+// the start so re-import can preserve row identity (matters when other sheets
+// reference the saham by row, e.g. future scenario sheets).
 export const PER_EMITEN_HEADER: Row = [
+  'id',
   'ticker',
   'lots_current',
   'lots_target',
   'price_live',
   'valuasi',
-  'target_bobot',
   'bobot_live',
   'progress_pct',
   'avg_dividend_yield',
@@ -345,6 +370,7 @@ export function buildPerEmiten(
         : null
     const potentialDiv = calcPotentialDividendIdr(s, livePrice)
     rows.push([
+      s.id,
       s.ticker,
       s.lot,
       s.lotsTarget ?? null,
@@ -353,7 +379,6 @@ export function buildPerEmiten(
       // by comparing against avg, but at least the cell isn't #N/A).
       livePrice ?? s.hargaRataRata,
       valuasi,
-      s.bobotTargetPercent ?? null,
       round2(bobotLive),
       progress !== null ? round2(progress) : null,
       s.avgDividendYieldPercent ?? null,

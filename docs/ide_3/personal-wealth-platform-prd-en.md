@@ -584,8 +584,8 @@ status          = projected_date vs target_date → On-Track / At-Risk / Off-Tra
 | A3 | `data_json` |
 | B3 | JSON-stringified state (snapshot + per-emiten + goals + scenarios + capacity) |
 
-**`Snapshot`:** `section, label, value_source, source_currency, value_idr` — `value_source` is the raw user input in its native unit (foreign amount, gram of emas, crypto units), `source_currency` carries the unit label (currency code OR "gram" OR "<coin> unit"), and `value_idr` is the IDR-normalized figure (null when FX/commodity rates aren't loaded). Hybrid preserves traceability without losing round-trip data; full raw state is also in `_meta.data_json`.
-**`Per-Emiten`:** `ticker, lots_current, lots_target, price_live, valuasi, target_bobot, bobot_live, progress_pct, avg_dividend_yield, last_dividend, potential_dividend`
+**`Snapshot`:** `section, id, label, value_source, source_currency, value_idr, suku_bunga_percent, rd_jenis` — 8-col parser-friendly schema (revised for Phase-2 import readiness). `id` enables row-identity round-trip (uuid for array rows, stable string key for singletons like `gaji`/`pokok`/emas categories). `suku_bunga_percent` + `rd_jenis` carry their own cells (previously inline-encoded in label). Crypto/gadai rows stay lossy here (mode/jaminan only in `_meta.data_json`).
+**`Per-Emiten`:** `id, ticker, lots_current, lots_target, price_live, valuasi, bobot_live, progress_pct, avg_dividend_yield, last_dividend, potential_dividend` — `target_bobot` dropped because the UI hides that field today (Day 4.7 decision); `id` added for round-trip identity.
 **`Cicilan-Aktif`:** `cicilan_id, tipe, label, sisa_pokok, cicilan_per_bulan, suku_bunga, tenor_sisa_bulan, jenis_bunga, total_beban_sisa, tanggal_jatuh_tempo`
 **`Goals`:** `goal_id, goal_type, label, target_amount, target_date, fi_multiplier, bucket_json, current_progress, monthly_contribution_needed, status, projected_completion`
 **`Skenario`:** `scenario_id, scenario_label, wizard_type, input_json, before_metrics_json, after_metrics_json, before_goals_json, after_goals_json, created_at`

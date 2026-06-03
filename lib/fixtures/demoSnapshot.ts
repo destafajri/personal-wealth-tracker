@@ -108,22 +108,24 @@ export function applyDemoSnapshot(snap: SnapshotStore): void {
     })
   }
 
-  // ----- Crypto (live by unit) -----
+  // ----- Crypto -----
+  // Labels generic (drop exchange brand). BTC in unit mode shows live valuasi via
+  // CoinGecko; ETH in idr mode is a manual IDR override — together they showcase
+  // 2 of the 4 input modes the panel supports.
   snap.addCrypto({
     coinId: 'bitcoin',
     mode: 'unit',
     units: 0.005,
-    label: 'BTC di Indodax',
+    label: 'BTC cold wallet',
     costBasisPerUnit: 60_000,
     costBasisCurrency: 'USD',
   })
   snap.addCrypto({
     coinId: 'ethereum',
-    mode: 'unit',
-    units: 0.05,
-    label: 'ETH di Tokocrypto',
-    costBasisPerUnit: 3_000,
-    costBasisCurrency: 'USD',
+    mode: 'idr',
+    units: 0,
+    amount: 2_400_000,
+    label: 'ETH',
   })
 
   // ----- Cicilan aktif -----

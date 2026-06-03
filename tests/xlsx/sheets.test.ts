@@ -138,7 +138,7 @@ describe('buildRingkasan', () => {
 describe('buildSnapshot', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('opens with the 5-column hybrid header then a row per section item', () => {
+  it('opens with the 8-column parser-friendly header then a row per section item', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
     const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
@@ -146,10 +146,13 @@ describe('buildSnapshot', () => {
     expect(rows[0]).toEqual(SNAPSHOT_HEADER)
     expect(SNAPSHOT_HEADER).toEqual([
       'section',
+      'id',
       'label',
       'value_source',
       'source_currency',
       'value_idr',
+      'suku_bunga_percent',
+      'rd_jenis',
     ])
 
     // At least one row per section under demo persona
@@ -175,34 +178,44 @@ describe('buildSnapshot', () => {
     }
   })
 
+  it('every row carries a non-empty id (singletons get stable keys, arrays get uuids)', () => {
+    const snap = useSnapshotStore()
+    applyDemoSnapshot(snap)
+    const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
+    for (const r of rows.slice(1)) {
+      const id = String(r[1] ?? '')
+      expect(id.length).toBeGreaterThan(0)
+    }
+    // Singleton ids known up front
+    expect(rows.find((r) => r[0] === 'penghasilan')?.[1]).toBe('gaji')
+    expect(rows.find((r) => r[0] === 'pengeluaran' && r[2] === 'Pokok')?.[1]).toBe('pokok')
+    expect(rows.find((r) => r[0] === 'emas' && r[2] === 'Fisik Antam')?.[1]).toBe('fisikAntam')
+  })
+
   it('IDR rows: value_idr equals value_source (identity)', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
     const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
     const idrRows = rows
       .slice(1)
-      .filter((r) => r[3] === 'IDR' && typeof r[2] === 'number' && (r[2] as number) > 0)
+      .filter((r) => r[4] === 'IDR' && typeof r[3] === 'number' && (r[3] as number) > 0)
     expect(idrRows.length).toBeGreaterThan(0)
     for (const r of idrRows) {
-      expect(r[4]).toBe(r[2]) // value_idr === value_source
+      expect(r[5]).toBe(r[3]) // value_idr === value_source
     }
   })
 
-  it('emas rows: value_source is gram, source_currency is "gram", value_idr is null when prices missing', () => {
+  it('emas rows: source_currency="gram", value_idr null when prices missing', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
     const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
     const emasRows = rows.filter((r) => r[0] === 'emas')
-    expect(emasRows.length).toBe(5) // 5 emas categories always emitted
+    expect(emasRows.length).toBe(5)
     for (const r of emasRows) {
-      expect(r[3]).toBe('gram')
-      // With empty prices, value_idr is null for gram>0 rows and 0 for gram=0
-      const gram = r[2] as number
-      if (gram > 0) {
-        expect(r[4]).toBeNull()
-      } else {
-        expect(r[4]).toBe(0)
-      }
+      expect(r[4]).toBe('gram')
+      const gram = r[3] as number
+      if (gram > 0) expect(r[5]).toBeNull()
+      else expect(r[5]).toBe(0)
     }
   })
 
@@ -215,63 +228,79 @@ describe('buildSnapshot', () => {
       goldAntam1gIdr: 2_500_000,
     }
     const rows = buildSnapshot(snapStateFrom(snap), prices)
-    const fisikRow = rows.find((r) => r[0] === 'emas' && r[1] === 'Fisik Antam')!
-    const gram = fisikRow[2] as number
+    const fisikRow = rows.find((r) => r[0] === 'emas' && r[2] === 'Fisik Antam')!
+    const gram = fisikRow[3] as number
     const expectedIdr = gram * 2_500_000 * 0.897 // fisikAntamSpread
-    expect(fisikRow[4]).toBeCloseTo(expectedIdr, 0)
+    expect(fisikRow[5]).toBeCloseTo(expectedIdr, 0)
   })
 
-  it('foreign-currency row: value_idr stays null when FX rate missing; populates when loaded', () => {
+  it('foreign-currency row: value_idr stays null when FX missing; populates when loaded', () => {
     const snap = useSnapshotStore()
     snap.setPenghasilanAmount(1000)
     snap.setPenghasilanCurrency('USD')
-    // Empty FX
     const rowsEmpty = buildSnapshot(snapStateFrom(snap), emptyPrices())
     const gajiEmpty = rowsEmpty.find((r) => r[0] === 'penghasilan')!
-    expect(gajiEmpty[3]).toBe('USD')
-    expect(gajiEmpty[4]).toBeNull()
-    // With FX
+    expect(gajiEmpty[4]).toBe('USD')
+    expect(gajiEmpty[5]).toBeNull()
     const rowsWithFx = buildSnapshot(snapStateFrom(snap), {
       ...emptyPrices(),
       fxRates: { USD: 16_000, SGD: null, EUR: null, JPY: null, KRW: null },
     })
     const gajiFx = rowsWithFx.find((r) => r[0] === 'penghasilan')!
-    expect(gajiFx[4]).toBe(16_000_000)
+    expect(gajiFx[5]).toBe(16_000_000)
   })
 
-  it('surfaces sukuBungaPercent + rdJenis inline in the label (label column unchanged)', () => {
+  it('sukuBungaPercent + rdJenis ride in their own columns (cols 6 and 7)', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
     const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
-    // Deposito label should carry "@4.25%/thn"
-    const depo = rows.find(
-      (r) => r[0] === 'asetLikuid.deposito' && typeof r[1] === 'string',
-    )
+    // Deposito row should expose sukuBungaPercent in col index 6
+    const depo = rows.find((r) => r[0] === 'asetLikuid.deposito')
     expect(depo).toBeDefined()
-    expect(String(depo?.[1])).toMatch(/@\d+(\.\d+)?%\/thn/)
-    // At least one RD row carries "[<jenis>]"
-    const rdWithJenis = rows.find(
-      (r) =>
-        r[0] === 'asetLikuid.reksaDana' &&
-        typeof r[1] === 'string' &&
-        /\[(pasarUang|pendapatanTetap|campuran|saham|indeks|lain)\]/.test(
-          String(r[1]),
-        ),
-    )
-    expect(rdWithJenis).toBeDefined()
+    expect(typeof depo?.[6]).toBe('number')
+    expect(depo?.[6]).toBeGreaterThan(0)
+    expect(depo?.[7]).toBeNull() // no rd_jenis on deposito
+
+    // At least one RD row should carry rd_jenis in col index 7
+    const rdRows = rows.filter((r) => r[0] === 'asetLikuid.reksaDana')
+    expect(rdRows.length).toBeGreaterThan(0)
+    const validJenis = new Set([
+      'pasarUang',
+      'pendapatanTetap',
+      'campuran',
+      'saham',
+      'indeks',
+      'lain',
+    ])
+    for (const r of rdRows) {
+      expect(typeof r[7]).toBe('string')
+      expect(validJenis.has(String(r[7]))).toBe(true)
+    }
   })
 })
 
 describe('buildPerEmiten', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('header has the 11 PRD §7 columns; row count matches saham count', () => {
+  it('header has 11 columns starting with id; row count matches saham count', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
     const rows = buildPerEmiten(snapStateFrom(snap).saham, emptyPrices())
     expect(rows[0]).toEqual(PER_EMITEN_HEADER)
     expect(PER_EMITEN_HEADER).toHaveLength(11)
+    expect(PER_EMITEN_HEADER[0]).toBe('id')
+    // target_bobot dropped per Day 4.7 product decision (field hidden in UI)
+    expect(PER_EMITEN_HEADER).not.toContain('target_bobot')
     expect(rows.length - 1).toBe(snap.saham.length)
+  })
+
+  it('every saham row carries its store id in col 0', () => {
+    const snap = useSnapshotStore()
+    applyDemoSnapshot(snap)
+    const rows = buildPerEmiten(snapStateFrom(snap).saham, emptyPrices())
+    for (let i = 1; i < rows.length; i++) {
+      expect(String(rows[i]?.[0] ?? '').length).toBeGreaterThan(0)
+    }
   })
 
   it('uses cost basis as price fallback when live IDX is missing; valuasi > 0', () => {
@@ -280,8 +309,8 @@ describe('buildPerEmiten', () => {
     const rows = buildPerEmiten(snapStateFrom(snap).saham, emptyPrices())
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i]!
-      const price = row[3] as number
-      const valuasi = row[4] as number
+      const price = row[4] as number // price_live now col 4 (id, ticker, lots_current, lots_target, price_live)
+      const valuasi = row[5] as number
       expect(price).toBeGreaterThan(0)
       expect(valuasi).toBeGreaterThan(0)
     }
@@ -291,8 +320,8 @@ describe('buildPerEmiten', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
     const rows = buildPerEmiten(snapStateFrom(snap).saham, emptyPrices())
-    // Fixture mixes lastDividendPerLembar + avgDividendYieldPercent. Either
-    // path should emit a positive potential_dividend (column index 10).
+    // Column shifted to index 10 (id at front pushes by 1; target_bobot dropped
+    // pulls back by 1 — net same). potential_dividend stays last col.
     const positives = rows.slice(1).filter((r) => (r[10] as number) > 0)
     expect(positives.length).toBeGreaterThan(0)
   })

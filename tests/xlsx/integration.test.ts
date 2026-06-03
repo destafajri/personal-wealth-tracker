@@ -203,7 +203,7 @@ describe('xlsx integration (write → read round-trip)', () => {
     rmSync(workdir, { recursive: true, force: true })
   })
 
-  it('Snapshot sheet preserves 5-col schema + sample IDR identity', () => {
+  it('Snapshot sheet preserves 8-col parser-friendly schema + sample IDR identity', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
     const goals = useGoalsStore()
@@ -218,19 +218,22 @@ describe('xlsx integration (write → read round-trip)', () => {
 
     expect(rows[0]).toEqual([
       'section',
+      'id',
       'label',
       'value_source',
       'source_currency',
       'value_idr',
+      'suku_bunga_percent',
+      'rd_jenis',
     ])
-    // First non-header row is "Gaji Bersih" (penghasilan) — IDR so value_idr
-    // must equal value_source after round-trip.
+    // Penghasilan gaji round-trips: IDR row → value_idr === value_source.
     const gajiRow = rows.find((r) => r[0] === 'penghasilan')!
-    expect(gajiRow[2]).toBe(gajiRow[4])
+    expect(gajiRow[1]).toBe('gaji') // singleton id key
+    expect(gajiRow[3]).toBe(gajiRow[5]) // value_source === value_idr for IDR
     rmSync(workdir, { recursive: true, force: true })
   })
 
-  it('Per-Emiten sheet preserves ticker + lot for every saham row', () => {
+  it('Per-Emiten sheet preserves id + ticker for every saham row (target_bobot dropped)', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
     const goals = useGoalsStore()
@@ -244,7 +247,11 @@ describe('xlsx integration (write → read round-trip)', () => {
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as unknown[][]
     // 1 header + N saham rows
     expect(rows.length - 1).toBe(snap.saham.length)
-    const tickers = rows.slice(1).map((r) => r[0])
+    // Col 0 is id (uuid), col 1 is ticker
+    expect(rows[0]?.[0]).toBe('id')
+    expect(rows[0]?.[1]).toBe('ticker')
+    expect((rows[0] as string[]).includes('target_bobot')).toBe(false)
+    const tickers = rows.slice(1).map((r) => r[1])
     expect(tickers).toContain('BBRI')
     expect(tickers).toContain('BMRI')
     expect(tickers).toContain('BBCA')
