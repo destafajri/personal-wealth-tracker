@@ -35,7 +35,7 @@ describe('applyDemoSnapshot', () => {
     expect(snap.gadai.length).toBeGreaterThan(0)
   })
 
-  it('every saham row carries ticker + lot + cost basis + dividend yield', () => {
+  it('every saham row carries ticker + lot + cost basis + at least one dividend input', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
     for (const s of snap.saham) {
@@ -43,7 +43,59 @@ describe('applyDemoSnapshot', () => {
       expect(s.lot).toBeGreaterThan(0)
       expect(s.hargaRataRata).toBeGreaterThan(0)
       expect(s.lotsTarget).toBeGreaterThan(0)
-      expect(s.avgDividendYieldPercent).toBeGreaterThan(0)
+      // Dividend input is mode-agnostic — either literal rupiah/lembar OR yield %.
+      const hasYield =
+        s.avgDividendYieldPercent !== undefined && s.avgDividendYieldPercent > 0
+      const hasLast =
+        s.lastDividendPerLembar !== undefined && s.lastDividendPerLembar > 0
+      expect(hasYield || hasLast).toBe(true)
+    }
+  })
+
+  it('saham fixture mixes dividend input modes (some literal, some yield)', () => {
+    const snap = useSnapshotStore()
+    applyDemoSnapshot(snap)
+    const withLast = snap.saham.filter(
+      (s) => s.lastDividendPerLembar !== undefined && s.lastDividendPerLembar > 0,
+    )
+    const withYield = snap.saham.filter(
+      (s) => s.avgDividendYieldPercent !== undefined && s.avgDividendYieldPercent > 0,
+    )
+    // At least one of each so the dashboard showcases both input options.
+    expect(withLast.length).toBeGreaterThan(0)
+    expect(withYield.length).toBeGreaterThan(0)
+  })
+
+  it('likuid bunga + RD jenis are persisted (regression guard for addLikuid)', () => {
+    const snap = useSnapshotStore()
+    applyDemoSnapshot(snap)
+
+    // Deposito + SBN both seed sukuBungaPercent — addLikuid must forward it.
+    const depo = snap.asetLikuid.deposito[0]!
+    expect(depo.sukuBungaPercent).toBeGreaterThan(0)
+    for (const sbn of snap.asetLikuid.sbn) {
+      expect(sbn.sukuBungaPercent).toBeGreaterThan(0)
+    }
+
+    // RD seeds rdJenis on every row; fixture covers at least 2 distinct jenis
+    // including one non-Safe-Haven (campuran/saham/indeks/lain) so the dashboard
+    // shows a mixed allocation.
+    const jenisSet = new Set(snap.asetLikuid.reksaDana.map((r) => r.rdJenis))
+    expect(jenisSet.size).toBeGreaterThanOrEqual(2)
+    const nonSafeJenisList = ['campuran', 'saham', 'indeks', 'lain']
+    const hasNonSafe = snap.asetLikuid.reksaDana.some(
+      (r) => r.rdJenis !== undefined && nonSafeJenisList.includes(r.rdJenis),
+    )
+    expect(hasNonSafe).toBe(true)
+  })
+
+  it('penghasilan lain has multiple rows (freelance + sewa kos)', () => {
+    const snap = useSnapshotStore()
+    applyDemoSnapshot(snap)
+    expect(snap.penghasilanLain.length).toBeGreaterThanOrEqual(2)
+    for (const row of snap.penghasilanLain) {
+      expect(row.amount).toBeGreaterThan(0)
+      expect(row.label.length).toBeGreaterThan(0)
     }
   })
 

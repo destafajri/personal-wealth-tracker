@@ -50,6 +50,12 @@ export const useSnapshotStore = defineStore('snapshot', () => {
       label: partial.label ?? '',
       amount: partial.amount ?? 0,
       currency: partial.currency,
+      // sukuBungaPercent + rdJenis are forwarded so callers (fixtures, future template
+      // flows) can seed a row pre-populated. Production UI today calls addLikuid with
+      // {} and lets the user type values → updateLikuid (Object.assign), so omitting
+      // these previously hid silently — only fixture seeding revealed the gap.
+      sukuBungaPercent: partial.sukuBungaPercent,
+      rdJenis: partial.rdJenis,
     }
     asetLikuid[category].push(row)
     return row
