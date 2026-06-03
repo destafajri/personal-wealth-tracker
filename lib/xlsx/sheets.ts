@@ -10,12 +10,16 @@
 
 import type { Goal } from '~/lib/types/goals'
 import type {
+  CryptoHolding,
+  Currency,
   CicilanRow,
+  FxRatesMap,
   PricesView,
   SnapshotState,
   StockHolding,
 } from '~/lib/types/snapshot'
 import { anuitas, flat, floating, revolving } from '~/lib/finance/amortization'
+import { type EmasCategory, ratePerGram } from '~/lib/finance/emas'
 import { goalProgress } from '~/lib/finance/goals'
 import {
   calcPotentialDividendIdr,
@@ -109,31 +113,52 @@ export function buildRingkasan(ctx: XlsxContext): Row[] {
 }
 
 // ===== Snapshot =====
-// Flat 4-column layout: section, label, value, unit_or_currency. Value
-// stays in source currency; FX conversion is consumer-side (matches PRD §7's
-// "raw snapshot input" framing).
-export function buildSnapshot(snap: SnapshotState): Row[] {
-  const rows: Row[] = [['section', 'label', 'value', 'unit_or_currency']]
+// 5-column hybrid layout per user decision 2026-06-03: section, label,
+// value_source, source_currency, value_idr. value_source is the raw user
+// input in its native unit (USD amount, gram of emas, BTC unit, etc).
+// value_idr is the IDR-normalized figure used by aggregates — null when
+// FX or commodity prices aren't loaded (better than a misleading 0).
+//
+// This deviates from PRD §7's original 4-column (`value_idr`, `unit_or_currency`)
+// shape, which collapsed source value and IDR into one ambiguous cell. The
+// hybrid preserves traceability ("kamu masukin USD 1000, kurs 16k, jadi
+// IDR 16jt") without losing round-trip data — _meta.data_json still carries
+// the full raw state.
+export const SNAPSHOT_HEADER: Row = [
+  'section',
+  'label',
+  'value_source',
+  'source_currency',
+  'value_idr',
+]
+
+export function buildSnapshot(snap: SnapshotState, prices: PricesView): Row[] {
+  const rows: Row[] = [SNAPSHOT_HEADER]
+  const fx = prices.fxRates
 
   // Penghasilan
-  rows.push([
+  rows.push(snapshotMoneyRow(
     'penghasilan',
     'Gaji Bersih',
     snap.penghasilan.amount,
     snap.penghasilan.currency,
-  ])
+    fx,
+  ))
   for (const r of snap.penghasilanLain) {
-    rows.push(['penghasilanLain', r.label, r.amount, r.currency ?? 'IDR'])
+    rows.push(snapshotMoneyRow(
+      'penghasilanLain',
+      r.label,
+      r.amount,
+      r.currency ?? 'IDR',
+      fx,
+    ))
   }
 
-  // Pengeluaran
-  rows.push(
-    ['pengeluaran', 'Pokok', snap.pengeluaran.pokok, 'IDR'],
-    ['pengeluaran', 'Lifestyle', snap.pengeluaran.lifestyle, 'IDR'],
-  )
+  // Pengeluaran (IDR only by design)
+  rows.push(snapshotMoneyRow('pengeluaran', 'Pokok', snap.pengeluaran.pokok, 'IDR', fx))
+  rows.push(snapshotMoneyRow('pengeluaran', 'Lifestyle', snap.pengeluaran.lifestyle, 'IDR', fx))
 
-  // Aset likuid (sukuBungaPercent / rdJenis surfaced inline in label so the
-  // row stays 4-column)
+  // Aset likuid — sukuBungaPercent / rdJenis surfaced inline in label
   for (const cat of ['kas', 'deposito', 'reksaDana', 'sbn'] as const) {
     for (const r of snap.asetLikuid[cat]) {
       const extra =
@@ -142,59 +167,141 @@ export function buildSnapshot(snap: SnapshotState): Row[] {
           : r.rdJenis !== undefined
             ? ` [${r.rdJenis}]`
             : ''
-      rows.push([
+      rows.push(snapshotMoneyRow(
         `asetLikuid.${cat}`,
         `${r.label}${extra}`,
         r.amount,
         r.currency ?? 'IDR',
-      ])
+        fx,
+      ))
     }
   }
 
-  // Aset non-likuid
+  // Aset non-likuid (IDR only)
   for (const cat of ['properti', 'kendaraan', 'pensiun'] as const) {
     for (const r of snap.asetNonLikuid[cat]) {
-      rows.push([`asetNonLikuid.${cat}`, r.label, r.amount, 'IDR'])
+      rows.push(snapshotMoneyRow(`asetNonLikuid.${cat}`, r.label, r.amount, 'IDR', fx))
     }
   }
 
-  // Emas (per-kategori gram)
-  rows.push(
-    ['emas', 'Digital (g)', snap.emas.digitalGram, 'gram'],
-    ['emas', 'Fisik Antam (g)', snap.emas.fisikAntamGram, 'gram'],
-    ['emas', 'Perhiasan 18K (g)', snap.emas.perhiasan18KGram, 'gram'],
-    ['emas', 'Perhiasan 14K (g)', snap.emas.perhiasan14KGram, 'gram'],
-    ['emas', 'Perhiasan 10K (g)', snap.emas.perhiasan10KGram, 'gram'],
-  )
+  // Emas — value_source = gram, value_idr = gram × ratePerGram(cat) (null if
+  // gold prices not loaded). source_currency reads "gram" to make the column
+  // self-documenting at a glance.
+  rows.push(snapshotEmasRow('Digital', snap.emas.digitalGram, 'digital', prices))
+  rows.push(snapshotEmasRow('Fisik Antam', snap.emas.fisikAntamGram, 'fisikAntam', prices))
+  rows.push(snapshotEmasRow('Perhiasan 18K', snap.emas.perhiasan18KGram, 'perhiasan18K', prices))
+  rows.push(snapshotEmasRow('Perhiasan 14K', snap.emas.perhiasan14KGram, 'perhiasan14K', prices))
+  rows.push(snapshotEmasRow('Perhiasan 10K', snap.emas.perhiasan10KGram, 'perhiasan10K', prices))
 
-  // Crypto — per-row, mode-aware (unit vs idr/usd/krw)
+  // Crypto — per-row, mode-aware. Unit mode: source = units, IDR via
+  // cryptoByCoinId[coinId].idr. Currency modes: source = amount in fiat,
+  // IDR via fxRates (USD/KRW) or direct (IDR mode).
   for (const c of snap.crypto) {
-    const labelExtra = c.label ? ` — ${c.label}` : ''
-    if (c.mode === 'unit') {
-      rows.push(['crypto', `${c.coinId}${labelExtra}`, c.units, 'unit'])
-    } else {
-      rows.push([
-        'crypto',
-        `${c.coinId}${labelExtra}`,
-        c.amount,
-        c.mode.toUpperCase(),
-      ])
-    }
+    rows.push(snapshotCryptoRow(c, prices))
   }
 
   // Cicilan + utang pribadi + gadai listed under utang side as sisa pokok.
-  // Per-cicilan detail is in the Cicilan-Aktif sheet.
+  // All IDR by design (no foreign-currency debt support yet).
   for (const c of snap.cicilanAktif) {
-    rows.push(['cicilanAktif', `[${c.tipe}] ${c.label}`, c.sisaPokok, 'IDR'])
+    rows.push(snapshotMoneyRow(
+      'cicilanAktif',
+      `[${c.tipe}] ${c.label}`,
+      c.sisaPokok,
+      'IDR',
+      fx,
+    ))
   }
   for (const u of snap.utangPribadi) {
-    rows.push(['utangPribadi', u.label, u.sisaPokok, 'IDR'])
+    rows.push(snapshotMoneyRow('utangPribadi', u.label, u.sisaPokok, 'IDR', fx))
   }
   for (const g of snap.gadai) {
-    rows.push(['gadai', `${g.label} [${g.jaminan}]`, g.piutangIdr, 'IDR'])
+    rows.push(snapshotMoneyRow(
+      'gadai',
+      `${g.label} [${g.jaminan}]`,
+      g.piutangIdr,
+      'IDR',
+      fx,
+    ))
   }
 
   return rows
+}
+
+// ----- snapshot row helpers (private) -----
+
+function snapshotMoneyRow(
+  section: string,
+  label: string,
+  amount: number,
+  currency: Currency,
+  fx: FxRatesMap,
+): Row {
+  return [section, label, amount, currency, moneyToIdrOrNull(amount, currency, fx)]
+}
+
+function snapshotEmasRow(
+  label: string,
+  gram: number,
+  cat: EmasCategory,
+  prices: PricesView,
+): Row {
+  return [
+    'emas',
+    label,
+    gram,
+    'gram',
+    emasIdrOrNull(gram, cat, prices),
+  ]
+}
+
+function snapshotCryptoRow(c: CryptoHolding, prices: PricesView): Row {
+  const labelExtra = c.label ? ` — ${c.label}` : ''
+  const label = `${c.coinId}${labelExtra}`
+  if (c.mode === 'unit') {
+    const rate = prices.cryptoByCoinId[c.coinId]?.idr ?? null
+    return [
+      'crypto',
+      label,
+      c.units,
+      `${c.coinId} unit`,
+      rate !== null ? c.units * rate : null,
+    ]
+  }
+  // idr / usd / krw modes: source amount in fiat, IDR via FX (or identity)
+  if (c.mode === 'idr') {
+    return ['crypto', label, c.amount, 'IDR', c.amount]
+  }
+  const fxKey: Exclude<Currency, 'IDR'> = c.mode === 'usd' ? 'USD' : 'KRW'
+  const rate = prices.fxRates[fxKey]
+  return [
+    'crypto',
+    label,
+    c.amount,
+    fxKey,
+    rate !== null ? c.amount * rate : null,
+  ]
+}
+
+function moneyToIdrOrNull(
+  amount: number,
+  currency: Currency,
+  fx: FxRatesMap,
+): number | null {
+  if (currency === 'IDR') return amount
+  const rate = fx[currency]
+  return rate !== null && rate !== undefined ? amount * rate : null
+}
+
+function emasIdrOrNull(
+  gram: number,
+  cat: EmasCategory,
+  prices: PricesView,
+): number | null {
+  if (gram <= 0) return 0
+  const rate = ratePerGram(cat, prices)
+  // ratePerGram returns 0 when the relevant price (digital or Antam) is
+  // null — treat as "missing" not "worthless" so the cell stays blank.
+  return rate > 0 ? gram * rate : null
 }
 
 // ===== Per-Emiten =====

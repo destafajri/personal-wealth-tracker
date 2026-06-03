@@ -584,7 +584,7 @@ status          = projected_date vs target_date → On-Track / At-Risk / Off-Tra
 | A3 | `data_json` |
 | B3 | JSON-stringified state (snapshot + per-emiten + goals + scenarios + capacity) |
 
-**`Snapshot`:** `section, label, value_idr, unit_or_currency`
+**`Snapshot`:** `section, label, value_source, source_currency, value_idr` — `value_source` is the raw user input in its native unit (foreign amount, gram of emas, crypto units), `source_currency` carries the unit label (currency code OR "gram" OR "<coin> unit"), and `value_idr` is the IDR-normalized figure (null when FX/commodity rates aren't loaded). Hybrid preserves traceability without losing round-trip data; full raw state is also in `_meta.data_json`.
 **`Per-Emiten`:** `ticker, lots_current, lots_target, price_live, valuasi, target_bobot, bobot_live, progress_pct, avg_dividend_yield, last_dividend, potential_dividend`
 **`Cicilan-Aktif`:** `cicilan_id, tipe, label, sisa_pokok, cicilan_per_bulan, suku_bunga, tenor_sisa_bulan, jenis_bunga, total_beban_sisa, tanggal_jatuh_tempo`
 **`Goals`:** `goal_id, goal_type, label, target_amount, target_date, fi_multiplier, bucket_json, current_progress, monthly_contribution_needed, status, projected_completion`

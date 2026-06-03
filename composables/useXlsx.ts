@@ -117,7 +117,7 @@ export function useXlsx() {
     )
     XLSX.utils.book_append_sheet(
       wb,
-      XLSX.utils.aoa_to_sheet(buildSnapshot(ctx.snap)),
+      XLSX.utils.aoa_to_sheet(buildSnapshot(ctx.snap, ctx.prices)),
       'Snapshot',
     )
     XLSX.utils.book_append_sheet(

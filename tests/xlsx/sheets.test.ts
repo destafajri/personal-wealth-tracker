@@ -6,6 +6,7 @@ import {
   GOALS_HEADER,
   PER_EMITEN_HEADER,
   SCHEMA_VERSION,
+  SNAPSHOT_HEADER,
   buildCicilanAktif,
   buildGoals,
   buildMeta,
@@ -137,12 +138,19 @@ describe('buildRingkasan', () => {
 describe('buildSnapshot', () => {
   beforeEach(() => setActivePinia(createPinia()))
 
-  it('opens with the 4-column header then a row per section item', () => {
+  it('opens with the 5-column hybrid header then a row per section item', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
-    const rows = buildSnapshot(snapStateFrom(snap))
+    const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
 
-    expect(rows[0]).toEqual(['section', 'label', 'value', 'unit_or_currency'])
+    expect(rows[0]).toEqual(SNAPSHOT_HEADER)
+    expect(SNAPSHOT_HEADER).toEqual([
+      'section',
+      'label',
+      'value_source',
+      'source_currency',
+      'value_idr',
+    ])
 
     // At least one row per section under demo persona
     const sections = new Set(rows.slice(1).map((r) => r[0]))
@@ -167,11 +175,75 @@ describe('buildSnapshot', () => {
     }
   })
 
-  it('surfaces sukuBungaPercent + rdJenis inline in the label so the row stays 4-column', () => {
+  it('IDR rows: value_idr equals value_source (identity)', () => {
     const snap = useSnapshotStore()
     applyDemoSnapshot(snap)
-    const rows = buildSnapshot(snapStateFrom(snap))
-    // Deposito label should now carry "@4.25%/thn"
+    const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
+    const idrRows = rows
+      .slice(1)
+      .filter((r) => r[3] === 'IDR' && typeof r[2] === 'number' && (r[2] as number) > 0)
+    expect(idrRows.length).toBeGreaterThan(0)
+    for (const r of idrRows) {
+      expect(r[4]).toBe(r[2]) // value_idr === value_source
+    }
+  })
+
+  it('emas rows: value_source is gram, source_currency is "gram", value_idr is null when prices missing', () => {
+    const snap = useSnapshotStore()
+    applyDemoSnapshot(snap)
+    const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
+    const emasRows = rows.filter((r) => r[0] === 'emas')
+    expect(emasRows.length).toBe(5) // 5 emas categories always emitted
+    for (const r of emasRows) {
+      expect(r[3]).toBe('gram')
+      // With empty prices, value_idr is null for gram>0 rows and 0 for gram=0
+      const gram = r[2] as number
+      if (gram > 0) {
+        expect(r[4]).toBeNull()
+      } else {
+        expect(r[4]).toBe(0)
+      }
+    }
+  })
+
+  it('emas rows: value_idr converts via ratePerGram when gold prices loaded', () => {
+    const snap = useSnapshotStore()
+    applyDemoSnapshot(snap)
+    const prices: PricesView = {
+      ...emptyPrices(),
+      goldDigitalIdrPerGram: 1_500_000,
+      goldAntam1gIdr: 2_500_000,
+    }
+    const rows = buildSnapshot(snapStateFrom(snap), prices)
+    const fisikRow = rows.find((r) => r[0] === 'emas' && r[1] === 'Fisik Antam')!
+    const gram = fisikRow[2] as number
+    const expectedIdr = gram * 2_500_000 * 0.897 // fisikAntamSpread
+    expect(fisikRow[4]).toBeCloseTo(expectedIdr, 0)
+  })
+
+  it('foreign-currency row: value_idr stays null when FX rate missing; populates when loaded', () => {
+    const snap = useSnapshotStore()
+    snap.setPenghasilanAmount(1000)
+    snap.setPenghasilanCurrency('USD')
+    // Empty FX
+    const rowsEmpty = buildSnapshot(snapStateFrom(snap), emptyPrices())
+    const gajiEmpty = rowsEmpty.find((r) => r[0] === 'penghasilan')!
+    expect(gajiEmpty[3]).toBe('USD')
+    expect(gajiEmpty[4]).toBeNull()
+    // With FX
+    const rowsWithFx = buildSnapshot(snapStateFrom(snap), {
+      ...emptyPrices(),
+      fxRates: { USD: 16_000, SGD: null, EUR: null, JPY: null, KRW: null },
+    })
+    const gajiFx = rowsWithFx.find((r) => r[0] === 'penghasilan')!
+    expect(gajiFx[4]).toBe(16_000_000)
+  })
+
+  it('surfaces sukuBungaPercent + rdJenis inline in the label (label column unchanged)', () => {
+    const snap = useSnapshotStore()
+    applyDemoSnapshot(snap)
+    const rows = buildSnapshot(snapStateFrom(snap), emptyPrices())
+    // Deposito label should carry "@4.25%/thn"
     const depo = rows.find(
       (r) => r[0] === 'asetLikuid.deposito' && typeof r[1] === 'string',
     )
