@@ -10,7 +10,7 @@ const utang = computed(() => derived.totalUtang)
 const total = computed(() => aset.value + utang.value)
 
 const asetPct = computed(() =>
-  total.value > 0 ? (aset.value / total.value) * 100 : 100,
+  total.value > 0 ? (aset.value / total.value) * 100 : 0,
 )
 const utangPct = computed(() =>
   total.value > 0 ? (utang.value / total.value) * 100 : 0,

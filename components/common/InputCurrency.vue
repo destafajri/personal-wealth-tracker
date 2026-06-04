@@ -88,13 +88,14 @@ const id = computed(() => props.id ?? fallbackId)
       v-if="showPicker"
       :value="currency"
       :disabled="disabled"
+      aria-label="Pilih mata uang"
       class="-ml-1 mr-1 cursor-pointer bg-transparent pr-1 text-sm text-[var(--color-text-secondary)] outline-none focus:text-[var(--color-text-primary)] disabled:cursor-not-allowed disabled:opacity-50"
       @change="
         emit('update:currency', ($event.target as HTMLSelectElement).value as Currency)
       "
     >
       <option v-for="cur in currencies" :key="cur" :value="cur">
-        {{ CURRENCY_SYMBOL[cur] }}
+        {{ CURRENCY_SYMBOL[cur] }} {{ cur }}
       </option>
     </select>
     <span

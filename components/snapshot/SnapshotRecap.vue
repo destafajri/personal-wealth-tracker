@@ -343,6 +343,8 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           type="button"
           class="flex w-full items-center gap-2 p-3 text-left"
           @click="toggleSection('penghasilan')"
+          :aria-expanded="isOpen('penghasilan')"
+          aria-controls="section-penghasilan"
         >
           <IconChip variant="emerald" size="md">
             <TrendingUp :size="14" :stroke-width="1.75" />
@@ -357,7 +359,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('penghasilan') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('penghasilan')" class="border-t border-[var(--color-border)] px-3 pb-3">
+        <div id="section-penghasilan" v-show="isOpen('penghasilan')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li v-if="gajiHasValue" class="flex items-baseline justify-between gap-3 py-1.5">
               <span class="min-w-0 text-[var(--color-text-secondary)]">Gaji Bersih</span>
@@ -410,6 +412,8 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           type="button"
           class="flex w-full items-center gap-2 p-3 text-left"
           @click="toggleSection('pengeluaran')"
+          :aria-expanded="isOpen('pengeluaran')"
+          aria-controls="section-pengeluaran"
         >
           <IconChip variant="rose" size="md">
             <ShoppingCart :size="14" :stroke-width="1.75" />
@@ -424,7 +428,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('pengeluaran') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('pengeluaran')" class="border-t border-[var(--color-border)] px-3 pb-3">
+        <div id="section-pengeluaran" v-show="isOpen('pengeluaran')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-if="snap.pengeluaran.pokok > 0"
@@ -476,6 +480,8 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           type="button"
           class="flex w-full items-center gap-2 p-3 text-left"
           @click="toggleSection('kas')"
+          :aria-expanded="isOpen('kas')"
+          aria-controls="section-kas"
         >
           <IconChip variant="emerald" size="md">
             <Wallet :size="14" :stroke-width="1.75" />
@@ -488,7 +494,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('kas') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('kas')" class="border-t border-[var(--color-border)] px-3 pb-3">
+        <div id="section-kas" v-show="isOpen('kas')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in kasRows"
@@ -515,6 +521,8 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           type="button"
           class="flex w-full items-center gap-2 p-3 text-left"
           @click="toggleSection('investasi-pasif')"
+          :aria-expanded="isOpen('investasi-pasif')"
+          aria-controls="section-investasi-pasif"
         >
           <IconChip variant="neutral" size="md">
             <Landmark :size="14" :stroke-width="1.75" />
@@ -527,7 +535,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('investasi-pasif') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('investasi-pasif')" class="border-t border-[var(--color-border)] px-3 pb-3">
+        <div id="section-investasi-pasif" v-show="isOpen('investasi-pasif')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in depositoRows"
@@ -612,6 +620,8 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           type="button"
           class="flex w-full items-center gap-2 p-3 text-left"
           @click="toggleSection('investasi-pasar')"
+          :aria-expanded="isOpen('investasi-pasar')"
+          aria-controls="section-investasi-pasar"
         >
           <IconChip variant="amber" size="md">
             <BarChart3 :size="14" :stroke-width="1.75" />
@@ -624,7 +634,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('investasi-pasar') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('investasi-pasar')" class="border-t border-[var(--color-border)] px-3 pb-3">
+        <div id="section-investasi-pasar" v-show="isOpen('investasi-pasar')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in sahamRows"
@@ -671,6 +681,8 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           type="button"
           class="flex w-full items-center gap-2 p-3 text-left"
           @click="toggleSection('aset-tetap')"
+          :aria-expanded="isOpen('aset-tetap')"
+          aria-controls="section-aset-tetap"
         >
           <IconChip variant="neutral" size="md">
             <Home :size="14" :stroke-width="1.75" />
@@ -683,7 +695,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('aset-tetap') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('aset-tetap')" class="border-t border-[var(--color-border)] px-3 pb-3">
+        <div id="section-aset-tetap" v-show="isOpen('aset-tetap')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in propertiRows"
@@ -737,6 +749,8 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           type="button"
           class="flex w-full items-center gap-2 p-3 text-left"
           @click="toggleSection('cicilan')"
+          :aria-expanded="isOpen('cicilan')"
+          aria-controls="section-cicilan"
         >
           <IconChip variant="rose" size="md">
             <CreditCard :size="14" :stroke-width="1.75" />
@@ -749,7 +763,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('cicilan') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('cicilan')" class="border-t border-[var(--color-border)] px-3 pb-3">
+        <div id="section-cicilan" v-show="isOpen('cicilan')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in cicilanRows"
@@ -785,6 +799,8 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           type="button"
           class="flex w-full items-center gap-2 p-3 text-left"
           @click="toggleSection('utang-pribadi')"
+          :aria-expanded="isOpen('utang-pribadi')"
+          aria-controls="section-utang-pribadi"
         >
           <IconChip variant="rose" size="md">
             <Banknote :size="14" :stroke-width="1.75" />
@@ -797,7 +813,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('utang-pribadi') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('utang-pribadi')" class="border-t border-[var(--color-border)] px-3 pb-3">
+        <div id="section-utang-pribadi" v-show="isOpen('utang-pribadi')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in utangPribadiRows"
@@ -824,6 +840,8 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           type="button"
           class="flex w-full items-center gap-2 p-3 text-left"
           @click="toggleSection('gadai')"
+          :aria-expanded="isOpen('gadai')"
+          aria-controls="section-gadai"
         >
           <IconChip variant="rose" size="md">
             <Lock :size="14" :stroke-width="1.75" />
@@ -836,7 +854,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('gadai') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('gadai')" class="border-t border-[var(--color-border)] px-3 pb-3">
+        <div id="section-gadai" v-show="isOpen('gadai')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in gadaiRows"
