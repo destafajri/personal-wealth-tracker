@@ -3,16 +3,40 @@ export const copy = {
   'brand.tagline': 'Cek keuangan kamu dalam 10 menit',
 
   'landing.hero.title': 'Aman gak kalau gw KPR, Gadai, atau Cicil?',
-  'landing.hero.subtitle': 'Berapa max utang yang aman? Cek dalam 10 menit.',
+  'landing.hero.subtitle': 'Berapa max utang yang aman? Cek keuangan kamu dalam 10 menit.',
   'landing.hero.trust': 'Tanpa daftar. Tanpa cloud.',
 
+  // Phase-2a Day 3: hero title fragment keys for emerald-accented hero (KPR / Gadai / Cicil
+  // rendered as <span class="text-primary">). Existing `landing.hero.title` retained for SEO
+  // meta + accessibility fallback.
+  'landing.hero.titlePrefix': 'Aman gak kalau gw',
+  'landing.hero.titleWord1': 'KPR',
+  'landing.hero.titleWord2': 'Gadai',
+  'landing.hero.titleWord3': 'Cicil',
+
+  'landing.eyebrow.label': 'Kalkulator Keuangan Pribadi',
+  'landing.trust.pill.noRegister': 'Tanpa daftar',
+  'landing.trust.pill.noCloud': 'Tanpa cloud',
+
   'landing.cta.snapshot.label': 'Mulai dari Snapshot',
-  'landing.cta.snapshot.body': 'Isi data kamu sendiri (5–10 menit).',
+  'landing.cta.snapshot.body':
+    'Isi data kamu sendiri (5–10 menit). Dapatkan gambaran lengkap keuangan pribadimu.',
   'landing.cta.snapshot.action': 'Mulai',
 
   'landing.cta.demo.label': 'Coba dengan data contoh',
-  'landing.cta.demo.body': 'Skip dulu, lihat tools-nya.',
+  'landing.cta.demo.body': 'Skip dulu, lihat cara kerjanya dengan contoh data yang sudah terisi.',
   'landing.cta.demo.action': 'Coba',
+
+  // Phase-2a Day 3: trust strip below CTA cards (bolt-inspired 3-column).
+  'landing.feature.free.label': 'Bebas Biaya',
+  'landing.feature.free.sub': 'Selamanya gratis',
+  'landing.feature.realtime.label': 'Real-time',
+  'landing.feature.realtime.sub': 'Update otomatis',
+  'landing.feature.private.label': '100% Privat',
+  'landing.feature.private.sub': 'Data di browser',
+
+  // Phase-2a Day 3: default layout navbar right-side tagline (with Clock icon).
+  'nav.tagline.tenMinutes': 'Cek Keuangan dalam 10 Menit',
 
   'footer.disclaimer':
     '100% client-side. Data kamu tetap di komputer kamu. Cermat bukan penasihat keuangan atau produk berizin.',

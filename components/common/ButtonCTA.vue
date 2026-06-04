@@ -2,8 +2,11 @@
 // Landing-style hero CTA: larger default size + shadow elevation. For in-form
 // action buttons (Day 5–7 snapshot / goals / simulator) use ButtonPrimary or
 // ButtonSecondary instead — they sit in tighter form rhythm without hero weight.
+// `tag` switches the rendered element so the CTA can sit inside a NuxtLink
+// without producing nested interactive elements (a11y).
 withDefaults(
   defineProps<{
+    tag?: 'button' | 'span'
     type?: 'button' | 'submit' | 'reset'
     variant?: 'solid' | 'outline'
     size?: 'md' | 'lg'
@@ -12,6 +15,7 @@ withDefaults(
     disabledReason?: string
   }>(),
   {
+    tag: 'button',
     type: 'button',
     variant: 'solid',
     size: 'lg',
@@ -23,9 +27,10 @@ withDefaults(
 </script>
 
 <template>
-  <button
-    :type="type"
-    :disabled="disabled"
+  <component
+    :is="tag"
+    :type="tag === 'button' ? type : undefined"
+    :disabled="tag === 'button' && disabled ? true : undefined"
     :title="disabled ? disabledReason : undefined"
     class="inline-flex items-center justify-center gap-2 rounded-[var(--radius-input)] font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40"
     :class="[
@@ -37,5 +42,5 @@ withDefaults(
     ]"
   >
     <slot />
-  </button>
+  </component>
 </template>
