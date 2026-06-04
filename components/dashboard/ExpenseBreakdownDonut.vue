@@ -36,7 +36,9 @@ const slices = computed(() => {
   if (lainIdr > 0) {
     items.push({ label: 'Pengeluaran Lain', value: lainIdr, color: '#7c3aed' })
   }
-  const cicilanMonthly = snap.cicilanAktif.reduce((s, r) => s + (r.cicilanPerBulan || 0), 0)
+  const cicilanMonthly =
+    snap.cicilanAktif.reduce((s, r) => s + (r.cicilanPerBulan || 0), 0) +
+    snap.utangPribadi.reduce((s, r) => s + (r.cicilanPerBulan || 0), 0)
   if (cicilanMonthly > 0) {
     items.push({ label: 'Cicilan', value: cicilanMonthly, color: cssVar('--color-danger-rose') })
   }
