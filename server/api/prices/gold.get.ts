@@ -16,12 +16,21 @@ export default defineCachedEventHandler(
     try {
       // Run both fetches in parallel — savings has digital hargaJual/hargaBeli;
       // table has the per-weight Antam list we need at berat=1.0.
+      // Pegadaian blocks minimal bot-like UAs — send realistic browser headers.
+      const browserHeaders = {
+        'user-agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+        accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+        referer: 'https://pegadaian.co.id/gold',
+      }
       const [savings, table] = await Promise.allSettled([
         $fetch<PegadaianResponse>(PEGADAIAN_URL, {
-          headers: { 'user-agent': 'Mozilla/5.0' },
+          headers: browserHeaders,
         }),
         $fetch<PegadaianTableResponse>(PEGADAIAN_TABLE_URL, {
-          headers: { 'user-agent': 'Mozilla/5.0' },
+          headers: browserHeaders,
         }),
       ])
       if (savings.status === 'rejected') {
