@@ -25,7 +25,7 @@ const tabs: Tab[] = [
 <template>
   <!-- Desktop: row above the page content -->
   <nav
-    class="hidden border-b border-[var(--color-border)] bg-[var(--color-surface-card)] md:block"
+    class="sticky top-16 z-20 hidden border-b border-[var(--color-border)] bg-[var(--color-surface-card)]/90 backdrop-blur md:block"
   >
     <ul class="flex gap-1 px-2">
       <li v-for="tab in tabs" :key="tab.to">

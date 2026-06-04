@@ -50,7 +50,7 @@ const SafeHavenBar = defineAsyncComponent({
     the user fills in / edits snapshot rows. "polite" (not "assertive")
     avoids interrupting in-progress typing.
   -->
-  <section class="flex flex-col gap-4 p-2" aria-live="polite" aria-atomic="false">
+  <section class="flex flex-col gap-5 p-3" aria-live="polite" aria-atomic="false">
     <HeroPair />
     <MetricGrid />
     <ModalOptionsPanel />
