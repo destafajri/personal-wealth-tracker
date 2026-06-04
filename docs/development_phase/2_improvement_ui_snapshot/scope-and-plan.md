@@ -101,7 +101,9 @@ Self-host via `@fontsource/geist-sans` (mirror Phase-1 self-host pattern). Plus 
 | **Phase-2b** | 6 wizards restyle (Mau KPR/Gadai/Cicil/Custom + Max Utang/Lunasi) | ~6 hari | TBD (stub later) |
 | **Phase-2c** | Plan module + FI card + GoalForm + WizardModalOptions restyle | ~6 hari | TBD (stub later) |
 
-Each milestone = own PR + Codex review round + landing commit. Phase-3 xlsx import bisa start parallel setelah 2a landing.
+Each milestone = own PR + Codex review round + landing commit.
+
+**Phase-3 parallel scope (narrowed per Codex round-1 feedback 2026-06-04):** setelah Phase-2a landing, hanya **parser + schema validation + backend import worker** yang aman dijalankan paralel. **Import UX (file-picker, mapping screen, preview, error-row UI, surface integration ke snapshot)** harus tunggu sampai Phase-2a shell stabil (parity verified) — kalau dijalankan paralel, integrasi UX bakal nempel ke surface lama yang masih moving target. Aturan praktisnya: kalau task Phase-3 menyentuh `pages/`, `components/snapshot/`, atau snapshot store wiring, **block sampai 2a merge ke main**.
 
 ## Out of scope (deliberately deferred)
 

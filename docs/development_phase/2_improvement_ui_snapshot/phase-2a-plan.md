@@ -27,6 +27,26 @@ What does NOT change in Phase-2:
 
 If you find yourself editing `lib/finance/*`, `lib/prices/*`, `lib/snapshot/*`, `lib/types/*`, `lib/xlsx/*`, `server/api/*`, `lib/copy/{ojk-lint,metric-explainers}.ts`, or `lib/data/*` — **stop and reconsider**. The revamp does not need those. The detailed tables below are the contract enforcement.
 
+### Reference status (locked, Codex round-1 2026-06-04)
+
+- **`docs/ide_4_revamp/reff/*` + `/Users/mamikos/Downloads/{cermat-app-revamp,cermat-personal-finance-app-v1,bolt-main}/`** — **visual + layout + interaction-pattern reference only.** NOT a source of truth for:
+  - feature scope (their 7 generic categories ≠ Cermat's 14 panels)
+  - domain logic (their DSR/KPR calcs ≠ Cermat's `lib/finance/`)
+  - copy/microcopy (theirs bypasses OJK-lint registry)
+  - data flow (theirs uses localStorage; Cermat uses IndexedDB + Pinia store)
+  - state shape (theirs is throwaway; Cermat's `lib/types/snapshot.ts` is the contract)
+- Visual treatments OK to adopt: card shapes, spacing, gradient bg, emerald accent, sticky split-screen layout, surplus highlight bar styling, currency-input with Rp prefix.
+- Everything else: derive from Phase-1 `lib/` + Phase-1 components.
+
+### shadcn adoption posture
+
+Revamp aesthetic is **shadcn-inspired**, but Cermat is a **Vue 3.5 + Nuxt 3 app**, not a Next.js+React project. **Adapt** patterns to Nuxt idioms — don't transplant shadcn-React component structure verbatim into Vue SFCs. Specifically:
+- Use Nuxt auto-import + `components/common/*` primitives we already have (`ButtonPrimary`, `Card`, `InputCurrency`, etc.) — restyle, don't rewrite into shadcn-style `<Button variant="default" />` API.
+- Use Pinia stores + composables for state, not React-style prop drilling or context.
+- Use `<NuxtLink>` for routing, not `<Link>`/`<a>`.
+- Use Tailwind v4 `@theme` block we already configured (see [[project-cermat-state]]), not shadcn's CSS-vars-in-`:root` convention.
+- Result rule: revamp should look "tampan" *and* feel native to the existing Nuxt repo. If it feels like a half-transplanted Next.js project, back up and re-port.
+
 ---
 
 ## ⚠️ MVP Feature Preservation Guard (read before any line-item)
@@ -125,12 +145,45 @@ Yahoo + Pegadaian + USDIDR + CoinGecko proxy endpoints — preserved as-is.
 
 - **NEW**: `components/snapshot/SplitScreenShell.vue`, `DashboardSidebar.vue`, `sections/*.vue`
 - **MODIFY**: `pages/index.vue`, `pages/app/snapshot.vue`, `components/common/*` (token swap), `pages/styleguide.vue`, `assets/css/main.css`, `nuxt.config.ts` (font + theme-color)
-- **DELETE**: obsolete wizard step pages once split-screen wired
+- **REPLACE-AFTER-PARITY**: obsolete wizard step pages are kept in the tree alongside the new split-screen surface during Days 4–5; deletion happens **only after Day 6 parity audit passes** (see hard gate below). Reframing per Codex round-1 2026-06-04: never delete the old surface before the new one is verified at parity — protects against accidentally shipping a regression that the test suite missed.
 - **REWIRE (read-only)**: `lib/finance/metrics.ts` consumers in dashboard sidebar — read existing reactive values, don't change what `metrics.ts` returns
 
 ### Verification step (Day 6 already lists this — restated)
 
 Manual MVP feature audit walks every preserved capability end-to-end. If a `lib/finance/*` or `lib/prices/*` file shows up in `git diff` between branch base and Phase-2a tip, **stop and reconsider** — likely scope creep.
+
+---
+
+## ⚠️ UI Behavior Contract (orchestration layer)
+
+> The `lib/` contract above protects **calculations**. The contract below protects **UI orchestration** — *when* state writes happen, *when* warnings fire, *when* CTAs gate, *when* modals launch. Codex round-1 surfaced this gap 2026-06-04: visual refresh without preserving these timing/gating rules will silently regress the UX while every test still passes.
+
+**Adoption rule:** for each row, the revamp surface must trigger the same behavior under the same condition. Restyle the affected element freely; do NOT change *when* it fires.
+
+| # | Behavior | Phase-1 rule (must preserve) | Where it lives today | Revamp risk if missed |
+|---|---|---|---|---|
+| B1 | **Store writes** | Per-input write to snapshot store on each mutation; IndexedDB persistence layer mirrors store on every write (D11.1 cold-start recovery depends on this). | snapshot Pinia store + persistence composable | Form-level submit handler from v0/bolt = breaks cold-start recovery, breaks realtime dashboard |
+| B2 | **Dirty state + unload guard** | `useDirtyGuard` composable fires `beforeunload` browser warning if there are mutations since last successful save (D11.1). | `composables/useDirtyGuard.ts` | Removing/rewiring = tab-close data loss |
+| B3 | **Realtime dashboard reactivity** | Every per-input write → all 9 KPI cards + HeroPair + charts recompute in the same frame. No "Update" button gate. | snapshot store → `lib/finance/metrics.ts` reads → dashboard computed | Adding a manual "Recalculate" button = breaks the revamp's core "realtime" promise |
+| B4 | **Duplicate-ticker warning (Saham + Crypto)** | Same ticker entered twice in per-emiten/per-coin panel → inline warning chip (Phase-1 invariant). | Saham + Crypto sections → store-derived computed | Generic "Saham" amount input from v0/bolt erases this safety net entirely |
+| B5 | **Missing-bunga warning (Cicilan)** | Cicilan row without bunga value → warning chip + recompute marks DSR with caveat. | Cicilan section | Hiding behind collapsed sub-card = warning never seen |
+| B6 | **Gadai jaminan ownership invariant** | Pawned > available emas/saham/aset → invariant violation warning blocks confused state (Phase-1 Day 7 Codex round-13 fix). | Gadai section + `lib/finance/emas.ts` `drainEmas` (excludes pawned) | Skipping check = wrong NW + wrong drain math |
+| B7 | **FX mismatch (Cicilan FX-aware)** | Multi-currency cicilan vs penghasilan currency → FX-aware warning when mismatch material (Phase-1 Day 4 hardening). | Cicilan section + `lib/finance/fx.ts` | Silently dropping = wrong DSR for USD-debt users |
+| B8 | **Chart empty-state gating** | AllocationDonut + SafeHavenBar mount gated on `totalAset > 0` (D11.6 perf). When 0, charts not rendered + descriptive empty hint. | DashboardSidebar mount logic | Always-mount = unnecessary ECharts cost + breaks D11.6 perf win |
+| B9 | **Modal Likuid zero-sum invariant** | Preview-only: distribusi suggestions must sum to NW-neutral before user can "Terapkan"; violation blocks apply. | `lib/finance/sims/deploy-preview.ts` + Modal Likuid panel | Skipping check on revamped panel = NW corruption on apply |
+| B10 | **xlsx download gating** | TopNav xlsx button `disabled when totalAset === 0` + descriptive tooltip explaining why; post-download success toast (Phase-1 Day 10). | TopNav + `lib/xlsx/workbook.ts` | Always-enabled = empty workbook export + user confusion |
+| B11 | **Pricing refresh cooldown** | 30s cooldown per panel (Saham/Crypto/Emas refresh); LIVE/STALE/OVERRIDE pill reflects state from common `{stale, fetchedAt}` envelope. | Per-section refresh + `server/api/prices/*` cache | Removing cooldown = proxy hammering + Yahoo/CoinGecko rate-limit risk |
+| B12 | **Demo seed CTA** | Landing "Coba dengan data contoh" CTA navigates to snapshot with `?demo=1` → Rio persona seed populates store + IndexedDB. | Landing CTA + `lib/fixtures/demoSnapshot.ts` | Dropping the query or renaming = demo CTA dead |
+| B13 | **OJK 3-layer disclaimer** | DisclaimerBanner on snapshot + sim dialog disclaimers + GoalForm disclaimer (GoalForm = Phase-2c, but banner + sim layers in 2a scope). Copy sourced via `lib/copy/strings.ts` registry, NOT pulled verbatim from v0/bolt. | DisclaimerBanner + sim modals + `lib/copy/strings.ts` | Adopting v0/bolt copy = OJK lint regression + compliance posture broken |
+| B14 | **Descriptive zone labels** | Dashboard KPI cards show descriptive zone labels (e.g., "Cukup leluasa" not "Good") sourced from `lib/copy/metric-explainers.ts` registry. | KPI cards + `metric-explainers.ts` | Hardcoding labels in revamp components = explainer registry drift |
+| B15 | **MetricExplainer modal launch** | 9 KPI cards → click opens MetricExplainer modal with descriptive zone label + explainer copy from registry. All 9 preserved. | MetricExplainer component + KPI card click handler | Removing click handler in revamp = explainer discoverability gone |
+| B16 | **Sim launch context (shared store reads)** | 6 capacity wizards + 5 decision wizards read snapshot via shared Pinia store (single source of truth); no detached/cloned form state. | Wizard pages → snapshot store reads | Detaching state in revamp = stale/divergent sim results |
+| B17 | **Bottom-nav 4 tabs + Soon badge** | 4 tabs (Snapshot/Decide/Plan/Discover); Decide + Discover have "Soon" badge styling (Phase-1 MVP scope). | Layouts + BottomNav component | Removing tabs/badges = navigation regression + scope misrepresentation |
+| B18 | **Save & Lanjutkan CTA** | "Simpan & Lanjutkan" bottom-bar CTA: always enabled (Phase-1 pattern — persistence is per-input on B1, so this button signals "I'm done snapshotting" rather than a write gate). Routes to next surface. | Snapshot bottom bar | Adding gating ("disabled until Penghasilan filled") = breaks per-input save model |
+
+**Rule for Day 6 audit:** every row above is a *behavior* check, not just a *feature-presence* check. If a revamp surface technically has the element but its timing/gating differs from Phase-1, that counts as a regression and blocks the gate.
+
+---
 
 ## Day 1 — Token foundation + Geist font
 
@@ -263,12 +316,29 @@ Manual MVP feature audit walks every preserved capability end-to-end. If a `lib/
 
 ---
 
-## Day 6 — Cleanup, tests, smoke, Codex prep
+## Day 6 — Parity hard gate + cleanup + Codex prep
 
-**Goal:** Delete obsolete wizard files, test pass green, MVP feature audit passes, ready for review.
+**Framing (hardened per Codex round-1 2026-06-04):** Day 6 is **NOT** a closing checklist. It is a **blocking gate**. Phase-2a is **not mergeable** unless **every** item below passes. If any single row fails, the gate is closed: do NOT delete the old wizard surface, do NOT open the Codex review, do NOT advertise the milestone as done. Fix the regression, re-run the audit, only then proceed.
 
-- [ ] Delete old wizard step pages — scan `pages/app/snapshot/` structure; remove step files no longer routed
-- [ ] Update any router config / nuxt page links that reference old wizard URLs
+**Hard-gate exit criteria (all required):**
+
+1. **MVP feature audit** — every row in the Feature Preservation Guard table renders + functions on the revamp surface. (See checklist below.)
+2. **UI Behavior Contract audit** — every row B1–B18 in the Behavior Contract table triggers under the same condition as Phase-1. (See behavior smoke below.)
+3. **Calc preservation** — `git diff main..phase-2a -- lib/finance lib/prices lib/snapshot lib/types lib/xlsx server/api` returns **zero lines**. (Allowed changes are documented in "Allowed in 2a" — any unexpected diff = scope creep.)
+4. **Test suite** — `pnpm typecheck` (vue-tsc) + `pnpm lint` + `pnpm test` all green, count delta documented.
+5. **Manual smoke** — desktop + mobile viewport flows below all pass.
+6. **`?demo=1`** — Rio persona loads, all panels populated, all warnings/disclaimers visible.
+7. **Compliance posture** — OJK 3-layer disclaimer present, copy still sourced from `lib/copy/strings.ts` (no verbatim v0/bolt copy).
+
+Only after **all 7 criteria pass**, proceed to: (a) delete obsolete wizard step pages (per "REPLACE-AFTER-PARITY" rule), (b) Vercel deploy preview, (c) submit Codex review round-2.
+
+---
+
+### Day 6 task list
+
+- [ ] **Run calc-preservation diff guard first** — `git diff main..HEAD -- lib/finance lib/prices lib/snapshot lib/types lib/xlsx server/api` must be empty. If not, revert before going further.
+- [ ] **Replace-after-parity:** only delete old wizard step pages AFTER the MVP feature audit + Behavior Contract audit both pass below
+- [ ] Update any router config / nuxt page links that reference old wizard URLs (defer actual file deletion until audit passes)
 - [ ] Prune obsolete tests — wizard step component tests that no longer apply
 - [ ] Add new tests:
   - SplitScreenShell layout (desktop vs mobile)
@@ -292,6 +362,25 @@ Manual MVP feature audit walks every preserved capability end-to-end. If a `lib/
   - [ ] AllocationDonut + SafeHavenBar render when `totalAset > 0`, hidden when empty
   - [ ] OJK 3-layer disclaimer present (banner + sim dialog + GoalForm — GoalForm gets revamp in 2c, just confirm banner still wired here)
   - [ ] xlsx export still works (TopNav button enabled with non-zero totalAset; post-download toast)
+- [ ] **UI Behavior Contract audit** (per Behavior Contract table B1–B18) — manually trigger each behavior + verify it fires under the same condition as Phase-1:
+  - [ ] B1 Store writes: type in any input → DevTools shows store mutation + IndexedDB write in same tick (no debounce gap)
+  - [ ] B2 Dirty guard: enter a value → close tab → `beforeunload` warning fires
+  - [ ] B3 Realtime dashboard: type in Penghasilan → DSR + Surplus + Net Worth recompute same frame, no manual "Recalculate" button needed
+  - [ ] B4 Duplicate-ticker (Saham + Crypto): add same ticker twice → warning chip renders inline
+  - [ ] B5 Missing-bunga: add Cicilan row, leave bunga blank → warning chip surfaces
+  - [ ] B6 Gadai invariant: pawn > available emas → invariant warning blocks (or visibly flags) state
+  - [ ] B7 FX mismatch: USD cicilan + IDR penghasilan → FX-aware warning
+  - [ ] B8 Chart empty-state: empty snapshot → AllocationDonut + SafeHavenBar NOT mounted (verify in DevTools); add asset → charts mount
+  - [ ] B9 Modal Likuid zero-sum: open Modal Likuid → preview suggestions → distribusi sums to NW-neutral before "Terapkan" enables
+  - [ ] B10 xlsx gating: empty snapshot → TopNav xlsx button disabled + tooltip; add asset → button enables; click → 5-sheet workbook downloads + toast fires
+  - [ ] B11 Pricing cooldown: click refresh on Emas → LIVE pill flips; click again within 30s → cooldown enforced (button disabled or no-op)
+  - [ ] B12 Demo CTA: from landing, click "Coba dengan data contoh" → URL has `?demo=1` → Rio persona populated
+  - [ ] B13 OJK disclaimer: snapshot route renders DisclaimerBanner; open any sim modal → disclaimer present; copy matches `lib/copy/strings.ts` (spot-grep a known phrase)
+  - [ ] B14 Zone labels: hover/click each KPI card → label matches registry (e.g., DSR shows "Cukup leluasa" not "Good")
+  - [ ] B15 MetricExplainer: click each of 9 KPI cards → MetricExplainer modal opens with descriptive copy
+  - [ ] B16 Sim launch: open any capacity wizard → form pre-populated from snapshot store (not blank, not detached copy)
+  - [ ] B17 Bottom-nav: 4 tabs visible, Decide + Discover show "Soon" badge, active-state styling works
+  - [ ] B18 Save & Lanjutkan: bottom-bar CTA always enabled; click → routes to next surface; data already persisted (per B1) so route works even if you skip the click
 - [ ] Manual smoke flow (desktop + mobile viewport):
   - Landing → primary CTA → snapshot empty state
   - Fill Penghasilan → DSR + Surplus + relevant KPIs update
@@ -302,12 +391,14 @@ Manual MVP feature audit walks every preserved capability end-to-end. If a `lib/
   - Tab close mid-edit → dirty-guard prompt fires
   - Demo seed via `?demo=1` → Rio persona loads, all panels populated
   - Mobile viewport: stacked layout sane, dashboard accessible, all controls usable
+- [ ] **Gate decision point:** all 7 hard-gate exit criteria above pass? If NO → stop, fix, re-audit, do not proceed. If YES → continue:
+- [ ] Delete obsolete wizard step pages (now safe per REPLACE-AFTER-PARITY rule)
 - [ ] Commit (HEREDOC, Co-Authored-By per Phase-1 pattern)
 - [ ] Vercel deploy preview
 - [ ] Lighthouse spot-check on preview URL (target ≥85 mobile per Phase-1 D11.6 deferred goal)
-- [ ] Codex review round Phase-2a — submit + address findings before merging to main
+- [ ] Codex review round-2 Phase-2a — submit + address findings before merging to main
 
-**Done when:** all checked + MVP feature audit passes + Codex round-1 LGTM. Phase-2a merged to main → ready for Phase-2b (or Phase-3 parallel start).
+**Done when:** all 7 hard-gate exit criteria pass + obsolete wizard files deleted + Codex round-2 LGTM. Phase-2a merged to main → unlocks Phase-2b (and **narrowed** Phase-3 parallel scope: parser/schema/backend only — see [scope-and-plan.md](./scope-and-plan.md) D2.7 narrowing).
 
 ---
 
@@ -324,3 +415,4 @@ Manual MVP feature audit walks every preserved capability end-to-end. If a `lib/
 - **2026-06-03 (later)** — User flagged MVP feature preservation risk: "fungsi2 yang ada di mvp tetap ada di revamp baru, terutama di snapshot, seperti yang saham, crypto emas dan lain-lain jadikan v0 dan bolt hanya sebagai referensi." Added Preservation Guard section at top; rewrote Day 4 dashboard plan (9 KPI + HeroPair + ECharts preserved, not 4-card simplification) + Day 5 section list (10 input panel components, not 7 generic) + Day 6 MVP feature audit checklist. v0/bolt now framed strictly as visual/UX reff. See [[feedback-revamp-feature-preservation]].
 - **2026-06-03 (later, follow-up #2)** — User reinforced: "pastikan pula semua fitur2 tetap ada, semua fungsi kalkulasi seperti deviden obligasi saham dan lain tetap ada." Added Calculation Function Preservation section with verified `lib/` inventory (~30 .ts files), explicit lib/ directory contract (DON'T MODIFY lib/finance, lib/prices, lib/snapshot, lib/types, lib/xlsx during 2a), user-named calculations (deviden, obligasi, saham) cross-referenced to their file homes.
 - **2026-06-03 (later, follow-up #3)** — User locked the principle verbatim: "ini tuh cuma ubah tata letak dan designya aja tanpa ubah behviournya, soalnya yg mvp tampilannya jadul dan ga user friendly dan user journeynya jelek." Added 🎯 Phase-2 Core Principle banner at very top of plan: change = visual design + layout + user journey + microcopy polish; unchanged = behaviour + feature scope + data flow + pricing wiring + xlsx + compliance posture. This is now the headline rule, all subsequent line-items derive from it.
+- **2026-06-04 (Codex round-1 feedback)** — 7 points from Codex addressed: (P1) sharpened `ide_4_revamp/reff/*` framing as visual-only reference + explicit non-source-of-truth list; (P2) **NEW** UI Behavior Contract section B1–B18 covering store writes, dirty guard, realtime reactivity, warnings, CTA gating, xlsx gating, sim launch, OJK posture — closes the orchestration-layer gap that the lib/ contract didn't cover; (P3) README sync to reflect D2.1–D2.7 locked; (P4) Phase-3 parallel claim narrowed in `scope-and-plan.md` to parser/schema/backend only (UX integration blocks on 2a parity); (P5) Day 6 reframed as **hard gate** with 7 explicit exit criteria + gate-decision-point in task list; (P6) "delete old files" reworded to **REPLACE-AFTER-PARITY** in Allowed-in-2a + Day 6; (P7) shadcn adoption posture added — adapt patterns to Nuxt/Vue idioms, do not transplant React component shapes verbatim. Plan is now ready for Codex round-2 review pass.

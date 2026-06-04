@@ -1,7 +1,16 @@
 # Phase 2 — UI Revamp (Snapshot Flow)
 
-**Status:** Planning — base reference picked, structural decisions still open.
+**Status:** Phase-2a plan locked (D2.1–D2.7 all decided 2026-06-03). Execution pending Codex round-1 LGTM. Phase-2b/2c stubbed (drafted when 2a in flight).
 **Started:** 2026-06-03 (Phase-1 MVP ticked + phase order swapped: revamp before xlsx import).
+
+**Decisions locked (see [scope-and-plan.md](./scope-and-plan.md) for rationale):**
+- D2.1 = Full Accept tokens (emerald + gradient + rounded-2xl + soft shadow)
+- D2.2 = Pure Split-Screen snapshot (sticky dashboard + scrollable category flow)
+- D2.3 = Full Revamp scope (Landing + Snapshot + 6 wizards + Plan shell + FI + Goal cards)
+- D2.4 = Extend + Prune tests (preserve 326 regression set; rewrite-for-rewrite-sake forbidden)
+- D2.5 = Geist Sans typography (Plus Jakarta Sans deprecated)
+- D2.6 = Flow-shaped wizard restyle (6 wizards stay step-by-step; only Snapshot is split-screen)
+- D2.7 = Chunked 2a / 2b / 2c delivery (~6 day each, own PR + Codex round each)
 
 Phase-1 MVP landed a working snapshot flow but the wizard UX feels clunky and the visual treatment is plain. This phase replaces the 7-step paginated wizard with a **split-screen seamless flow** (sticky dashboard left + scrollable category flow right) and refreshes the visual layer toward a cleaner shadcn-inspired aesthetic. User goal stated verbatim: *"supaya lebih tampan."*
 
