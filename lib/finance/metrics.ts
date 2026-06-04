@@ -340,7 +340,7 @@ export function calcDar(snap: SnapshotState, prices?: PricesView): number | null
 // ----- 5. Runway — aset likuid / total pengeluaran (months) -----
 
 export function calcRunway(snap: SnapshotState, prices?: PricesView): number | null {
-  const burn = calcTotalPengeluaran(snap)
+  const burn = calcTotalPengeluaran(snap, prices)
   if (burn <= 0) return null
   // Likuid here = cash-equivalent + tradable financial assets. Excludes gold-tertahan
   // (pawned) since it can't be liquidated without tebus.
@@ -359,7 +359,7 @@ export function calcSavingsRate(
 ): number | null {
   const peng = totalPenghasilanMonthly(snap, prices)
   if (peng <= 0) return null
-  return ((peng - calcTotalPengeluaran(snap)) / peng) * 100
+  return ((peng - calcTotalPengeluaran(snap, prices)) / peng) * 100
 }
 
 // ----- 7. Safe Haven — (Kas + Deposito + SBN + RD-safe + Emas) / Total Aset (percent)

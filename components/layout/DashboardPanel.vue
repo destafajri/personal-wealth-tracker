@@ -42,6 +42,22 @@ const SafeHavenBar = defineAsyncComponent({
   loader: () => import('~/components/dashboard/SafeHavenBar.vue'),
   loadingComponent: ChartLoading,
 })
+const ExpenseBreakdownDonut = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/ExpenseBreakdownDonut.vue'),
+  loadingComponent: ChartLoading,
+})
+const SurplusGauge = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/SurplusGauge.vue'),
+  loadingComponent: ChartLoading,
+})
+const AssetVsLiabilityBar = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/AssetVsLiabilityBar.vue'),
+  loadingComponent: ChartLoading,
+})
+const EmergencyFundMeter = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/EmergencyFundMeter.vue'),
+  loadingComponent: ChartLoading,
+})
 </script>
 
 <template>
@@ -52,10 +68,19 @@ const SafeHavenBar = defineAsyncComponent({
   -->
   <section class="flex flex-col gap-5 p-3" aria-live="polite" aria-atomic="false">
     <HeroPair />
+    <!-- New quick-glance row: Surplus Gauge + Emergency Fund -->
+    <div class="grid gap-4 sm:grid-cols-2">
+      <SurplusGauge />
+      <EmergencyFundMeter />
+    </div>
+    <AssetVsLiabilityBar />
     <MetricGrid />
     <div v-if="hasAnyAsset" class="grid gap-4 sm:grid-cols-2">
       <AllocationDonut />
       <SafeHavenBar />
+    </div>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <ExpenseBreakdownDonut />
     </div>
     <GoalSummaryCards />
     <ModalOptionsPanel />

@@ -32,7 +32,7 @@ export function fiNumber(monthlyExpense: number, multiplier = 300): number {
 // definitions used by DSR/Runway/SavingsRate — drift here would silently make goal
 // projections disagree with the dashboard.
 export function surplus(snap: SnapshotState, prices?: PricesView): number {
-  return totalPenghasilanMonthly(snap, prices) - calcTotalPengeluaran(snap)
+  return totalPenghasilanMonthly(snap, prices) - calcTotalPengeluaran(snap, prices)
 }
 
 // Default per-goal monthly contribution: surplus ÷ active goal count. Negative surplus
@@ -100,7 +100,7 @@ export function resolveTargetIdr(
   fiMultiplier: number,
 ): number {
   if (goal.kind === 'FI') {
-    return fiNumber(calcTotalPengeluaran(snap), fiMultiplier)
+    return fiNumber(calcTotalPengeluaran(snap), fiMultiplier) // FI target uses base pengeluaran; no FX prices needed — multiplier is applied to IDR baseline
   }
   return Math.max(0, goal.targetIdr)
 }
