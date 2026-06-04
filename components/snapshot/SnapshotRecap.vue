@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { t } from '~/lib/copy/strings'
 import {
   Banknote,
   BarChart3,
@@ -306,6 +307,21 @@ function toggleSection(key: SectionKey) {
 function isOpen(key: SectionKey) {
   return openSections.value.has(key)
 }
+
+const RD_JENIS_LABELS: Record<string, string> = {
+  pasarUang: 'Pasar Uang',
+  pendapatanTetap: 'Pendapatan Tetap',
+  campuran: 'Campuran',
+  saham: 'Saham',
+  indeks: 'Indeks',
+  lain: 'Lainnya',
+}
+
+function rdJenisLabel(jenis: string): string {
+  return RD_JENIS_LABELS[jenis] ?? jenis
+}
+
+const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide'
 </script>
 
 <template>
@@ -319,7 +335,7 @@ function isOpen(key: SectionKey) {
       </p>
     </header>
 
-    <div class="grid items-start gap-3 sm:grid-cols-2">
+    <div class="grid items-start gap-3 overflow-hidden sm:grid-cols-2">
       <!-- ===== Penghasilan ===== -->
       <article
         class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
@@ -337,12 +353,12 @@ function isOpen(key: SectionKey) {
               Penghasilan / bulan
             </h4>
           </div>
-          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+          <span class="shrink-0 text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
             {{ idr(penghasilanTotal) }}
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('penghasilan') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('penghasilan')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+        <div v-show="isOpen('penghasilan')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li v-if="gajiHasValue" class="flex items-baseline justify-between gap-3 py-1.5">
               <span class="min-w-0 text-[var(--color-text-secondary)]">Gaji Bersih</span>
@@ -404,12 +420,12 @@ function isOpen(key: SectionKey) {
               Pengeluaran / bulan
             </h4>
           </div>
-          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+          <span class="shrink-0 text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
             {{ idr(pengeluaranTotal) }}
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('pengeluaran') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('pengeluaran')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+        <div v-show="isOpen('pengeluaran')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-if="snap.pengeluaran.pokok > 0"
@@ -468,12 +484,12 @@ function isOpen(key: SectionKey) {
           <div class="min-w-0 flex-1">
             <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Kas / Tabungan</h4>
           </div>
-          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+          <span class="shrink-0 text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
             {{ idr(kasTotal) }}
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('kas') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('kas')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+        <div v-show="isOpen('kas')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in kasRows"
@@ -507,60 +523,66 @@ function isOpen(key: SectionKey) {
           <div class="min-w-0 flex-1">
             <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Investasi Pasif</h4>
           </div>
-          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+          <span class="shrink-0 text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
             {{ idr(investasiPasifTotal + emasTotal) }}
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('investasi-pasif') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('investasi-pasif')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+        <div v-show="isOpen('investasi-pasif')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in depositoRows"
               :key="row.id"
-              class="flex items-baseline justify-between gap-3 py-1.5"
+              class="space-y-0.5 py-1.5"
             >
-              <span class="min-w-0 truncate">
-                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Depo</span>
-                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Deposito' }}</span>
-                <span v-if="row.sukuBungaPercent" class="ml-1 text-[10px] text-[var(--color-text-muted)]">
-                  · {{ row.sukuBungaPercent }}%/th
+              <div class="flex items-baseline justify-between gap-3">
+                <span class="min-w-0 truncate">
+                  <span :class="CATEGORY_BADGE + ' bg-emerald-50 text-[var(--color-primary)]'">Deposito</span>
+                  <span class="ml-1.5 text-[var(--color-text-secondary)]">{{ row.label || 'Deposito' }}</span>
                 </span>
-              </span>
-              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-                {{ fmtMoney(row.amount, row.currency) }}
-              </span>
+                <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                  {{ fmtMoney(row.amount, row.currency) }}
+                </span>
+              </div>
+              <p v-if="row.sukuBungaPercent" class="pl-[52px] text-[10px] text-[var(--color-text-muted)]">
+                {{ row.sukuBungaPercent }}%/th
+              </p>
             </li>
             <li
               v-for="row in rdRows"
               :key="row.id"
-              class="flex items-baseline justify-between gap-3 py-1.5"
+              class="space-y-0.5 py-1.5"
             >
-              <span class="min-w-0 truncate">
-                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">RD</span>
-                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Reksa Dana' }}</span>
-                <span v-if="row.rdJenis" class="ml-1 text-[10px] text-[var(--color-text-muted)]">
-                  · {{ row.rdJenis }}
+              <div class="flex items-baseline justify-between gap-3">
+                <span class="min-w-0 truncate">
+                  <span :class="CATEGORY_BADGE + ' bg-amber-50 text-[var(--color-warning-amber)]'">RD</span>
+                  <span class="ml-1.5 text-[var(--color-text-secondary)]">{{ row.label || 'Reksa Dana' }}</span>
                 </span>
-              </span>
-              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-                {{ fmtMoney(row.amount, row.currency) }}
-              </span>
+                <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                  {{ fmtMoney(row.amount, row.currency) }}
+                </span>
+              </div>
+              <p v-if="row.rdJenis" class="pl-[52px] text-[10px] text-[var(--color-text-muted)]">
+                {{ rdJenisLabel(row.rdJenis) }}
+              </p>
             </li>
             <li
               v-for="row in sbnRows"
               :key="row.id"
-              class="flex items-baseline justify-between gap-3 py-1.5"
+              class="space-y-0.5 py-1.5"
             >
-              <span class="min-w-0 truncate">
-                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">SBN</span>
-                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'SBN' }}</span>
-                <span v-if="row.sukuBungaPercent" class="ml-1 text-[10px] text-[var(--color-text-muted)]">
-                  · {{ row.sukuBungaPercent }}%/th
+              <div class="flex items-baseline justify-between gap-3">
+                <span class="min-w-0 truncate">
+                  <span :class="CATEGORY_BADGE + ' bg-blue-50 text-blue-600'">SBN</span>
+                  <span class="ml-1.5 text-[var(--color-text-secondary)]">{{ row.label || 'SBN' }}</span>
                 </span>
-              </span>
-              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-                {{ fmtMoney(row.amount, row.currency) }}
-              </span>
+                <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                  {{ fmtMoney(row.amount, row.currency) }}
+                </span>
+              </div>
+              <p v-if="row.sukuBungaPercent" class="pl-[52px] text-[10px] text-[var(--color-text-muted)]">
+                {{ row.sukuBungaPercent }}%/th
+              </p>
             </li>
             <li
               v-for="row in emasRows"
@@ -598,12 +620,12 @@ function isOpen(key: SectionKey) {
           <div class="min-w-0 flex-1">
             <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Investasi Pasar</h4>
           </div>
-          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+          <span class="shrink-0 text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
             {{ idr(sahamTotal + cryptoTotal) }}
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('investasi-pasar') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('investasi-pasar')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+        <div v-show="isOpen('investasi-pasar')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in sahamRows"
@@ -657,12 +679,12 @@ function isOpen(key: SectionKey) {
           <div class="min-w-0 flex-1">
             <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Aset Tetap</h4>
           </div>
-          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+          <span class="shrink-0 text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
             {{ idr(asetTetapTotal) }}
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('aset-tetap') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('aset-tetap')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+        <div v-show="isOpen('aset-tetap')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in propertiRows"
@@ -670,8 +692,8 @@ function isOpen(key: SectionKey) {
               class="flex items-baseline justify-between gap-3 py-1.5"
             >
               <span class="min-w-0 truncate">
-                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Properti</span>
-                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Properti' }}</span>
+                <span :class="CATEGORY_BADGE + ' bg-gray-100 text-[var(--color-text-secondary)]'">Properti</span>
+                <span class="ml-1.5 text-[var(--color-text-secondary)]">{{ row.label || 'Properti' }}</span>
               </span>
               <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
                 {{ idr(row.amount || 0) }}
@@ -683,8 +705,8 @@ function isOpen(key: SectionKey) {
               class="flex items-baseline justify-between gap-3 py-1.5"
             >
               <span class="min-w-0 truncate">
-                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Kendaraan</span>
-                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Kendaraan' }}</span>
+                <span :class="CATEGORY_BADGE + ' bg-gray-100 text-[var(--color-text-secondary)]'">Kendaraan</span>
+                <span class="ml-1.5 text-[var(--color-text-secondary)]">{{ row.label || 'Kendaraan' }}</span>
               </span>
               <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
                 {{ idr(row.amount || 0) }}
@@ -696,8 +718,8 @@ function isOpen(key: SectionKey) {
               class="flex items-baseline justify-between gap-3 py-1.5"
             >
               <span class="min-w-0 truncate">
-                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Pensiun</span>
-                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Pensiun' }}</span>
+                <span :class="CATEGORY_BADGE + ' bg-gray-100 text-[var(--color-text-secondary)]'">Pensiun</span>
+                <span class="ml-1.5 text-[var(--color-text-secondary)]">{{ row.label || 'Pensiun' }}</span>
               </span>
               <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
                 {{ idr(row.amount || 0) }}
@@ -728,7 +750,7 @@ function isOpen(key: SectionKey) {
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('cicilan') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('cicilan')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+        <div v-show="isOpen('cicilan')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in cicilanRows"
@@ -776,7 +798,7 @@ function isOpen(key: SectionKey) {
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('utang-pribadi') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('utang-pribadi')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+        <div v-show="isOpen('utang-pribadi')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in utangPribadiRows"
@@ -815,7 +837,7 @@ function isOpen(key: SectionKey) {
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('gadai') && 'rotate-180'" />
         </button>
-        <div v-show="isOpen('gadai')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+        <div v-show="isOpen('gadai')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li
               v-for="row in gadaiRows"
