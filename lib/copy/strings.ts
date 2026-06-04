@@ -14,26 +14,17 @@ export const copy = {
   'landing.hero.titleWord2': 'Gadai',
   'landing.hero.titleWord3': 'Cicil',
 
-  'landing.eyebrow.label': 'Kalkulator Keuangan Pribadi',
+  // Phase-2a Day 3: trust pills above H1 (v0auto-inspired hero layout).
   'landing.trust.pill.noRegister': 'Tanpa daftar',
   'landing.trust.pill.noCloud': 'Tanpa cloud',
 
   'landing.cta.snapshot.label': 'Mulai dari Snapshot',
-  'landing.cta.snapshot.body':
-    'Isi data kamu sendiri (5–10 menit). Dapatkan gambaran lengkap keuangan pribadimu.',
+  'landing.cta.snapshot.body': 'Isi data kamu sendiri (5–10 menit).',
   'landing.cta.snapshot.action': 'Mulai',
 
   'landing.cta.demo.label': 'Coba dengan data contoh',
-  'landing.cta.demo.body': 'Skip dulu, lihat cara kerjanya dengan contoh data yang sudah terisi.',
+  'landing.cta.demo.body': 'Skip dulu, lihat tools-nya.',
   'landing.cta.demo.action': 'Coba',
-
-  // Phase-2a Day 3: trust strip below CTA cards (bolt-inspired 3-column).
-  'landing.feature.free.label': 'Bebas Biaya',
-  'landing.feature.free.sub': 'Selamanya gratis',
-  'landing.feature.realtime.label': 'Real-time',
-  'landing.feature.realtime.sub': 'Update otomatis',
-  'landing.feature.private.label': '100% Privat',
-  'landing.feature.private.sub': 'Data di browser',
 
   // Phase-2a Day 3: default layout navbar right-side tagline (with Clock icon).
   'nav.tagline.tenMinutes': 'Cek Keuangan dalam 10 Menit',

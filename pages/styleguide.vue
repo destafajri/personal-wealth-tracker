@@ -1,6 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ArrowRight, Clock, CloudOff, FileText, Lock, Play, Shield, Wallet } from 'lucide-vue-next'
+// Explicit imports: Nuxt 3 auto-import prefixes components in subdirs
+// (components/common/X.vue -> <CommonX/>). Bare-name usage silently fails at
+// SSR (renders as anonymous, no build error). See memory note
+// `feedback-nuxt-component-subdir-prefix`.
+import Badge from '~/components/common/Badge.vue'
+import ButtonCTA from '~/components/common/ButtonCTA.vue'
+import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
+import ButtonSecondary from '~/components/common/ButtonSecondary.vue'
+import DisclaimerBanner from '~/components/common/DisclaimerBanner.vue'
+import IconChip from '~/components/common/IconChip.vue'
+import InputCurrency from '~/components/common/InputCurrency.vue'
+import InputQuantity from '~/components/common/InputQuantity.vue'
+import PillEstimasi from '~/components/common/PillEstimasi.vue'
+import PillLive from '~/components/common/PillLive.vue'
+import PillStale from '~/components/common/PillStale.vue'
+import StatusDot from '~/components/common/StatusDot.vue'
 
 definePageMeta({ layout: 'default' })
 
