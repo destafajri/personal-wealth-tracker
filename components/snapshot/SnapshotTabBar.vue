@@ -38,6 +38,7 @@ function isCompleted(id: string) {
           : 'border-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-low)]',
       ]"
       :aria-pressed="tab.id === activeId"
+      :aria-label="tab.label"
       @click="emit('update:activeId', tab.id)"
     >
       <Check

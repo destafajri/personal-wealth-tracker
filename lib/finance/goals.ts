@@ -98,9 +98,10 @@ export function resolveTargetIdr(
   goal: Goal,
   snap: SnapshotState,
   fiMultiplier: number,
+  prices?: PricesView,
 ): number {
   if (goal.kind === 'FI') {
-    return fiNumber(calcTotalPengeluaran(snap), fiMultiplier) // FI target uses base pengeluaran; no FX prices needed — multiplier is applied to IDR baseline
+    return fiNumber(calcTotalPengeluaran(snap, prices), fiMultiplier)
   }
   return Math.max(0, goal.targetIdr)
 }
@@ -197,7 +198,7 @@ export function goalProgress(
   },
 ): GoalProgress {
   const { fiMultiplier, annualReturnReal, activeGoalsCount, today, prices } = opts
-  const targetIdr = resolveTargetIdr(goal, snap, fiMultiplier)
+  const targetIdr = resolveTargetIdr(goal, snap, fiMultiplier, prices)
   const currentIdr = bucketValueIdr(goal.buckets, snap, prices)
   const monthlyInflow =
     goal.monthlyAllocationIdr ?? defaultAllocation(snap, activeGoalsCount, prices)

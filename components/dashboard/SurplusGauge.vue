@@ -18,8 +18,11 @@ const percent = computed(() => {
   return Math.abs((surplus.value / income.value) * 100)
 })
 
-// Bar width: 0-100% capped
-const barWidth = computed(() => Math.min(100, percent.value))
+// Bar width: expense as % of income, 0-100% capped
+const barWidth = computed(() => {
+  if (income.value <= 0) return 0
+  return Math.min(100, (expense.value / income.value) * 100)
+})
 
 const statusText = computed(() => {
   if (income.value <= 0) return 'Isi pendapatan dulu'

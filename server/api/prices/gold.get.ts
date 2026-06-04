@@ -21,7 +21,7 @@ export default defineCachedEventHandler(
         'user-agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
         accept:
-          'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'application/json,text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
         referer: 'https://pegadaian.co.id/gold',
       }
