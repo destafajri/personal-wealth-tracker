@@ -102,14 +102,14 @@ const milestones = [3, 6, 9, 12]
       />
     </div>
     <!-- Milestone labels -->
-    <div class="mt-1 flex justify-between text-[9px] text-[var(--color-text-muted)]">
+    <div class="mt-1 flex justify-between text-[10px] text-[var(--color-text-muted)]">
       <span>0</span>
       <span>3</span>
       <span>6</span>
       <span>9</span>
       <span>12</span>
     </div>
-    <p class="mt-2 text-center text-[10px] text-[var(--color-text-muted)]">
+    <p class="mt-2 text-center text-[11px] text-[var(--color-text-muted)]">
       Jumlah bulan pengeluaran yang bisa ditutup aset likuid
     </p>
   </section>

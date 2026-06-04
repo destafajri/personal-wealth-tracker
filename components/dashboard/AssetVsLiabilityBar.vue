@@ -45,7 +45,7 @@ const hasUtang = computed(() => utang.value > 0)
     </div>
 
     <!-- Legend -->
-    <div class="mt-2 flex items-center justify-between text-xs">
+    <div class="mt-2 flex items-center justify-between text-[11px]">
       <span class="flex items-center gap-1.5">
         <span class="inline-block h-2 w-2 rounded-full bg-[var(--color-primary)]" />
         <span class="text-[var(--color-text-secondary)]">Aset</span>

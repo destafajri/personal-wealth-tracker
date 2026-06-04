@@ -56,7 +56,7 @@ const option = computed(() => ({
     orient: 'horizontal',
     bottom: 0,
     type: 'scroll',
-    textStyle: { fontSize: 11 },
+    textStyle: { fontSize: 12 },
   },
   series: [
     {

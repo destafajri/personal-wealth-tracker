@@ -75,12 +75,17 @@ const EmergencyFundMeter = defineAsyncComponent({
     </div>
     <AssetVsLiabilityBar />
     <MetricGrid />
-    <div v-if="hasAnyAsset" class="grid gap-4 sm:grid-cols-2">
-      <AllocationDonut />
-      <SafeHavenBar />
-    </div>
+    <!-- Donut charts row -->
     <div class="grid gap-4 sm:grid-cols-2">
+      <AllocationDonut />
       <ExpenseBreakdownDonut />
+    </div>
+    <!-- Bar charts row -->
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div v-if="hasAnyAsset">
+        <SafeHavenBar />
+      </div>
+      <AssetVsLiabilityBar />
     </div>
     <GoalSummaryCards />
     <ModalOptionsPanel />

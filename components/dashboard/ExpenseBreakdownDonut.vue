@@ -77,7 +77,7 @@ const option = computed(() => ({
   legend: {
     orient: 'horizontal',
     bottom: 0,
-    textStyle: { fontSize: 11 },
+    textStyle: { fontSize: 12 },
   },
   series: [
     {
