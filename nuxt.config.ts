@@ -8,10 +8,10 @@ export default defineNuxtConfig({
 
   css: [
     '~/assets/css/main.css',
-    '@fontsource/plus-jakarta-sans/400.css',
-    '@fontsource/plus-jakarta-sans/500.css',
-    '@fontsource/plus-jakarta-sans/600.css',
-    '@fontsource/plus-jakarta-sans/700.css',
+    '@fontsource/geist-sans/400.css',
+    '@fontsource/geist-sans/500.css',
+    '@fontsource/geist-sans/600.css',
+    '@fontsource/geist-sans/700.css',
   ],
 
   vite: {
@@ -33,7 +33,7 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'theme-color', content: '#1b4332' },
+        { name: 'theme-color', content: '#059669' },
         {
           name: 'description',
           content:

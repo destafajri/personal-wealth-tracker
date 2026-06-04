@@ -154,11 +154,37 @@ The palette is anchored in **forest greens + warm off-whites**, deliberately avo
 - **Capacity Teal is reserved for Modal Siap Distribusi UI** — not used elsewhere, to keep its meaning specific
 - **No dark mode** in this scope
 
+### 3.3 Phase-2 revamp delta (2026-06-04, Day 1)
+
+Phase-2 swaps the **forest-green-led** Phase-1 palette for an **emerald-led** Tailwind palette. Rationale: revamp aesthetic targets a shadcn-inspired "lebih tampan" trust signal. Forest-green tokens are kept aliased during Day 1 only and removed during Day 2 primitives refactor.
+
+| Token | Phase-1 | Phase-2 revamp |
+|---|---|---|
+| **Primary** | `#1B4332` forest | `#059669` emerald-600 |
+| **Primary Dark** | `#012D1D` | `#065F46` emerald-800 |
+| **Accent Emerald** | `#2D6A4F` | `#059669` emerald-600 |
+| **Accent Emerald Soft** | `#86AF99` | `#D1FAE5` emerald-100 |
+| **Surface** | `#F8F9F5` warm | `#FFFFFF` neutral white |
+| **Surface Low** | `#F3F4F1` warm | `#F9FAFB` gray-50 |
+| **Border** | `#E5E7EB` | `#E5E7EB` (unchanged) |
+| **Border Strong** | `#C1C8C2` warm | `#D1D5DB` gray-300 |
+| **Text Primary** | `#1F2937` | `#0F172A` slate-900 |
+| **Text Secondary** | `#6B7280` | `#475569` slate-600 |
+| **Text Muted** | `#9CA3AF` | `#94A3B8` slate-400 |
+
+Unchanged across Phase-2: warning amber, danger rose, gold + gold-muted, capacity teal — these still carry their Phase-1 semantic meaning.
+
+**Gradient bg note:** revamp introduces a subtle page-level gradient via `@utility bg-gradient-subtle` (`linear-gradient(to bottom, #fff, #f9fafb)`). Used as page canvas under split-screen shell + landing hero. Not applied to cards (cards remain solid `#FFFFFF` per §3.1).
+
+**`theme-color` meta:** updated `#1B4332` → `#059669` to match new primary; affects mobile browser chrome.
+
 ---
 
 ## 4. Typography
 
 **Plus Jakarta Sans** for everything. **Tabular figures (`font-variant-numeric: tabular-nums`) is non-negotiable on every number** — financial data must align in vertical scans.
+
+> **Phase-2 revamp delta (2026-06-04, Day 1):** typeface swapped to **Geist Sans** (self-hosted via `@fontsource/geist-sans`, weights 400/500/600/700). Geist's tighter forms + neutral character set match the shadcn-inspired aesthetic and the "lebih tampan" trust target. **Type scale (§4.1) unchanged** — same step ladder, same tabular-nums rule. Plus Jakarta Sans is uninstalled after Day 2 confirms no fallback usage.
 
 ### 4.1 Type scale
 
@@ -260,6 +286,28 @@ Soft, precise. Not cartoonish, not institutional.
 | Status dots, LIVE / ESTIMASI / STALE pills | **fully rounded** (`radius_pill`) |
 | Donut chart strokes | **flat caps** (preserves data-fidelity feel) |
 | Progress bar fills | flat caps |
+
+### 7.1 Phase-2 revamp delta (2026-06-04, Day 1)
+
+Phase-2 adopts a **softer, rounder** shape language. Radii scale up; depth shifts from flat tonal layers (§6) to soft drop-shadows.
+
+| Component | Phase-1 | Phase-2 revamp |
+|---|---|---|
+| Inputs, buttons | 4px | **8px** (`radius_input` = `0.5rem`) |
+| Cards, metric cards, sub-panels, modals | 8px | **16px** (`radius_card` = `radius_2xl` = `1rem`, ~Tailwind `rounded-2xl`) |
+| Pills | fully rounded | fully rounded (unchanged) |
+| Asset rows | 4px | 8px (matches new input radius) |
+
+**Soft shadow scale** (replaces §6 "flat tonal" elevation for Phase-2 cards):
+
+| Token | Hex equivalent | Use |
+|---|---|---|
+| `shadow-sm` | `0 1px 2px 0 rgba(15, 23, 42, 0.04)` | Default card resting state |
+| `shadow-md` | `0 4px 12px 0 rgba(15, 23, 42, 0.06)` | Hero pair + card hover lift |
+| `shadow-lg` | `0 10px 24px 0 rgba(15, 23, 42, 0.08)` | Sticky dashboard sidebar accent |
+| `shadow-modal` | `0 20px 40px rgba(15, 23, 42, 0.12)` | Simulator modals, confirm dialogs |
+
+§6 flat-tonal rules still apply where shadow is visually inappropriate (table rows, inline asset rows, dividers). The hero-pair-only shadow rule is **relaxed** in Phase-2: all metric cards may take `shadow-sm` at rest.
 
 ---
 
