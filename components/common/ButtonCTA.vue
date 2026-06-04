@@ -32,9 +32,9 @@ withDefaults(
     :type="tag === 'button' ? type : undefined"
     :disabled="tag === 'button' && disabled ? true : undefined"
     :title="disabled ? disabledReason : undefined"
-    class="inline-flex items-center justify-center gap-2 rounded-[var(--radius-input)] font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-40"
+    class="inline-flex items-center justify-center gap-2 rounded-[var(--radius-input)] text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40"
     :class="[
-      size === 'lg' ? 'px-6 py-3.5 text-sm sm:text-base' : 'px-5 py-3 text-sm',
+      size === 'lg' ? 'h-9 px-4' : 'h-8 px-3',
       block && 'w-full',
       variant === 'solid'
         ? 'bg-[var(--color-primary)] text-white shadow-[var(--shadow-sm)] hover:bg-[var(--color-primary-container)] hover:shadow-[var(--shadow-md)]'
