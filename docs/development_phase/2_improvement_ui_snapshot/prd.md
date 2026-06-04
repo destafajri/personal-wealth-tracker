@@ -323,7 +323,7 @@ Phase-2 preserves Phase-1's OJK compliance posture verbatim. The revamp must NOT
 
 - [`docs/ide_4_revamp/Promt.md`](../../ide_4_revamp/Promt.md) — original prompt fed to v0 / bolt / lovable
 - [`docs/ide_4_revamp/Result.md`](../../ide_4_revamp/Result.md) — preview links + chat session URLs
-- [`docs/ide_4_revamp/reff/`](../../ide_4_revamp/reff/) — in-repo ZIP archives (extracted source moved to `/Users/mamikos/Downloads/` 2026-06-03 to keep repo tidy; see [[reference-cermat-revamp-source-code]] memory entry for canonical extraction location)
+- [`docs/ide_4_revamp/reff/`](../../ide_4_revamp/reff/) — in-repo ZIP archives of v0 / bolt outputs. This is the canonical repo-contained reference. ZIPs may be extracted locally for read-only browsing, but planning docs reference only what lives in the repo to keep the artifact portable across reviewers and machines.
 
 ### 8.2 Source-of-truth boundary (locked Codex round-1 2026-06-04)
 
@@ -369,7 +369,7 @@ Old wizard files are deleted **only after** all 7 pass (REPLACE-AFTER-PARITY).
 
 - **Functional parity:** 326 → ~340 tests after prune + add; all green
 - **No regressions in:** snapshot persistence, demo seed, dirty guard, pricing refresh cooldown, xlsx export, OJK lint
-- **Visual polish:** landing + snapshot match revamp prompt visual targets per side-by-side review with `/Users/mamikos/Downloads/cermat-app-revamp/` (v0 max output as the visual base reference)
+- **Visual polish:** landing + snapshot match revamp prompt visual targets per side-by-side review against the v0 (max) output (the chosen visual base reference, archived in [`docs/ide_4_revamp/reff/`](../../ide_4_revamp/reff/))
 - **Lighthouse:** ≥85 mobile (carries over from Phase-1 D11.6 deferred goal; requires real Vercel deploy to verify)
 
 ### 9.3 What "lebih tampan" means measurably

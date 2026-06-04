@@ -29,7 +29,7 @@ If you find yourself editing `lib/finance/*`, `lib/prices/*`, `lib/snapshot/*`, 
 
 ### Reference status (locked, Codex round-1 2026-06-04)
 
-- **`docs/ide_4_revamp/reff/*` + `/Users/mamikos/Downloads/{cermat-app-revamp,cermat-personal-finance-app-v1,bolt-main}/`** — **visual + layout + interaction-pattern reference only.** NOT a source of truth for:
+- **`docs/ide_4_revamp/reff/*`** (in-repo ZIP archives of v0 / bolt outputs; canonical repo-contained reference) — **visual + layout + interaction-pattern reference only.** NOT a source of truth for:
   - feature scope (their 7 generic categories ≠ Cermat's 14 panels)
   - domain logic (their DSR/KPR calcs ≠ Cermat's `lib/finance/`)
   - copy/microcopy (theirs bypasses OJK-lint registry)
