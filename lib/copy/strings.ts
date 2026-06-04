@@ -3,8 +3,20 @@ export const copy = {
   'brand.tagline': 'Cek keuangan kamu dalam 10 menit',
 
   'landing.hero.title': 'Aman gak kalau gw KPR, Gadai, atau Cicil?',
-  'landing.hero.subtitle': 'Berapa max utang yang aman? Cek dalam 10 menit.',
+  'landing.hero.subtitle': 'Berapa max utang yang aman? Cek keuangan kamu dalam 10 menit.',
   'landing.hero.trust': 'Tanpa daftar. Tanpa cloud.',
+
+  // Phase-2a Day 3: hero title fragment keys for emerald-accented hero (KPR / Gadai / Cicil
+  // rendered as <span class="text-primary">). Existing `landing.hero.title` retained for SEO
+  // meta + accessibility fallback.
+  'landing.hero.titlePrefix': 'Aman gak kalau gw',
+  'landing.hero.titleWord1': 'KPR',
+  'landing.hero.titleWord2': 'Gadai',
+  'landing.hero.titleWord3': 'Cicil',
+
+  // Phase-2a Day 3: trust pills above H1 (v0auto-inspired hero layout).
+  'landing.trust.pill.noRegister': 'Tanpa daftar',
+  'landing.trust.pill.noCloud': 'Tanpa cloud',
 
   'landing.cta.snapshot.label': 'Mulai dari Snapshot',
   'landing.cta.snapshot.body': 'Isi data kamu sendiri (5–10 menit).',
@@ -14,6 +26,9 @@ export const copy = {
   'landing.cta.demo.body': 'Skip dulu, lihat tools-nya.',
   'landing.cta.demo.action': 'Coba',
 
+  // Phase-2a Day 3: default layout navbar right-side tagline (with Clock icon).
+  'nav.tagline.tenMinutes': 'Cek Keuangan dalam 10 Menit',
+
   'footer.disclaimer':
     '100% client-side. Data kamu tetap di komputer kamu. Cermat bukan penasihat keuangan atau produk berizin.',
 
@@ -21,6 +36,9 @@ export const copy = {
     'Hasil di sini cuma simulasi pakai data kamu. Cermat bukan penasihat keuangan atau produk berizin.',
 
   'dialog.refresh': 'Data kamu belum tersimpan. Yakin mau refresh?',
+  'dialog.leave.title': 'Yakin mau keluar?',
+  'dialog.leave.body': 'Data kamu belum tersimpan permanen. Kalau kamu pindah halaman sekarang, data yang sudah diisi akan hilang.',
+  'snapshot.unsaved.banner': 'Data disimpan sementara di memori browser — refresh atau tutup tab akan menghapusnya.',
 
   // D11.2 — Screen 12 negative Net Worth Status framing. Per design-guidelines
   // §10 + OJK posture: "Status" only, NEVER "Saran"/"Sebaiknya". Descriptive

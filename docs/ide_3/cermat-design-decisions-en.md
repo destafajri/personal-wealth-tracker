@@ -71,6 +71,22 @@ Format: `Metrik | Sebelum | Sesudah | Δ`
 
 > ⚠️ Stitch screens only render 5 cards in the grid. Add **Allocation Discipline** as the 6th. Add **Goal Health** as a chip in the Goals row. These two are the missing pieces from §5.4.
 
+### 2.4 Phase-2 revamp — **Full token accept (emerald-led + soft shadow + rounded-2xl)**
+
+Locked 2026-06-04 (Day 1 of Phase-2a). The Phase-1 forest-green-led palette is swapped for an emerald-led Tailwind palette; flat tonal depth (Guidelines §6) is relaxed to allow soft drop-shadows on cards; shape language scales radii up (4px→8px inputs, 8px→16px cards). Surface anchor shifts from warm off-white (`#F8F9F5`) to neutral white + gray-50, with a subtle `bg-gradient-subtle` utility for page canvas.
+
+Rationale: **Phase-2 revamp: full token accept, shadcn-inspired aesthetic for trust + "lebih tampan"** — Phase-1's forest-green-on-warm-canvas read "jadul" (per user, 2026-06-03); the emerald-led palette + soft shadow + rounded-2xl reads contemporary without compromising the calm, descriptive (non-prescriptive, OJK-safe) tone. Behavioural surface unchanged — see Phase-2a plan "🎯 Phase-2 Core Principle" + Feature Preservation Guard + UI Behavior Contract.
+
+Source-of-truth for the swap: `docs/development_phase/2_improvement_ui_snapshot/phase-2a-plan.md` Day 1, `docs/ide_3/personal-wealth-platform-design-guidelines-en.md` §3.3 + §7.1, `assets/css/main.css` `@theme` block.
+
+### 2.5 Phase-2 revamp — **Geist Sans over Plus Jakarta Sans**
+
+Locked 2026-06-04 (Day 1 of Phase-2a). Typeface swapped to `@fontsource/geist-sans` (self-hosted, weights 400/500/600/700). Plus Jakarta Sans uninstalled after Day 2 confirms no fallback usage.
+
+Rationale: **Phase-2 revamp: Geist over Plus Jakarta Sans, shadcn-inspired aesthetic for trust + "lebih tampan"** — Geist's tighter forms + neutral character set match the revamp's shadcn-inspired direction; numerics still tabular per Guidelines §4.2. **Type scale unchanged** (Guidelines §4.1 ladder preserved verbatim) — Phase-2 is a typeface swap, not a typographic redesign.
+
+Source-of-truth for the swap: `docs/development_phase/2_improvement_ui_snapshot/phase-2a-plan.md` Day 1, `docs/ide_3/personal-wealth-platform-design-guidelines-en.md` §4 delta callout, `nuxt.config.ts` css array.
+
 ---
 
 ## 3. Stitch Outputs — Keep / Drop / Salvage

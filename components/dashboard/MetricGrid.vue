@@ -8,7 +8,7 @@ const derived = useDerivedStore()
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <MetricCard
       threshold-key="dsr"
       label-key="metric.dsr.label"

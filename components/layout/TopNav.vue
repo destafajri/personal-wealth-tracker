@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Download } from 'lucide-vue-next'
+import { Download, ShieldCheck } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { t } from '~/lib/copy/strings'
 import { useDerivedStore } from '~/stores/derived'
@@ -26,11 +26,16 @@ async function onDownload() {
 
 <template>
   <header
-    class="sticky top-0 z-30 h-16 border-b border-[var(--color-border)] bg-[var(--color-surface-card)]/95 backdrop-blur"
+    class="sticky top-0 z-30 h-16 border-b border-[var(--color-border)] bg-[var(--color-surface-card)]/90 backdrop-blur"
   >
     <div class="mx-auto flex h-full max-w-[1440px] items-center justify-between px-6 sm:px-10">
-      <NuxtLink to="/" class="flex items-baseline gap-2">
-        <span class="text-xl font-bold tracking-tight text-[var(--color-primary-dark)]">
+      <NuxtLink to="/" class="flex items-center gap-2">
+        <span
+          class="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-input)] bg-[var(--color-primary)] shadow-[var(--shadow-sm)]"
+        >
+          <ShieldCheck class="h-3.5 w-3.5 text-white" :stroke-width="2.5" />
+        </span>
+        <span class="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
           {{ t('brand.name') }}
         </span>
         <span class="hidden text-xs text-[var(--color-text-secondary)] sm:inline">

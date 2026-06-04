@@ -10,17 +10,10 @@ import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
 import { CURRENCIES, type Currency } from '~/lib/types/snapshot'
 
+defineProps<{ hideHeader?: boolean }>()
+
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
-
-const PREFIX: Record<Currency, string> = {
-  IDR: 'Rp',
-  USD: '$',
-  SGD: 'S$',
-  EUR: '€',
-  JPY: '¥',
-  KRW: '₩',
-}
 
 // Auto-derived monthly estimasi rows surfaced inline: saham dividen + bunga sbn +
 // bunga deposito. Same numbers that flow into DSR/SavingsRate via metrics layer.
@@ -59,7 +52,7 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
   <section
     class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
   >
-    <header class="mb-3">
+    <header v-if="!hideHeader" class="mb-3">
       <h3 class="text-base font-semibold uppercase tracking-wide text-[var(--color-text-primary)]">
         {{ t('snapshot.section.penghasilan') }} / Bulan
       </h3>
@@ -79,28 +72,16 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
           >
             {{ t('snapshot.penghasilan.gajiLabel') }}
           </label>
-          <div class="flex items-center gap-2">
-            <select
-              :value="snap.penghasilan.currency"
-              :aria-label="t('snapshot.penghasilan.gajiLabel') + ' currency'"
-              class="h-12 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-              @change="
-                snap.setPenghasilanCurrency(
-                  ($event.target as HTMLSelectElement).value as Currency,
-                )
-              "
-            >
-              <option v-for="cur in CURRENCIES" :key="cur" :value="cur">{{ cur }}</option>
-            </select>
-            <div class="flex-1">
-              <InputCurrency
-                id="penghasilan-gaji"
-                :aria-label="t('snapshot.penghasilan.gajiLabel')"
-                :prefix="PREFIX[snap.penghasilan.currency]"
-                :model-value="snap.penghasilan.amount === 0 ? null : snap.penghasilan.amount"
-                @update:model-value="snap.setPenghasilanAmount($event ?? 0)"
-              />
-            </div>
+          <div class="mt-1">
+            <InputCurrency
+              id="penghasilan-gaji"
+              :aria-label="t('snapshot.penghasilan.gajiLabel')"
+              :currency="snap.penghasilan.currency"
+              :currencies="CURRENCIES"
+              :model-value="snap.penghasilan.amount === 0 ? null : snap.penghasilan.amount"
+              @update:model-value="snap.setPenghasilanAmount($event ?? 0)"
+              @update:currency="snap.setPenghasilanCurrency($event)"
+            />
           </div>
           <p
             v-if="snap.penghasilan.currency !== 'IDR'"
@@ -122,14 +103,17 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
             class="mt-1 shrink-0 text-[var(--color-text-secondary)]"
           />
           <div class="flex-1">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-2">
               <label
-                class="block text-xs font-medium text-[var(--color-text-secondary)]"
+                class="min-w-0 flex-1 truncate text-xs font-medium text-[var(--color-text-secondary)]"
               >
                 {{ t('snapshot.penghasilan.lainLabel') }}
               </label>
-              <ButtonGhost @click="snap.addPenghasilanLain()">
-                {{ t('snapshot.penghasilan.lainAdd') }}
+              <ButtonGhost
+                class="shrink-0 whitespace-nowrap"
+                @click="snap.addPenghasilanLain()"
+              >
+                + Tambah
               </ButtonGhost>
             </div>
             <p
@@ -144,43 +128,36 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
                 :key="row.id"
                 class="space-y-1"
               >
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <input
                     type="text"
                     :value="row.label"
                     :placeholder="t('snapshot.penghasilan.lainLabelPlaceholder')"
-                    class="h-12 flex-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+                    class="h-12 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] sm:basis-auto"
                     @input="
                       snap.updatePenghasilanLain(row.id, {
                         label: ($event.target as HTMLInputElement).value,
                       })
                     "
                   >
-                  <select
-                    :value="row.currency ?? 'IDR'"
-                    class="h-12 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-                    @change="
-                      snap.updatePenghasilanLain(row.id, {
-                        currency: ($event.target as HTMLSelectElement).value as Currency,
-                      })
-                    "
-                  >
-                    <option v-for="cur in CURRENCIES" :key="cur" :value="cur">{{ cur }}</option>
-                  </select>
-                  <div class="w-44">
+                  <div class="min-w-0 flex-1 sm:w-52 sm:flex-initial">
                     <InputCurrency
                       :model-value="row.amount === 0 ? null : row.amount"
-                      :prefix="PREFIX[row.currency ?? 'IDR']"
+                      :currency="row.currency ?? 'IDR'"
+                      :currencies="CURRENCIES"
                       :placeholder="t('snapshot.row.idrPlaceholder')"
                       @update:model-value="
                         snap.updatePenghasilanLain(row.id, { amount: $event ?? 0 })
+                      "
+                      @update:currency="
+                        snap.updatePenghasilanLain(row.id, { currency: $event })
                       "
                     />
                   </div>
                   <button
                     type="button"
                     :aria-label="t('snapshot.penghasilan.lainRemove')"
-                    class="rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)]"
+                    class="shrink-0 rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)]"
                     @click="snap.removePenghasilanLain(row.id)"
                   >
                     <X :size="16" />
@@ -221,7 +198,7 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
               {{ t('pill.estimasi') }}
             </span>
           </div>
-          <p class="tabular mt-1 text-lg font-semibold text-[var(--color-text-primary)]">
+          <p class="tabular mt-1 break-all text-lg font-semibold text-[var(--color-text-primary)]">
             {{ idr(dividenMonthly) }}
           </p>
           <p class="tabular text-[11px] text-[var(--color-text-muted)]">
@@ -252,7 +229,7 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
               {{ t('pill.estimasi') }}
             </span>
           </div>
-          <p class="tabular mt-1 text-lg font-semibold text-[var(--color-text-primary)]">
+          <p class="tabular mt-1 break-all text-lg font-semibold text-[var(--color-text-primary)]">
             {{ idr(bungaSbnMonthly) }}
           </p>
           <p class="tabular text-[11px] text-[var(--color-text-muted)]">
@@ -283,7 +260,7 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
               {{ t('pill.estimasi') }}
             </span>
           </div>
-          <p class="tabular mt-1 text-lg font-semibold text-[var(--color-text-primary)]">
+          <p class="tabular mt-1 break-all text-lg font-semibold text-[var(--color-text-primary)]">
             {{ idr(bungaDepositoMonthly) }}
           </p>
           <p class="tabular text-[11px] text-[var(--color-text-muted)]">

@@ -4,6 +4,8 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { t } from '~/lib/copy/strings'
 import type { NonLiquidAssetCategory } from '~/lib/types/snapshot'
 
+defineProps<{ hideHeader?: boolean }>()
+
 const snap = useSnapshotStore()
 
 const categories: { key: NonLiquidAssetCategory; titleKey: string }[] = [
@@ -21,7 +23,7 @@ function label(key: string): string {
   <section
     class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
   >
-    <header class="mb-4">
+    <header v-if="!hideHeader" class="mb-4">
       <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
         {{ t('snapshot.section.asetNonLikuid') }}
       </h3>

@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@fontsource/plus-jakarta-sans':
-        specifier: ^5.1.0
-        version: 5.2.8
+      '@fontsource/geist-sans':
+        specifier: ^5.2.5
+        version: 5.2.5
       '@pinia/nuxt':
         specifier: ^0.7.0
         version: 0.7.0(magicast@0.5.3)(typescript@5.9.3)(vue@3.5.35(typescript@5.9.3))
@@ -768,8 +768,8 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@fontsource/plus-jakarta-sans@5.2.8':
-    resolution: {integrity: sha512-P5qE49fqdeD+7DXH1KBxmMPlB17LTz1zvBhFH0tFzfnYTKVJVyb0pR6plh0ZGXxcB+Oayb54FZZw3V42/DawTw==}
+  '@fontsource/geist-sans@5.2.5':
+    resolution: {integrity: sha512-anllOHyJbElRs9fV15TeDRqAeb1IKm4bSknPl6ZMoyPTx1BBy7logudcUwpNjmQLkzn4Q0JGQLRCUKJYoyST6A==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -5657,7 +5657,7 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@fontsource/plus-jakarta-sans@5.2.8': {}
+  '@fontsource/geist-sans@5.2.5': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

@@ -10,6 +10,8 @@ import { percent } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
 import { zoneOf } from '~/lib/finance/thresholds'
 
+defineProps<{ hideHeader?: boolean }>()
+
 const snap = useSnapshotStore()
 const explainer = useMetricExplainer()
 
@@ -69,14 +71,16 @@ const zoneClass = computed(() => {
   <section
     class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
   >
-    <header class="mb-3 flex items-center justify-between">
+    <header v-if="!hideHeader" class="mb-3">
       <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
         {{ t('snapshot.section.gadai') }}
       </h3>
+    </header>
+    <div class="mb-3 flex justify-end">
       <ButtonGhost @click="snap.addGadai()">
         {{ t('gadai.add') }}
       </ButtonGhost>
-    </header>
+    </div>
 
     <p
       v-if="rows.length === 0"

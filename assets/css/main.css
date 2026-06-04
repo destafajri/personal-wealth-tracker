@@ -1,14 +1,37 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-primary: #1b4332;
-  --color-primary-dark: #012d1d;
-  --color-primary-container: #274e3d;
-  --color-accent-emerald: #2d6a4f;
-  --color-accent-emerald-soft: #86af99;
-  /* D11.5 a11y: bumped from #d97706 (Tailwind amber-600) to #b45309 (amber-700)
-     so text-on-amber-soft pairs pass WCAG AA. Visual identity stays
-     recognizably amber; only ~1 shade darker. */
+  /* Phase-2 revamp tokens (Day 1, 2026-06-04)
+     Primary palette swapped from Phase-1 deep-green (#1b4332) to Tailwind
+     emerald (emerald-600 lead). Aesthetic: shadcn-inspired — soft shadows,
+     rounded-2xl, subtle gradient bg, Geist Sans for trust. See
+     `docs/development_phase/2_improvement_ui_snapshot/phase-2a-plan.md` Day 1
+     and `docs/ide_3/cermat-design-decisions-en.md` §2.4–§2.5. */
+
+  /* Emerald scale (Tailwind v4 reference, locked here so utilities like
+     `bg-emerald-50` and `text-emerald-700` resolve to the same hex used in
+     revamp tokens). */
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+  --color-emerald-800: #065f46;
+
+  --color-primary: var(--color-emerald-600);
+  --color-primary-dark: var(--color-emerald-800);
+  --color-primary-container: var(--color-emerald-700);
+  --color-accent-emerald: var(--color-emerald-600);
+  --color-accent-emerald-soft: var(--color-emerald-100);
+
+  /* Phase-1 deep-green hex (`#1b4332` / `#012d1d` / `#2d6a4f`) is no longer
+     declared as a token. Verified zero direct hex consumers across
+     components / pages / composables / layouts / stores prior to swap (Day 1,
+     2026-06-04). Day-2 audit grep targets if a stale ref shows up:
+     `grep -rn '1b4332\|012d1d\|2d6a4f' components pages composables layouts`. */
+
+  /* D11.5 a11y: amber-700 ensures text-on-amber-soft pairs pass WCAG AA. */
   --color-warning-amber: #b45309;
   --color-warning-amber-soft: #fde8c8;
   --color-danger-rose: #be123c;
@@ -16,23 +39,37 @@
   --color-gold: #c9a961;
   --color-gold-muted: #9c8554;
   --color-capacity-teal: #0891b2;
-  --color-surface: #f8f9f5;
+
+  /* Neutral surfaces — switched to neutral white + gray-50 (away from Phase-1
+     warm off-white #f8f9f5) so the revamp gradient bg has clean anchor
+     points. */
+  --color-surface: #ffffff;
   --color-surface-card: #ffffff;
-  --color-surface-low: #f3f4f1;
+  --color-surface-low: #f9fafb;
   --color-border: #e5e7eb;
-  --color-border-strong: #c1c8c2;
-  --color-text-primary: #1f2937;
-  --color-text-secondary: #6b7280;
-  --color-text-muted: #9ca3af;
+  --color-border-strong: #d1d5db;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
 
-  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: 'Geist Sans', system-ui, sans-serif;
 
-  --radius-input: 4px;
-  --radius-card: 8px;
+  --radius-input: 0.5rem;
+  --radius-card: 1rem;
+  --radius-2xl: 1rem;
   --radius-pill: 9999px;
 
-  --shadow-hero: 0 4px 12px rgba(0, 0, 0, 0.03);
-  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.08);
+  /* Soft shadow scale (shadcn-inspired). Phase-1 hero/modal shadows kept as
+     aliases for components still referencing them. */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px 0 rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 10px 24px 0 rgba(15, 23, 42, 0.08);
+  --shadow-hero: var(--shadow-md);
+  --shadow-modal: 0 20px 40px rgba(15, 23, 42, 0.12);
+}
+
+@utility bg-gradient-subtle {
+  background-image: linear-gradient(to bottom, #ffffff, #f9fafb);
 }
 
 @layer base {
@@ -54,7 +91,7 @@
   :focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: 4px;
   }
 }
 

@@ -25,6 +25,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
   const penghasilan = reactive<PenghasilanGaji>({ ...init.penghasilan })
   const penghasilanLain = ref<AssetRow[]>([...init.penghasilanLain])
   const pengeluaran = reactive({ ...init.pengeluaran })
+  const pengeluaranLain = ref<AssetRow[]>([...init.pengeluaranLain])
   const asetLikuid = reactive(init.asetLikuid)
   const asetNonLikuid = reactive(init.asetNonLikuid)
   const emas = reactive({ ...init.emas })
@@ -301,11 +302,34 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     penghasilanLain.value = penghasilanLain.value.filter((r) => r.id !== id)
   }
 
+  // Pengeluaran tambahan — same shape as penghasilanLain (id/label/amount/currency).
+  function addPengeluaranLain(partial: Partial<AssetRow> = {}): AssetRow {
+    const row: AssetRow = {
+      id: rid(),
+      label: partial.label ?? '',
+      amount: partial.amount ?? 0,
+      currency: partial.currency,
+    }
+    pengeluaranLain.value.push(row)
+    return row
+  }
+
+  function updatePengeluaranLain(id: string, patch: Partial<Omit<AssetRow, 'id'>>) {
+    const row = pengeluaranLain.value.find((r) => r.id === id)
+    if (!row) return
+    Object.assign(row, patch)
+  }
+
+  function removePengeluaranLain(id: string) {
+    pengeluaranLain.value = pengeluaranLain.value.filter((r) => r.id !== id)
+  }
+
   function reset() {
     const fresh = emptySnapshot()
     Object.assign(penghasilan, fresh.penghasilan)
     penghasilanLain.value = [...fresh.penghasilanLain]
     Object.assign(pengeluaran, fresh.pengeluaran)
+    pengeluaranLain.value = [...fresh.pengeluaranLain]
     ;(['kas', 'deposito', 'reksaDana', 'sbn'] as const).forEach(
       (k) => (asetLikuid[k] = []),
     )
@@ -325,6 +349,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     penghasilan,
     penghasilanLain,
     pengeluaran,
+    pengeluaranLain,
     asetLikuid,
     asetNonLikuid,
     emas,
@@ -366,6 +391,9 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     addPenghasilanLain,
     updatePenghasilanLain,
     removePenghasilanLain,
+    addPengeluaranLain,
+    updatePengeluaranLain,
+    removePengeluaranLain,
     reset,
   }
 })

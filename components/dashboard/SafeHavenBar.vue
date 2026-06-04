@@ -104,10 +104,10 @@ const option = computed(() => ({
               {{ percent(safePct, 1) }}
             </span>
           </div>
-          <p class="mt-0.5 text-[10px] text-[var(--color-text-muted)]">
+          <p class="mt-0.5 text-[11px] text-[var(--color-text-muted)]">
             {{ t('chart.safeHaven.safeDesc') }}
           </p>
-          <p class="tabular mt-0.5 text-[11px] text-[var(--color-text-secondary)]">
+          <p class="tabular mt-0.5 text-xs text-[var(--color-text-secondary)]">
             {{ idr(safeIdr) }}
           </p>
         </div>
@@ -121,10 +121,10 @@ const option = computed(() => ({
               {{ percent(growthPct, 1) }}
             </span>
           </div>
-          <p class="mt-0.5 text-[10px] text-[var(--color-text-muted)]">
+          <p class="mt-0.5 text-[11px] text-[var(--color-text-muted)]">
             {{ t('chart.safeHaven.growthDesc') }}
           </p>
-          <p class="tabular mt-0.5 text-[11px] text-[var(--color-text-secondary)]">
+          <p class="tabular mt-0.5 text-xs text-[var(--color-text-secondary)]">
             {{ idr(growthIdr) }}
           </p>
         </div>

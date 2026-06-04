@@ -25,22 +25,22 @@ const tabs: Tab[] = [
 <template>
   <!-- Desktop: row above the page content -->
   <nav
-    class="hidden border-b border-[var(--color-border)] bg-[var(--color-surface-card)] md:block"
+    class="sticky top-16 z-20 hidden border-b border-[var(--color-border)] bg-[var(--color-surface-card)]/90 backdrop-blur md:block"
   >
     <ul class="flex gap-1 px-2">
       <li v-for="tab in tabs" :key="tab.to">
         <NuxtLink
           v-if="tab.enabled"
           :to="tab.to"
-          class="inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-[var(--color-text-secondary)] transition hover:text-[var(--color-primary-dark)]"
-          active-class="border-[var(--color-primary)] text-[var(--color-primary-dark)]"
+          class="inline-flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-low)] hover:text-[var(--color-primary-dark)]"
+          active-class="!border-[var(--color-primary)] bg-[var(--color-primary)]/5 !text-[var(--color-primary)] font-semibold [&_svg]:text-[var(--color-primary)]"
         >
           <component :is="tab.icon" :size="16" />
           {{ t(tab.labelKey) }}
         </NuxtLink>
         <span
           v-else
-          class="inline-flex cursor-not-allowed items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-[var(--color-text-muted)]"
+          class="inline-flex cursor-not-allowed items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-[var(--color-text-muted)] opacity-60"
         >
           <component :is="tab.icon" :size="16" />
           {{ t(tab.labelKey) }}
@@ -56,22 +56,22 @@ const tabs: Tab[] = [
 
   <!-- Mobile: fixed bottom-nav (Day 0 lock: 4 modul = 4 tabs) -->
   <nav
-    class="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--color-border)] bg-[var(--color-surface-card)] md:hidden"
+    class="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--color-border)] bg-[var(--color-surface-card)] pb-[env(safe-area-inset-bottom)] md:hidden"
   >
     <ul class="grid grid-cols-4">
-      <li v-for="tab in tabs" :key="tab.to">
+      <li v-for="tab in tabs" :key="tab.to" class="relative">
         <NuxtLink
           v-if="tab.enabled"
           :to="tab.to"
-          class="flex flex-col items-center gap-1 py-2 text-[11px] font-medium text-[var(--color-text-secondary)]"
-          active-class="text-[var(--color-primary-dark)]"
+          class="relative flex flex-col items-center gap-1 py-2 text-[11px] font-medium text-[var(--color-text-muted)] transition-colors before:absolute before:left-1/2 before:top-0 before:h-0.5 before:w-0 before:-translate-x-1/2 before:rounded-full before:bg-[var(--color-primary)] before:transition-all"
+          active-class="text-[var(--color-primary)] font-semibold before:!w-8 [&_svg]:text-[var(--color-primary)]"
         >
           <component :is="tab.icon" :size="20" />
           {{ t(tab.labelKey) }}
         </NuxtLink>
         <span
           v-else
-          class="flex cursor-not-allowed flex-col items-center gap-1 py-2 text-[11px] font-medium text-[var(--color-text-muted)]"
+          class="flex cursor-not-allowed flex-col items-center gap-1 py-2 text-[11px] font-medium text-[var(--color-text-muted)] opacity-60"
         >
           <component :is="tab.icon" :size="20" />
           {{ t(tab.labelKey) }}

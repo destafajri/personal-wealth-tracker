@@ -42,7 +42,7 @@ describe('surplus / defaultAllocation', () => {
   it('surplus = penghasilan − pengeluaran (incl. cicilan)', () => {
     const s = baseSnap()
     s.penghasilan = { amount: 20_000_000, currency: 'IDR' }
-    s.pengeluaran = { pokok: 6_000_000, lifestyle: 2_000_000 }
+    s.pengeluaran = { pokok: 6_000_000, pokokCurrency: 'IDR', lifestyle: 2_000_000, lifestyleCurrency: 'IDR' }
     s.cicilanAktif.push({
       id: '1',
       tipe: 'KPR',
@@ -57,14 +57,14 @@ describe('surplus / defaultAllocation', () => {
   it('defaultAllocation = surplus / N', () => {
     const s = baseSnap()
     s.penghasilan = { amount: 15_000_000, currency: 'IDR' }
-    s.pengeluaran = { pokok: 5_000_000, lifestyle: 0 }
+    s.pengeluaran = { pokok: 5_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     expect(defaultAllocation(s, 2)).toBe(5_000_000) // 10jt / 2
   })
 
   it('returns 0 on negative surplus or zero goal count', () => {
     const s = baseSnap()
     s.penghasilan = { amount: 5_000_000, currency: 'IDR' }
-    s.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+    s.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     expect(defaultAllocation(s, 3)).toBe(0)
 
     const s2 = baseSnap()
@@ -106,7 +106,7 @@ describe('bucketValueIdr', () => {
 describe('resolveTargetIdr', () => {
   it('FI = totalPengeluaran × multiplier (overrides goal.targetIdr)', () => {
     const s = baseSnap()
-    s.pengeluaran = { pokok: 15_000_000, lifestyle: 3_000_000 }
+    s.pengeluaran = { pokok: 15_000_000, pokokCurrency: 'IDR', lifestyle: 3_000_000, lifestyleCurrency: 'IDR' }
     const fi: Goal = {
       id: 'g',
       kind: 'FI',
@@ -238,7 +238,7 @@ describe('goalProgress + calcGoalHealth', () => {
     const s = baseSnap()
     s.asetLikuid.kas.push({ id: '1', label: 'BCA', amount: 90_000_000 })
     s.penghasilan = { amount: 20_000_000, currency: 'IDR' }
-    s.pengeluaran = { pokok: 5_000_000, lifestyle: 0 }
+    s.pengeluaran = { pokok: 5_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     const dp: Goal = {
       id: 'g',
       kind: 'DP_RUMAH',
@@ -285,7 +285,7 @@ describe('goalProgress + calcGoalHealth', () => {
   it('calcGoalHealth: null when no goals; percent when mixed', () => {
     const s = baseSnap()
     s.penghasilan = { amount: 30_000_000, currency: 'IDR' }
-    s.pengeluaran = { pokok: 10_000_000, lifestyle: 0 }
+    s.pengeluaran = { pokok: 10_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     expect(calcGoalHealth([], s, { fiMultiplier: 300, annualReturnReal: 0.05 })).toBeNull()
 
     // Goal 1: easily on-track (small target, surplus covers it fast). Date far in future.

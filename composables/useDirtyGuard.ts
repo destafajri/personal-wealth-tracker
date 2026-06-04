@@ -24,6 +24,7 @@ export interface DirtySignals {
   penghasilanLainCount: number
   pengeluaranPokok: number
   pengeluaranLifestyle: number
+  pengeluaranLainCount: number
   totalAset: number
   cicilanCount: number
   utangPribadiCount: number
@@ -39,6 +40,7 @@ export function isSnapshotDirty(s: DirtySignals): boolean {
   if (s.penghasilanAmount > 0) return true
   if (s.penghasilanLainCount > 0) return true
   if (s.pengeluaranPokok > 0 || s.pengeluaranLifestyle > 0) return true
+  if (s.pengeluaranLainCount > 0) return true
   if (s.totalAset > 0) return true
   if (s.cicilanCount > 0) return true
   if (s.utangPribadiCount > 0) return true
@@ -59,6 +61,7 @@ export function useDirtyGuard(): void {
       penghasilanLainCount: snap.penghasilanLain.length,
       pengeluaranPokok: snap.pengeluaran.pokok,
       pengeluaranLifestyle: snap.pengeluaran.lifestyle,
+      pengeluaranLainCount: snap.pengeluaranLain.length,
       totalAset: derived.totalAset,
       cicilanCount: snap.cicilanAktif.length,
       utangPribadiCount: snap.utangPribadi.length,

@@ -38,6 +38,7 @@ function snapshotView() {
     penghasilan: snapStore.penghasilan,
     penghasilanLain: snapStore.penghasilanLain,
     pengeluaran: snapStore.pengeluaran,
+  pengeluaranLain: snapStore.pengeluaranLain,
     asetLikuid: snapStore.asetLikuid,
     asetNonLikuid: snapStore.asetNonLikuid,
     emas: snapStore.emas,

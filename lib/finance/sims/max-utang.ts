@@ -85,7 +85,7 @@ export function runMaxUtang(
 
   // Burn-rate advisory: if Total Pengeluaran already > penghasilan, headroom is misleading
   // because user is bleeding cash. Surface as warning but still compute scenarios.
-  const totalBurn = calcTotalPengeluaran(snap)
+  const totalBurn = calcTotalPengeluaran(snap, prices)
   if (totalBurn > penghasilan) {
     warnings.push(t('sim.maxUtang.warning.burnOverIncome'))
   }

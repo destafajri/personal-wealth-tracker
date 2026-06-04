@@ -51,8 +51,11 @@ export function useXlsx() {
       penghasilanLain: [...snap.penghasilanLain],
       pengeluaran: {
         pokok: snap.pengeluaran.pokok,
+        pokokCurrency: snap.pengeluaran.pokokCurrency,
         lifestyle: snap.pengeluaran.lifestyle,
+        lifestyleCurrency: snap.pengeluaran.lifestyleCurrency,
       },
+      pengeluaranLain: [...snap.pengeluaranLain],
       asetLikuid: {
         kas: [...snap.asetLikuid.kas],
         deposito: [...snap.asetLikuid.deposito],

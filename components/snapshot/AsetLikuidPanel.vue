@@ -1,15 +1,30 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import AssetRowList from '~/components/snapshot/AssetRowList.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { t } from '~/lib/copy/strings'
 import type { LiquidAssetCategory } from '~/lib/types/snapshot'
+
+// Phase-2a Day 5 — `categories` + `hideHeader` props let snapshot.vue render this
+// panel twice with different slices (kas under "Kas & Tabungan" tab, depo+RD+SBN
+// under "Investasi Pasif" tab) without touching store shape or row logic.
+const props = withDefaults(
+  defineProps<{
+    categories?: LiquidAssetCategory[]
+    hideHeader?: boolean
+  }>(),
+  {
+    categories: () => ['kas', 'deposito', 'reksaDana', 'sbn'],
+    hideHeader: false,
+  },
+)
 
 const snap = useSnapshotStore()
 
 // `withInterest` marks categories that surface a per-row suku bunga input. Sbn +
 // deposito are the only fixed-income-like bucket; bunga flows into PenghasilanForm as
 // auto-derived estimasi (mirrors saham dividen pattern).
-const categories: {
+const ALL_CATEGORIES: {
   key: LiquidAssetCategory
   titleKey: string
   withInterest?: boolean
@@ -23,6 +38,10 @@ const categories: {
   // (live unit-based OR manual IDR). See components/snapshot/CryptoPanel.vue.
 ]
 
+const visibleCategories = computed(() =>
+  ALL_CATEGORIES.filter((c) => props.categories.includes(c.key)),
+)
+
 // CopyKey type is exposed by strings.ts; using string casting to keep this generic.
 function label(key: string): string {
   return t(key as Parameters<typeof t>[0])
@@ -33,14 +52,14 @@ function label(key: string): string {
   <section
     class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
   >
-    <header class="mb-4">
+    <header v-if="!hideHeader" class="mb-4">
       <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
         {{ t('snapshot.section.asetLikuid') }}
       </h3>
     </header>
     <div class="space-y-5">
       <AssetRowList
-        v-for="cat in categories"
+        v-for="cat in visibleCategories"
         :key="cat.key"
         :title="label(cat.titleKey)"
         :rows="snap.asetLikuid[cat.key]"

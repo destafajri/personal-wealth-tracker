@@ -15,7 +15,7 @@ const OPTS: ModalOptionsInput = {
 function snapWithModal(modal: number): SnapshotState {
   const s = emptySnapshot()
   s.penghasilan = { amount: 20_000_000, currency: 'IDR' }
-  s.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+  s.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
   s.asetLikuid.kas.push({ id: 'k1', label: 'BCA', amount: modal })
   return s
 }
@@ -276,7 +276,7 @@ describe('runModalOptions — FI bucket options', () => {
     const s = snapWithModal(50_000_000)
     // Modest income but surplus enough to make FI projection finite
     s.penghasilan = { amount: 30_000_000, currency: 'IDR' }
-    s.pengeluaran = { pokok: 10_000_000, lifestyle: 0 }
+    s.pengeluaran = { pokok: 10_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     const r = runModalOptions(s, [fiGoal()], OPTS)
     const rd = r.options.find((o) => o.kind === 'tambah-reksaDana')
     expect(rd).toBeTruthy()

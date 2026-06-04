@@ -20,7 +20,7 @@ function baseInput(): GadaiInput {
 function snapWithEmas(): SnapshotState {
   const s = emptySnapshot()
   s.penghasilan = { amount: 20_000_000, currency: 'IDR' }
-  s.pengeluaran = { pokok: 6_000_000, lifestyle: 0 }
+  s.pengeluaran = { pokok: 6_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
   s.emas.fisikAntamGram = 50
   // Small init kas so before-DAR is computable (not null). Without prices the emas value
   // resolves to 0 in metric fns, so we need IDR-only aset to anchor the before side.
@@ -117,7 +117,7 @@ describe('runMauGadai', () => {
   it('warning when gramTertahan exceeds owned grams (Codex round-13)', () => {
     const snap = emptySnapshot() // no emas at all
     snap.penghasilan = { amount: 20_000_000, currency: 'IDR' }
-    snap.pengeluaran = { pokok: 6_000_000, lifestyle: 0 }
+    snap.pengeluaran = { pokok: 6_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     const r = runMauGadai(
       { ...baseInput(), gramTertahan: 20 }, // owns 0, requests 20
       snap,

@@ -73,6 +73,7 @@ export const useDerivedStore = defineStore('derived', () => {
     penghasilan: snap.penghasilan,
     penghasilanLain: snap.penghasilanLain,
     pengeluaran: snap.pengeluaran,
+    pengeluaranLain: snap.pengeluaranLain,
     asetLikuid: snap.asetLikuid,
     asetNonLikuid: snap.asetNonLikuid,
     emas: snap.emas,

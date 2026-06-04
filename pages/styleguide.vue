@@ -1,5 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { ArrowRight, Clock, CloudOff, FileText, Lock, Play, Shield, Wallet } from 'lucide-vue-next'
+// Explicit imports: Nuxt 3 auto-import prefixes components in subdirs
+// (components/common/X.vue -> <CommonX/>). Bare-name usage silently fails at
+// SSR (renders as anonymous, no build error). See memory note
+// `feedback-nuxt-component-subdir-prefix`.
+import Badge from '~/components/common/Badge.vue'
+import ButtonCTA from '~/components/common/ButtonCTA.vue'
+import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
+import ButtonSecondary from '~/components/common/ButtonSecondary.vue'
+import DisclaimerBanner from '~/components/common/DisclaimerBanner.vue'
+import IconChip from '~/components/common/IconChip.vue'
+import InputCurrency from '~/components/common/InputCurrency.vue'
+import InputQuantity from '~/components/common/InputQuantity.vue'
+import PillEstimasi from '~/components/common/PillEstimasi.vue'
+import PillLive from '~/components/common/PillLive.vue'
+import PillStale from '~/components/common/PillStale.vue'
+import StatusDot from '~/components/common/StatusDot.vue'
 
 definePageMeta({ layout: 'default' })
 
@@ -52,8 +70,8 @@ const tokens = [
 
     <h2 class="mt-10 text-lg font-semibold">Buttons</h2>
     <p class="mt-1 text-xs text-[var(--color-text-muted)]">
-      Implemented: default · hover · disabled · transition. Deferred (Day 3+):
-      explicit active, focus-visible ring, loading state.
+      Day 2: shadow-sm default + shadow-md hover (premium elevation) on Primary / Secondary.
+      Ghost stays flat. Deferred (Day 3+): explicit active, focus-visible ring, loading state.
     </p>
     <div class="mt-3 flex flex-wrap gap-3">
       <ButtonPrimary>Primary</ButtonPrimary>
@@ -61,6 +79,74 @@ const tokens = [
       <ButtonSecondary>Secondary</ButtonSecondary>
       <ButtonGhost>Ghost</ButtonGhost>
       <ButtonGhost danger>Reset Data</ButtonGhost>
+    </div>
+
+    <h2 class="mt-10 text-lg font-semibold">Button CTA (Day 2 — landing hero)</h2>
+    <p class="mt-1 text-xs text-[var(--color-text-muted)]">
+      Hero-grade CTA: solid (emerald-600 → emerald-700 on hover) vs outline
+      (emerald-50 fill, emerald-200 border). Used in landing card actions and
+      future Plan/Decide CTAs.
+    </p>
+    <div class="mt-3 flex flex-wrap gap-3">
+      <ButtonCTA>
+        Mulai
+        <ArrowRight class="h-4 w-4" />
+      </ButtonCTA>
+      <ButtonCTA variant="outline">
+        Coba
+        <ArrowRight class="h-4 w-4" />
+      </ButtonCTA>
+      <ButtonCTA size="md">Compact</ButtonCTA>
+      <ButtonCTA disabled>Disabled</ButtonCTA>
+    </div>
+    <div class="mt-3 grid max-w-md gap-3">
+      <ButtonCTA block>
+        Mulai
+        <ArrowRight class="h-4 w-4" />
+      </ButtonCTA>
+      <ButtonCTA block variant="outline">
+        Coba
+        <ArrowRight class="h-4 w-4" />
+      </ButtonCTA>
+    </div>
+
+    <h2 class="mt-10 text-lg font-semibold">Badges (Day 2 — hero pills)</h2>
+    <p class="mt-1 text-xs text-[var(--color-text-muted)]">
+      Icon + text pill for hero trust chips ("Tanpa daftar", "Tanpa cloud") and
+      section labels ("Kalkulator Keuangan Pribadi"). Variants: emerald / neutral
+      / amber.
+    </p>
+    <div class="mt-3 flex flex-wrap items-center gap-3">
+      <Badge>
+        <template #icon><Shield class="h-3.5 w-3.5" /></template>
+        Kalkulator Keuangan Pribadi
+      </Badge>
+      <Badge>
+        <template #icon><Lock class="h-3.5 w-3.5" /></template>
+        Tanpa daftar
+      </Badge>
+      <Badge>
+        <template #icon><CloudOff class="h-3.5 w-3.5" /></template>
+        Tanpa cloud
+      </Badge>
+      <Badge variant="neutral">
+        <template #icon><Clock class="h-3.5 w-3.5" /></template>
+        Cek Keuangan dalam 10 Menit
+      </Badge>
+      <Badge variant="amber" size="md">Beta</Badge>
+    </div>
+
+    <h2 class="mt-10 text-lg font-semibold">Icon Chips (Day 2 — card icons)</h2>
+    <p class="mt-1 text-xs text-[var(--color-text-muted)]">
+      Soft-bg square holder for the icon at top of landing CTA cards and section
+      headers. Variants: emerald (primary card) / neutral (secondary) / amber / rose.
+    </p>
+    <div class="mt-3 flex flex-wrap items-center gap-3">
+      <IconChip><FileText class="h-5 w-5" /></IconChip>
+      <IconChip variant="neutral"><Play class="h-5 w-5" /></IconChip>
+      <IconChip variant="amber"><Wallet class="h-5 w-5" /></IconChip>
+      <IconChip variant="rose"><Shield class="h-5 w-5" /></IconChip>
+      <IconChip size="lg"><Wallet class="h-6 w-6" /></IconChip>
     </div>
 
     <h2 class="mt-10 text-lg font-semibold">Inputs</h2>

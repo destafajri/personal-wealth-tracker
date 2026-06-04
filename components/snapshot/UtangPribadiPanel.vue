@@ -8,6 +8,8 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
 
+defineProps<{ hideHeader?: boolean }>()
+
 const snap = useSnapshotStore()
 
 const rows = computed(() => snap.utangPribadi)
@@ -21,19 +23,19 @@ const totalCicilan = computed(() =>
   <section
     class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
   >
-    <header class="mb-3 flex flex-wrap items-center justify-between gap-2">
-      <div>
-        <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
-          {{ t('snapshot.section.utangPribadi') }}
-        </h3>
-        <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
-          {{ t('utangPribadi.help') }}
-        </p>
-      </div>
+    <header v-if="!hideHeader" class="mb-3">
+      <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
+        {{ t('snapshot.section.utangPribadi') }}
+      </h3>
+      <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+        {{ t('utangPribadi.help') }}
+      </p>
+    </header>
+    <div class="mb-3 flex justify-end">
       <ButtonGhost @click="snap.addUtangPribadi()">
         {{ t('utangPribadi.add') }}
       </ButtonGhost>
-    </header>
+    </div>
 
     <p
       v-if="rows.length === 0"

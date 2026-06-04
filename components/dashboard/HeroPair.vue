@@ -24,6 +24,7 @@ const snapshotView = computed(() => ({
   penghasilan: snapStore.penghasilan,
   penghasilanLain: snapStore.penghasilanLain,
   pengeluaran: snapStore.pengeluaran,
+  pengeluaranLain: snapStore.pengeluaranLain,
   asetLikuid: snapStore.asetLikuid,
   asetNonLikuid: snapStore.asetNonLikuid,
   emas: snapStore.emas,
@@ -78,7 +79,7 @@ const anyChipVisible = computed(() => chips.value.some((c) => c.hasValue))
         </button>
       </header>
       <p
-        class="tabular mt-2 text-2xl font-bold"
+        class="tabular mt-2 break-all text-2xl font-bold"
         :class="derived.netWorth < 0
           ? 'text-[var(--color-danger-rose)]'
           : 'text-[var(--color-primary-dark)]'"
@@ -119,7 +120,7 @@ const anyChipVisible = computed(() => chips.value.some((c) => c.hasValue))
           <Info :size="13" />
         </button>
       </header>
-      <p class="tabular mt-2 text-2xl font-bold text-[var(--color-capacity-teal)]">
+      <p class="tabular mt-2 break-all text-2xl font-bold text-[var(--color-capacity-teal)]">
         {{ idr(derived.modalSiap) }}
       </p>
       <p class="mt-1 text-[11px] italic text-[var(--color-text-muted)]">

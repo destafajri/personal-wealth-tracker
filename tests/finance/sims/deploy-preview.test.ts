@@ -18,7 +18,7 @@ const ALL_INCLUDES: ModalSiapIncludes = { saham: true, emas: true, sbn: true }
 function baseSnap(): SnapshotState {
   const s = emptySnapshot()
   s.penghasilan = { amount: 20_000_000, currency: 'IDR' }
-  s.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+  s.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
   return s
 }
 

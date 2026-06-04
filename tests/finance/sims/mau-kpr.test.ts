@@ -27,7 +27,7 @@ function baseInput(): KprInput {
 function richSnap(): SnapshotState {
   const s = emptySnapshot()
   s.penghasilan = { amount: 25_000_000, currency: 'IDR' }
-  s.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+  s.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
   s.asetLikuid.kas.push({ id: 'k1', label: 'BCA', amount: 500_000_000 })
   return s
 }
@@ -107,7 +107,7 @@ describe('runMauKpr — golden fixture', () => {
   it('emits warning when DP exceeds liquid (waterfall leftover > 0)', () => {
     const snap = emptySnapshot()
     snap.penghasilan = { amount: 25_000_000, currency: 'IDR' }
-    snap.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+    snap.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     snap.asetLikuid.kas.push({ id: 'k1', label: 'BCA', amount: 100_000_000 })
     // DP 240jt vs 100jt liquid → 140jt shortfall
     const r = runMauKpr(baseInput(), snap, [], {
@@ -155,7 +155,7 @@ describe('runMauKpr — FX-aware DP waterfall (Codex round-12 fix)', () => {
   it('USD deposito drained in source currency, not raw IDR', () => {
     const snap = emptySnapshot()
     snap.penghasilan = { amount: 25_000_000, currency: 'IDR' }
-    snap.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+    snap.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     // USD 20_000 × 16_000 = Rp 320jt IDR equivalent
     snap.asetLikuid.deposito.push({
       id: 'd1',
@@ -183,7 +183,7 @@ describe('runMauKpr — FX-aware DP waterfall (Codex round-12 fix)', () => {
   it('skips rows with stale FX rate (no silent drain of foreign liquid)', () => {
     const snap = emptySnapshot()
     snap.penghasilan = { amount: 25_000_000, currency: 'IDR' }
-    snap.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+    snap.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     snap.asetLikuid.deposito.push({
       id: 'd1',
       label: 'BCA Dollar',
@@ -205,7 +205,7 @@ describe('runMauKpr — FX-aware DP waterfall (Codex round-12 fix)', () => {
   it('mixed IDR + USD waterfall drains IDR first, then foreign', () => {
     const snap = emptySnapshot()
     snap.penghasilan = { amount: 25_000_000, currency: 'IDR' }
-    snap.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+    snap.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     // Kas 100jt IDR + deposito USD 10_000 (= 160jt IDR @ 16k rate) = 260jt total liquid
     snap.asetLikuid.kas.push({ id: 'k1', label: 'BCA', amount: 100_000_000 })
     snap.asetLikuid.deposito.push({

@@ -31,7 +31,7 @@ function baseInput(): CicilInput {
 function richSnap(): SnapshotState {
   const s = emptySnapshot()
   s.penghasilan = { amount: 15_000_000, currency: 'IDR' }
-  s.pengeluaran = { pokok: 5_000_000, lifestyle: 0 }
+  s.pengeluaran = { pokok: 5_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
   s.asetLikuid.kas.push({ id: 'k1', label: 'BCA', amount: 50_000_000 })
   return s
 }
@@ -100,7 +100,7 @@ describe('runMauCicil', () => {
   it('FX-aware waterfall (USD deposito drained correctly)', () => {
     const snap = emptySnapshot()
     snap.penghasilan = { amount: 15_000_000, currency: 'IDR' }
-    snap.pengeluaran = { pokok: 5_000_000, lifestyle: 0 }
+    snap.pengeluaran = { pokok: 5_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     snap.asetLikuid.deposito.push({
       id: 'd1',
       label: 'USD Depo',

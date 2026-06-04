@@ -168,11 +168,22 @@ function sumCicilanPokok(snap: SnapshotState): number {
 // Public so goal projections (lib/finance/goals.ts) compute surplus against the same
 // definition the dashboard metrics use — drift would silently make goal cards disagree
 // with DSR / Runway / SavingsRate.
-export function calcTotalPengeluaran(snap: SnapshotState): number {
-  // PRD §5.1.3 / tech-design §6.1: pokok + lifestyle + Σ cicilan_per_bulan.
+export function calcTotalPengeluaran(snap: SnapshotState, prices?: PricesView): number {
+  // PRD §5.1.3 / tech-design §6.1: pokok + lifestyle + Σ pengeluaran lain + Σ cicilan_per_bulan.
+  // Pokok + lifestyle + lain rows are FX-converted to IDR via per-field currency; missing
+  // FX rate falls through to 0 (same stale-rate posture as sumRowsToIdr).
+  const pokokRate =
+    snap.pengeluaran.pokokCurrency === 'IDR'
+      ? 1
+      : (rateToIdr(snap.pengeluaran.pokokCurrency, prices?.fxRates) ?? 0)
+  const lifestyleRate =
+    snap.pengeluaran.lifestyleCurrency === 'IDR'
+      ? 1
+      : (rateToIdr(snap.pengeluaran.lifestyleCurrency, prices?.fxRates) ?? 0)
   return (
-    (snap.pengeluaran.pokok || 0) +
-    (snap.pengeluaran.lifestyle || 0) +
+    (snap.pengeluaran.pokok || 0) * pokokRate +
+    (snap.pengeluaran.lifestyle || 0) * lifestyleRate +
+    sumRowsToIdr(snap.pengeluaranLain, prices) +
     sumCicilanPerBulan(snap)
   )
 }
@@ -329,7 +340,7 @@ export function calcDar(snap: SnapshotState, prices?: PricesView): number | null
 // ----- 5. Runway — aset likuid / total pengeluaran (months) -----
 
 export function calcRunway(snap: SnapshotState, prices?: PricesView): number | null {
-  const burn = calcTotalPengeluaran(snap)
+  const burn = calcTotalPengeluaran(snap, prices)
   if (burn <= 0) return null
   // Likuid here = cash-equivalent + tradable financial assets. Excludes gold-tertahan
   // (pawned) since it can't be liquidated without tebus.
@@ -348,7 +359,7 @@ export function calcSavingsRate(
 ): number | null {
   const peng = totalPenghasilanMonthly(snap, prices)
   if (peng <= 0) return null
-  return ((peng - calcTotalPengeluaran(snap)) / peng) * 100
+  return ((peng - calcTotalPengeluaran(snap, prices)) / peng) * 100
 }
 
 // ----- 7. Safe Haven — (Kas + Deposito + SBN + RD-safe + Emas) / Total Aset (percent)

@@ -52,11 +52,11 @@ function hitung(opt: ModalOption) {
       {{ t('modal.options.modalSiapLabel', { amount: idr(derived.modalOptions.modalSiapIdr) }) }}
     </p>
 
-    <ol class="mt-3 space-y-2.5">
+    <ol class="mt-3 max-h-80 space-y-3 overflow-y-auto pr-1">
       <li
         v-for="(opt, i) in derived.modalOptions.options"
         :key="opt.id"
-        class="flex items-start gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-low)] p-3"
+        class="flex items-start gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-low)] p-4"
       >
         <span
           class="tabular shrink-0 text-xs font-semibold text-[var(--color-text-muted)]"
@@ -72,7 +72,7 @@ function hitung(opt: ModalOption) {
         </div>
         <button
           type="button"
-          class="shrink-0 rounded-[var(--radius-pill)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 py-1 text-xs font-medium text-[var(--color-primary)] transition hover:border-[var(--color-primary)] hover:bg-[var(--color-primary-container)]"
+          class="shrink-0 rounded-[var(--radius-pill)] bg-[var(--color-primary)] px-3 py-1 text-xs font-medium text-white shadow-[var(--shadow-sm)] transition hover:bg-[var(--color-primary-container)]"
           :aria-label="t('modal.options.hitungAria', { label: opt.label })"
           @click="hitung(opt)"
         >
