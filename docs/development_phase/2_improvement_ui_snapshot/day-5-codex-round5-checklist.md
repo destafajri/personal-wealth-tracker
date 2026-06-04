@@ -42,7 +42,7 @@
 ## What did NOT change
 - No lib/ files touched
 - No store files touched
-- No behaviour changes — all CSS/class-only
+- No behaviour changes — presentation-only (template classes), no logic changes
 - No new components
 - Chart data logic untouched (FX parity from round-4 preserved)
 
