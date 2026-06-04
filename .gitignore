@@ -44,3 +44,6 @@ venv/
 skills-lock.json
 
 .review/
+
+# Revamp reference: zips are canonical, extracted folders are local-only scratchpads
+docs/ide_4_revamp/reff/**/extracted/
