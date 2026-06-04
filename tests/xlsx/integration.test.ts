@@ -37,6 +37,7 @@ function snapStateFrom(snap: ReturnType<typeof useSnapshotStore>): SnapshotState
     penghasilan: { ...snap.penghasilan },
     penghasilanLain: [...snap.penghasilanLain],
     pengeluaran: { ...snap.pengeluaran },
+    pengeluaranLain: [...snap.pengeluaranLain],
     asetLikuid: {
       kas: [...snap.asetLikuid.kas],
       deposito: [...snap.asetLikuid.deposito],

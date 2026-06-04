@@ -8,7 +8,7 @@ import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
 function richSnap(): SnapshotState {
   const s = emptySnapshot()
   s.penghasilan = { amount: 25_000_000, currency: 'IDR' }
-  s.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+  s.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
   s.asetLikuid.kas.push({ id: 'k1', label: 'BCA', amount: 100_000_000 })
   return s
 }
@@ -197,7 +197,7 @@ describe('runLunasiUtang — Modal Siap shortfall', () => {
   it('emits warning when payment > kas+deposito+RD', () => {
     const snap = emptySnapshot()
     snap.penghasilan = { amount: 25_000_000, currency: 'IDR' }
-    snap.pengeluaran = { pokok: 8_000_000, lifestyle: 0 }
+    snap.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     snap.asetLikuid.kas.push({ id: 'k1', label: 'BCA', amount: 5_000_000 })
     snap.cicilanAktif.push({
       id: 'c1',

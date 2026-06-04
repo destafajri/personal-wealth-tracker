@@ -127,7 +127,7 @@ describe('calcModalSiap (D0.3: advisory only, no auto-subtract)', () => {
       units: 0,
       amount: 5_000_000,
     })
-    s.pengeluaran = { pokok: 10_000_000, lifestyle: 5_000_000 }
+    s.pengeluaran = { pokok: 10_000_000, pokokCurrency: 'IDR', lifestyle: 5_000_000, lifestyleCurrency: 'IDR' }
     // Should NOT subtract 6 × pengeluaran (= 90jt). Pure sum:
     expect(calcModalSiap(s)).toBe(50_000_000)
   })
@@ -372,7 +372,7 @@ describe('calcRunway', () => {
   it('= cash-like / total burn (months); burn includes cicilan', () => {
     const s = baseSnap()
     s.asetLikuid.kas.push(row(60_000_000))
-    s.pengeluaran = { pokok: 5_000_000, lifestyle: 2_000_000 }
+    s.pengeluaran = { pokok: 5_000_000, pokokCurrency: 'IDR', lifestyle: 2_000_000, lifestyleCurrency: 'IDR' }
     s.cicilanAktif.push({
       id: '1',
       tipe: 'KPR',
@@ -398,7 +398,7 @@ describe('calcRunway', () => {
       bungaPerBulanPercent: 1.5,
       tempoBulan: 4,
     })
-    s.pengeluaran = { pokok: 1_000_000, lifestyle: 0 }
+    s.pengeluaran = { pokok: 1_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     const prices = {
       goldDigitalIdrPerGram: 0,
       goldAntam1gIdr: 1_000_000,
@@ -422,7 +422,7 @@ describe('calcSavingsRate', () => {
   it('= (penghasilan − totalPengeluaran) / penghasilan × 100', () => {
     const s = baseSnap()
     s.penghasilan = { amount: 20_000_000, currency: 'IDR' }
-    s.pengeluaran = { pokok: 8_000_000, lifestyle: 4_000_000 }
+    s.pengeluaran = { pokok: 8_000_000, pokokCurrency: 'IDR', lifestyle: 4_000_000, lifestyleCurrency: 'IDR' }
     s.cicilanAktif.push({
       id: '1',
       tipe: 'KPR',
@@ -438,7 +438,7 @@ describe('calcSavingsRate', () => {
   it('can be negative when burn > penghasilan', () => {
     const s = baseSnap()
     s.penghasilan = { amount: 10_000_000, currency: 'IDR' }
-    s.pengeluaran = { pokok: 12_000_000, lifestyle: 0 }
+    s.pengeluaran = { pokok: 12_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
     expect(calcSavingsRate(s)).toBeCloseTo(-20, 6)
   })
 })

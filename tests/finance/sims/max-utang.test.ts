@@ -8,7 +8,7 @@ import { emptySnapshot, type SnapshotState } from '~/lib/types/snapshot'
 function baseSnap(): SnapshotState {
   const s = emptySnapshot()
   s.penghasilan = { amount: 15_000_000, currency: 'IDR' }
-  s.pengeluaran = { pokok: 5_000_000, lifestyle: 0 }
+  s.pengeluaran = { pokok: 5_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' }
   return s
 }
 
@@ -69,7 +69,7 @@ describe('runMaxUtang', () => {
 
   it('emits burn-over-income advisory when totalPengeluaran > penghasilan', () => {
     const s = baseSnap()
-    s.pengeluaran = { pokok: 20_000_000, lifestyle: 0 } // burn > 15jt income
+    s.pengeluaran = { pokok: 20_000_000, pokokCurrency: 'IDR', lifestyle: 0, lifestyleCurrency: 'IDR' } // burn > 15jt income
     const r = runMaxUtang(baseInput(), s, {})
     // Still computes headroom (no cicilan, just expense check)
     expect(r.warnings.length).toBeGreaterThan(0)

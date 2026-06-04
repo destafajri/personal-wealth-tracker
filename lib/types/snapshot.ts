@@ -194,8 +194,10 @@ export interface GadaiRow {
 }
 
 export interface Pengeluaran {
-  pokok: number // IDR/bulan
-  lifestyle: number // IDR/bulan
+  pokok: number // /bulan, currency-aware via pokokCurrency
+  pokokCurrency: Currency
+  lifestyle: number // /bulan, currency-aware via lifestyleCurrency
+  lifestyleCurrency: Currency
 }
 
 // Emas is split into 5 categories with distinct valuation rates (see lib/finance/emas.ts).
@@ -221,6 +223,9 @@ export interface SnapshotState {
   // (reuses AssetRow shape since the fields are identical: id/label/amount/currency).
   penghasilanLain: AssetRow[]
   pengeluaran: Pengeluaran
+  // Pengeluaran tambahan — multi-row (label + amount + per-row currency).
+  // Reuses AssetRow shape since fields overlap (id/label/amount/currency).
+  pengeluaranLain: AssetRow[]
   asetLikuid: Record<LiquidAssetCategory, AssetRow[]>
   asetNonLikuid: Record<NonLiquidAssetCategory, AssetRow[]>
   emas: EmasState
@@ -258,7 +263,13 @@ export function emptySnapshot(): SnapshotState {
   return {
     penghasilan: { amount: 0, currency: 'IDR' },
     penghasilanLain: [],
-    pengeluaran: { pokok: 0, lifestyle: 0 },
+    pengeluaran: {
+      pokok: 0,
+      pokokCurrency: 'IDR',
+      lifestyle: 0,
+      lifestyleCurrency: 'IDR',
+    },
+    pengeluaranLain: [],
     asetLikuid: {
       kas: [],
       deposito: [],

@@ -67,50 +67,41 @@ function idrEquivalent(row: AssetRow): number | null {
 
 <template>
   <div class="space-y-2">
-    <div class="flex items-center justify-between">
-      <h4 class="text-sm font-medium text-[var(--color-text-primary)]">{{ title }}</h4>
-      <ButtonGhost @click="emit('add')">
+    <div class="flex items-center justify-between gap-2">
+      <h4 class="min-w-0 truncate text-sm font-medium text-[var(--color-text-primary)]">
+        {{ title }}
+      </h4>
+      <ButtonGhost class="shrink-0" @click="emit('add')">
         {{ t('snapshot.row.add') }}
       </ButtonGhost>
     </div>
     <ul v-if="rows.length > 0" class="space-y-2">
       <li v-for="row in rows" :key="row.id" class="space-y-1">
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <input
             type="text"
             :value="row.label"
             :placeholder="t('snapshot.row.labelPlaceholder')"
-            class="h-12 flex-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            class="h-12 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] sm:basis-auto"
             @input="
               emit('update:label', row.id, ($event.target as HTMLInputElement).value)
             "
           >
-          <select
-            v-if="showCurrency"
-            :value="currencyOf(row)"
-            class="h-12 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-            @change="
-              emit(
-                'update:currency',
-                row.id,
-                ($event.target as HTMLSelectElement).value as Currency,
-              )
-            "
-          >
-            <option v-for="cur in CURRENCIES" :key="cur" :value="cur">{{ cur }}</option>
-          </select>
-          <div class="w-44">
+          <div class="min-w-0 flex-1 sm:w-52 sm:flex-initial">
             <InputCurrency
               :model-value="row.amount === 0 ? null : row.amount"
-              :prefix="PREFIX[currencyOf(row)]"
+              :prefix="showCurrency ? undefined : PREFIX[currencyOf(row)]"
+              :currency="showCurrency ? currencyOf(row) : undefined"
+              :currencies="showCurrency ? CURRENCIES : undefined"
               :placeholder="t('snapshot.row.idrPlaceholder')"
               @update:model-value="emit('update:amount', row.id, $event)"
+              @update:currency="(value) => emit('update:currency', row.id, value)"
             />
           </div>
           <button
             type="button"
             :aria-label="t('snapshot.row.remove')"
-            class="rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-low)] hover:text-[var(--color-danger-rose)]"
+            class="shrink-0 rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-low)] hover:text-[var(--color-danger-rose)]"
             @click="emit('remove', row.id)"
           >
             <X :size="16" />

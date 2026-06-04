@@ -8,6 +8,8 @@ import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
 import type { CicilanTipe } from '~/lib/types/snapshot'
 
+defineProps<{ hideHeader?: boolean }>()
+
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
 
@@ -46,20 +48,20 @@ const overPenghasilan = computed(
   <section
     class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
   >
-    <header class="mb-3 flex flex-wrap items-center justify-between gap-2">
+    <header v-if="!hideHeader" class="mb-3">
       <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
         {{ t('snapshot.section.cicilanAktif') }}
       </h3>
-      <div class="flex flex-wrap gap-1">
-        <ButtonGhost
-          v-for="qa in quickAdds"
-          :key="qa.tipe"
-          @click="snap.addCicilan({ tipe: qa.tipe, jenisBunga: qa.jenis })"
-        >
-          {{ t(qa.labelKey) }}
-        </ButtonGhost>
-      </div>
     </header>
+    <div class="mb-3 flex flex-wrap gap-1">
+      <ButtonGhost
+        v-for="qa in quickAdds"
+        :key="qa.tipe"
+        @click="snap.addCicilan({ tipe: qa.tipe, jenisBunga: qa.jenis })"
+      >
+        {{ t(qa.labelKey) }}
+      </ButtonGhost>
+    </div>
 
     <p
       v-if="rows.length === 0"

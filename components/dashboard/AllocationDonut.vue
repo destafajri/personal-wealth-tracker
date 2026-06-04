@@ -11,15 +11,18 @@ import { cssVar, registerEcharts } from './charts-register'
 registerEcharts()
 
 // Resolve design-token colors to actual hex once at mount — ECharts canvas can't read
-// CSS custom properties.
+// CSS custom properties. Sequence picks distinct hues so consecutive slices are visually
+// telling apart even when the data ordering puts close-valued emitens side-by-side
+// (--color-accent-emerald aliases --color-primary, so it was dropped to prevent dupes).
 const PALETTE = [
-  cssVar('--color-primary'),
-  cssVar('--color-accent-emerald'),
-  cssVar('--color-warning-amber'),
-  cssVar('--color-capacity-teal'),
-  cssVar('--color-danger-rose'),
-  cssVar('--color-primary-container'),
-  cssVar('--color-gold'),
+  cssVar('--color-primary'), // emerald
+  cssVar('--color-warning-amber'), // amber
+  cssVar('--color-capacity-teal'), // teal
+  cssVar('--color-danger-rose'), // rose
+  cssVar('--color-gold'), // gold
+  '#7c3aed', // violet
+  '#2563eb', // blue
+  cssVar('--color-primary-dark'), // dark emerald (fallback)
 ]
 
 const snap = useSnapshotStore()

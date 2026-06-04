@@ -27,6 +27,7 @@ const props = defineProps<{
   livePending?: boolean
   cooldownRemaining?: number
   onRefresh?: () => void | Promise<void>
+  hideHeader?: boolean
 }>()
 
 const snap = useSnapshotStore()
@@ -226,15 +227,15 @@ const total = computed(() =>
   <section
     class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
   >
-    <header class="mb-3">
-      <div class="flex items-start justify-between gap-3">
-        <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
+    <header v-if="!hideHeader || onRefresh" class="mb-3">
+      <div class="flex items-start gap-3">
+        <h3 v-if="!hideHeader" class="text-base font-semibold text-[var(--color-text-primary)]">
           {{ t('snapshot.section.crypto') }}
         </h3>
         <button
           v-if="onRefresh"
           type="button"
-          class="inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2 py-1 text-[11px] font-medium transition-colors"
+          class="ml-auto inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2 py-1 text-[11px] font-medium transition-colors"
           :class="
             liveError
               ? 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)] hover:bg-[var(--color-danger-rose-soft)]/80'
@@ -254,7 +255,7 @@ const total = computed(() =>
           }}</span>
         </button>
       </div>
-      <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+      <p v-if="!hideHeader" class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
         {{ t('snapshot.crypto.help') }}
       </p>
     </header>
