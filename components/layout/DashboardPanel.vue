@@ -53,11 +53,11 @@ const SafeHavenBar = defineAsyncComponent({
   <section class="flex flex-col gap-5 p-3" aria-live="polite" aria-atomic="false">
     <HeroPair />
     <MetricGrid />
-    <ModalOptionsPanel />
     <div v-if="hasAnyAsset" class="grid gap-4 sm:grid-cols-2">
       <AllocationDonut />
       <SafeHavenBar />
     </div>
     <GoalSummaryCards />
+    <ModalOptionsPanel />
   </section>
 </template>

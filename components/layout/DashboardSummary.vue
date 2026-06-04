@@ -136,7 +136,7 @@ const dsrZoneText = computed(() => {
 
 <template>
   <section
-    class="space-y-3 p-2.5"
+    class="space-y-4 p-3"
     aria-live="polite"
     aria-atomic="false"
   >
@@ -150,49 +150,51 @@ const dsrZoneText = computed(() => {
     </header>
 
     <!-- Flow bulanan -->
-    <div class="grid grid-cols-2 gap-1.5">
+    <div class="grid grid-cols-2 gap-2">
       <div
-        class="rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 py-1.5"
+        class="rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2.5 py-2"
       >
         <div class="flex items-center gap-1 text-[var(--color-text-secondary)]">
           <TrendingUp :size="11" class="text-[var(--color-primary)]" />
           <span class="text-[10px] font-medium">Pendapatan</span>
         </div>
-        <p class="mt-0.5 text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
+        <p class="mt-1 text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
           {{ idr(penghasilan) }}
         </p>
       </div>
       <div
-        class="rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 py-1.5"
+        class="rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2.5 py-2"
       >
         <div class="flex items-center gap-1 text-[var(--color-text-secondary)]">
           <TrendingDown :size="11" class="text-[var(--color-danger-rose)]" />
           <span class="text-[10px] font-medium">Pengeluaran</span>
         </div>
-        <p class="mt-0.5 text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
+        <p class="mt-1 text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
           {{ idr(pengeluaran) }}
         </p>
       </div>
     </div>
 
-    <!-- Surplus highlight -->
+    <!-- Surplus hero -->
     <div
       :class="[
-        'rounded-[var(--radius-input)] border px-2.5 py-2',
+        'rounded-[var(--radius-card)] px-3 py-3',
         surplusPositive
-          ? 'border-[var(--color-primary)]/20 bg-[var(--color-accent-emerald-soft)]'
-          : 'border-[var(--color-border)] bg-[var(--color-surface-card)]',
+          ? 'bg-gradient-to-br from-[var(--color-primary)]/12 via-[var(--color-accent-emerald-soft)] to-[var(--color-primary)]/5 ring-1 ring-[var(--color-primary)]/20'
+          : surplus < 0
+            ? 'bg-gradient-to-br from-[var(--color-danger-rose)]/10 via-[var(--color-danger-rose-soft)] to-[var(--color-danger-rose)]/5 ring-1 ring-[var(--color-danger-rose)]/15'
+            : 'bg-[var(--color-surface-card)] ring-1 ring-[var(--color-border)]',
       ]"
     >
-      <div class="flex items-center gap-1">
-        <Sparkles :size="11" class="text-[var(--color-primary)]" />
+      <div class="flex items-center gap-1.5">
+        <Sparkles :size="12" :class="surplusPositive ? 'text-[var(--color-primary)]' : surplus < 0 ? 'text-[var(--color-danger-rose)]' : 'text-[var(--color-text-muted)]'" />
         <span class="text-[10px] font-medium text-[var(--color-text-secondary)]">
           Surplus Bulanan
         </span>
       </div>
       <p
         :class="[
-          'mt-0.5 break-all text-base font-bold tabular-nums',
+          'mt-1 break-all text-lg font-bold tabular-nums leading-tight',
           surplusPositive
             ? 'text-[var(--color-primary)]'
             : surplus < 0
@@ -202,16 +204,16 @@ const dsrZoneText = computed(() => {
       >
         {{ surplus > 0 ? '+' : '' }}{{ idr(surplus) }}
       </p>
-      <p class="mt-px text-[10px] text-[var(--color-text-secondary)]">
+      <p class="mt-0.5 text-[10px] text-[var(--color-text-secondary)]">
         {{ surplusStatus }}
       </p>
     </div>
 
-    <!-- Per-section totals -->
-    <ul class="space-y-1">
-      <li class="flex items-center gap-1.5">
+    <!-- Per-section totals with colored left borders -->
+    <ul class="space-y-2">
+      <li class="flex items-center gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-primary)] bg-[var(--color-surface-card)] px-3 py-2">
         <span
-          class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-[var(--color-accent-emerald-soft)] text-[var(--color-primary)]"
+          class="grid h-6 w-6 shrink-0 place-items-center rounded bg-[var(--color-accent-emerald-soft)] text-[var(--color-primary)]"
         >
           <Wallet :size="12" :stroke-width="2" />
         </span>
@@ -222,9 +224,9 @@ const dsrZoneText = computed(() => {
           {{ idr(kas) }}
         </span>
       </li>
-      <li class="flex items-center gap-1.5">
+      <li class="flex items-center gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-warning-amber)] bg-[var(--color-surface-card)] px-3 py-2">
         <span
-          class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]"
+          class="grid h-6 w-6 shrink-0 place-items-center rounded bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]"
         >
           <BarChart3 :size="12" :stroke-width="2" />
         </span>
@@ -235,9 +237,9 @@ const dsrZoneText = computed(() => {
           {{ idr(investasi) }}
         </span>
       </li>
-      <li class="flex items-center gap-1.5">
+      <li class="flex items-center gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-text-muted)] bg-[var(--color-surface-card)] px-3 py-2">
         <span
-          class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-[var(--color-surface-low)] text-[var(--color-text-secondary)]"
+          class="grid h-6 w-6 shrink-0 place-items-center rounded bg-[var(--color-surface-low)] text-[var(--color-text-secondary)]"
         >
           <Home :size="12" :stroke-width="2" />
         </span>
@@ -248,9 +250,9 @@ const dsrZoneText = computed(() => {
           {{ idr(asetTetap) }}
         </span>
       </li>
-      <li class="flex items-center gap-1.5">
+      <li class="flex items-center gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-danger-rose)] bg-[var(--color-surface-card)] px-3 py-2">
         <span
-          class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]"
+          class="grid h-6 w-6 shrink-0 place-items-center rounded bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]"
         >
           <CreditCard :size="12" :stroke-width="2" />
         </span>
@@ -265,27 +267,24 @@ const dsrZoneText = computed(() => {
 
     <!-- Net Worth + composition donut -->
     <div
-      class="rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-2.5"
+      class="rounded-[var(--radius-card)] bg-[var(--color-surface-card)] p-3 ring-1 ring-[var(--color-border)]"
     >
-      <div class="flex items-center gap-2">
-        <div
-          class="relative grid h-12 w-12 shrink-0 place-items-center rounded-full"
-          :style="{ background: donutBg }"
-        >
-          <div class="h-7 w-7 rounded-full bg-[var(--color-surface-card)]" />
+      <div class="flex items-center gap-3">
+        <div class="relative grid h-14 w-14 shrink-0 place-items-center rounded-full shadow-[0_0_12px_rgba(5,150,105,0.15)]" :style="{ background: donutBg }">
+          <div class="h-8 w-8 rounded-full bg-[var(--color-surface-card)]" />
         </div>
         <div class="min-w-0 flex-1">
-          <p class="text-[10px] text-[var(--color-text-secondary)]">
+          <p class="text-[10px] font-medium text-[var(--color-text-secondary)]">
             Kekayaan Bersih
           </p>
-          <p class="break-all text-sm font-bold tabular-nums text-[var(--color-text-primary)]">
+          <p class="break-all text-base font-bold tabular-nums text-[var(--color-text-primary)]">
             {{ idr(netWorth) }}
           </p>
         </div>
       </div>
       <div
         v-if="hasComposition"
-        class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[9px] text-[var(--color-text-secondary)]"
+        class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] text-[var(--color-text-secondary)]"
       >
         <span class="flex items-center gap-1">
           <span class="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-primary)]" />

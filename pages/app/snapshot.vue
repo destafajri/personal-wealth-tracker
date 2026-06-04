@@ -501,14 +501,16 @@ watchEffect(() => {
             Ringkasan Keuanganmu
           </h2>
           <p class="mt-0.5 text-sm text-[var(--color-text-secondary)]">
-            Foto utuh: Net Worth, DSR, alokasi, dan KPI inti dari data yang sudah kamu input.
+            Gambaran menyeluruh kondisi keuanganmu — langsung dari data yang kamu isi.
           </p>
         </div>
       </header>
-      <SnapshotRecap />
+      <!-- Visual dashboard FIRST — TL;DR in 3 seconds -->
       <div class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-2 sm:p-3">
         <DashboardPanel />
       </div>
+      <!-- Detail breakdown BELOW — audit trail, grid 2-col on desktop -->
+      <SnapshotRecap />
     </div>
 
     <div

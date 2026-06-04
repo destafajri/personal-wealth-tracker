@@ -52,7 +52,7 @@ function hitung(opt: ModalOption) {
       {{ t('modal.options.modalSiapLabel', { amount: idr(derived.modalOptions.modalSiapIdr) }) }}
     </p>
 
-    <ol class="mt-3 space-y-2.5">
+    <ol class="mt-3 max-h-72 space-y-2.5 overflow-y-auto pr-1">
       <li
         v-for="(opt, i) in derived.modalOptions.options"
         :key="opt.id"

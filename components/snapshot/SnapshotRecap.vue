@@ -4,6 +4,7 @@ import {
   Banknote,
   BarChart3,
   Bitcoin,
+  ChevronDown,
   Coins,
   CreditCard,
   Home,
@@ -280,6 +281,31 @@ const hasAnyData = computed(
     utangPribadiRows.value.length > 0 ||
     gadaiRows.value.length > 0,
 )
+
+// Collapsible sections — default closed so the page is compact
+type SectionKey =
+  | 'penghasilan'
+  | 'pengeluaran'
+  | 'kas'
+  | 'investasi-pasif'
+  | 'investasi-pasar'
+  | 'aset-tetap'
+  | 'cicilan'
+  | 'utang-pribadi'
+  | 'gadai'
+
+const openSections = ref<Set<SectionKey>>(new Set())
+
+function toggleSection(key: SectionKey) {
+  const next = new Set(openSections.value)
+  if (next.has(key)) next.delete(key)
+  else next.add(key)
+  openSections.value = next
+}
+
+function isOpen(key: SectionKey) {
+  return openSections.value.has(key)
+}
 </script>
 
 <template>
@@ -289,448 +315,531 @@ const hasAnyData = computed(
         Detail Snapshot
       </h3>
       <p class="text-xs text-[var(--color-text-secondary)]">
-        Recap semua data yang sudah kamu input — bisa kamu cek sekali lagi sebelum lanjut ke Plan.
+        Recap semua data yang sudah kamu input. Klik section untuk buka detail.
       </p>
     </header>
 
-    <!-- ===== Penghasilan ===== -->
-    <article
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
-    >
-      <header class="mb-2 flex items-center gap-2">
-        <IconChip variant="emerald" size="md">
-          <TrendingUp :size="14" :stroke-width="1.75" />
-        </IconChip>
-        <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">
-          Penghasilan / bulan
-        </h4>
-        <span class="ml-auto min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
-          {{ idr(penghasilanTotal) }}
-        </span>
-      </header>
-      <ul class="divide-y divide-[var(--color-border)] text-sm">
-        <li v-if="gajiHasValue" class="flex items-baseline justify-between gap-3 py-1.5">
-          <span class="min-w-0 text-[var(--color-text-secondary)]">Gaji Bersih</span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ fmtMoney(snap.penghasilan.amount, snap.penghasilan.currency) }}
-          </span>
-        </li>
-        <li
-          v-for="row in penghasilanLainRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
+    <div class="grid items-start gap-3 sm:grid-cols-2">
+      <!-- ===== Penghasilan ===== -->
+      <article
+        class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center gap-2 p-3 text-left"
+          @click="toggleSection('penghasilan')"
         >
-          <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
-            {{ row.label || 'Penghasilan lain' }}
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ fmtMoney(row.amount, row.currency) }}
-          </span>
-        </li>
-        <li
-          v-if="derived.dividendMonthly > 0"
-          class="flex items-baseline justify-between gap-3 py-1.5 text-xs italic text-[var(--color-text-muted)]"
-        >
-          <span>Estimasi dividen saham (auto)</span>
-          <span class="shrink-0 tabular-nums">{{ idr(derived.dividendMonthly) }}</span>
-        </li>
-        <li
-          v-if="derived.bungaSbnMonthly > 0"
-          class="flex items-baseline justify-between gap-3 py-1.5 text-xs italic text-[var(--color-text-muted)]"
-        >
-          <span>Estimasi bunga SBN (auto)</span>
-          <span class="shrink-0 tabular-nums">{{ idr(derived.bungaSbnMonthly) }}</span>
-        </li>
-        <li
-          v-if="derived.bungaDepositoMonthly > 0"
-          class="flex items-baseline justify-between gap-3 py-1.5 text-xs italic text-[var(--color-text-muted)]"
-        >
-          <span>Estimasi bunga deposito (auto)</span>
-          <span class="shrink-0 tabular-nums">{{ idr(derived.bungaDepositoMonthly) }}</span>
-        </li>
-      </ul>
-    </article>
-
-    <!-- ===== Pengeluaran ===== -->
-    <article
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
-    >
-      <header class="mb-2 flex items-center gap-2">
-        <IconChip variant="rose" size="md">
-          <ShoppingCart :size="14" :stroke-width="1.75" />
-        </IconChip>
-        <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">
-          Pengeluaran / bulan
-        </h4>
-        <span class="ml-auto min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
-          {{ idr(pengeluaranTotal) }}
-        </span>
-      </header>
-      <ul class="divide-y divide-[var(--color-border)] text-sm">
-        <li
-          v-if="snap.pengeluaran.pokok > 0"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="text-[var(--color-text-secondary)]">Pokok</span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ fmtMoney(snap.pengeluaran.pokok, snap.pengeluaran.pokokCurrency) }}
-          </span>
-        </li>
-        <li
-          v-if="snap.pengeluaran.lifestyle > 0"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="text-[var(--color-text-secondary)]">Lifestyle</span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ fmtMoney(snap.pengeluaran.lifestyle, snap.pengeluaran.lifestyleCurrency) }}
-          </span>
-        </li>
-        <li
-          v-for="row in snap.pengeluaranLain"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
-            {{ row.label || 'Pengeluaran lain' }}
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ fmtMoney(row.amount, row.currency) }}
-          </span>
-        </li>
-        <li
-          v-if="totalCicilanMonthly > 0"
-          class="flex items-baseline justify-between gap-3 py-1.5 text-xs italic text-[var(--color-text-muted)]"
-        >
-          <span>Σ Cicilan aktif / bln (auto)</span>
-          <span class="shrink-0 tabular-nums">{{ idr(totalCicilanMonthly) }}</span>
-        </li>
-      </ul>
-    </article>
-
-    <!-- ===== Kas ===== -->
-    <article
-      v-if="kasRows.length > 0"
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
-    >
-      <header class="mb-2 flex items-center gap-2">
-        <IconChip variant="emerald" size="md">
-          <Wallet :size="14" :stroke-width="1.75" />
-        </IconChip>
-        <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Kas / Tabungan</h4>
-        <span class="ml-auto min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
-          {{ idr(kasTotal) }}
-        </span>
-      </header>
-      <ul class="divide-y divide-[var(--color-border)] text-sm">
-        <li
-          v-for="row in kasRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
-            {{ row.label || 'Kas' }}
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ fmtMoney(row.amount, row.currency) }}
-          </span>
-        </li>
-      </ul>
-    </article>
-
-    <!-- ===== Investasi Pasif ===== -->
-    <article
-      v-if="depositoRows.length + rdRows.length + sbnRows.length + emasRows.length > 0"
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
-    >
-      <header class="mb-2 flex items-center gap-2">
-        <IconChip variant="neutral" size="md">
-          <Landmark :size="14" :stroke-width="1.75" />
-        </IconChip>
-        <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Investasi Pasif</h4>
-        <span class="ml-auto min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
-          {{ idr(investasiPasifTotal + emasTotal) }}
-        </span>
-      </header>
-      <ul class="divide-y divide-[var(--color-border)] text-sm">
-        <li
-          v-for="row in depositoRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate">
-            <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Depo</span>
-            <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Deposito' }}</span>
-            <span v-if="row.sukuBungaPercent" class="ml-1 text-[10px] text-[var(--color-text-muted)]">
-              · {{ row.sukuBungaPercent }}%/th
-            </span>
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ fmtMoney(row.amount, row.currency) }}
-          </span>
-        </li>
-        <li
-          v-for="row in rdRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate">
-            <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">RD</span>
-            <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Reksa Dana' }}</span>
-            <span v-if="row.rdJenis" class="ml-1 text-[10px] text-[var(--color-text-muted)]">
-              · {{ row.rdJenis }}
-            </span>
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ fmtMoney(row.amount, row.currency) }}
-          </span>
-        </li>
-        <li
-          v-for="row in sbnRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate">
-            <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">SBN</span>
-            <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'SBN' }}</span>
-            <span v-if="row.sukuBungaPercent" class="ml-1 text-[10px] text-[var(--color-text-muted)]">
-              · {{ row.sukuBungaPercent }}%/th
-            </span>
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ fmtMoney(row.amount, row.currency) }}
-          </span>
-        </li>
-        <li
-          v-for="row in emasRows"
-          :key="row.label"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate">
-            <Coins :size="11" :stroke-width="1.75" class="-mt-0.5 mr-1 inline-block text-[var(--color-warning-amber)]" />
-            <span class="text-[var(--color-text-secondary)]">{{ row.label }}</span>
-            <span class="ml-1 text-[10px] text-[var(--color-text-muted)]">
-              · {{ row.gram }}g
-            </span>
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ idr(row.value) }}
-          </span>
-        </li>
-      </ul>
-    </article>
-
-    <!-- ===== Investasi Pasar ===== -->
-    <article
-      v-if="sahamRows.length + cryptoRows.length > 0"
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
-    >
-      <header class="mb-2 flex items-center gap-2">
-        <IconChip variant="amber" size="md">
-          <BarChart3 :size="14" :stroke-width="1.75" />
-        </IconChip>
-        <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Investasi Pasar</h4>
-        <span class="ml-auto min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
-          {{ idr(sahamTotal + cryptoTotal) }}
-        </span>
-      </header>
-      <ul class="divide-y divide-[var(--color-border)] text-sm">
-        <li
-          v-for="row in sahamRows"
-          :key="row.ticker"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate">
-            <LineChart :size="11" :stroke-width="1.75" class="-mt-0.5 mr-1 inline-block text-[var(--color-warning-amber)]" />
-            <span class="font-medium text-[var(--color-text-primary)]">{{ row.ticker }}</span>
-            <span class="ml-1 text-[10px] text-[var(--color-text-muted)]">
-              · {{ row.lot }} lot @ {{ idr(row.price) }}
-            </span>
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ idr(row.value) }}
-          </span>
-        </li>
-        <li
-          v-for="row in cryptoRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate">
-            <Bitcoin :size="11" :stroke-width="1.75" class="-mt-0.5 mr-1 inline-block text-[var(--color-warning-amber)]" />
-            <span class="font-medium uppercase text-[var(--color-text-primary)]">{{ row.label }}</span>
-            <span class="ml-1 text-[10px] text-[var(--color-text-muted)]">
-              · {{ row.detail }}
-            </span>
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ idr(row.value) }}
-          </span>
-        </li>
-      </ul>
-    </article>
-
-    <!-- ===== Aset Tetap ===== -->
-    <article
-      v-if="propertiRows.length + kendaraanRows.length + pensiunRows.length > 0"
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
-    >
-      <header class="mb-2 flex items-center gap-2">
-        <IconChip variant="neutral" size="md">
-          <Home :size="14" :stroke-width="1.75" />
-        </IconChip>
-        <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Aset Tetap</h4>
-        <span class="ml-auto min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
-          {{ idr(asetTetapTotal) }}
-        </span>
-      </header>
-      <ul class="divide-y divide-[var(--color-border)] text-sm">
-        <li
-          v-for="row in propertiRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate">
-            <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Properti</span>
-            <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Properti' }}</span>
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ idr(row.amount || 0) }}
-          </span>
-        </li>
-        <li
-          v-for="row in kendaraanRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate">
-            <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Kendaraan</span>
-            <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Kendaraan' }}</span>
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ idr(row.amount || 0) }}
-          </span>
-        </li>
-        <li
-          v-for="row in pensiunRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate">
-            <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Pensiun</span>
-            <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Pensiun' }}</span>
-          </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ idr(row.amount || 0) }}
-          </span>
-        </li>
-      </ul>
-    </article>
-
-    <!-- ===== Cicilan Aktif ===== -->
-    <article
-      v-if="cicilanRows.length > 0"
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
-    >
-      <header class="mb-2 flex items-center gap-2">
-        <IconChip variant="rose" size="md">
-          <CreditCard :size="14" :stroke-width="1.75" />
-        </IconChip>
-        <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Cicilan Aktif</h4>
-        <span class="ml-auto min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-danger-rose)]">
-          {{ idr(cicilanSisaTotal) }}
-        </span>
-      </header>
-      <ul class="divide-y divide-[var(--color-border)] text-sm">
-        <li
-          v-for="row in cicilanRows"
-          :key="row.id"
-          class="space-y-0.5 py-1.5"
-        >
-          <div class="flex items-baseline justify-between gap-3">
-            <span class="min-w-0 truncate">
-              <span class="text-[10px] uppercase tracking-wide text-[var(--color-danger-rose)]">{{ row.tipe }}</span>
-              <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || row.tipe }}</span>
-            </span>
-            <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-              {{ idr(row.sisaPokok || 0) }}
-            </span>
+          <IconChip variant="emerald" size="md">
+            <TrendingUp :size="14" :stroke-width="1.75" />
+          </IconChip>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">
+              Penghasilan / bulan
+            </h4>
           </div>
-          <p class="text-[10px] text-[var(--color-text-muted)]">
-            {{ idr(row.cicilanPerBulan || 0) }}/bln
-            <template v-if="row.sukuBunga !== undefined && row.sukuBunga !== null">
-              · {{ row.sukuBunga }}%/th
-            </template>
-          </p>
-        </li>
-      </ul>
-    </article>
-
-    <!-- ===== Utang Pribadi ===== -->
-    <article
-      v-if="utangPribadiRows.length > 0"
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
-    >
-      <header class="mb-2 flex items-center gap-2">
-        <IconChip variant="rose" size="md">
-          <Banknote :size="14" :stroke-width="1.75" />
-        </IconChip>
-        <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Utang Pribadi</h4>
-        <span class="ml-auto min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-danger-rose)]">
-          {{ idr(utangPribadiTotal) }}
-        </span>
-      </header>
-      <ul class="divide-y divide-[var(--color-border)] text-sm">
-        <li
-          v-for="row in utangPribadiRows"
-          :key="row.id"
-          class="flex items-baseline justify-between gap-3 py-1.5"
-        >
-          <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
-            {{ row.label || 'Utang pribadi' }}
+          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+            {{ idr(penghasilanTotal) }}
           </span>
-          <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-            {{ idr(row.sisaPokok || 0) }}
-          </span>
-        </li>
-      </ul>
-    </article>
+          <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('penghasilan') && 'rotate-180'" />
+        </button>
+        <div v-show="isOpen('penghasilan')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+          <ul class="divide-y divide-[var(--color-border)] text-sm">
+            <li v-if="gajiHasValue" class="flex items-baseline justify-between gap-3 py-1.5">
+              <span class="min-w-0 text-[var(--color-text-secondary)]">Gaji Bersih</span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ fmtMoney(snap.penghasilan.amount, snap.penghasilan.currency) }}
+              </span>
+            </li>
+            <li
+              v-for="row in penghasilanLainRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
+                {{ row.label || 'Penghasilan lain' }}
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ fmtMoney(row.amount, row.currency) }}
+              </span>
+            </li>
+            <li
+              v-if="derived.dividendMonthly > 0"
+              class="flex items-baseline justify-between gap-3 py-1.5 text-xs italic text-[var(--color-text-muted)]"
+            >
+              <span>Estimasi dividen saham (auto)</span>
+              <span class="shrink-0 tabular-nums">{{ idr(derived.dividendMonthly) }}</span>
+            </li>
+            <li
+              v-if="derived.bungaSbnMonthly > 0"
+              class="flex items-baseline justify-between gap-3 py-1.5 text-xs italic text-[var(--color-text-muted)]"
+            >
+              <span>Estimasi bunga SBN (auto)</span>
+              <span class="shrink-0 tabular-nums">{{ idr(derived.bungaSbnMonthly) }}</span>
+            </li>
+            <li
+              v-if="derived.bungaDepositoMonthly > 0"
+              class="flex items-baseline justify-between gap-3 py-1.5 text-xs italic text-[var(--color-text-muted)]"
+            >
+              <span>Estimasi bunga deposito (auto)</span>
+              <span class="shrink-0 tabular-nums">{{ idr(derived.bungaDepositoMonthly) }}</span>
+            </li>
+          </ul>
+        </div>
+      </article>
 
-    <!-- ===== Gadai ===== -->
-    <article
-      v-if="gadaiRows.length > 0"
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
-    >
-      <header class="mb-2 flex items-center gap-2">
-        <IconChip variant="rose" size="md">
-          <Lock :size="14" :stroke-width="1.75" />
-        </IconChip>
-        <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Gadai</h4>
-        <span class="ml-auto min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-danger-rose)]">
-          {{ idr(gadaiTotal) }}
-        </span>
-      </header>
-      <ul class="divide-y divide-[var(--color-border)] text-sm">
-        <li
-          v-for="row in gadaiRows"
-          :key="row.id"
-          class="space-y-0.5 py-1.5"
+      <!-- ===== Pengeluaran ===== -->
+      <article
+        class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center gap-2 p-3 text-left"
+          @click="toggleSection('pengeluaran')"
         >
-          <div class="flex items-baseline justify-between gap-3">
-            <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
-              Jaminan: <span class="text-[var(--color-text-primary)]">{{ row.jaminan }}</span>
-            </span>
-            <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
-              {{ idr(row.piutangIdr || 0) }}
-            </span>
+          <IconChip variant="rose" size="md">
+            <ShoppingCart :size="14" :stroke-width="1.75" />
+          </IconChip>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">
+              Pengeluaran / bulan
+            </h4>
           </div>
-          <p
-            v-if="row.gramTertahan && row.jaminan.startsWith('emas:')"
-            class="text-[10px] text-[var(--color-text-muted)]"
-          >
-            {{ row.gramTertahan }}g tertahan
-          </p>
-        </li>
-      </ul>
-    </article>
+          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+            {{ idr(pengeluaranTotal) }}
+          </span>
+          <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('pengeluaran') && 'rotate-180'" />
+        </button>
+        <div v-show="isOpen('pengeluaran')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+          <ul class="divide-y divide-[var(--color-border)] text-sm">
+            <li
+              v-if="snap.pengeluaran.pokok > 0"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="text-[var(--color-text-secondary)]">Pokok</span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ fmtMoney(snap.pengeluaran.pokok, snap.pengeluaran.pokokCurrency) }}
+              </span>
+            </li>
+            <li
+              v-if="snap.pengeluaran.lifestyle > 0"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="text-[var(--color-text-secondary)]">Lifestyle</span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ fmtMoney(snap.pengeluaran.lifestyle, snap.pengeluaran.lifestyleCurrency) }}
+              </span>
+            </li>
+            <li
+              v-for="row in snap.pengeluaranLain"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
+                {{ row.label || 'Pengeluaran lain' }}
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ fmtMoney(row.amount, row.currency) }}
+              </span>
+            </li>
+            <li
+              v-if="totalCicilanMonthly > 0"
+              class="flex items-baseline justify-between gap-3 py-1.5 text-xs italic text-[var(--color-text-muted)]"
+            >
+              <span>Σ Cicilan aktif / bln (auto)</span>
+              <span class="shrink-0 tabular-nums">{{ idr(totalCicilanMonthly) }}</span>
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- ===== Kas ===== -->
+      <article
+        v-if="kasRows.length > 0"
+        class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center gap-2 p-3 text-left"
+          @click="toggleSection('kas')"
+        >
+          <IconChip variant="emerald" size="md">
+            <Wallet :size="14" :stroke-width="1.75" />
+          </IconChip>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Kas / Tabungan</h4>
+          </div>
+          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+            {{ idr(kasTotal) }}
+          </span>
+          <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('kas') && 'rotate-180'" />
+        </button>
+        <div v-show="isOpen('kas')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+          <ul class="divide-y divide-[var(--color-border)] text-sm">
+            <li
+              v-for="row in kasRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
+                {{ row.label || 'Kas' }}
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ fmtMoney(row.amount, row.currency) }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- ===== Investasi Pasif ===== -->
+      <article
+        v-if="depositoRows.length + rdRows.length + sbnRows.length + emasRows.length > 0"
+        class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center gap-2 p-3 text-left"
+          @click="toggleSection('investasi-pasif')"
+        >
+          <IconChip variant="neutral" size="md">
+            <Landmark :size="14" :stroke-width="1.75" />
+          </IconChip>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Investasi Pasif</h4>
+          </div>
+          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+            {{ idr(investasiPasifTotal + emasTotal) }}
+          </span>
+          <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('investasi-pasif') && 'rotate-180'" />
+        </button>
+        <div v-show="isOpen('investasi-pasif')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+          <ul class="divide-y divide-[var(--color-border)] text-sm">
+            <li
+              v-for="row in depositoRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate">
+                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Depo</span>
+                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Deposito' }}</span>
+                <span v-if="row.sukuBungaPercent" class="ml-1 text-[10px] text-[var(--color-text-muted)]">
+                  · {{ row.sukuBungaPercent }}%/th
+                </span>
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ fmtMoney(row.amount, row.currency) }}
+              </span>
+            </li>
+            <li
+              v-for="row in rdRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate">
+                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">RD</span>
+                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Reksa Dana' }}</span>
+                <span v-if="row.rdJenis" class="ml-1 text-[10px] text-[var(--color-text-muted)]">
+                  · {{ row.rdJenis }}
+                </span>
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ fmtMoney(row.amount, row.currency) }}
+              </span>
+            </li>
+            <li
+              v-for="row in sbnRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate">
+                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">SBN</span>
+                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'SBN' }}</span>
+                <span v-if="row.sukuBungaPercent" class="ml-1 text-[10px] text-[var(--color-text-muted)]">
+                  · {{ row.sukuBungaPercent }}%/th
+                </span>
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ fmtMoney(row.amount, row.currency) }}
+              </span>
+            </li>
+            <li
+              v-for="row in emasRows"
+              :key="row.label"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate">
+                <Coins :size="11" :stroke-width="1.75" class="-mt-0.5 mr-1 inline-block text-[var(--color-warning-amber)]" />
+                <span class="text-[var(--color-text-secondary)]">{{ row.label }}</span>
+                <span class="ml-1 text-[10px] text-[var(--color-text-muted)]">
+                  · {{ row.gram }}g
+                </span>
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ idr(row.value) }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- ===== Investasi Pasar ===== -->
+      <article
+        v-if="sahamRows.length + cryptoRows.length > 0"
+        class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center gap-2 p-3 text-left"
+          @click="toggleSection('investasi-pasar')"
+        >
+          <IconChip variant="amber" size="md">
+            <BarChart3 :size="14" :stroke-width="1.75" />
+          </IconChip>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Investasi Pasar</h4>
+          </div>
+          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+            {{ idr(sahamTotal + cryptoTotal) }}
+          </span>
+          <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('investasi-pasar') && 'rotate-180'" />
+        </button>
+        <div v-show="isOpen('investasi-pasar')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+          <ul class="divide-y divide-[var(--color-border)] text-sm">
+            <li
+              v-for="row in sahamRows"
+              :key="row.ticker"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate">
+                <LineChart :size="11" :stroke-width="1.75" class="-mt-0.5 mr-1 inline-block text-[var(--color-warning-amber)]" />
+                <span class="font-medium text-[var(--color-text-primary)]">{{ row.ticker }}</span>
+                <span class="ml-1 text-[10px] text-[var(--color-text-muted)]">
+                  · {{ row.lot }} lot @ {{ idr(row.price) }}
+                </span>
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ idr(row.value) }}
+              </span>
+            </li>
+            <li
+              v-for="row in cryptoRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate">
+                <Bitcoin :size="11" :stroke-width="1.75" class="-mt-0.5 mr-1 inline-block text-[var(--color-warning-amber)]" />
+                <span class="font-medium uppercase text-[var(--color-text-primary)]">{{ row.label }}</span>
+                <span class="ml-1 text-[10px] text-[var(--color-text-muted)]">
+                  · {{ row.detail }}
+                </span>
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ idr(row.value) }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- ===== Aset Tetap ===== -->
+      <article
+        v-if="propertiRows.length + kendaraanRows.length + pensiunRows.length > 0"
+        class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center gap-2 p-3 text-left"
+          @click="toggleSection('aset-tetap')"
+        >
+          <IconChip variant="neutral" size="md">
+            <Home :size="14" :stroke-width="1.75" />
+          </IconChip>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Aset Tetap</h4>
+          </div>
+          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+            {{ idr(asetTetapTotal) }}
+          </span>
+          <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('aset-tetap') && 'rotate-180'" />
+        </button>
+        <div v-show="isOpen('aset-tetap')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+          <ul class="divide-y divide-[var(--color-border)] text-sm">
+            <li
+              v-for="row in propertiRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate">
+                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Properti</span>
+                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Properti' }}</span>
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ idr(row.amount || 0) }}
+              </span>
+            </li>
+            <li
+              v-for="row in kendaraanRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate">
+                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Kendaraan</span>
+                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Kendaraan' }}</span>
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ idr(row.amount || 0) }}
+              </span>
+            </li>
+            <li
+              v-for="row in pensiunRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate">
+                <span class="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)]">Pensiun</span>
+                <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || 'Pensiun' }}</span>
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ idr(row.amount || 0) }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- ===== Cicilan Aktif ===== -->
+      <article
+        v-if="cicilanRows.length > 0"
+        class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center gap-2 p-3 text-left"
+          @click="toggleSection('cicilan')"
+        >
+          <IconChip variant="rose" size="md">
+            <CreditCard :size="14" :stroke-width="1.75" />
+          </IconChip>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Cicilan Aktif</h4>
+          </div>
+          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-danger-rose)]">
+            {{ idr(cicilanSisaTotal) }}
+          </span>
+          <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('cicilan') && 'rotate-180'" />
+        </button>
+        <div v-show="isOpen('cicilan')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+          <ul class="divide-y divide-[var(--color-border)] text-sm">
+            <li
+              v-for="row in cicilanRows"
+              :key="row.id"
+              class="space-y-0.5 py-1.5"
+            >
+              <div class="flex items-baseline justify-between gap-3">
+                <span class="min-w-0 truncate">
+                  <span class="text-[10px] uppercase tracking-wide text-[var(--color-danger-rose)]">{{ row.tipe }}</span>
+                  <span class="ml-1 text-[var(--color-text-secondary)]">{{ row.label || row.tipe }}</span>
+                </span>
+                <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                  {{ idr(row.sisaPokok || 0) }}
+                </span>
+              </div>
+              <p class="text-[10px] text-[var(--color-text-muted)]">
+                {{ idr(row.cicilanPerBulan || 0) }}/bln
+                <template v-if="row.sukuBunga !== undefined && row.sukuBunga !== null">
+                  · {{ row.sukuBunga }}%/th
+                </template>
+              </p>
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- ===== Utang Pribadi ===== -->
+      <article
+        v-if="utangPribadiRows.length > 0"
+        class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center gap-2 p-3 text-left"
+          @click="toggleSection('utang-pribadi')"
+        >
+          <IconChip variant="rose" size="md">
+            <Banknote :size="14" :stroke-width="1.75" />
+          </IconChip>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Utang Pribadi</h4>
+          </div>
+          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-danger-rose)]">
+            {{ idr(utangPribadiTotal) }}
+          </span>
+          <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('utang-pribadi') && 'rotate-180'" />
+        </button>
+        <div v-show="isOpen('utang-pribadi')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+          <ul class="divide-y divide-[var(--color-border)] text-sm">
+            <li
+              v-for="row in utangPribadiRows"
+              :key="row.id"
+              class="flex items-baseline justify-between gap-3 py-1.5"
+            >
+              <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
+                {{ row.label || 'Utang pribadi' }}
+              </span>
+              <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                {{ idr(row.sisaPokok || 0) }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- ===== Gadai ===== -->
+      <article
+        v-if="gadaiRows.length > 0"
+        class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <button
+          type="button"
+          class="flex w-full items-center gap-2 p-3 text-left"
+          @click="toggleSection('gadai')"
+        >
+          <IconChip variant="rose" size="md">
+            <Lock :size="14" :stroke-width="1.75" />
+          </IconChip>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Gadai</h4>
+          </div>
+          <span class="min-w-0 break-all text-right text-sm font-semibold tabular-nums text-[var(--color-danger-rose)]">
+            {{ idr(gadaiTotal) }}
+          </span>
+          <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('gadai') && 'rotate-180'" />
+        </button>
+        <div v-show="isOpen('gadai')" class="max-h-72 overflow-y-auto border-t border-[var(--color-border)] px-3 pb-3">
+          <ul class="divide-y divide-[var(--color-border)] text-sm">
+            <li
+              v-for="row in gadaiRows"
+              :key="row.id"
+              class="space-y-0.5 py-1.5"
+            >
+              <div class="flex items-baseline justify-between gap-3">
+                <span class="min-w-0 truncate text-[var(--color-text-secondary)]">
+                  Jaminan: <span class="text-[var(--color-text-primary)]">{{ row.jaminan }}</span>
+                </span>
+                <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
+                  {{ idr(row.piutangIdr || 0) }}
+                </span>
+              </div>
+              <p
+                v-if="row.gramTertahan && row.jaminan.startsWith('emas:')"
+                class="text-[10px] text-[var(--color-text-muted)]"
+              >
+                {{ row.gramTertahan }}g tertahan
+              </p>
+            </li>
+          </ul>
+        </div>
+      </article>
+    </div>
   </section>
 </template>
