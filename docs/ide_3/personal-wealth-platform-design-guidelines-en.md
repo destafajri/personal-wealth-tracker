@@ -97,7 +97,7 @@ Both share the screen; progressive disclosure scales complexity. **No "Pro mode"
 
 **Brand personality:** Calm · Trustworthy · Privacy-First · Disciplined · Honest.
 
-The aesthetic is **modern minimalist with a clinical-warm character** — heavy whitespace, sophisticated off-white surfaces, precise typography. The product should feel like **a well-organized financial review session at a private banker who is on your side**, not a gamified retail trading app and not a Bloomberg terminal.
+The aesthetic is **modern minimalist with a clean, shadcn-inspired character** — heavy whitespace, neutral white surfaces with a subtle gradient page canvas, soft shadows on cards, precise typography (see §3.1 + §6 + §7 for the canonical token spec; Phase-1 read "clinical-warm" on warm off-white surfaces — see §3.3 for the swap record). The product should feel like **a well-organized financial review session at a private banker who is on your side**, not a gamified retail trading app and not a Bloomberg terminal.
 
 **Reference inspirations:**
 - ✅ A clean tax form that respects your time
