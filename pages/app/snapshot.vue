@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watchEffect } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import {
+  AlertTriangle,
   ArrowLeftRight,
   BarChart3,
   Banknote,
@@ -40,6 +41,8 @@ import UtangPribadiPanel from '~/components/snapshot/UtangPribadiPanel.vue'
 import GadaiPanel from '~/components/snapshot/GadaiPanel.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
+import { useGoalsStore } from '~/stores/goals'
+import { isSnapshotDirty } from '~/composables/useDirtyGuard'
 import { triggerDemoFromQuery } from '~/lib/fixtures/demoSnapshot'
 import {
   useCryptoPrices,
@@ -69,8 +72,32 @@ useSeoMeta({ title: `${t('snapshot.title')} — ${t('brand.name')}` })
 
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
+const goals = useGoalsStore()
 const route = useRoute()
 const router = useRouter()
+
+const hasData = computed(() =>
+  isSnapshotDirty({
+    isDemo: snap.isDemo,
+    goalsCount: goals.goals.length,
+    penghasilanAmount: snap.penghasilan.amount,
+    penghasilanLainCount: snap.penghasilanLain.length,
+    pengeluaranPokok: snap.pengeluaran.pokok,
+    pengeluaranLifestyle: snap.pengeluaran.lifestyle,
+    pengeluaranLainCount: snap.pengeluaranLain.length,
+    totalAset: derived.totalAset,
+    cicilanCount: snap.cicilanAktif.length,
+    utangPribadiCount: snap.utangPribadi.length,
+    gadaiCount: snap.gadai.length,
+  }),
+)
+
+onBeforeRouteLeave(() => {
+  if (!hasData.value) return true
+  return window.confirm(
+    `${t('dialog.leave.title')}\n\n${t('dialog.leave.body')}`,
+  )
+})
 
 onMounted(() => {
   triggerDemoFromQuery(snap, route, router)
@@ -286,6 +313,14 @@ watchEffect(() => {
         <X class="h-3 w-3" />
         {{ t('snapshot.demo.reset') }}
       </button>
+    </div>
+
+    <div
+      v-if="hasData && !snap.isDemo"
+      class="flex items-center gap-2 rounded-[var(--radius-card)] border border-[var(--color-warning-amber)]/30 bg-[var(--color-warning-amber)]/5 px-4 py-2.5 text-sm text-[var(--color-text-secondary)]"
+    >
+      <AlertTriangle class="h-4 w-4 shrink-0 text-[var(--color-warning-amber)]" />
+      <span>{{ t('snapshot.unsaved.banner') }}</span>
     </div>
 
     <SnapshotTabBar

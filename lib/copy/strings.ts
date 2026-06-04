@@ -36,6 +36,9 @@ export const copy = {
     'Hasil di sini cuma simulasi pakai data kamu. Cermat bukan penasihat keuangan atau produk berizin.',
 
   'dialog.refresh': 'Data kamu belum tersimpan. Yakin mau refresh?',
+  'dialog.leave.title': 'Yakin mau keluar?',
+  'dialog.leave.body': 'Data kamu belum tersimpan permanen. Kalau kamu pindah halaman sekarang, data yang sudah diisi akan hilang.',
+  'snapshot.unsaved.banner': 'Data disimpan sementara di memori browser — refresh atau tutup tab akan menghapusnya.',
 
   // D11.2 — Screen 12 negative Net Worth Status framing. Per design-guidelines
   // §10 + OJK posture: "Status" only, NEVER "Saran"/"Sebaiknya". Descriptive
