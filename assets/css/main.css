@@ -25,12 +25,11 @@
   --color-accent-emerald: var(--color-emerald-600);
   --color-accent-emerald-soft: var(--color-emerald-100);
 
-  /* Phase-1 deep-green tokens — DEPRECATED in Phase-2 revamp. Kept here for
-     Day 1 only so the Phase-1 components still render while Day 2 audit
-     replaces hardcoded refs. Remove after Day 2 primitives refactor. */
-  --color-primary-phase1: #1b4332;
-  --color-primary-dark-phase1: #012d1d;
-  --color-accent-emerald-phase1: #2d6a4f;
+  /* Phase-1 deep-green hex (`#1b4332` / `#012d1d` / `#2d6a4f`) is no longer
+     declared as a token. Verified zero direct hex consumers across
+     components / pages / composables / layouts / stores prior to swap (Day 1,
+     2026-06-04). Day-2 audit grep targets if a stale ref shows up:
+     `grep -rn '1b4332\|012d1d\|2d6a4f' components pages composables layouts`. */
 
   /* D11.5 a11y: amber-700 ensures text-on-amber-soft pairs pass WCAG AA. */
   --color-warning-amber: #b45309;

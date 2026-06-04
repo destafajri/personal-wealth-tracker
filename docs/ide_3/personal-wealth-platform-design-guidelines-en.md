@@ -6,30 +6,30 @@ language_primary: Bahasa Indonesia (casual register, "kamu" not "Anda")
 language_secondary: English (terminology only — Net Worth, DSR, etc.)
 platform: Web, desktop-first
 brand_personality: Calm · Trustworthy · Privacy-First · Disciplined · Honest
-colors:
-  primary: '#1B4332'             # Deep forest green — brand anchor, primary CTAs
-  primary-dark: '#012D1D'        # Hero numerals (Net Worth), strongest headers
-  primary-container: '#274E3D'   # Hover, container fills
-  accent-emerald: '#2D6A4F'      # Healthy thresholds, active progress
-  accent-emerald-soft: '#86AF99' # Progress bar fills, secondary indicators
-  warning-amber: '#D97706'       # Caution thresholds, stale data, ESTIMASI pills
+colors:                              # Phase-2 token snapshot (2026-06-04, Day 1) — see §3.3 for Phase-1 → Phase-2 swap record
+  primary: '#059669'             # Emerald-600 — brand anchor, primary CTAs
+  primary-dark: '#065F46'        # Emerald-800 — hero numerals (Net Worth), strongest headers
+  primary-container: '#047857'   # Emerald-700 — hover, container fills
+  accent-emerald: '#059669'      # Emerald-600 — healthy thresholds, active progress
+  accent-emerald-soft: '#D1FAE5' # Emerald-100 — subtotal cards, success tints, trust badges
+  warning-amber: '#B45309'       # Amber-700 (D11.5 a11y bump) — caution thresholds, stale data, ESTIMASI pills
   danger-rose: '#BE123C'         # Negative net worth, Bahaya zones, Risiko Likuidasi
   gold: '#C9A961'                # Emas Cadangan (physical reserve)
   gold-muted: '#9C8554'          # Emas Tertahan (gold pawned — visually says "not yours right now")
   capacity-teal: '#0891B2'       # Modal Siap Distribusi accent (paired with Net Worth)
-  surface: '#F8F9F5'             # Page canvas — warm off-white (NOT pure white)
+  surface: '#FFFFFF'             # Page canvas — neutral white (paired with bg-gradient-subtle)
   surface-card: '#FFFFFF'        # Elevated card surfaces
-  surface-low: '#F3F4F1'         # Sub-card / table-row alternating
+  surface-low: '#F9FAFB'         # Gray-50 — gradient bottom anchor, sub-card / table-row alternating
   surface-input: '#FFFFFF'       # Input field background
   border: '#E5E7EB'              # Default 1px borders
-  border-strong: '#C1C8C2'       # Focused border, tab underline
-  text-primary: '#1F2937'        # Body text, primary numbers
-  text-secondary: '#6B7280'      # Helper text, "Rp" prefix, labels
-  text-muted: '#9CA3AF'          # Disabled, empty-state placeholders
+  border-strong: '#D1D5DB'       # Gray-300 — focused border, tab underline
+  text-primary: '#0F172A'        # Slate-900 — body text, primary numbers
+  text-secondary: '#475569'      # Slate-600 — helper text, "Rp" prefix, labels
+  text-muted: '#94A3B8'          # Slate-400 — disabled, empty-state placeholders
   text-on-primary: '#FFFFFF'     # Text on primary-color buttons
-typography:
-  font_family_primary: Plus Jakarta Sans
-  font_family_numeric: Plus Jakarta Sans (font-variant-numeric: tabular-nums)
+typography:                          # Phase-2 swap (2026-06-04, Day 1) — see §4.3 for Phase-1 → Phase-2 record
+  font_family_primary: Geist Sans
+  font_family_numeric: Geist Sans (font-variant-numeric: tabular-nums)
   headline-hero:       { size: 48px, weight: 700, leading: 1.2, tracking: -0.02em } # Net Worth, Modal Siap
   headline-lg:         { size: 32px, weight: 600, leading: 1.3 }                    # Section titles
   headline-md:         { size: 24px, weight: 600, leading: 1.3 }                    # Sub-section
@@ -49,15 +49,20 @@ spacing:
   stack_md: 16px
   stack_lg: 24px
   stack_xl: 32px
-shapes:
-  radius_input: 4px      # Inputs, buttons, asset rows
-  radius_card: 8px       # Metric cards, sub-panels
-  radius_pill: 9999px    # Status dots, LIVE pills
-elevation:
-  level_0: none                                  # Background
-  level_1: 1px solid #E5E7EB                     # Cards, inputs (border-based, not shadow)
-  level_2: 0px 4px 12px rgba(0,0,0,0.03)         # Hero metric pair only (Net Worth + Modal Siap)
-  level_modal: 0px 20px 40px rgba(0,0,0,0.08)    # Simulator modals, confirm dialogs
+shapes:                              # Phase-2 swap (2026-06-04, Day 1) — see §7.1 for Phase-1 → Phase-2 record
+  radius_input: 0.5rem   # 8px — inputs, buttons, asset rows
+  radius_card: 1rem      # 16px — metric cards, sub-panels (~Tailwind rounded-2xl)
+  radius_2xl: 1rem       # alias of radius_card for Tailwind utility parity
+  radius_pill: 9999px    # status dots, LIVE pills
+elevation:                           # Phase-2 swap (2026-06-04, Day 1) — see §6 + §7.1 for Phase-1 → Phase-2 record
+  level_0: linear-gradient(to bottom, #FFFFFF, #F9FAFB)  # Page canvas (bg-gradient-subtle)
+  level_1: 1px solid #E5E7EB + shadow-sm                # Cards, inputs (default resting state)
+  level_2: shadow-md (0 4px 12px rgba(15,23,42,0.06))   # Hero metric pair + card hover lift
+  level_3: shadow-lg (0 10px 24px rgba(15,23,42,0.08))  # Sticky dashboard sidebar accent
+  level_modal: shadow-modal (0 20px 40px rgba(15,23,42,0.12))  # Simulator modals, confirm dialogs
+  shadow-sm: 0 1px 2px 0 rgba(15,23,42,0.04)
+  shadow-md: 0 4px 12px 0 rgba(15,23,42,0.06)
+  shadow-lg: 0 10px 24px 0 rgba(15,23,42,0.08)
 ---
 
 # Cermat — Complete Design Prompt for Stitch
@@ -127,38 +132,45 @@ The aesthetic is **modern minimalist with a clinical-warm character** — heavy 
 
 ## 3. Color System
 
-The palette is anchored in **forest greens + warm off-whites**, deliberately avoiding the ubiquitous "bank-blue" of local fintech, and the saturated palettes of consumer investing apps.
+The palette is anchored in **emerald + neutral white surfaces**, deliberately avoiding the ubiquitous "bank-blue" of local fintech, and the saturated palettes of consumer investing apps. (Phase-1 was forest-green-led on warm off-white; see §3.3 for the swap record.)
 
 ### 3.1 Semantic role of each color
 
 | Token | Hex | Use |
 |---|---|---|
-| **Primary** | `#1B4332` | Wordmark, primary CTAs ("Download .xlsx"), tab underline, key headings |
-| **Primary Dark** | `#012D1D` | **Hero numerals** (Net Worth + Modal Siap Distribusi), strongest headers |
-| **Accent Emerald** | `#2D6A4F` | Healthy thresholds, active progress bars, success states |
-| **Warning Amber** | `#D97706` | Caution thresholds (DSR 30–40%, Rasio Tertahan 50–70%), STALE badges, ESTIMASI pills |
+| **Primary** | `#059669` (emerald-600) | Wordmark, primary CTAs ("Download .xlsx"), tab underline, key headings |
+| **Primary Dark** | `#065F46` (emerald-800) | **Hero numerals** (Net Worth + Modal Siap Distribusi), strongest headers |
+| **Accent Emerald** | `#059669` (emerald-600) | Healthy thresholds, active progress bars, success states |
+| **Accent Emerald Soft** | `#D1FAE5` (emerald-100) | Subtotal cards, success-state tints, trust badges |
+| **Warning Amber** | `#B45309` (amber-700) | Caution thresholds (DSR 30–40%, Rasio Tertahan 50–70%), STALE badges, ESTIMASI pills (D11.5 a11y bump from `#D97706`) |
 | **Danger Rose** | `#BE123C` | Negative net worth, Bahaya zones, Risiko Likuidasi. Use sparingly. |
 | **Gold** | `#C9A961` | Emas Cadangan (physical reserve) — precious-asset signifier |
 | **Gold Muted** | `#9C8554` | Emas Tertahan (pawned) — visually says "not yours right now" |
 | **Capacity Teal** | `#0891B2` | Modal Siap Distribusi value + accents (subtle differentiation from health-metric green) |
-| **Surface** | `#F8F9F5` | Page canvas, warm off-white |
+| **Surface** | `#FFFFFF` | Page canvas (paired with gradient utility; see §3.2) |
 | **Surface Card** | `#FFFFFF` | Elevated cards |
+| **Surface Low** | `#F9FAFB` (gray-50) | Gradient bottom anchor, secondary surface |
 | **Border** | `#E5E7EB` | Default 1px borders on inputs, asset rows, dividers |
+| **Border Strong** | `#D1D5DB` (gray-300) | Emphasized borders on focused/selected inputs |
+| **Text Primary** | `#0F172A` (slate-900) | Headings, primary body, metric values |
+| **Text Secondary** | `#475569` (slate-600) | Field labels, helper text, `Rp` prefix |
+| **Text Muted** | `#94A3B8` (slate-400) | Placeholders, low-priority annotations |
 
 ### 3.2 Color logic rules
 
-- **Surfaces are tonal, not shadowed** — use color depth (`#F8F9F5` background, pure `#FFFFFF` cards) rather than drop shadows for hierarchy
-- **Only Net Worth + Modal Siap Distribusi hero pair** gets a subtle shadow (`0px 4px 12px rgba(0,0,0,0.03)`)
+- **Page canvas uses a subtle gradient** — `@utility bg-gradient-subtle` (`linear-gradient(to bottom, #FFFFFF, #F9FAFB)`) under split-screen shell + landing hero; cards remain solid `#FFFFFF` for clean hierarchy
+- **Cards take soft drop-shadows** — see §7.1 for the `shadow-sm` / `shadow-md` / `shadow-lg` scale; the Phase-1 "hero-pair-only shadow" rule is relaxed in Phase-2
 - **Status dots are 8px circles** in green/amber/rose — top-right of each metric card, ALWAYS paired with a text label (color is never the sole signal)
 - **Gold uses muted ochre** (`#C9A961`), never bright/yellow — gold is precious, not playful
 - **Capacity Teal is reserved for Modal Siap Distribusi UI** — not used elsewhere, to keep its meaning specific
+- **`theme-color` browser meta** = `#059669` (matches Primary; affects mobile browser chrome)
 - **No dark mode** in this scope
 
-### 3.3 Phase-2 revamp delta (2026-06-04, Day 1)
+### 3.3 Phase-1 → Phase-2 transition record (2026-06-04, Day 1)
 
-Phase-2 swaps the **forest-green-led** Phase-1 palette for an **emerald-led** Tailwind palette. Rationale: revamp aesthetic targets a shadcn-inspired "lebih tampan" trust signal. Forest-green tokens are kept aliased during Day 1 only and removed during Day 2 primitives refactor.
+This sub-section documents what changed when Phase-2 swapped the palette. §3.1 and §3.2 above are the current Phase-2 canonical truth; this table is kept for review/audit history of the swap.
 
-| Token | Phase-1 | Phase-2 revamp |
+| Token | Phase-1 (was) | Phase-2 (now) |
 |---|---|---|
 | **Primary** | `#1B4332` forest | `#059669` emerald-600 |
 | **Primary Dark** | `#012D1D` | `#065F46` emerald-800 |
@@ -172,19 +184,15 @@ Phase-2 swaps the **forest-green-led** Phase-1 palette for an **emerald-led** Ta
 | **Text Secondary** | `#6B7280` | `#475569` slate-600 |
 | **Text Muted** | `#9CA3AF` | `#94A3B8` slate-400 |
 
-Unchanged across Phase-2: warning amber, danger rose, gold + gold-muted, capacity teal — these still carry their Phase-1 semantic meaning.
+Unchanged across Phase-2: warning amber, danger rose, gold + gold-muted, capacity teal — these still carry their Phase-1 semantic meaning. Page canvas shifted from warm off-white to neutral white + gray-50 gradient (per §3.2). Card surface stays `#FFFFFF`. `theme-color` meta `#1B4332` → `#059669`.
 
-**Gradient bg note:** revamp introduces a subtle page-level gradient via `@utility bg-gradient-subtle` (`linear-gradient(to bottom, #fff, #f9fafb)`). Used as page canvas under split-screen shell + landing hero. Not applied to cards (cards remain solid `#FFFFFF` per §3.1).
-
-**`theme-color` meta:** updated `#1B4332` → `#059669` to match new primary; affects mobile browser chrome.
+Verified zero Phase-1 hex literal consumers (`#1B4332` / `#012D1D` / `#2D6A4F`) across `components/`, `pages/`, `composables/`, `layouts/`, `stores/` at swap time, so no compat-shim tokens were needed.
 
 ---
 
 ## 4. Typography
 
-**Plus Jakarta Sans** for everything. **Tabular figures (`font-variant-numeric: tabular-nums`) is non-negotiable on every number** — financial data must align in vertical scans.
-
-> **Phase-2 revamp delta (2026-06-04, Day 1):** typeface swapped to **Geist Sans** (self-hosted via `@fontsource/geist-sans`, weights 400/500/600/700). Geist's tighter forms + neutral character set match the shadcn-inspired aesthetic and the "lebih tampan" trust target. **Type scale (§4.1) unchanged** — same step ladder, same tabular-nums rule. Plus Jakarta Sans is uninstalled after Day 2 confirms no fallback usage.
+**Geist Sans** for everything (self-hosted via `@fontsource/geist-sans`, weights 400 / 500 / 600 / 700). **Tabular figures (`font-variant-numeric: tabular-nums`) is non-negotiable on every number** — financial data must align in vertical scans. (Phase-1 used Plus Jakarta Sans; see §4.3 for the swap record.)
 
 ### 4.1 Type scale
 
@@ -201,10 +209,20 @@ Unchanged across Phase-2: warning amber, danger rose, gold + gold-muted, capacit
 ### 4.2 Currency rendering rules
 
 - Always `Rp 25.000.000` format — period as thousand separator (Indonesian convention), space after `Rp`
-- The `Rp` prefix is rendered in `text-secondary` (`#6B7280`) — slightly lighter than the number itself, so magnitude dominates
+- The `Rp` prefix is rendered in `text-secondary` (`#475569`, slate-600) — slightly lighter than the number itself, so magnitude dominates
 - Never abbreviate as default (no "Rp 25 jt") — abbreviation allowed only in tight chart labels with full value on hover
 - Right-align all numeric inputs and table columns
-- **Hero numbers** (Net Worth, Modal Siap Distribusi): tabular, 48px, `#012D1D`, semi-bold
+- **Hero numbers** (Net Worth, Modal Siap Distribusi): tabular, 48px, `#065F46` (emerald-800), semi-bold
+
+### 4.3 Phase-1 → Phase-2 transition record (2026-06-04, Day 1)
+
+This sub-section documents what changed when Phase-2 swapped the typeface. §4 and §4.1 above are the current Phase-2 canonical truth; this entry is kept for review/audit history.
+
+- **Typeface:** Plus Jakarta Sans → Geist Sans. Rationale: Geist's tighter forms + neutral character set match the shadcn-inspired aesthetic and the "lebih tampan" trust target.
+- **Type scale (§4.1):** unchanged — same step ladder, same tabular-nums rule. Phase-2 is a typeface swap, not a typographic redesign.
+- **Hero numeral color (§4.2):** `#012D1D` → `#065F46` (emerald-800).
+- **`Rp` prefix color (§4.2):** `#6B7280` (gray-500) → `#475569` (slate-600) per §3.1 text-secondary swap.
+- **Hosting:** `@fontsource/geist-sans` weights 400 / 500 / 600 / 700 imported via `nuxt.config.ts` css array. Plus Jakarta Sans `@fontsource` package uninstalled after Day 2 confirms no fallback usage.
 
 ---
 
@@ -255,23 +273,27 @@ Mobile is **functional, not delightful** — don't over-invest.
 2. **Goals** — Multi-goal list with FI auto-formula
 3. **Simulator** — Simulator launcher: Decision (4) and Capacity (3)
 
-Active tab has `#1B4332` underline (2px), inactive tabs use `#6B7280` text.
+Active tab has `#059669` (emerald-600) underline (2px), inactive tabs use `#475569` (slate-600) text.
 
 ---
 
 ## 6. Elevation & Depth
 
-Flat tonal system — depth is built with color layers, not drop shadows.
+Hybrid: subtle drop-shadows + tonal layers. Shadows carry the bulk of card-level depth (per §7.1 soft shadow scale); tonal layers remain useful for table rows, dividers, and inline asset rows where a shadow would feel noisy.
 
 | Level | Treatment | Use |
 |---|---|---|
-| **Level 0** | `#F8F9F5` background | Page canvas |
-| **Level 1** | `#FFFFFF` + `1px solid #E5E7EB` border | Cards, inputs, asset rows |
-| **Level 2** | Level 1 + `0px 4px 12px rgba(0,0,0,0.03)` | **Net Worth + Modal Siap hero pair only** |
-| **Modal** | `0px 20px 40px rgba(0,0,0,0.08)` | Simulator modals, confirm dialogs |
-| **Drop zone idle** | `2px dashed #C1C8C2` on `#F8F9F5` | (Reserved — import is roadmap, not in scope) |
+| **Level 0** | `#FFFFFF` + `bg-gradient-subtle` overlay | Page canvas |
+| **Level 1** | `#FFFFFF` + `1px solid #E5E7EB` border + `shadow-sm` | Cards, metric cards, sub-panels (default resting state) |
+| **Level 2** | Level 1 + `shadow-md` (`0 4px 12px rgba(15, 23, 42, 0.06)`) | Hero pair (Net Worth + Modal Siap) and card hover lift |
+| **Level 3** | Level 1 + `shadow-lg` (`0 10px 24px rgba(15, 23, 42, 0.08)`) | Sticky dashboard sidebar accent |
+| **Modal** | `shadow-modal` (`0 20px 40px rgba(15, 23, 42, 0.12)`) | Simulator modals, confirm dialogs |
+| **Inline rows / dividers** | `1px solid #E5E7EB`, no shadow | Asset rows, table rows, dividers (tonal layer only) |
+| **Drop zone idle** | `2px dashed #D1D5DB` on `#F9FAFB` | (Reserved — import is roadmap, not in scope) |
 
-**Hover states:** subtle 2% darker background, never an elevation change.
+**Hover states:** card lift from `shadow-sm` → `shadow-md` (no background tint); inline rows use the Phase-1 2% darker-background hover pattern.
+
+> Phase-1 was strictly flat tonal (no card shadows; only the hero pair carried a subtle shadow). Phase-2 relaxed this — see §7.1 transition record for rationale.
 
 ---
 
@@ -281,24 +303,13 @@ Soft, precise. Not cartoonish, not institutional.
 
 | Component | Radius |
 |---|---|
-| Inputs, buttons, asset rows | **4px** (`radius_input`) |
-| Cards, metric cards, sub-panels, simulator modals | **8px** (`radius_card`) |
+| Inputs, buttons, asset rows | **8px** (`radius_input` = `0.5rem`) |
+| Cards, metric cards, sub-panels, simulator modals | **16px** (`radius_card` = `radius_2xl` = `1rem`, ~Tailwind `rounded-2xl`) |
 | Status dots, LIVE / ESTIMASI / STALE pills | **fully rounded** (`radius_pill`) |
 | Donut chart strokes | **flat caps** (preserves data-fidelity feel) |
 | Progress bar fills | flat caps |
 
-### 7.1 Phase-2 revamp delta (2026-06-04, Day 1)
-
-Phase-2 adopts a **softer, rounder** shape language. Radii scale up; depth shifts from flat tonal layers (§6) to soft drop-shadows.
-
-| Component | Phase-1 | Phase-2 revamp |
-|---|---|---|
-| Inputs, buttons | 4px | **8px** (`radius_input` = `0.5rem`) |
-| Cards, metric cards, sub-panels, modals | 8px | **16px** (`radius_card` = `radius_2xl` = `1rem`, ~Tailwind `rounded-2xl`) |
-| Pills | fully rounded | fully rounded (unchanged) |
-| Asset rows | 4px | 8px (matches new input radius) |
-
-**Soft shadow scale** (replaces §6 "flat tonal" elevation for Phase-2 cards):
+**Soft shadow scale** (used together with §6 elevation rules):
 
 | Token | Hex equivalent | Use |
 |---|---|---|
@@ -307,28 +318,42 @@ Phase-2 adopts a **softer, rounder** shape language. Radii scale up; depth shift
 | `shadow-lg` | `0 10px 24px 0 rgba(15, 23, 42, 0.08)` | Sticky dashboard sidebar accent |
 | `shadow-modal` | `0 20px 40px rgba(15, 23, 42, 0.12)` | Simulator modals, confirm dialogs |
 
-§6 flat-tonal rules still apply where shadow is visually inappropriate (table rows, inline asset rows, dividers). The hero-pair-only shadow rule is **relaxed** in Phase-2: all metric cards may take `shadow-sm` at rest.
+### 7.1 Phase-1 → Phase-2 transition record (2026-06-04, Day 1)
+
+This sub-section documents what changed when Phase-2 swapped the shape language. §7 above is the current Phase-2 canonical truth; this table is kept for review/audit history.
+
+| Component | Phase-1 (was) | Phase-2 (now) |
+|---|---|---|
+| Inputs, buttons | 4px (`radius_input`) | 8px (`0.5rem`) |
+| Cards, metric cards, sub-panels, modals | 8px (`radius_card`) | 16px (`1rem`, `radius_2xl` / `rounded-2xl`) |
+| Pills | fully rounded | fully rounded (unchanged) |
+| Asset rows | 4px | 8px (matches new input radius) |
+| Elevation rule | flat tonal; hero-pair-only shadow | soft shadow scale (`sm` / `md` / `lg` / `modal`); all metric cards may take `shadow-sm` at rest |
+
+Donut chart strokes and progress bar fills keep flat caps in both phases.
 
 ---
 
 ## 8. Components
 
+> **Token convention (Phase-2, 2026-06-04):** all hex and radius values in §8.1–§8.20 reflect Phase-2 tokens per §3.1 + §7. Phase-1 originals are preserved in the §3.3 + §7.1 transition records — refer to those only for swap history, not for current implementation.
+
 ### 8.1 Header (sticky)
 
-- Height 64px, surface `#FFFFFF`, 1px bottom border `#E5E7EB`
+- Height 64px, surface `#FFFFFF`, 1px bottom border `#E5E7EB`, `shadow-sm` resting
 - Left: Cermat **wordmark** (NOT a building/columned-bank icon — explicitly avoid institutional iconography)
-- Right: primary CTA `[↓ Download .xlsx]` filled `#1B4332`
+- Right: primary CTA `[↓ Download .xlsx]` filled `#059669` (emerald-600)
 - **No login. No avatar. No menu.** The absence is the trust signal.
 
 ### 8.2 Primary Button
 
-- Filled `#1B4332`, white text, 4px radius, 12px × 20px padding
-- Hover: background `#274E3D`
+- Filled `#059669` (emerald-600), white text, 8px radius (`radius_input`), 12px × 20px padding
+- Hover: background `#047857` (emerald-700)
 - Disabled: 40% opacity + tooltip explaining why ("Tambahkan minimal 1 aset")
 
 ### 8.3 Secondary Button
 
-- Outlined `1px solid #E5E7EB`, text `#1F2937`, 4px radius
+- Outlined `1px solid #E5E7EB`, text `#0F172A` (slate-900), 8px radius
 - Used for "Tambah aset", "Reset", "Tutup"
 
 ### 8.4 Ghost / Danger Button
@@ -338,13 +363,13 @@ Phase-2 adopts a **softer, rounder** shape language. Radii scale up; depth shift
 
 ### 8.5 Input Field (currency)
 
-- Surface `#FFFFFF`, 1px border `#E5E7EB`, 4px radius, 48px height
-- Left: `Rp` prefix in `#6B7280` (inside field, fixed position)
+- Surface `#FFFFFF`, 1px border `#E5E7EB`, 8px radius (`radius_input`), 48px height
+- Left: `Rp` prefix in `#475569` (slate-600) (inside field, fixed position)
 - Right-aligned numeric input
 - Auto-format with `.` thousand separator as user types
 - Lenient parsing: accepts `25000000`, `25.000.000`, `25jt`, `25 juta`
 - Mobile: `inputmode="decimal"`
-- Active state: `1px solid #1B4332` border (no glow/halo)
+- Active state: `1px solid #059669` (emerald-600) border (no glow/halo)
 
 ### 8.6 Input Field (quantity — gold grams, stock lots, crypto qty)
 
@@ -382,7 +407,7 @@ Phase-2 adopts a **softer, rounder** shape language. Radii scale up; depth shift
 └──────────────────────────┘
 ```
 
-- 8px radius, `#FFFFFF` surface, `1px solid #E5E7EB`
+- 16px radius (`radius_card` / `rounded-2xl`), `#FFFFFF` surface, `1px solid #E5E7EB`, `shadow-sm` resting (hover → `shadow-md`)
 - Width: equal-thirds within the dashboard panel
 - Hover reveals formula tooltip (e.g., *"Cicilan ÷ Penghasilan"*)
 - Empty state: number replaced by "—" (em-dash), color dot greyed
@@ -400,9 +425,9 @@ Two cards side-by-side at top of dashboard panel:
 ```
 
 - Both **headline-hero** (48px, 700) tabular numbers
-- Net Worth in `#012D1D`; Modal Siap in `#0891B2`
-- Both cards get Level 2 elevation (subtle shadow)
-- Label is `body-md` `#6B7280`, casual: *"Net Worth Kamu"*, *"Modal Siap Distribusi"*
+- Net Worth in `#065F46` (emerald-800); Modal Siap in `#0891B2` (Capacity Teal, unchanged)
+- Both cards get Level 2 elevation (`shadow-md`)
+- Label is `body-md` `#475569` (slate-600), casual: *"Net Worth Kamu"*, *"Modal Siap Distribusi"*
 - Below Modal Siap: small toggle icon `▽` to expand "Opsi yang bisa dihitungkan" panel (see §8.20)
 - Below Net Worth: optional small trend hint (cut in v1 — no history to compare)
 
@@ -745,15 +770,15 @@ Always-visible card below the Net Worth + Modal Siap hero pair, when Modal Siap 
 ### 8.21 Allocation Donut
 
 - 12px stroke width, flat caps
-- Largest segments use `primary` (`#1B4332`) and `accent-emerald` (`#2D6A4F`)
-- Smaller segments fade through `accent-emerald-soft` → grey tones
+- Largest segments use `primary` (`#059669` emerald-600) and `accent-emerald` (also `#059669`)
+- Smaller segments fade through `accent-emerald-soft` (`#D1FAE5`) → grey tones
 - Center text: **total IDR value** (NOT "100%" — meaningless)
 - Legend on right with category, color dot, percentage
 
 ### 8.22 Safe Haven vs. Produktif Stacked Bar
 
 - Single horizontal stacked bar, full panel width
-- Left half color `#C9A961` (Safe Haven — Emas/Cash/RD/Deposito), right half color `#2D6A4F` (Produktif — Saham/Lain)
+- Left half color `#C9A961` (Safe Haven — Emas/Cash/RD/Deposito), right half color `#059669` (Produktif — Saham/Lain, emerald-600)
 - Label above with percentage split: `Safe Haven 58% ████░░░ 42% Produktif`
 - Status badge below: 🛡️ Konservatif / ⚖️ Seimbang / 🚀 Agresif (descriptive — no judgment)
 
@@ -781,7 +806,7 @@ Always-visible card below the Net Worth + Modal Siap hero pair, when Modal Siap 
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- `#F3F4F1` background, centered text
+- `#F9FAFB` (gray-50) background, centered text
 - Two-line disclaimer — privacy + OJK
 - Right-aligned secondary links
 
@@ -1084,7 +1109,7 @@ If you remove any of these, flag PM before doing so.
 
 ## 12. Accessibility Requirements
 
-- All colored badges/dots **must pass WCAG AA** contrast on `#FFFFFF` and `#F8F9F5` surfaces — verify especially amber `#D97706`
+- All colored badges/dots **must pass WCAG AA** contrast on `#FFFFFF` and `#F9FAFB` surfaces — verify especially amber `#B45309` (amber-700, bumped from `#D97706` per D11.5)
 - **Color is never the sole signal** — every status dot is paired with an icon and/or text label
 - Full keyboard navigation through every input in logical order
 - ARIA live regions on dashboard metric cards, goal cards, and capacity outputs so screen readers announce updates
