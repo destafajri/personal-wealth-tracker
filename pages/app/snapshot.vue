@@ -512,9 +512,26 @@ watchEffect(() => {
     </div>
 
     <div
-      class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+      class="rounded-[var(--radius-card)] bg-[var(--color-surface-card)] p-4 sm:p-3"
     >
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+      <!-- Step progress indicator -->
+      <div class="mb-4 flex items-center justify-center gap-1.5 sm:mb-2.5">
+        <button
+          v-for="(tab, i) in TABS"
+          :key="tab.id"
+          type="button"
+          class="h-1.5 rounded-full transition-all sm:h-1"
+          :class="[
+            i <= activeIndex
+              ? 'w-6 bg-[var(--color-primary)] sm:w-5'
+              : 'w-1.5 bg-[var(--color-border)]',
+          ]"
+          :aria-label="`Langkah ${i + 1}: ${tab.label}`"
+          @click="goToTab(tab.id)"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
         <ButtonSecondary
           v-if="!isFirstTab"
           class="w-full whitespace-nowrap sm:w-auto"
@@ -529,8 +546,8 @@ watchEffect(() => {
           {{ nextCtaLabel }} →
         </ButtonPrimary>
       </div>
-      <p class="mt-3 flex items-center justify-center gap-1.5 text-xs text-[var(--color-text-muted)]">
-        <Lock :size="12" :stroke-width="2" class="shrink-0" />
+      <p class="mt-3 flex items-center justify-center gap-1.5 text-xs text-[var(--color-text-muted)] sm:mt-2 sm:text-[11px]">
+        <Lock :size="12" :stroke-width="2" class="shrink-0 sm:h-3 sm:w-3" />
         <span>Data disimpan lokal di browser kamu, tidak dikirim ke server.</span>
       </p>
     </div>
