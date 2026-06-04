@@ -29,7 +29,7 @@ Three AI tools were prompted with the same brief (see `../../ide_4_revamp/Promt.
 - Demo mode + `formatRupiah()` centralization are patterns worth replicating.
 - Form architecture cleaner than v0(auto)'s untriggered dashboard, less monolithic than bolt's 475-line page.
 
-**Calc harvesting:** **`/Users/mamikos/Downloads/bolt-main/src/lib/finance.ts`** (outside repo, moved by user 2026-06-03 — see [[reference-cermat-revamp-source-code]]) for any DSR + KPR-capacity logic we don't already have in Phase-1's `lib/` (most should already exist — verify, don't duplicate).
+**Calc harvesting:** **NONE required** (revised post Codex round-2 2026-06-04). Earlier draft mentioned harvesting from bolt's `finance.ts`, but D2.1–D2.7 + the Phase-2a UI Behavior Contract lock `lib/finance/*`, `lib/prices/*`, `lib/snapshot/*` as **DON'T TOUCH** during the revamp. Phase-1's `lib/` is treated as feature-complete for Phase-2 scope. If a future phase genuinely needs a calc that's missing from Phase-1, raise it as a new decision then — do NOT pull from external machine-local paths during this phase. The bolt source archive (ZIP under [`../../ide_4_revamp/reff/`](../../ide_4_revamp/reff/)) remains a **visual/pattern reference**, not a calc source.
 
 **Skipped:** v0 (auto) (broken state wiring), bolt (Tailwind v3 + React routing = bigger port lift), lovable (no source).
 
@@ -133,6 +133,7 @@ Detailed per-day checklists live in milestone docs:
 
 > Add dated entries as decisions land or scope shifts.
 
-- **2026-06-03** — Phase order swapped (revamp before xlsx). Source material reviewed. v0(max) chosen as base. D2.1–D2.4 open; ASK user before writing real line-items.
+- **2026-06-03** — Phase order swapped (revamp before xlsx). Source material reviewed. v0(max) chosen as base. D2.1–D2.4 open at this point; ASK user before writing real line-items. *[Superseded by later same-day entries below — D2.1–D2.7 all locked by EOD 2026-06-03; entry preserved for audit trail only.]*
 - **2026-06-03 (same session)** — D2.1=Full Accept, D2.2=Pure Split-Screen, D2.3=Full Revamp, D2.4=Extend+Prune (default). 3 follow-ups surfaced: D2.5 typography, D2.6 capacity wizard shape, D2.7 phase delivery model.
 - **2026-06-03 (same session, later)** — D2.5=Geist, D2.6=Flow-shaped restyle, D2.7=Chunked 2a/2b/2c locked. `phase-2a-plan.md` created (6-day foundation + landing + snapshot). 2b/2c stubs deferred until 2a in flight (avoid over-planning).
+- **2026-06-04 (Codex round-2)** — 2 minor findings closed: (Med) calc-harvesting line removed — referenced external machine-local path which broke handoff/reviewability; reframed as "none required" since Phase-2a lib/ contract locks calculations as DON'T TOUCH. (Low) stale "D2.1–D2.4 open" line in 2026-06-03 working-notes entry tagged as superseded inline. Phase-3 narrowing fix from round-1 confirmed LGTM by Codex.
