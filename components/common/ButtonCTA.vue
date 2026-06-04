@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Landing-style hero CTA: larger default size + shadow elevation. For in-form
+// action buttons (Day 5–7 snapshot / goals / simulator) use ButtonPrimary or
+// ButtonSecondary instead — they sit in tighter form rhythm without hero weight.
 withDefaults(
   defineProps<{
     type?: 'button' | 'submit' | 'reset'
