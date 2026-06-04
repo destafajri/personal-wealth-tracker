@@ -4,25 +4,37 @@ import VChart from 'vue-echarts'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { calcTotalPengeluaran } from '~/lib/finance/metrics'
+import { rateToIdr } from '~/lib/finance/fx'
 import { idr } from '~/lib/format/idr'
 import { cssVar, registerEcharts } from './charts-register'
+import type { Currency } from '~/lib/types/snapshot'
 
 registerEcharts()
 
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
 
+function toIdr(amount: number, currency?: Currency): number {
+  if (!amount) return 0
+  const cur = currency ?? 'IDR'
+  if (cur === 'IDR') return amount
+  const rate = rateToIdr(cur, derived.priceView?.fxRates) ?? 0
+  return amount * rate
+}
+
 const slices = computed(() => {
   const items: { label: string; value: number; color: string }[] = []
-  if (snap.pengeluaran.pokok > 0) {
-    items.push({ label: 'Pokok', value: snap.pengeluaran.pokok, color: cssVar('--color-primary') })
+  const pokokIdr = toIdr(snap.pengeluaran.pokok, snap.pengeluaran.pokokCurrency)
+  if (pokokIdr > 0) {
+    items.push({ label: 'Pokok', value: pokokIdr, color: cssVar('--color-primary') })
   }
-  if (snap.pengeluaran.lifestyle > 0) {
-    items.push({ label: 'Lifestyle', value: snap.pengeluaran.lifestyle, color: cssVar('--color-warning-amber') })
+  const lifestyleIdr = toIdr(snap.pengeluaran.lifestyle, snap.pengeluaran.lifestyleCurrency)
+  if (lifestyleIdr > 0) {
+    items.push({ label: 'Lifestyle', value: lifestyleIdr, color: cssVar('--color-warning-amber') })
   }
-  const lainTotal = snap.pengeluaranLain.reduce((s, r) => s + (r.amount || 0), 0)
-  if (lainTotal > 0) {
-    items.push({ label: 'Pengeluaran Lain', value: lainTotal, color: '#7c3aed' })
+  const lainIdr = snap.pengeluaranLain.reduce((s, r) => s + toIdr(r.amount || 0, r.currency), 0)
+  if (lainIdr > 0) {
+    items.push({ label: 'Pengeluaran Lain', value: lainIdr, color: '#7c3aed' })
   }
   const cicilanMonthly = snap.cicilanAktif.reduce((s, r) => s + (r.cicilanPerBulan || 0), 0)
   if (cicilanMonthly > 0) {

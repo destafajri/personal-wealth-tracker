@@ -64,10 +64,10 @@
 - [x] New step progress dots are clickable navigation aids, not new behaviour
 
 ### New components review
-- [x] ExpenseBreakdownDonut: uses ECharts via `registerEcharts()` + `cssVar()` (same pattern as AllocationDonut); async-loaded via `defineAsyncComponent`; data from `useSnapshotStore` + `useDerivedStore`
-- [x] SurplusGauge: pure CSS card, no ECharts; data from `derived.surplusIdr` + `derived.penghasilanMonthlyIdr`; expense = income − surplus (avoids needing separate store property)
-- [x] AssetVsLiabilityBar: pure CSS; data from `derived.totalAset` + `derived.totalUtang`
-- [x] EmergencyFundMeter: pure CSS; data from `derived.runway` (already computed)
+- [x] ExpenseBreakdownDonut: uses ECharts via `registerEcharts()` + `cssVar()`; async-loaded via `defineAsyncComponent` in DashboardPanel; slices FX-converted via `rateToIdr` to match header total
+- [x] SurplusGauge: pure CSS card, no ECharts; async-loaded via `defineAsyncComponent` in DashboardPanel; data from `derived.surplusIdr` + `derived.penghasilanMonthlyIdr`; expense = income − surplus
+- [x] AssetVsLiabilityBar: pure CSS; async-loaded via `defineAsyncComponent` in DashboardPanel; data from `derived.totalAset` + `derived.totalUtang`
+- [x] EmergencyFundMeter: pure CSS; async-loaded via `defineAsyncComponent` in DashboardPanel; data from `derived.runway` (already computed)
 
 ### Mobile responsiveness
 - [x] SnapshotRecap grid: single column on mobile, 2-col on `sm:+`
