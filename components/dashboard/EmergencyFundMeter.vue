@@ -73,13 +73,16 @@ const milestones = [3, 6, 9, 12]
 
     <!-- Main display -->
     <div class="text-center">
-      <span class="text-3xl font-bold tabular-nums" :class="[
-        zone === 'good' && 'text-[var(--color-primary)]',
-        zone === 'ok' && 'text-[var(--color-capacity-teal)]',
-        zone === 'low' && 'text-[var(--color-warning-amber)]',
-        zone === 'critical' && 'text-[var(--color-danger-rose)]',
-        zone === 'empty' && 'text-[var(--color-text-muted)]',
-      ]">
+      <span
+        class="text-3xl font-bold tabular-nums"
+        :class="[
+          zone === 'good' && 'text-[var(--color-primary)]',
+          zone === 'ok' && 'text-[var(--color-capacity-teal)]',
+          zone === 'low' && 'text-[var(--color-warning-amber)]',
+          zone === 'critical' && 'text-[var(--color-danger-rose)]',
+          zone === 'empty' && 'text-[var(--color-text-muted)]',
+        ]"
+      >
         {{ hasData ? (runway >= 12 ? '12+' : runway.toFixed(1)) : '—' }}
       </span>
       <span class="ml-1 text-sm text-[var(--color-text-secondary)]">bulan</span>

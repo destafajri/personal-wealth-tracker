@@ -73,7 +73,6 @@ const EmergencyFundMeter = defineAsyncComponent({
       <SurplusGauge />
       <EmergencyFundMeter />
     </div>
-    <AssetVsLiabilityBar />
     <MetricGrid />
     <!-- Donut charts row -->
     <div class="grid gap-4 sm:grid-cols-2">

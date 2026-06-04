@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { t } from '~/lib/copy/strings'
 import {
   Banknote,
   BarChart3,
