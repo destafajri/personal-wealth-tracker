@@ -16,7 +16,9 @@ Phase-1 MVP landed a working snapshot flow but the wizard UX feels clunky and th
 
 ## Phase-2 narrative
 
-- [Scope & plan](./scope-and-plan.md) — why this phase exists, chosen base reference, open decisions, screen-by-screen checklist
+- [PRD](./prd.md) — Phase-2 product requirements (problem, goals, scope per-milestone, behaviour/compliance preservation, success criteria, decision log)
+- [Scope & plan](./scope-and-plan.md) — living phase scope + decision log
+- [Phase-2a execution plan](./phase-2a-plan.md) — milestone 1 day-by-day + 4-layer preservation guard + Day 6 hard gate
 
 ## Source material
 
