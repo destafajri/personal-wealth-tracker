@@ -222,6 +222,21 @@ const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.va
 
 // ----- Ringkasan: click-to-toggle info tips -----
 const explainer = useMetricExplainer()
+
+// ----- CTA Mamikos: dynamic price range from biayaKos -----
+const mamikosSearchUrl = computed(() => {
+  const kos = snap.pengeluaran.biayaKos ?? 0
+  const base = 'https://mamikos.com/cari?suggestion_type=location&rent=2&sort=price,-&singgahsini=0'
+  if (kos <= 0) return `${base}&price=10000-20000000`
+  const min = Math.round(kos * 0.75)
+  const max = Math.round(kos * 1.25)
+  return `${base}&price=${min}-${max}`
+})
+const mamikosSearchLabel = computed(() => {
+  const kos = snap.pengeluaran.biayaKos ?? 0
+  if (kos <= 0) return 'Budget udah fix? Cari kos yang pas langsung di Mamikos.'
+  return `${idr(Math.round(kos * 0.75))}–${idr(Math.round(kos * 1.25))}/bulan — ada kos bagus di range ini, lho.`
+})
 const rentRatio = computed(() => derived.rentToIncomeRatio)
 const rentRatioZone = computed(() => {
   const r = rentRatio.value
@@ -509,9 +524,9 @@ const rentRecommend = computed(() => {
         </div>
       </div>
 
-      <!-- CTA Mamikos -->
+      <!-- CTA Mamikos — dynamic price range based on biayaKos -->
       <a
-        href="https://mamikos.com"
+        :href="mamikosSearchUrl"
         target="_blank"
         rel="noopener noreferrer"
         class="group flex items-center gap-3 rounded-xl border border-l-4 border-[var(--color-border)] border-l-emerald-500 bg-[var(--color-surface-card)] p-4 transition-shadow hover:shadow-md"
@@ -522,7 +537,7 @@ const rentRecommend = computed(() => {
             Cari Kos Sesuai Budgetmu
           </h4>
           <p class="text-xs text-[var(--color-text-secondary)]">
-            Temukan kos pas di Mamikos — hemat tanpa ribet.
+            {{ mamikosSearchLabel }}
           </p>
         </div>
         <ExternalLink :size="14" class="shrink-0 text-emerald-600 group-hover:underline" />
