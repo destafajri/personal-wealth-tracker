@@ -741,7 +741,7 @@ export const copy = {
   'persona.anakKosBijak.label': 'Anak Kos Bijak',
   'persona.anakKosBijak.tagline': 'Disiplin ngatur keuangan, Respect!',
   'persona.pejuangAkhirBulan.label': 'Pejuang Akhir Bulan',
-  'persona.pejuangAkhirBulan.tagline': 'Tahan dulu, ada tips buat kamu!',
+  'persona.pejuangAkhirBulan.tagline': 'Akhir bulan keras, tapi kamu gak sendiri!',
   'persona.sobatIndomie.label': 'Sobat Indomie',
   'persona.sobatIndomie.tagline': 'Hemat itu pilihan, tapi yang penting happy!',
   'persona.stats.savingsRate': 'Sisa Uang/Bulan',
