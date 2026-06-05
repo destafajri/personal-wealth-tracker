@@ -24,8 +24,8 @@ export const copy = {
     'Cek dulu kamu tipe anak kos apa? Isi data, langsung keluar persona kamu.',
   'landing.cta.snapshot.action': 'Mulai',
 
-  'landing.cta.demo.label': 'Wealth Tracker Lengkap',
-  'landing.cta.demo.body': 'Track aset, utang, investasi secara detail — pakai data contoh.',
+  'landing.cta.demo.label': 'Rekap Duit Kamu',
+  'landing.cta.demo.body': 'Catat aset, utang & investasi sampe detail. Males input? Coba dulu pakai data contoh.',
   'landing.cta.demo.action': 'Coba',
 
   'landing.modal.title': 'Cek Tipe Anak Kos Kamu',
