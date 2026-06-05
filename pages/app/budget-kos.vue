@@ -17,6 +17,7 @@ import { idr } from '~/lib/format/idr'
 import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
 import ButtonSecondary from '~/components/common/ButtonSecondary.vue'
 import CollapsiblePanel from '~/components/snapshot/CollapsiblePanel.vue'
+import SnapshotTabBar from '~/components/snapshot/SnapshotTabBar.vue'
 import PenghasilanForm from '~/components/snapshot/PenghasilanForm.vue'
 import PengeluaranForm from '~/components/snapshot/PengeluaranForm.vue'
 import AsetLikuidPanel from '~/components/snapshot/AsetLikuidPanel.vue'
@@ -202,24 +203,12 @@ const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.va
       <span>{{ t('snapshot.unsaved.banner') }}</span>
     </div>
 
-    <!-- Tab bar -->
-    <div class="flex gap-1 overflow-x-auto rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-low)] p-1">
-      <button
-        v-for="tab in TABS"
-        :key="tab.id"
-        type="button"
-        class="flex items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-input)] px-3 py-2 text-sm font-medium transition"
-        :class="[
-          activeTabId === tab.id
-            ? 'bg-[var(--color-surface-card)] text-[var(--color-primary)] shadow-sm'
-            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]',
-        ]"
-        @click="goToTab(tab.id)"
-      >
-        <component :is="tab.icon" :size="15" />
-        {{ tab.label }}
-      </button>
-    </div>
+    <!-- Tab bar — same component as Wealth Tracker -->
+    <SnapshotTabBar
+      :tabs="TABS"
+      :active-id="activeTabId"
+      @update:active-id="(id: string) => goToTab(id as BudgetTabId)"
+    />
 
     <!-- Cash Flow tab -->
     <div
