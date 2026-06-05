@@ -11,7 +11,7 @@ export const copy = {
   // meta + accessibility fallback.
   'landing.hero.titlePrefix': 'Cermat ngatur keuangan, biar',
   'landing.hero.titleWord1': 'ngekos',
-  'landing.hero.titleWord2': 'hemat',
+  'landing.hero.titleWord2': 'makin',
   'landing.hero.titleWord3': 'tenang',
 
   // Phase-2a Day 3: trust pills above H1 (v0auto-inspired hero layout).

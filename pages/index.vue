@@ -46,9 +46,8 @@ function startFresh() {
     >
       {{ t('landing.hero.titlePrefix') }}
       <span class="text-[var(--color-primary)]">{{ t('landing.hero.titleWord1') }}</span>
-      <span class="text-[var(--color-text-primary)]">,</span>
-      <span class="text-[var(--color-primary)]">{{ t('landing.hero.titleWord2') }}</span>,
-      {{ t('landing.hero.titleWord3') }}
+      {{ t('landing.hero.titleWord2') }}
+      <span class="text-[var(--color-primary)]">{{ t('landing.hero.titleWord3') }}</span>
     </h1>
 
     <p class="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-[var(--color-text-secondary)]">
