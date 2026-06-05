@@ -103,75 +103,73 @@ function goDemo() {
     </div>
 
     <!-- Entry-point modal: fresh or demo -->
-    <Teleport to="body">
+    <div
+      v-if="showModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      @click.self="closeModal"
+    >
       <div
-        v-if="showModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-        @click.self="closeModal"
+        class="w-full max-w-md rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-lg)]"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="t('landing.modal.title')"
       >
-        <div
-          class="w-full max-w-md rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-lg)]"
-          role="dialog"
-          aria-modal="true"
-          :aria-label="t('landing.modal.title')"
-        >
-          <h3 class="text-lg font-bold text-[var(--color-text-primary)]">
-            {{ t('landing.modal.title') }}
-          </h3>
-          <div class="mt-4 grid gap-4 sm:grid-cols-2">
-            <button
-              type="button"
-              class="group flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-left transition-all hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-sm)]"
-              @click="goFresh"
-            >
-              <div class="flex items-center gap-2">
-                <IconChip size="md">
-                  <FileText class="h-4 w-4" />
-                </IconChip>
-                <span class="text-sm font-semibold text-[var(--color-text-primary)]">
-                  {{ t('landing.modal.fresh.label') }}
-                </span>
-              </div>
-              <p class="text-xs text-[var(--color-text-secondary)]">
-                {{ t('landing.modal.fresh.body') }}
-              </p>
-              <ButtonCTA tag="span" size="md" block>
-                {{ t('landing.modal.fresh.action') }}
-                <ChevronRight class="h-3.5 w-3.5" />
-              </ButtonCTA>
-            </button>
-
-            <button
-              type="button"
-              class="group flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-left transition-all hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-sm)]"
-              @click="goDemo"
-            >
-              <div class="flex items-center gap-2">
-                <IconChip variant="neutral" size="md">
-                  <Play class="h-4 w-4" />
-                </IconChip>
-                <span class="text-sm font-semibold text-[var(--color-text-primary)]">
-                  {{ t('landing.modal.demo.label') }}
-                </span>
-              </div>
-              <p class="text-xs text-[var(--color-text-secondary)]">
-                {{ t('landing.modal.demo.body') }}
-              </p>
-              <ButtonCTA tag="span" variant="outline" size="md" block>
-                {{ t('landing.modal.demo.action') }}
-                <ChevronRight class="h-3.5 w-3.5" />
-              </ButtonCTA>
-            </button>
-          </div>
+        <h3 class="text-lg font-bold text-[var(--color-text-primary)]">
+          {{ t('landing.modal.title') }}
+        </h3>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
           <button
             type="button"
-            class="mt-4 w-full text-center text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
-            @click="closeModal"
+            class="group flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-left transition-all hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-sm)]"
+            @click="goFresh"
           >
-            Batal
+            <div class="flex items-center gap-2">
+              <IconChip size="md">
+                <FileText class="h-4 w-4" />
+              </IconChip>
+              <span class="text-sm font-semibold text-[var(--color-text-primary)]">
+                {{ t('landing.modal.fresh.label') }}
+              </span>
+            </div>
+            <p class="text-xs text-[var(--color-text-secondary)]">
+              {{ t('landing.modal.fresh.body') }}
+            </p>
+            <ButtonCTA tag="span" size="md" block>
+              {{ t('landing.modal.fresh.action') }}
+              <ChevronRight class="h-3.5 w-3.5" />
+            </ButtonCTA>
+          </button>
+
+          <button
+            type="button"
+            class="group flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-left transition-all hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-sm)]"
+            @click="goDemo"
+          >
+            <div class="flex items-center gap-2">
+              <IconChip variant="neutral" size="md">
+                <Play class="h-4 w-4" />
+              </IconChip>
+              <span class="text-sm font-semibold text-[var(--color-text-primary)]">
+                {{ t('landing.modal.demo.label') }}
+              </span>
+            </div>
+            <p class="text-xs text-[var(--color-text-secondary)]">
+              {{ t('landing.modal.demo.body') }}
+            </p>
+            <ButtonCTA tag="span" variant="outline" size="md" block>
+              {{ t('landing.modal.demo.action') }}
+              <ChevronRight class="h-3.5 w-3.5" />
+            </ButtonCTA>
           </button>
         </div>
+        <button
+          type="button"
+          class="mt-4 w-full text-center text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
+          @click="closeModal"
+        >
+          Batal
+        </button>
       </div>
-    </Teleport>
+    </div>
   </section>
 </template>
