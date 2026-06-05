@@ -122,8 +122,8 @@ function budgetKosDemo() {
       </button>
     </div>
 
-    <!-- CTA Mamikos as horizontal collaboration banner -->
-    <div class="mx-auto mt-6 max-w-3xl">
+    <!-- CTA Mamikos as horizontal collaboration banners -->
+    <div class="mx-auto mt-6 max-w-3xl space-y-3">
       <a
         href="https://mamikos.com/cari?suggestion_type=location&rent=2&sort=price,-&price=10000-20000000&singgahsini=0"
         target="_blank"
@@ -140,6 +140,26 @@ function budgetKosDemo() {
           </p>
         </div>
         <span class="shrink-0 text-xs font-medium text-emerald-600 group-hover:underline">
+          {{ t('cta.mamikos.action') }}
+        </span>
+      </a>
+
+      <a
+        href="https://mamikos.com/jual/cari?type=Rumah"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group flex items-center gap-4 rounded-[var(--radius-card)] border border-blue-200 bg-blue-50 p-4 text-left transition-all hover:bg-blue-100 hover:shadow-[var(--shadow-sm)]"
+      >
+        <span class="text-2xl">🏠</span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-blue-800">
+            {{ t('cta.mamikos.rumah.label') }}
+          </p>
+          <p class="mt-0.5 text-xs text-blue-600">
+            {{ t('cta.mamikos.rumah.body') }}
+          </p>
+        </div>
+        <span class="shrink-0 text-xs font-medium text-blue-600 group-hover:underline">
           {{ t('cta.mamikos.action') }}
         </span>
       </a>
