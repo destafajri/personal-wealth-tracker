@@ -115,6 +115,15 @@ function goToTab(id: BudgetTabId) {
 
 function goNext() {
   if (isLastTab.value) {
+    // Migrate biayaKos → pengeluaranLain row before leaving budget-kos
+    const kosAmount = snap.pengeluaran.biayaKos ?? 0
+    const kosCurrency = snap.pengeluaran.biayaKosCurrency ?? 'IDR'
+    if (kosAmount > 0) {
+      snap.addPengeluaranLain({ label: 'Biaya Kos', amount: kosAmount, currency: kosCurrency })
+      snap.setPengeluaran({ biayaKos: 0, biayaKosCurrency: 'IDR' })
+    }
+    // Switch to wealthTracker mode
+    snap.mode = 'wealthTracker'
     router.push('/app/snapshot')
     return
   }
