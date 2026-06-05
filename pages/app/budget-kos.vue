@@ -26,7 +26,7 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { isSnapshotDirty } from '~/composables/useDirtyGuard'
 import { calcTotalPengeluaran } from '~/lib/finance/metrics'
-import { triggerDemoFromQuery } from '~/lib/fixtures/demoSnapshot'
+import { triggerBudgetKosDemo } from '~/lib/fixtures/demoSnapshot'
 import {
   resolvePersona,
   hasInvestments,
@@ -45,7 +45,7 @@ const router = useRouter()
 // Force budgetKos mode
 onMounted(() => {
   snap.mode = 'budgetKos'
-  triggerDemoFromQuery(snap, route, router)
+  triggerBudgetKosDemo(snap, route, router)
 })
 
 const hasData = computed(() =>
