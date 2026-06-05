@@ -415,6 +415,8 @@ watchEffect(() => {
           :icon="Coins"
           variant="neutral"
           :value="emasTotal"
+          disabled
+          badge="Maintenance"
         >
           <EmasPanel
             hide-header
@@ -422,6 +424,7 @@ watchEffect(() => {
             :live-pending="gold.pending.value"
             :cooldown-remaining="gold.cooldownRemaining.value"
             :on-refresh="gold.forceRefresh"
+            disabled
           />
         </CollapsiblePanel>
       </div>
