@@ -307,33 +307,35 @@ const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.va
     <!-- Ringkasan tab — gamification first -->
     <div v-if="activeTabId === 'ringkasan'" class="space-y-5">
 
-      <!-- Persona hero card -->
+      <!-- Persona hero card — full gradient background -->
       <div
         v-if="persona && personaStyle"
-        class="relative overflow-hidden rounded-2xl p-[2px] shadow-lg"
+        class="relative overflow-hidden rounded-2xl bg-gradient-to-br p-6 text-center shadow-xl"
+        :class="personaStyle.gradient"
       >
-        <div class="absolute inset-0 bg-gradient-to-r" :class="personaStyle.gradient" />
-        <div class="relative rounded-[14px] bg-white/95 backdrop-blur-sm px-5 py-6 text-center dark:bg-gray-900/95">
-          <span class="text-5xl">{{ personaStyle.emoji }}</span>
-          <h3 class="mt-2 text-2xl font-extrabold text-[var(--color-text-primary)]">
-            {{ t(`persona.${persona.key}.label` as import('~/lib/copy/strings').CopyKey) }}
-          </h3>
-          <p class="mt-1 text-sm font-medium text-[var(--color-text-secondary)]">
-            {{ t(`persona.${persona.key}.tagline` as import('~/lib/copy/strings').CopyKey) }}
-          </p>
-          <div class="mt-4 flex justify-center gap-4">
-            <div class="rounded-xl bg-gradient-to-br px-4 py-2.5 shadow-sm" :class="[personaStyle.gradient]">
-              <p class="text-[10px] font-bold uppercase tracking-wider text-white drop-shadow-sm">Sisa Uang/Bulan</p>
-              <p class="text-lg font-extrabold text-white drop-shadow-md">
-                {{ derived.savingsRate != null ? `${Math.round(derived.savingsRate)}%` : '—' }}
-              </p>
-            </div>
-            <div class="rounded-xl bg-gradient-to-br px-4 py-2.5 shadow-sm" :class="[personaStyle.gradient]">
-              <p class="text-[10px] font-bold uppercase tracking-wider text-white drop-shadow-sm">Bisa Bertahan</p>
-              <p class="text-lg font-extrabold text-white drop-shadow-md">
-                {{ derived.runway != null ? `${Math.round(derived.runway)} bln` : '—' }}
-              </p>
-            </div>
+        <!-- Decorative circles -->
+        <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10" />
+        <div class="pointer-events-none absolute -bottom-4 -left-4 h-16 w-16 rounded-full bg-white/10" />
+        <!-- Content -->
+        <span class="text-6xl drop-shadow-lg">{{ personaStyle.emoji }}</span>
+        <h3 class="mt-3 text-3xl font-black tracking-tight text-white drop-shadow-md">
+          {{ t(`persona.${persona.key}.label` as import('~/lib/copy/strings').CopyKey) }}
+        </h3>
+        <p class="mt-1.5 text-base font-medium text-white/90">
+          {{ t(`persona.${persona.key}.tagline` as import('~/lib/copy/strings').CopyKey) }}
+        </p>
+        <div class="mt-5 flex justify-center gap-3">
+          <div class="rounded-xl bg-white/20 px-4 py-2.5 backdrop-blur-sm">
+            <p class="text-[11px] font-bold uppercase tracking-wide text-white/80">Sisa Uang/Bulan</p>
+            <p class="text-xl font-black text-white">
+              {{ derived.savingsRate != null ? `${Math.round(derived.savingsRate)}%` : '—' }}
+            </p>
+          </div>
+          <div class="rounded-xl bg-white/20 px-4 py-2.5 backdrop-blur-sm">
+            <p class="text-[11px] font-bold uppercase tracking-wide text-white/80">Bisa Bertahan</p>
+            <p class="text-xl font-black text-white">
+              {{ derived.runway != null ? `${Math.round(derived.runway)} bln` : '—' }}
+            </p>
           </div>
         </div>
       </div>
