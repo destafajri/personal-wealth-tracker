@@ -732,6 +732,20 @@ export const copy = {
   'sim.deployPreview.category.reksaDana': 'Reksa Dana',
   'sim.deployPreview.category.deposito': 'Deposito',
   'sim.deployPreview.category.sbn': 'SBN / Obligasi',
+
+  // ----- persona (Phase 3 Priority 1) -----
+  'persona.sultanKos.label': 'Sultan Kos',
+  'persona.sultanKos.tagline': 'Gaji mewah, investasi jalan, top!',
+  'persona.investorKos.label': 'Investor Kos',
+  'persona.investorKos.tagline': 'Sudah mulai investasi, masa depan cerah!',
+  'persona.anakKosBijak.label': 'Anak Kos Bijak',
+  'persona.anakKosBijak.tagline': 'Disiplin ngatur keuangan, Respect!',
+  'persona.pejuangAkhirBulan.label': 'Pejuang Akhir Bulan',
+  'persona.pejuangAkhirBulan.tagline': 'Tahan dulu, ada tips buat kamu!',
+  'persona.sobatIndomie.label': 'Sobat Indomie',
+  'persona.sobatIndomie.tagline': 'Hemat itu pilihan, tapi yang penting happy!',
+  'persona.stats.savingsRate': 'Sisa Uang/Bulan',
+  'persona.stats.runway': 'Bisa Bertahan',
 } as const
 
 export type CopyKey = keyof typeof copy

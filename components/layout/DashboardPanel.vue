@@ -10,6 +10,7 @@
 import { computed, defineAsyncComponent, h } from 'vue'
 import HeroPair from '~/components/dashboard/HeroPair.vue'
 import MetricGrid from '~/components/dashboard/MetricGrid.vue'
+import PersonaCard from '~/components/dashboard/PersonaCard.vue'
 import GoalSummaryCards from '~/components/dashboard/GoalSummaryCards.vue'
 import ModalOptionsPanel from '~/components/dashboard/ModalOptionsPanel.vue'
 import { useDerivedStore } from '~/stores/derived'
@@ -68,6 +69,7 @@ const EmergencyFundMeter = defineAsyncComponent({
   -->
   <section class="flex flex-col gap-5 p-3" aria-live="polite" aria-atomic="false">
     <HeroPair />
+    <PersonaCard />
     <!-- New quick-glance row: Surplus Gauge + Emergency Fund -->
     <div class="grid gap-4 sm:grid-cols-2">
       <SurplusGauge />
