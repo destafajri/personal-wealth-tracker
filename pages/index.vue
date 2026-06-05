@@ -64,7 +64,7 @@ function startFresh() {
         type="button"
         class="group relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 text-left shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
         @click="openModal(t('landing.cta.snapshot.label'))"
-        />
+      >
         <div class="flex items-start gap-3">
           <span class="text-3xl">🏠</span>
           <div>
