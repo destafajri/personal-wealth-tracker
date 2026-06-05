@@ -4,6 +4,10 @@
 Separate Budget Kos page (`/app/budget-kos`) from Wealth Tracker (`/app/snapshot`).
 Mode-aware dashboard: `budgetKos` vs `wealthTracker`.
 
+**Review range**: `fc242ce..HEAD` (all changes on `alignment` since main split).
+The 2-commit range `9997bc7..386e810` is only the final polish; the mode system
+and conditional rendering were introduced across earlier commits in this branch.
+
 ---
 
 ## 1. Wealth Tracker — Zero Regression
