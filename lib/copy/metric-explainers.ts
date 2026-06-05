@@ -13,6 +13,8 @@ export type ExplainerKey =
   | 'safeHaven'
   | 'allocationDiscipline'
   | 'rasioTertahan'
+  | 'rentToIncome'
+  | 'surplusBulanan'
 
 // Union of every zone label used across all 9 metrics. Modal's color-class map keys
 // on this type so any new label here forces a matching entry there at compile time.
@@ -234,5 +236,55 @@ export const metricExplainers: Record<ExplainerKey, ExplainerSpec> = {
         body: 'Hampir semua emas tertahan. Risiko likuidasi naik kalau bunga gadai numpuk dan tebus tertunda.',
       },
     ],
+  },
+
+  rentToIncome: {
+    title: 'Rasio Kos / Penghasilan',
+    definition:
+      'Berapa persen penghasilan bulanan kamu yang habis buat bayar kos. Ini metric paling penting buat anak kos — kalau sewa kebanyakan, pos lain (tabungan, makan, investasi) pasti kena imbasnya.',
+    formula: 'Rasio Kos = Biaya Kos/bulan ÷ Penghasilan bulanan × 100%',
+    zones: [
+      {
+        label: 'Aman',
+        range: '≤25%',
+        body: 'Sewa masih nyaman. Masih ada ruang buat tabungan, gaya hidup, dan investasi tanpa stress.',
+      },
+      {
+        label: 'Waspada',
+        range: '25–35%',
+        body: 'Sewa mulai ngambil porsi besar. Di kota besar ini wajar, tapi pos lain perlu dikompensasi dengan sadar.',
+      },
+      {
+        label: 'Bahaya',
+        range: '>35%',
+        body: 'Sewa terlalu besar. Tabungan jadi tipis, makan jadi hemat-hemat, investasi jadi ga kepikiran. Cari kos yang lebih murah atau tambah penghasilan sampingan.',
+      },
+    ],
+    note: 'Di Jakarta/Surabaya wajar sampai 30–35% karena harga kos memang tinggi. Kalau kos all-in (include makan, laundry, wifi), angka sedikit lebih tinggi masih ok karena kamu nge-save di pos lain.',
+  },
+
+  surplusBulanan: {
+    title: 'Surplus Bulanan',
+    definition:
+      'Sisa uang kamu setelah semua pengeluaran dan cicilan dibayar. Angka positif berarti kamu nabung, negatif berarti kamu defisit.',
+    formula: 'Surplus = Penghasilan bulanan − Total Pengeluaran (termasuk cicilan)',
+    zones: [
+      {
+        label: 'Aman',
+        range: '≥20%',
+        body: 'Sisa uang cukup buat nabung dan investasi. Rule of thumb: 50% kebutuhan, 30% keinginan, 20% tabungan.',
+      },
+      {
+        label: 'Waspada',
+        range: '10–20%',
+        body: 'Sisa uang tipis. Bisa nabung tapi pelan — perubahan biaya kecil bisa bikin defisit.',
+      },
+      {
+        label: 'Bahaya',
+        range: '<10%',
+        body: 'Hampir semua gaji habis. Dana darurat belum kepenuhi, investasi jadi ga kepikiran.',
+      },
+    ],
+    note: 'Kalau minus, artinya pengeluaran lebih besar dari penghasilan — utang bakal numpuk kalau gak diubah.',
   },
 }

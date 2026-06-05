@@ -27,6 +27,7 @@ import UtangPribadiPanel from '~/components/snapshot/UtangPribadiPanel.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { isSnapshotDirty } from '~/composables/useDirtyGuard'
+import { useMetricExplainer } from '~/composables/useMetricExplainer'
 import { calcTotalPengeluaran } from '~/lib/finance/metrics'
 import { triggerBudgetKosDemo } from '~/lib/fixtures/demoSnapshot'
 import { useFxRates } from '~/composables/usePrices'
@@ -219,7 +220,8 @@ const cicilanMonthly = computed(() =>
 )
 const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.value)
 
-// ----- Ringkasan: rent-to-income insight -----
+// ----- Ringkasan: click-to-toggle info tips -----
+const explainer = useMetricExplainer()
 const rentRatio = computed(() => derived.rentToIncomeRatio)
 const rentRatioZone = computed(() => {
   const r = rentRatio.value
@@ -366,14 +368,24 @@ const rentRecommend = computed(() => {
           {{ t(`persona.${persona.key}.tagline` as import('~/lib/copy/strings').CopyKey) }}
         </p>
         <div class="mt-5 flex justify-center gap-3">
-          <div class="rounded-xl bg-white/20 px-4 py-2.5 backdrop-blur-sm">
-            <p class="text-[11px] font-bold uppercase tracking-wide text-white/80">Sisa Uang/Bulan</p>
+          <div class="relative rounded-xl bg-white/20 px-4 py-2.5 backdrop-blur-sm">
+            <div class="flex items-center gap-1">
+              <p class="text-[11px] font-bold uppercase tracking-wide text-white/80">Sisa Uang/Bulan</p>
+              <button type="button" class="text-white/60 hover:text-white" @click="explainer.open('savingsRate')">
+                <Info :size="13" />
+              </button>
+            </div>
             <p class="text-xl font-black text-white">
               {{ derived.savingsRate != null ? `${Math.round(derived.savingsRate)}%` : '—' }}
             </p>
           </div>
-          <div class="rounded-xl bg-white/20 px-4 py-2.5 backdrop-blur-sm">
-            <p class="text-[11px] font-bold uppercase tracking-wide text-white/80">Bisa Bertahan</p>
+          <div class="relative rounded-xl bg-white/20 px-4 py-2.5 backdrop-blur-sm">
+            <div class="flex items-center gap-1">
+              <p class="text-[11px] font-bold uppercase tracking-wide text-white/80">Bisa Bertahan</p>
+              <button type="button" class="text-white/60 hover:text-white" @click="explainer.open('runway')">
+                <Info :size="13" />
+              </button>
+            </div>
             <p class="text-xl font-black text-white">
               {{ derived.runway != null ? `${Math.round(derived.runway)} bln` : '—' }}
             </p>
@@ -403,9 +415,14 @@ const rentRecommend = computed(() => {
           ? 'border-emerald-300 bg-gradient-to-br from-emerald-50 to-teal-50'
           : 'border-rose-300 bg-gradient-to-br from-rose-50 to-pink-50'"
       >
-        <p class="text-xs font-bold uppercase tracking-widest" :class="surplusAmt >= 0 ? 'text-emerald-600' : 'text-rose-600'">
-          Surplus Bulanan
-        </p>
+        <div class="flex items-center gap-1.5">
+          <p class="text-xs font-bold uppercase tracking-widest" :class="surplusAmt >= 0 ? 'text-emerald-600' : 'text-rose-600'">
+            Surplus Bulanan
+          </p>
+          <button type="button" class="text-emerald-400 hover:text-emerald-600" @click="explainer.open('surplusBulanan')">
+            <Info :size="13" />
+          </button>
+        </div>
         <p class="mt-1 text-3xl font-extrabold tabular-nums" :class="surplusAmt >= 0 ? 'text-emerald-700' : 'text-rose-700'">
           {{ surplusAmt >= 0 ? '+' : '' }}{{ idr(surplusAmt) }}
         </p>
@@ -441,6 +458,9 @@ const rentRecommend = computed(() => {
           }">
             {{ t('budgetKos.biayaKos.ratio.label') }}
           </p>
+          <button type="button" class="text-emerald-400 hover:text-emerald-600" @click="explainer.open('rentToIncome')">
+            <Info :size="13" />
+          </button>
         </div>
         <p class="mt-2 text-3xl font-extrabold tabular-nums" :class="{
           'text-emerald-700': rentRatioZone === 'safe',

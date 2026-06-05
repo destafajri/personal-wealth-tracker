@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Clock, ShieldCheck } from 'lucide-vue-next'
 import FooterDisclaimer from '~/components/layout/FooterDisclaimer.vue'
+import MetricExplainerModal from '~/components/dashboard/MetricExplainerModal.vue'
 import { t } from '~/lib/copy/strings'
 
 const route = useRoute()
@@ -46,5 +47,6 @@ const route = useRoute()
     </main>
 
     <FooterDisclaimer />
+    <MetricExplainerModal />
   </div>
 </template>
