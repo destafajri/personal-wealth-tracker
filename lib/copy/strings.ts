@@ -24,7 +24,15 @@ export const copy = {
 
   'landing.cta.demo.label': 'Wealth Tracker Lengkap',
   'landing.cta.demo.body': 'Track aset, utang, investasi secara detail — pakai data contoh.',
-  'landing.cta.demo.action': 'Mulai',
+  'landing.cta.demo.action': 'Coba',
+
+  'landing.modal.title': 'Mulai Cek Keuangan',
+  'landing.modal.fresh.label': 'Isi Data Sendiri',
+  'landing.modal.fresh.body': 'Isi snapshot kamu (5–10 menit).',
+  'landing.modal.fresh.action': 'Mulai',
+  'landing.modal.demo.label': 'Pakai Data Contoh',
+  'landing.modal.demo.body': 'Skip isi data, langsung lihat hasilnya.',
+  'landing.modal.demo.action': 'Coba',
 
   // Phase-2a Day 3: default layout navbar right-side tagline (with Clock icon).
   'nav.tagline.tenMinutes': 'Cek Keuangan dalam 10 Menit',

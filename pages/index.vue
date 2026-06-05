@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ArrowRight, ChevronRight, CloudOff, Home, Lock, PieChart } from 'lucide-vue-next'
+import { ChevronRight, CloudOff, FileText, Lock, Play } from 'lucide-vue-next'
+import { ref } from 'vue'
 // Explicit imports: Nuxt 3 auto-import prefixes components in subdirs
 // (components/common/X.vue -> <CommonX/>). Bare-name usage silently fails at
 // SSR (renders as anonymous, no build error). See memory note
@@ -18,9 +19,23 @@ useSeoMeta({
 })
 
 const snap = useSnapshotStore()
+const showModal = ref(false)
 
-function startFresh() {
+function openModal() {
+  showModal.value = true
+}
+
+function closeModal() {
+  showModal.value = false
+}
+
+function goFresh() {
   snap.reset()
+  navigateTo('/app/snapshot')
+}
+
+function goDemo() {
+  navigateTo('/app/snapshot?demo=1')
 }
 </script>
 
@@ -54,7 +69,7 @@ function startFresh() {
       {{ t('landing.hero.subtitle') }}
     </p>
 
-    <div class="mx-auto mt-14 grid max-w-3xl gap-5 sm:grid-cols-2">
+    <div class="mx-auto mt-14 max-w-md">
       <div
         class="group relative flex flex-col gap-5 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
       >
@@ -63,7 +78,7 @@ function startFresh() {
         />
         <div class="flex items-start gap-4">
           <IconChip size="lg">
-            <Home class="h-6 w-6" />
+            <FileText class="h-6 w-6" />
           </IconChip>
           <div class="text-left">
             <h2 class="text-xl font-bold text-[var(--color-text-primary)]">
@@ -74,41 +89,89 @@ function startFresh() {
             </p>
           </div>
         </div>
-        <NuxtLink to="/app/snapshot" class="mt-auto block" @click="startFresh">
+        <button type="button" class="mt-auto block" @click="openModal">
           <ButtonCTA tag="span" block>
             {{ t('landing.cta.snapshot.action') }}
             <ChevronRight class="h-4 w-4" />
           </ButtonCTA>
-        </NuxtLink>
-      </div>
-
-      <div
-        class="group flex flex-col gap-5 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
-      >
-        <div class="flex items-start gap-4">
-          <IconChip variant="neutral" size="lg">
-            <PieChart class="h-6 w-6" />
-          </IconChip>
-          <div class="text-left">
-            <h2 class="text-xl font-bold text-[var(--color-text-primary)]">
-              {{ t('landing.cta.demo.label') }}
-            </h2>
-            <p class="mt-1 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-              {{ t('landing.cta.demo.body') }}
-            </p>
-          </div>
-        </div>
-        <NuxtLink to="/app/snapshot?demo=1" class="mt-auto block">
-          <ButtonCTA tag="span" variant="outline" block>
-            {{ t('landing.cta.demo.action') }}
-            <ArrowRight class="h-4 w-4" />
-          </ButtonCTA>
-        </NuxtLink>
+        </button>
       </div>
     </div>
 
-    <div class="mx-auto mt-8 max-w-3xl">
+    <div class="mx-auto mt-8 max-w-md">
       <CtaMamikos variant="landing" />
     </div>
+
+    <!-- Entry-point modal: fresh or demo -->
+    <Teleport to="body">
+      <div
+        v-if="showModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+        @click.self="closeModal"
+      >
+        <div
+          class="w-full max-w-md rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-lg)]"
+          role="dialog"
+          aria-modal="true"
+          :aria-label="t('landing.modal.title')"
+        >
+          <h3 class="text-lg font-bold text-[var(--color-text-primary)]">
+            {{ t('landing.modal.title') }}
+          </h3>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <button
+              type="button"
+              class="group flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-left transition-all hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-sm)]"
+              @click="goFresh"
+            >
+              <div class="flex items-center gap-2">
+                <IconChip size="md">
+                  <FileText class="h-4 w-4" />
+                </IconChip>
+                <span class="text-sm font-semibold text-[var(--color-text-primary)]">
+                  {{ t('landing.modal.fresh.label') }}
+                </span>
+              </div>
+              <p class="text-xs text-[var(--color-text-secondary)]">
+                {{ t('landing.modal.fresh.body') }}
+              </p>
+              <ButtonCTA tag="span" size="md" block>
+                {{ t('landing.modal.fresh.action') }}
+                <ChevronRight class="h-3.5 w-3.5" />
+              </ButtonCTA>
+            </button>
+
+            <button
+              type="button"
+              class="group flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-left transition-all hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-sm)]"
+              @click="goDemo"
+            >
+              <div class="flex items-center gap-2">
+                <IconChip variant="neutral" size="md">
+                  <Play class="h-4 w-4" />
+                </IconChip>
+                <span class="text-sm font-semibold text-[var(--color-text-primary)]">
+                  {{ t('landing.modal.demo.label') }}
+                </span>
+              </div>
+              <p class="text-xs text-[var(--color-text-secondary)]">
+                {{ t('landing.modal.demo.body') }}
+              </p>
+              <ButtonCTA tag="span" variant="outline" size="md" block>
+                {{ t('landing.modal.demo.action') }}
+                <ChevronRight class="h-3.5 w-3.5" />
+              </ButtonCTA>
+            </button>
+          </div>
+          <button
+            type="button"
+            class="mt-4 w-full text-center text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
+            @click="closeModal"
+          >
+            Batal
+          </button>
+        </div>
+      </div>
+    </Teleport>
   </section>
 </template>
