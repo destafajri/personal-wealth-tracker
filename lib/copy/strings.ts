@@ -10,10 +10,10 @@ export const copy = {
   // Phase-2a Day 3: hero title fragment keys for emerald-accented hero
   // rendered as <span class="text-primary">). Existing `landing.hero.title` retained for SEO
   // meta + accessibility fallback.
-  'landing.hero.titlePrefix': 'Cermat ngatur keuangan, biar',
+  'landing.hero.titlePrefix': 'Cermat kelola duit, dari',
   'landing.hero.titleWord1': 'ngekos',
-  'landing.hero.titleWord2': 'makin',
-  'landing.hero.titleWord3': 'tenang',
+  'landing.hero.titleWord2': 'sampai punya',
+  'landing.hero.titleWord3': 'rumah',
 
   // Phase-2a Day 3: trust pills above H1 (v0auto-inspired hero layout).
   'landing.trust.pill.noRegister': 'Tanpa daftar',

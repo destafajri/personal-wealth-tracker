@@ -1,7 +1,8 @@
 # Codex Review Checklist — Biaya Kos + Landing Polish
 
-**Range:** `789f654..879868c` (7 commits)
+**Range:** `789f654..879868c` (7 feature commits) + `4ffabbb` (this checklist)
 **Branch:** `alignment`
+**Codex review:** 2 findings (1 medium, 1 low) — fixed in follow-up commits
 
 ## 1. Biaya Kos Type Extension
 - [ ] `lib/types/snapshot.ts` — `biayaKos?` and `biayaKosCurrency?` added to `Pengeluaran` interface as optional
