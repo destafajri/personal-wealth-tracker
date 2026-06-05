@@ -1,25 +1,25 @@
 # Phase 5: Import XLSX
 
-**Prioritas:** RENDAH (nice-to-have, dikerjakan jika waktu masih sisa)
-**Prerequisite:** Phase 4 selesai
+**Priority:** LOW (nice-to-have, only if time permits)
+**Prerequisite:** Phase 4 complete
 
 ---
 
 ## Scope
 
 ### 5.1 Import XLSX
-- Upload file xlsx → parse → validate → import ke snapshot
-- Validasi format dan tipe data
-- Error handling yang user-friendly
+- Upload xlsx file → parse → validate → import into snapshot
+- Format and data type validation
+- User-friendly error handling
 
 ---
 
-## Alasan Prioritas Rendah
-- Anak kos jarang mencatat pengeluaran pakai file XLSX
-- Fokus energi pada fitur yang langsung dirasakan audiens Mamikos
+## Why Low Priority
+- Anak kos rarely track expenses using XLSX files
+- Focus energy on features directly felt by the Mamikos audience
 
 ---
 
 ## Success Criteria
-- [ ] XLSX import bekerja dengan file template yang valid
-- [ ] Error message jelas untuk file yang tidak valid
+- [ ] XLSX import works with valid template files
+- [ ] Clear error messages for invalid files

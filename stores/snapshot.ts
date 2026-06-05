@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
+
+export type AppMode = 'budgetKos' | 'wealthTracker'
 import {
   emptySnapshot,
   type AssetRow,
@@ -38,6 +40,10 @@ export const useSnapshotStore = defineStore('snapshot', () => {
   // or fresh init. Persists across route nav (Pinia is global) so banner + "Mulai dari
   // Snapshot" cleanup behave consistently regardless of which page mounts/unmounts.
   const isDemo = ref(false)
+
+  // App mode — determines dashboard persona, copy tone, and CTA visibility.
+  // Set by landing page before navigation; persists across route nav.
+  const mode = ref<AppMode | null>(null)
 
   function setDemo(value: boolean) {
     isDemo.value = value
@@ -343,6 +349,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     utangPribadi.value = []
     gadai.value = []
     isDemo.value = false
+    mode.value = null
   }
 
   return {
@@ -362,6 +369,7 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     utangPribadi,
     gadai,
     isDemo,
+    mode,
     setDemo,
     addLikuid,
     updateLikuid,

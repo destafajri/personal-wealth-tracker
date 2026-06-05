@@ -169,6 +169,59 @@ export function applyDemoSnapshot(snap: SnapshotStore): void {
   snap.setDemo(true)
 }
 
+// Budget-kos demo — simpler anak kos profile: gaji freelance, sewa kos,
+// paylater, utang teman. No investments, no property, no gold, no crypto.
+export function applyBudgetKosDemo(snap: SnapshotStore): void {
+  snap.reset()
+
+  // Penghasilan — anak kos kerja part-time + freelance
+  snap.setPenghasilanAmount(3_500_000)
+  snap.setPenghasilanCurrency('IDR')
+  snap.addPenghasilanLain({ label: 'Freelance Fiverr', amount: 1_200_000, currency: 'IDR' })
+
+  // Pengeluaran — realistis anak kos Jakarta
+  snap.setPengeluaran({
+    biayaKos: 1_200_000, // sewa kos per bulan
+    biayaKosCurrency: 'IDR',
+    pokok: 1_500_000, // makan, transport, listrik (TANPA kos)
+    lifestyle: 600_000, // langganan, kopi, jajan
+  })
+  snap.addPengeluaranLain({ label: 'Pulsa & internet', amount: 150_000 })
+
+  // Kas — tabungan kecil
+  snap.addLikuid('kas', { label: 'GoPay', amount: 350_000 })
+  snap.addLikuid('kas', { label: 'BCA', amount: 800_000 })
+
+  // Cicilan — paylater & motor
+  snap.addCicilan({
+    tipe: 'PAYLATER',
+    label: 'Shopee PayLater',
+    sisaPokok: 1_200_000,
+    cicilanPerBulan: 400_000,
+    sukuBunga: 15,
+    tenorSisaBulan: 3,
+    jenisBunga: 'Flat',
+  })
+  snap.addCicilan({
+    tipe: 'KPM',
+    label: 'Cicilan Motor Beat',
+    sisaPokok: 8_000_000,
+    cicilanPerBulan: 750_000,
+    sukuBunga: 8,
+    tenorSisaBulan: 12,
+    jenisBunga: 'Anuitas',
+  })
+
+  // Utang pribadi — pinjam teman/keluarga
+  snap.addUtangPribadi({
+    label: 'Pinjam ke teman kos',
+    sisaPokok: 300_000,
+    tempoBulan: 2,
+  })
+
+  snap.setDemo(true)
+}
+
 // Minimal subset of vue-router's RouteLocationNormalized + Router so the helper
 // is testable without pulling in a fake router. The page passes `useRoute()`
 // and `useRouter()` straight through; tests pass plain mocks. Value type must
@@ -195,6 +248,18 @@ export function triggerDemoFromQuery(
 ): boolean {
   if (route.query.demo !== '1') return false
   applyDemoSnapshot(snap)
+  const { demo: _demo, ...rest } = route.query
+  router.replace({ query: rest })
+  return true
+}
+
+export function triggerBudgetKosDemo(
+  snap: SnapshotStore,
+  route: DemoRouteLike,
+  router: DemoRouterLike,
+): boolean {
+  if (route.query.demo !== '1') return false
+  applyBudgetKosDemo(snap)
   const { demo: _demo, ...rest } = route.query
   router.replace({ query: rest })
   return true

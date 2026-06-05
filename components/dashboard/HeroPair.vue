@@ -11,7 +11,7 @@ import {
   sumStockIdr,
   type ModalSiapIncludes,
 } from '~/lib/finance/metrics'
-import { t, type CopyKey } from '~/lib/copy/strings'
+import { t, tm, type CopyKey } from '~/lib/copy/strings'
 
 const derived = useDerivedStore()
 const snapStore = useSnapshotStore()
@@ -67,7 +67,7 @@ const anyChipVisible = computed(() => chips.value.some((c) => c.hasValue))
     >
       <header class="flex items-center gap-1.5">
         <h3 class="text-xs font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
-          {{ t('metric.netWorth.label') }}
+          {{ tm('metric.netWorth.label', snapStore.mode) }}
         </h3>
         <button
           type="button"
@@ -109,7 +109,7 @@ const anyChipVisible = computed(() => chips.value.some((c) => c.hasValue))
     >
       <header class="flex items-center gap-1.5">
         <h3 class="text-xs font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
-          {{ t('metric.modalSiap.label') }}
+          {{ tm('metric.modalSiap.label', snapStore.mode) }}
         </h3>
         <button
           type="button"

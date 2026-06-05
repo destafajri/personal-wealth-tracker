@@ -1,30 +1,40 @@
 export const copy = {
   'brand.name': 'Cermat',
-  'brand.tagline': 'Cek keuangan kamu dalam 10 menit',
+  'brand.tagline': 'Cermat kelola duit, dari ngekos sampai punya rumah',
 
-  'landing.hero.title': 'Aman gak kalau gw KPR, Gadai, atau Cicil?',
-  'landing.hero.subtitle': 'Berapa max utang yang aman? Cek keuangan kamu dalam 10 menit.',
+  'landing.hero.title': 'Cermat kelola duit, dari ngekos sampai punya rumah',
+  'landing.hero.subtitle':
+    'Cek kondisi keuangan, atur aset, sampai siap beli rumah — semuanya dari satu tempat.',
   'landing.hero.trust': 'Tanpa daftar. Tanpa cloud.',
 
-  // Phase-2a Day 3: hero title fragment keys for emerald-accented hero (KPR / Gadai / Cicil
+  // Phase-2a Day 3: hero title fragment keys for emerald-accented hero
   // rendered as <span class="text-primary">). Existing `landing.hero.title` retained for SEO
   // meta + accessibility fallback.
-  'landing.hero.titlePrefix': 'Aman gak kalau gw',
-  'landing.hero.titleWord1': 'KPR',
-  'landing.hero.titleWord2': 'Gadai',
-  'landing.hero.titleWord3': 'Cicil',
+  'landing.hero.titlePrefix': 'Cermat kelola duit, dari',
+  'landing.hero.titleWord1': 'ngekos',
+  'landing.hero.titleWord2': 'sampai punya',
+  'landing.hero.titleWord3': 'rumah',
 
   // Phase-2a Day 3: trust pills above H1 (v0auto-inspired hero layout).
   'landing.trust.pill.noRegister': 'Tanpa daftar',
   'landing.trust.pill.noCloud': 'Tanpa cloud',
 
-  'landing.cta.snapshot.label': 'Mulai dari Snapshot',
-  'landing.cta.snapshot.body': 'Isi data kamu sendiri (5–10 menit).',
+  'landing.cta.snapshot.label': 'Cek Tipe Anak Kos Kamu',
+  'landing.cta.snapshot.body':
+    'Cek dulu kamu tipe anak kos apa? Isi data, langsung keluar persona kamu.',
   'landing.cta.snapshot.action': 'Mulai',
 
-  'landing.cta.demo.label': 'Coba dengan data contoh',
-  'landing.cta.demo.body': 'Skip dulu, lihat tools-nya.',
+  'landing.cta.demo.label': 'Rekap Duit Kamu',
+  'landing.cta.demo.body': 'Catat aset, utang & investasi sampe detail. Males input? Coba dulu pakai data contoh.',
   'landing.cta.demo.action': 'Coba',
+
+  'landing.modal.title': 'Cek Tipe Anak Kos Kamu',
+  'landing.modal.fresh.label': 'Isi Data Sendiri',
+  'landing.modal.fresh.body': 'Isi snapshot kamu (5–10 menit).',
+  'landing.modal.fresh.action': 'Mulai',
+  'landing.modal.demo.label': 'Pakai Data Contoh',
+  'landing.modal.demo.body': 'Skip isi data, langsung lihat hasilnya.',
+  'landing.modal.demo.action': 'Coba',
 
   // Phase-2a Day 3: default layout navbar right-side tagline (with Clock icon).
   'nav.tagline.tenMinutes': 'Cek Keuangan dalam 10 Menit',
@@ -37,8 +47,10 @@ export const copy = {
 
   'dialog.refresh': 'Data kamu belum tersimpan. Yakin mau refresh?',
   'dialog.leave.title': 'Yakin mau keluar?',
-  'dialog.leave.body': 'Data kamu belum tersimpan permanen. Kalau kamu pindah halaman sekarang, data yang sudah diisi akan hilang.',
-  'snapshot.unsaved.banner': 'Data disimpan sementara di memori browser — refresh atau tutup tab akan menghapusnya.',
+  'dialog.leave.body':
+    'Data kamu belum tersimpan permanen. Kalau kamu pindah halaman sekarang, data yang sudah diisi akan hilang.',
+  'snapshot.unsaved.banner':
+    'Data disimpan sementara di memori browser — refresh atau tutup tab akan menghapusnya.',
 
   // D11.2 — Screen 12 negative Net Worth Status framing. Per design-guidelines
   // §10 + OJK posture: "Status" only, NEVER "Saran"/"Sebaiknya". Descriptive
@@ -60,17 +72,17 @@ export const copy = {
   'nav.download.label': 'Unduh xlsx',
   'nav.download.empty': 'Tambah minimal 1 aset dulu',
   'nav.download.pending': 'Menyusun…',
-  'nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
+  'nav.brand.subtitle': 'Cermat ngatur keuangan, biar ngekos makin tenang 💸',
 
   // ----- snapshot page -----
   'snapshot.title': 'Snapshot',
-  'snapshot.section.penghasilan': 'Penghasilan',
-  'snapshot.section.pengeluaran': 'Pengeluaran rutin',
+  'snapshot.section.penghasilan': 'Uang Masuk',
+  'snapshot.section.pengeluaran': 'Biaya Hidup/Bulan',
   'snapshot.section.asetLikuid': 'Aset likuid',
   'snapshot.section.asetNonLikuid': 'Aset non-likuid',
   'snapshot.section.crypto': 'Crypto (live, by unit)',
   'snapshot.section.emas': 'Emas',
-  'snapshot.section.cicilanAktif': 'Cicilan aktif',
+  'snapshot.section.cicilanAktif': 'Utang & Cicilan',
   'snapshot.section.utangPribadi': 'Utang pribadi',
   'snapshot.section.gadai': 'Gadai',
   'snapshot.penghasilan.gajiLabel': 'Gaji Bersih',
@@ -79,6 +91,9 @@ export const copy = {
   'snapshot.penghasilan.lainHelp': 'Sampingan, sewa, freelance, dll.',
   'snapshot.pengeluaran.pokok.label': 'Pokok/bulan',
   'snapshot.pengeluaran.pokok.help': 'Makan, transport, listrik, sewa — yang rutin tiap bulan.',
+  'snapshot.pengeluaran.biayaKos.label': 'Biaya Kos/bulan',
+  'snapshot.pengeluaran.biayaKos.help':
+    'Sewa kos atau kontrakan per bulan — isi terpisah biar kelihatan rasionya.',
   'snapshot.pengeluaran.lifestyle.label': 'Lifestyle/bulan',
   'snapshot.pengeluaran.lifestyle.help': 'Hiburan, langganan, belanja non-pokok.',
   'snapshot.pengeluaran.note':
@@ -227,13 +242,13 @@ export const copy = {
   'gadai.zone.bahaya': 'Risiko Likuidasi',
 
   // ----- dashboard / metrics -----
-  'metric.netWorth.label': 'Net Worth',
-  'metric.modalSiap.label': 'Modal Siap Distribusi',
+  'metric.netWorth.label': 'Total Kekayaanku',
+  'metric.modalSiap.label': 'Tabungan Siap Pakai',
   'metric.modalSiap.advisory': 'Pertimbangkan keep dana darurat 3–6 bulan terpisah.',
-  'metric.dsr.label': 'DSR',
+  'metric.dsr.label': 'Rasio Utang',
   'metric.dar.label': 'DAR',
-  'metric.runway.label': 'Runway',
-  'metric.savingsRate.label': 'Savings Rate',
+  'metric.runway.label': 'Bisa Bertahan',
+  'metric.savingsRate.label': 'Sisa Uang/Bulan',
   'metric.safeHaven.label': 'Safe Haven',
   'metric.allocationDiscipline.label': 'Allocation Discipline',
   'metric.empty.dsr': 'Isi penghasilan dulu.',
@@ -288,7 +303,8 @@ export const copy = {
   'snapshot.saham.lastDivLabel': 'Last dividen / lembar',
   'snapshot.saham.lastDivHelp': 'Annual, IDR per lembar.',
   'snapshot.saham.yieldLabel': 'Yield %',
-  'snapshot.saham.yieldHelp': 'Annual yield (0–100%). Dipakai kalau gak punya angka dividen literal.',
+  'snapshot.saham.yieldHelp':
+    'Annual yield (0–100%). Dipakai kalau gak punya angka dividen literal.',
   'snapshot.saham.potentialDividend': 'Potential Dividend: {amount}/tahun',
   'snapshot.saham.dividendSection': 'Dividen (opsional)',
   'snapshot.saham.dividendModeLastDiv': 'Last div',
@@ -330,7 +346,8 @@ export const copy = {
   'chart.safeHaven.safe': 'Safe Haven',
   'chart.safeHaven.growth': 'Growth',
   'chart.safeHaven.safeDesc': 'Kas + Deposito + SBN + RD defensif (RDPU/RDPT) + Emas',
-  'chart.safeHaven.growthDesc': 'Saham + Crypto + RD agresif (saham/indeks/campuran/lain) + Aset Non-Likuid',
+  'chart.safeHaven.growthDesc':
+    'Saham + Crypto + RD agresif (saham/indeks/campuran/lain) + Aset Non-Likuid',
   'chart.loading': 'Memuat chart…',
 
   'error.generic.title': 'Ada yang gak beres',
@@ -362,11 +379,9 @@ export const copy = {
   'goals.form.bucketsLabel': 'Bucket aset',
   'goals.form.bucketsHelp': 'Pilih kategori aset yang counted ke goal ini.',
   'goals.form.allocationLabel': 'Alokasi bulanan (opsional)',
-  'goals.form.allocationHelp':
-    'Kosongkan untuk pakai default = surplus ÷ jumlah goal aktif.',
+  'goals.form.allocationHelp': 'Kosongkan untuk pakai default = surplus ÷ jumlah goal aktif.',
   'goals.form.submit': '+ Tambah Goal',
-  'goals.form.fiAuto':
-    'Target FI auto-dihitung dari pengeluaran bulanan × 300 (4% rule).',
+  'goals.form.fiAuto': 'Target FI auto-dihitung dari pengeluaran bulanan × 300 (4% rule).',
   'goals.form.fiBlocked': 'Sudah ada FI goal — cuma boleh satu.',
   'goals.form.targetRequired': 'Isi target Rp + tanggal dulu.',
 
@@ -395,11 +410,9 @@ export const copy = {
   'goal.projection.diffOn': 'sesuai target',
   'goal.projection.diffEarly': '{months} bulan lebih cepat dari target',
   'goal.projection.diffLate': '{months} bulan lebih lambat dari target',
-  'goal.fi.formula':
-    'Asumsi: Pengeluaran bulanan {monthly} × {multiplier} = {fiNumber}',
+  'goal.fi.formula': 'Asumsi: Pengeluaran bulanan {monthly} × {multiplier} = {fiNumber}',
   'goal.fi.formulaNote': 'Multiplier fixed 300 (4% rule, Trinity baseline).',
-  'goal.fi.needsPengeluaran':
-    'Isi pengeluaran di Snapshot dulu — FI Number butuh data itu.',
+  'goal.fi.needsPengeluaran': 'Isi pengeluaran di Snapshot dulu — FI Number butuh data itu.',
   'goal.remove': 'Hapus goal',
   'goal.edit.targetIdr': 'Target (Rp)',
   'goal.edit.targetDate': 'Target tanggal',
@@ -414,13 +427,13 @@ export const copy = {
   'dashboard.goalHealth.value': '{pct}% on-track',
 
   // ----- simulator (Decide tab) -----
-  'simulator.title': 'Simulator',
-  'simulator.subtitle': 'Simulasi keputusan keuangan besar — semua hitungan pakai data snapshot kamu.',
+  'simulator.title': 'Simulasi Keputusan',
+  'simulator.subtitle': 'Simulasi keputusan keuangan — pakai data kamu langsung.',
   'simulator.launcher.decisions': 'Simulasi Keputusan',
   'simulator.launcher.capacity': 'Cek Kapasitas',
 
-  'simulator.card.kpr.label': 'Mau KPR',
-  'simulator.card.kpr.body': 'Cek dampak ambil KPR baru ke metrik + goals.',
+  'simulator.card.kpr.label': 'Mau Kos/Sewa?',
+  'simulator.card.kpr.body': 'Hitung budget ngekos atau sewa tempat tinggal.',
   'simulator.card.gadai.label': 'Mau Gadai',
   'simulator.card.gadai.body': 'Simulasi gadai emas / aset.',
   'simulator.card.cicil.label': 'Mau Cicil',
@@ -531,7 +544,8 @@ export const copy = {
   'sim.cicil.form.asetKategori': 'Kategori aset (opsional)',
   'sim.cicil.form.asetSkip': '— skip aset tracking —',
   'sim.cicil.form.asetValue': 'Nilai aset',
-  'sim.cicil.form.asetHint': 'Isi kalau pembelian ini bisa di-track sebagai aset (mis. motor → kendaraan). Skip untuk KK/Paylater.',
+  'sim.cicil.form.asetHint':
+    'Isi kalau pembelian ini bisa di-track sebagai aset (mis. motor → kendaraan). Skip untuk KK/Paylater.',
   'sim.cicil.form.submit': 'Hitung skenario',
 
   'sim.cicil.summary.title': 'Ringkasan Cicilan',
@@ -542,7 +556,8 @@ export const copy = {
 
   // ----- sim: Custom -----
   'sim.custom.title': 'Skenario Custom',
-  'sim.custom.subtitle': 'Tambah 1 cicilan + opsional 1 aset. Buat skenario bebas yang gak fit simulasi standar.',
+  'sim.custom.subtitle':
+    'Tambah 1 cicilan + opsional 1 aset. Buat skenario bebas yang gak fit simulasi standar.',
   'sim.custom.cicilan.title': 'Cicilan baru',
   'sim.custom.cicilan.label': 'Nama',
   'sim.custom.cicilan.tipe': 'Tipe',
@@ -562,8 +577,7 @@ export const copy = {
 
   // ----- sim: Max Utang Aman (capacity) -----
   'sim.maxUtang.title': 'Max Utang Aman',
-  'sim.maxUtang.subtitle':
-    'Berapa max cicilan baru/bulan biar DSR tetap aman (di bawah target)?',
+  'sim.maxUtang.subtitle': 'Berapa max cicilan baru/bulan biar DSR tetap aman (di bawah target)?',
   'sim.maxUtang.form.targetDsr': 'Target DSR (%)',
   'sim.maxUtang.form.targetDsrHelp': 'Default 30% (sehat band per dashboard).',
   'sim.maxUtang.form.tipe': 'Mau utang apa? (pilih satu atau lebih)',
@@ -657,32 +671,27 @@ export const copy = {
     'Tenor mundur (lihat detailnya di simulasi Lunasi); sisa modal {modalSisa}',
   // Utang pribadi
   'modal.option.lunasiUtangPribadi.label': 'Lunasi {label} ({amount})',
-  'modal.option.lunasiUtangPribadi.preview':
-    'DSR {dsrBefore} → {dsrAfter}; sisa modal {modalSisa}',
+  'modal.option.lunasiUtangPribadi.preview': 'DSR {dsrBefore} → {dsrAfter}; sisa modal {modalSisa}',
   // Gadai
   'modal.option.lunasiGadai.label': 'Tebus {label} ({amount})',
-  'modal.option.lunasiGadai.preview':
-    'Aset gadai balik ke snapshot; sisa modal {modalSisa}',
+  'modal.option.lunasiGadai.preview': 'Aset gadai balik ke snapshot; sisa modal {modalSisa}',
   // Beli saham (top per-emiten target gap)
   'modal.option.beliSaham.label': 'Beli {ticker} {lots} lot ({amount})',
   'modal.option.beliSaham.preview':
     'Progress to lotsTarget {progressBefore} → {progressAfter}; drift {driftBefore} → {drift}',
   // Tambah Reksa Dana — preview line varies by FI goal presence
   'modal.option.tambahReksaDana.label': 'Tambah ke Reksa Dana',
-  'modal.option.tambahReksaDana.preview':
-    '+{amount} → proyeksi Goal FI maju ~{months}',
+  'modal.option.tambahReksaDana.preview': '+{amount} → proyeksi Goal FI maju ~{months}',
   'modal.option.tambahReksaDana.previewNoGoal':
     '+{amount} ke RD; kontribusi ke aset likuid (belum ada Goal FI, atau projection unreachable)',
   // Tambah Deposito — same pattern
   'modal.option.tambahDeposito.label': 'Tambah ke Deposito',
-  'modal.option.tambahDeposito.preview':
-    '+{amount} → proyeksi Goal FI maju ~{months}',
+  'modal.option.tambahDeposito.preview': '+{amount} → proyeksi Goal FI maju ~{months}',
   'modal.option.tambahDeposito.previewNoGoal':
     '+{amount} ke Deposito; kontribusi ke aset likuid (belum ada Goal FI, atau projection unreachable)',
   // Tambah SBN — sama pattern; SBN harus di-toggle ON di Modal Siap biar overlap-aware
   'modal.option.tambahSbn.label': 'Tambah ke SBN / Obligasi',
-  'modal.option.tambahSbn.preview':
-    '+{amount} → proyeksi Goal FI maju ~{months}',
+  'modal.option.tambahSbn.preview': '+{amount} → proyeksi Goal FI maju ~{months}',
   'modal.option.tambahSbn.previewNoGoal':
     '+{amount} ke SBN; kontribusi ke aset likuid (belum ada Goal FI, atau projection unreachable)',
   // Tambah Emas — destination = emas digital (lowest spread). Amount → gram via live rate.
@@ -732,6 +741,60 @@ export const copy = {
   'sim.deployPreview.category.reksaDana': 'Reksa Dana',
   'sim.deployPreview.category.deposito': 'Deposito',
   'sim.deployPreview.category.sbn': 'SBN / Obligasi',
+
+  // ----- persona (Phase 3 Priority 1) -----
+  'persona.sultanKos.label': 'Sultan Kos',
+  'persona.sultanKos.tagline': 'Gaji mewah, investasi jalan, top!',
+  'persona.investorKos.label': 'Investor Kos',
+  'persona.investorKos.tagline': 'Sudah mulai investasi, masa depan cerah!',
+  'persona.anakKosBijak.label': 'Anak Kos Bijak',
+  'persona.anakKosBijak.tagline': 'Disiplin ngatur keuangan, Respect!',
+  'persona.pejuangAkhirBulan.label': 'Pejuang Akhir Bulan',
+  'persona.pejuangAkhirBulan.tagline': 'Akhir bulan keras, tapi kamu gak sendiri!',
+  'persona.sobatIndomie.label': 'Sobat Indomie',
+  'persona.sobatIndomie.tagline': 'Hemat itu pilihan, tapi yang penting happy!',
+  'persona.stats.savingsRate': 'Sisa Uang/Bulan',
+  'persona.stats.runway': 'Bisa Bertahan',
+
+  // ----- CTA Mamikos (Phase 3 Priority 2) -----
+  'cta.mamikos.afterPersona.label': 'Cari Kos Sesuai Budgetmu',
+  'cta.mamikos.afterPersona.body': 'Temukan kos pas di Mamikos — hemat tanpa ribet.',
+  'cta.mamikos.dashboardBottom.label': 'Mau Pindah Kos?',
+  'cta.mamikos.dashboardBottom.body': 'Cek kos available di Mamikos, sesuai budget kamu.',
+  'cta.mamikos.landing.label': 'Cari Kos Sekitar Kamu',
+  'cta.mamikos.landing.body': 'Mulai cek keuangan, lalu cari kos yang pas.',
+  'cta.mamikos.rumah.label': 'Cari Rumah Impianmu',
+  'cta.mamikos.rumah.body': 'Sudah siap secara finansial? Cek rumah yang tersedia.',
+  'cta.mamikos.invest.label': 'Beli Kos Buat Investasi',
+  'cta.mamikos.invest.body': 'Dana udah cuma-cuma? Saatnya jadi juragan kos.',
+  'cta.mamikos.action': '→',
+
+  // ----- budget-kos: rent-to-income insight -----
+  'budgetKos.biayaKos.ratio.label': 'Rasio Kos/Penghasilan',
+  'budgetKos.biayaKos.ratio.safe':
+    'Biaya kos {pct}% dari penghasilan — masih dalam batas aman. Tetap jaga ya!',
+  'budgetKos.biayaKos.ratio.warning':
+    'Biaya kos {pct}% dari penghasilan — mendekati batas aman (30%). Pertimbangkan kos yang lebih murah atau tambah sampingan.',
+  'budgetKos.biayaKos.ratio.danger':
+    'Biaya kos {pct}% dari penghasilan — melewati batas aman (30%). Tabungan dan pos lain bisa terganggu. Cari kos lebih murah atau tambah penghasilan sampingan.',
+  'budgetKos.biayaKos.ratio.recommend':
+    'Coba cari kos di range {min}–{max}/bulan biar rasio aman.',
+
+  // ----- wealth tracker overrides (professional tone) -----
+  'wt.metric.netWorth.label': 'Net Worth',
+  'wt.metric.modalSiap.label': 'Modal Siap Distribusi',
+  'wt.metric.dsr.label': 'DSR',
+  'wt.metric.runway.label': 'Runway',
+  'wt.metric.savingsRate.label': 'Savings Rate',
+  'wt.simulator.card.kpr.label': 'Mau KPR',
+  'wt.simulator.card.kpr.body': 'Cek dampak ambil KPR baru ke metrik + goals.',
+  'wt.snapshot.section.penghasilan': 'Penghasilan',
+  'wt.snapshot.section.pengeluaran': 'Pengeluaran rutin',
+  'wt.snapshot.section.cicilanAktif': 'Cicilan aktif',
+  'wt.simulator.title': 'Simulator',
+  'wt.simulator.subtitle':
+    'Simulasi keputusan keuangan besar — semua hitungan pakai data snapshot kamu.',
+  'wt.nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
 } as const
 
 export type CopyKey = keyof typeof copy
@@ -742,4 +805,18 @@ export function t(key: CopyKey, vars?: Record<string, string | number>): string 
   return raw.replace(/\{(\w+)\}/g, (_, name: string) =>
     vars[name] !== undefined ? String(vars[name]) : `{${name}}`,
   )
+}
+
+// Mode-aware translation: returns wealth-tracker override if mode is
+// 'wealthTracker' and a 'wt.<key>' entry exists, otherwise falls back to t().
+export function tm(
+  key: CopyKey,
+  mode: 'budgetKos' | 'wealthTracker' | null,
+  vars?: Record<string, string | number>,
+): string {
+  if (mode === 'wealthTracker') {
+    const wtKey = `wt.${key}` as CopyKey
+    if (wtKey in copy) return t(wtKey, vars)
+  }
+  return t(key, vars)
 }

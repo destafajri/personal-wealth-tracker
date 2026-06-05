@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { Download, ShieldCheck } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
-import { t } from '~/lib/copy/strings'
+import { t, tm } from '~/lib/copy/strings'
 import { useDerivedStore } from '~/stores/derived'
+import { useSnapshotStore } from '~/stores/snapshot'
 import { useXlsx } from '~/composables/useXlsx'
 
 const derived = useDerivedStore()
+const snap = useSnapshotStore()
 const downloadDisabled = computed(() => derived.totalAset === 0)
 
 // useXlsx dynamic-imports SheetJS on first call, so the first click pays the
@@ -39,7 +41,7 @@ async function onDownload() {
           {{ t('brand.name') }}
         </span>
         <span class="hidden text-xs text-[var(--color-text-secondary)] sm:inline">
-          {{ t('nav.brand.subtitle') }}
+          {{ tm('nav.brand.subtitle', snap.mode) }}
         </span>
       </NuxtLink>
 

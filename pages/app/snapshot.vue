@@ -84,6 +84,7 @@ const hasData = computed(() =>
     penghasilanLainCount: snap.penghasilanLain.length,
     pengeluaranPokok: snap.pengeluaran.pokok,
     pengeluaranLifestyle: snap.pengeluaran.lifestyle,
+    pengeluaranBiayaKos: snap.pengeluaran.biayaKos ?? 0,
     pengeluaranLainCount: snap.pengeluaranLain.length,
     totalAset: derived.totalAset,
     cicilanCount: snap.cicilanAktif.length,
@@ -100,7 +101,11 @@ onBeforeRouteLeave(() => {
 })
 
 onMounted(() => {
+  // /app/snapshot IS the Wealth Tracker page — always set professional mode.
+  // Set AFTER demo trigger because applyDemoSnapshot calls reset() which
+  // clears mode to null.
   triggerDemoFromQuery(snap, route, router)
+  snap.mode = 'wealthTracker'
 })
 function resetDemo() {
   snap.reset()

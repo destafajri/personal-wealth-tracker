@@ -10,11 +10,13 @@ import {
   calcModalSiap,
   calcNetWorth,
   calcPotentialDividendIdr,
+  calcRentToIncomeRatio,
   calcRunway,
   calcSafeHaven,
   calcSavingsRate,
   calcTotalAset,
   calcTotalDividendAnnual,
+  calcTotalPengeluaran,
   calcTotalUtang,
   effectiveStockPrice,
   gajiBersihIdr,
@@ -1025,5 +1027,103 @@ describe('multi-row penghasilanLain', () => {
     }
     // penghasilan = 500 × 16_200 = 8.1jt; SR = (8.1 − 4)/8.1 ≈ 50.6%
     expect(calcSavingsRate(s, prices)).toBeCloseTo(((8_100_000 - 4_000_000) / 8_100_000) * 100, 4)
+  })
+})
+
+describe('calcTotalPengeluaran with biayaKos', () => {
+  it('includes biayaKos in the total when set', () => {
+    const s = baseSnap()
+    s.pengeluaran = {
+      pokok: 2_000_000,
+      pokokCurrency: 'IDR',
+      lifestyle: 500_000,
+      lifestyleCurrency: 'IDR',
+      biayaKos: 1_200_000,
+      biayaKosCurrency: 'IDR',
+    }
+    // 2M + 500k + 1.2M = 3.7M
+    expect(calcTotalPengeluaran(s)).toBe(3_700_000)
+  })
+
+  it('treats biayaKos as 0 when undefined (backward compat)', () => {
+    const s = baseSnap()
+    s.pengeluaran = {
+      pokok: 2_000_000,
+      pokokCurrency: 'IDR',
+      lifestyle: 500_000,
+      lifestyleCurrency: 'IDR',
+    }
+    // 2M + 500k = 2.5M (no biayaKos)
+    expect(calcTotalPengeluaran(s)).toBe(2_500_000)
+  })
+
+  it('converts biayaKos via fxRates when non-IDR', () => {
+    const s = baseSnap()
+    s.pengeluaran = {
+      pokok: 0,
+      pokokCurrency: 'IDR',
+      lifestyle: 0,
+      lifestyleCurrency: 'IDR',
+      biayaKos: 100,
+      biayaKosCurrency: 'USD',
+    }
+    const prices: PricesView = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: 16_000, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {},
+    }
+    expect(calcTotalPengeluaran(s, prices)).toBe(1_600_000)
+  })
+})
+
+describe('calcRentToIncomeRatio', () => {
+  it('returns null when penghasilan = 0', () => {
+    const s = baseSnap()
+    s.pengeluaran.biayaKos = 1_200_000
+    expect(calcRentToIncomeRatio(s)).toBeNull()
+  })
+
+  it('returns null when biayaKos = 0', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 5_000_000, currency: 'IDR' }
+    expect(calcRentToIncomeRatio(s)).toBeNull()
+  })
+
+  it('calculates biayaKos / penghasilan × 100', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 5_000_000, currency: 'IDR' }
+    s.pengeluaran = {
+      pokok: 0,
+      pokokCurrency: 'IDR',
+      lifestyle: 0,
+      lifestyleCurrency: 'IDR',
+      biayaKos: 1_500_000,
+      biayaKosCurrency: 'IDR',
+    }
+    expect(calcRentToIncomeRatio(s)).toBeCloseTo(30, 6)
+  })
+
+  it('converts non-IDR biayaKos before ratio calculation', () => {
+    const s = baseSnap()
+    s.penghasilan = { amount: 8_000_000, currency: 'IDR' }
+    s.pengeluaran = {
+      pokok: 0,
+      pokokCurrency: 'IDR',
+      lifestyle: 0,
+      lifestyleCurrency: 'IDR',
+      biayaKos: 200,
+      biayaKosCurrency: 'USD',
+    }
+    const prices: PricesView = {
+      goldDigitalIdrPerGram: null,
+      goldAntam1gIdr: null,
+      fxRates: { USD: 16_000, SGD: null, EUR: null, JPY: null, KRW: null },
+      idxByTicker: {},
+      cryptoByCoinId: {},
+    }
+    // 200 × 16_000 = 3.2M; 3.2M / 8M × 100 = 40%
+    expect(calcRentToIncomeRatio(s, prices)).toBeCloseTo(40, 6)
   })
 })

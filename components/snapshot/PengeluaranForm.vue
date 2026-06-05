@@ -6,7 +6,7 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { t } from '~/lib/copy/strings'
 import { CURRENCIES } from '~/lib/types/snapshot'
 
-defineProps<{ hideHeader?: boolean }>()
+defineProps<{ hideHeader?: boolean; showBiayaKos?: boolean }>()
 
 const snap = useSnapshotStore()
 </script>
@@ -21,6 +21,23 @@ const snap = useSnapshotStore()
       </h3>
     </header>
     <div class="space-y-3">
+      <label v-if="showBiayaKos" class="block">
+        <span class="text-sm font-medium text-[var(--color-text-primary)]">
+          {{ t('snapshot.pengeluaran.biayaKos.label') }}
+        </span>
+        <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
+          {{ t('snapshot.pengeluaran.biayaKos.help') }}
+        </p>
+        <div class="mt-2">
+          <InputCurrency
+            :model-value="!snap.pengeluaran.biayaKos ? null : snap.pengeluaran.biayaKos"
+            :currency="snap.pengeluaran.biayaKosCurrency ?? 'IDR'"
+            :currencies="CURRENCIES"
+            @update:model-value="snap.setPengeluaran({ biayaKos: $event ?? 0 })"
+            @update:currency="snap.setPengeluaran({ biayaKosCurrency: $event })"
+          />
+        </div>
+      </label>
       <label class="block">
         <span class="text-sm font-medium text-[var(--color-text-primary)]">
           {{ t('snapshot.pengeluaran.pokok.label') }}

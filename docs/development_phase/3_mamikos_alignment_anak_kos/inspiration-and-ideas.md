@@ -1,18 +1,31 @@
-# Phase 3: Ide & Inspirasi — Mamikos Alignment
+# Phase 3: Ideas & Inspiration — Mamikos Alignment
 
-**Sumber:** Adaptasi dari prompt Gemini + analisis codebase Cermat
-**Tanggal:** 2026-06-05
+**Source:** Adapted from Gemini prompt + Cermat codebase analysis
+**Date:** 2026-06-05
+**Status:** ✅ Implemented on branch `alignment`
 
 ---
 
-## 1. Rewrite Copy & Parameter — Nuansa Anak Kos
+## Implementation Priority
 
-### Pendekatan
-Map copy yang ada di `lib/copy/strings.ts` ke versi anak kos. Bukan ganti semua, tapi ubah yang user-facing (form labels, hints, metric names) biar terasa "Mamikos".
+This is the canonical build order (also stated in README.md):
 
-### Contoh mapping (perlu dikonfirmasi):
-| Sekarang | Versi Anak Kos |
-|----------|---------------|
+1. **Persona & Gamification** (most impactful for contest)
+2. **CTA Mamikos** (brand affinity)
+3. **Copy rewrite** (feel "Mamikos" throughout)
+4. **Share Card** (viral growth engine)
+5. **Kos Rent Budget** (feature depth — stretch goal)
+
+---
+
+## 1. Rewrite Copy & Parameters — Anak Kos Vibe
+
+### Approach
+Map existing copy in `lib/copy/strings.ts` to anak kos versions. Not a full replacement — change user-facing items (form labels, hints, metric names) so it feels "Mamikos".
+
+### Example mapping (to be confirmed):
+| Current | Anak Kos Version |
+|---------|------------------|
 | Pendapatan Bulanan | Uang Saku / Gaji Bulanan |
 | Pengeluaran | Biaya Hidup Bulanan |
 | Cicilan Aktif | Utang / Cicilan |
@@ -25,137 +38,155 @@ Map copy yang ada di `lib/copy/strings.ts` ke versi anak kos. Bukan ganti semua,
 | Mau KPR | Mau Kos / Sewa? |
 | Mau Gadai | Butuh Dana Darurat? |
 
-### File yang perlu disentuh
-- `lib/copy/strings.ts` — copy registry utama
-- `lib/copy/metric-explainers.ts` — penjelasan metric
+### Files to touch
+- `lib/copy/strings.ts` — main copy registry
+- `lib/copy/metric-explainers.ts` — metric explanations
 - `components/snapshot/` — panel form labels
 - `pages/index.vue` — landing copy
-- `components/simulator/WizardLauncher.vue` — wizard card labels
+- `components/simulator/SimLauncher.vue` — wizard card labels
 
-### Catatan
-- Metric names di `lib/finance/metrics.ts` (internal) TIDAK diubah — cuma display copy
-- OJK disclaimer text tetap formal (regulatory requirement)
+### Notes
+- Metric names in `lib/finance/metrics.ts` (internal) are NOT changed — only display copy
+- OJK disclaimer text stays formal (regulatory requirement)
 
 ---
 
-## 2. Gamifikasi — Persona Finansial Anak Kos
+## 2. Gamification — Anak Kos Financial Persona
 
-### Konsep
-Setelah user isi snapshot, system kasih "Persona" berdasarkan profil keuangan mereka. Ride on metrics yang sudah ada.
+### Concept
+After the user fills in their snapshot, the system assigns a "Persona" based on their financial profile. Rides on existing metrics.
 
-### Persona ideas (berdasarkan Savings Rate + Modal Siap + aset):
-| Persona | Kriteria | Tone |
-|---------|----------|------|
-| Sultan Kos | Savings Rate >40%, punya investasi | Flex, tapi inspiratif |
-| Anak Kos Bijak | Savings Rate 15-40%, disiplin | Positive, relatable |
-| Sobat Indomie | Savings Rate <15% atau minus | Lucu, tapi ada nudge |
-| Investor Kos | Punya saham/RD/crypto meski ngekos | Keren, "masa depan cerah" |
-| Pejuang Akhir Bulan | Runway <1 bulan | Empati + actionable tips |
+### Persona table (deterministic — first match wins, top to bottom):
+| # | Persona | Criteria | Tone |
+|---|---------|----------|------|
+| 1 | Sultan Kos | `savingsRate >= 40 && hasInvestments` | Flex, but inspiring |
+| 2 | Investor Kos | `hasInvestments && savingsRate >= 0` | Cool, "bright future" |
+| 3 | Anak Kos Bijak | `savingsRate >= 15` | Positive, relatable |
+| 4 | Pejuang Akhir Bulan | `runway < 1` (month) | Empathy + actionable tips |
+| 5 | Sobat Indomie | fallback (everything else) | Funny, with a nudge |
 
-### Logic (pseudo):
-```
-if (savingsRate >= 40 && hasInvestments) → Sultan Kos
-if (savingsRate >= 40 && !hasInvestments) → Anak Kos Bijak
-if (savingsRate >= 15) → Anak Kos Bijak
-if (hasInvestments && savingsRate >= 0) → Investor Kos
-if (savingsRate < 0) → Pejuang Akhir Bulan
-else → Sobat Indomie
-```
+### Precedence rules
+- Rules are evaluated top-to-bottom. **First match wins.**
+- `hasInvestments` = any of `saham`, `reksaDana`, `crypto`, or `deposito` > 0
+- `savingsRate` = existing metric from `lib/finance/metrics.ts` (read-only)
+- `runway` = existing metric (read-only)
+- If all inputs are zero/empty, show "Isi snapshot dulu ya!" (no persona)
 
-### Implementasi ideas
-- Persona card muncul di dashboard setelah snapshot terisi
-- Badge/icon yang eye-catching
-- Animasi reveal (confetti? slide-in?)
-- Persona bisa berubah seiring user update data
+### Implementation ideas
+- Persona card appears on dashboard after snapshot is filled
+- Eye-catching badge/icon
+- Reveal animation (confetti? slide-in?)
+- Persona can change as user updates data
 
-### File yang mungkin disentuh
-- New: `lib/finance/persona.ts` — pure function persona logic
+### Files to create/modify
+- New: `lib/finance/persona.ts` — pure function, reads existing metrics only
 - New: `components/dashboard/PersonaCard.vue` — persona display
-- `components/layout/DashboardPanel.vue` — mount persona card
 - `lib/copy/strings.ts` — persona copy registry
 
 ---
 
 ## 3. Share Card — Spotify Wrapped Style
 
-### Konsep
-Card aesthetic yang merangkum persona + key stats buat di-share ke social media. Mirip Spotify Wrapped — orang share karena keren, bukan karena diminta.
+### Concept
+An aesthetic card summarizing persona + key stats for social media sharing. Like Spotify Wrapped — people share because it looks cool, not because they're asked to.
+
+### Privacy model
+- **Default share content:** persona name + badge only (no amounts)
+- **User opt-in:** toggle to include ratios (savings rate %, runway months) — still no raw IDR amounts
+- **Never shared without explicit tap:** raw net worth, asset values, debt values
+- Rationale: finance-adjacent product in a public contest — safe defaults prevent accidental oversharing
 
 ### Design ideas:
-- Card dengan gradient background yang instagrammable
-- Persona + 3-4 key stats (Total Kekayaan, Savings Rate, Runway)
-- Branding "Cermat x Mamikos"
-- QR code atau link ke app
+- Card with gradient background, instagrammable
+- Persona badge + optional ratios (savings rate %, runway)
+- "Cermat x Mamikos" branding
+- QR code or link to app
 
 ### Share methods:
-- **Copy text** — pre-filled template: "Aku [Persona]! 💰 Total kekayaanku Rp X, bisa bertahan Y bulan tanpa penghasilan. Cek keuanganmu juga di Cermat x Mamikos!"
-- **Share ke Twitter/X** — compose tweet dengan text + link
-- **Share ke WhatsApp** — deep link wa.me
-- **Download as image** — html2canvas atau similar (nice-to-have)
+- **Copy text** — pre-filled template: "Aku [Persona]! Cek keuanganmu juga di Cermat x Mamikos!"
+- **Share to Twitter/X** — compose tweet with text + link
+- **Share to WhatsApp** — wa.me deep link
+- **Download as image** — html2canvas or similar (nice-to-have)
 
-### Implementasi ideas
+### Implementation ideas
 - New: `components/common/ShareCard.vue` — share card component
 - New: `composables/useShare.ts` — share logic (copy + social media deep links)
-- Persona card punya tombol share yang trigger ShareCard
+- Persona card has a share button that triggers ShareCard
 
-### Catatan
-- Client-side only — tidak butuh backend
-- Privacy: user harus explicit click share, jangan auto-generate
+### Notes
+- Client-side only — no backend needed
+- Card output must match on-screen persona (no stale data)
 
 ---
 
 ## 4. CTA Mamikos Integration
 
-### Konsep
-CTA natural yang muncul di momen yang tepat, bukan banner generic.
+### Concept
+Natural CTAs that appear at the right moment, not a generic banner.
 
 ### CTA placement ideas:
-| Momen | CTA | Relevansi |
-|-------|-----|-----------|
-| Setelah lihat persona | "Cari Kos Sesuai Budgetmu di Mamikos" | Natural next step |
-| Rasio sewa >30% penghasilan | "Budget sewamu terlalu besar! Cari kos yang lebih murah?" | Actionable |
-| Landing page | "Mulai Cek Keuangan, Cari Kos Pas di Mamikos" | Entry point |
+| Moment | CTA | Relevance |
+|--------|-----|-----------|
+| After viewing persona | "Cari Kos Sesuai Budgetmu di Mamikos" | Natural next step |
+| Rent ratio >30% of income | "Budget sewamu terlalu besar! Cari kos yang lebih murah?" | Actionable |
+| Landing page | "Mulai Cek Keuangan, Cari Kos Sekitar Kamu" | Entry point |
 | Bottom of dashboard | "Mau pindah kos? Cek dulu budgetmu" | Soft nudge |
 
-### URL target
+### Target URL
 - `https://mamikos.com` (default)
-- Could be deep link ke search Mamikos dengan budget range (kalau ada API)
 
-### Implementasi ideas
+### Implementation ideas
 - New: `components/common/CtaMamikos.vue` — reusable CTA component
-- Dipasang di beberapa lokasi strategis
-- Styling: eye-catching tapi tidak mengganggu
+- Placed at strategic locations
+- Styling: eye-catching but not intrusive
 
 ---
 
-## 5. Budget Sewa Kos (dari eks-Phase 6)
+## 5. Kos Rent Budget (from ex-Phase 6)
 
-### Konsep
-Tracking biaya sewa kos sebagai bagian dari pengeluaran. Bukan module baru, tapi enhancement di snapshot form.
+### Concept
+Track kos rent as part of expenses. Not a new module, but an enhancement to the snapshot form.
 
 ### Ideas:
-- Sewa kos sebagai expense category khusus
-- Rasio sewa vs penghasilan (ideal ≤30%)
-- Perbandingan sewa rata-rata per kota (nice-to-have)
-- Tips hemat biaya kos
+- Kos rent as a dedicated expense category
+- Rent vs income ratio (ideal ≤30%)
+- Tips for saving on kos expenses
 
 ---
 
-## Prioritas Implementasi
+## 6. Multiple Entry Points on Landing Page — ✅ Implemented
 
-1. **Persona + Gamifikasi** (paling impactful buat kontes)
-2. **CTA Mamikos** (brand affinity)
-3. **Copy rewrite** (feel "Mamikos" throughout)
-4. **Share Card** (viral growth engine)
-5. **Budget Sewa Kos** (feature depth)
+### Architecture: Separate pages (not mode branching)
 
----
+Each CTA on the landing page now routes to its own page with a completely different experience:
 
-## 6. Multiple Entry Points di Landing Page
+| Aspect | Budget Kos (`/app/budget-kos`) | Wealth Tracker (`/app/snapshot`) |
+|--------|-------------------------------|----------------------------------|
+| Layout | `default` (no sidebar, no top tab bar) | `app` (sidebar + Track/Plan/Decide tabs) |
+| Tabs | 4 (Cash Flow, Kas, Utang, Ringkasan) | 6 (full) |
+| Ringkasan | Gamified persona hero + surplus + health cards | DashboardPanel + charts + goals |
+| Copy tone | Casual anak kos (base labels) | Professional (`wt.*` overrides via `tm()`) |
+| Demo data | Anak kos profile (gaji 3.5jt, paylater, motor) | Rio profile (gaji 6.5jt, KPR, saham, crypto) |
+| CTA Mamikos | Shown in Ringkasan | Hidden |
+| Persona card | Shown in Ringkasan (inline gradient hero) | Hidden |
 
-### Konsep
-Daripada satu CTA "Mulai Sekarang", buat **dua entry point** yang beda experience tapi masuk ke app yang sama:
+### Mode system
+`stores/snapshot.ts` has `mode: AppMode | null` where `AppMode = 'budgetKos' | 'wealthTracker'`. Each page sets its mode on mount:
+- `budget-kos.vue`: `snap.mode = 'budgetKos'` then `triggerBudgetKosDemo()`
+- `snapshot.vue`: `triggerDemoFromQuery()` first (which calls `reset()`), then `snap.mode = 'wealthTracker'`
 
+### Dual copy system
+`lib/copy/strings.ts` has:
+- Base labels: casual anak kos tone (e.g., "Total Kekayaanku", "Rasio Utang")
+- `wt.*` overrides: professional tone (e.g., "Net Worth", "DSR")
+- `tm(key, mode)` helper: returns `wt.*` version when mode=`wealthTracker`, base otherwise
+
+### Landing page routing
+Landing modal routes are dynamic based on which CTA card was clicked:
+- "Cek Tipe Anak Kos Kamu" → `/app/budget-kos` (fresh) or `/app/budget-kos?demo=1` (with data)
+- "Wealth Tracker Lengkap" → `/app/snapshot` (fresh) or `/app/snapshot?demo=1` (with data)
+
+### Landing layout
 ```
 ┌─────────────────────────────────────────────┐
 │              CERMAT x MAMIKOS               │
@@ -178,36 +209,25 @@ Daripada satu CTA "Mulai Sekarang", buat **dua entry point** yang beda experienc
 └─────────────────────────────────────────────┘
 ```
 
-### Path 1: "Cek Budget Ngekos" (Anak Kos)
-- Flow ringan, quick snapshot
-- Copy casual anak kos
-- Langsung dapat Persona (Sultan Kos / Sobat Indomie / dll)
-- Share card + CTA Mamikos
-- Target: viral growth, brand affinity
-
-### Path 2: "Wealth Tracker Lengkap" (Serius)
-- Flow yang sudah ada sekarang
-- Full snapshot + semua wizard
-- Copy tetap profesional tapi accessible
-- Untuk user yang mau serius ngitung aset
-- Target: functional depth
-
-### Implementasi
-- Landing page (`pages/index.vue`) punya dua CTA cards
-- Set entry mode di URL params atau localStorage: `/app/snapshot?mode=kos` vs `/app/snapshot?mode=full`
-- UI components detect mode → adjust copy, show/hide persona card, adjust form fields
-- Sama-sama pakai engine perhitungan yang sama, cuma UX layer beda
-
-### Kenapa ini bagus
-- Juri lihat "Mamikos" di path pertama → langsung score brand affinity
-- User serius tetap bisa pakai full power → tidak kehilangan functionality
-- Satu codebase, dua pengalaman → efisien
+### Files changed
+- `pages/app/budget-kos.vue` — **new** page with inline Ringkasan
+- `pages/app/snapshot.vue` — mode set after demo trigger
+- `stores/snapshot.ts` — `AppMode` type + `mode` ref
+- `lib/copy/strings.ts` — `wt.*` overrides + `tm()` helper
+- `lib/fixtures/demoSnapshot.ts` — `applyBudgetKosDemo()` + `triggerBudgetKosDemo()`
+- `components/layout/DashboardPanel.vue` — `v-if="isBudgetKos"` on PersonaCard/CtaMamikos
+- `components/dashboard/HeroPair.vue` — `tm()` for metric labels
+- `components/dashboard/MetricCard.vue` — `tm()` for metric labels
+- `components/layout/TopNav.vue` — `tm()` for brand subtitle
+- `components/simulator/SimLauncher.vue` — `tm()` for card labels
+- `pages/app/simulator.vue` — `tm()` for title/subtitle
+- `pages/index.vue` — dynamic modal route based on `pendingMode`
 
 ---
 
 ## Constraints
-- JANGAN ubah core logic perhitungan di `lib/finance/` — cuma baca output
-- JANGAN ubah behavior/calculation/OJK posture — preservation guard berlaku
-- Semua client-side, tidak butuh database
-- Konsisten dengan design system yang ada (Tailwind tokens)
-- OJK disclaimer text tetap formal (regulatory requirement)
+- DO NOT change core calculation logic in `lib/finance/` — only read outputs
+- DO NOT change behavior/calculation/OJK posture — preservation guard applies
+- All client-side, no database needed
+- Consistent with existing design system (Tailwind tokens)
+- OJK disclaimer text stays formal (regulatory requirement)
