@@ -25,19 +25,19 @@ const route = useRoute()
           >
             {{ t('brand.name') }}
           </span>
+          <span
+            class="hidden items-center gap-1.5 text-xs text-[var(--color-text-secondary)] sm:inline-flex sm:text-sm"
+            :class="route.path.startsWith('/app/budget-kos') ? 'inline-flex' : 'hidden sm:inline-flex'"
+          >
+            <template v-if="route.path.startsWith('/app/budget-kos')">
+              {{ t('nav.brand.subtitle') }}
+            </template>
+            <template v-else>
+              <Clock class="h-4 w-4" />
+              {{ t('nav.tagline.tenMinutes') }}
+            </template>
+          </span>
         </NuxtLink>
-        <span
-          class="items-center gap-1.5 text-xs text-[var(--color-text-secondary)] sm:inline-flex sm:text-sm"
-          :class="route.path.startsWith('/app/budget-kos') ? 'inline-flex' : 'hidden sm:inline-flex'"
-        >
-          <template v-if="route.path.startsWith('/app/budget-kos')">
-            {{ t('nav.brand.subtitle') }}
-          </template>
-          <template v-else>
-            <Clock class="h-4 w-4" />
-            {{ t('nav.tagline.tenMinutes') }}
-          </template>
-        </span>
       </div>
     </header>
 
