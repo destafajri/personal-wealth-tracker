@@ -322,15 +322,15 @@ const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.va
             {{ t(`persona.${persona.key}.tagline` as import('~/lib/copy/strings').CopyKey) }}
           </p>
           <div class="mt-4 flex justify-center gap-4">
-            <div class="rounded-xl bg-gradient-to-br px-4 py-2" :class="[personaStyle.gradient]">
-              <p class="text-[10px] font-semibold uppercase tracking-wider text-white/80">Sisa Uang/Bulan</p>
-              <p class="text-lg font-bold text-white">
+            <div class="rounded-xl bg-gradient-to-br px-4 py-2.5 shadow-sm" :class="[personaStyle.gradient]">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-white drop-shadow-sm">Sisa Uang/Bulan</p>
+              <p class="text-lg font-extrabold text-white drop-shadow-md">
                 {{ derived.savingsRate != null ? `${Math.round(derived.savingsRate)}%` : '—' }}
               </p>
             </div>
-            <div class="rounded-xl bg-gradient-to-br px-4 py-2" :class="[personaStyle.gradient]">
-              <p class="text-[10px] font-semibold uppercase tracking-wider text-white/80">Bisa Bertahan</p>
-              <p class="text-lg font-bold text-white">
+            <div class="rounded-xl bg-gradient-to-br px-4 py-2.5 shadow-sm" :class="[personaStyle.gradient]">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-white drop-shadow-sm">Bisa Bertahan</p>
+              <p class="text-lg font-extrabold text-white drop-shadow-md">
                 {{ derived.runway != null ? `${Math.round(derived.runway)} bln` : '—' }}
               </p>
             </div>

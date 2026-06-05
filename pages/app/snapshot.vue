@@ -101,8 +101,10 @@ onBeforeRouteLeave(() => {
 
 onMounted(() => {
   // /app/snapshot IS the Wealth Tracker page — always set professional mode.
-  snap.mode = 'wealthTracker'
+  // Set AFTER demo trigger because applyDemoSnapshot calls reset() which
+  // clears mode to null.
   triggerDemoFromQuery(snap, route, router)
+  snap.mode = 'wealthTracker'
 })
 function resetDemo() {
   snap.reset()
