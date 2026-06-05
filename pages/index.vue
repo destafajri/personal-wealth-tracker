@@ -16,14 +16,25 @@ useSeoMeta({
 const snap = useSnapshotStore()
 const showModal = ref(false)
 const modalTitle = ref('')
+const pendingMode = ref<'budgetKos' | 'wealthTracker'>('budgetKos')
 
-function openModal(title: string) {
+const modalRoute = computed(() =>
+  pendingMode.value === 'budgetKos' ? '/app/budget-kos' : '/app/snapshot',
+)
+
+function openModal(title: string, mode: 'budgetKos' | 'wealthTracker') {
   modalTitle.value = title
+  pendingMode.value = mode
   showModal.value = true
 }
 
 function startFresh() {
   snap.reset()
+  snap.mode = pendingMode.value
+}
+
+function budgetKosDemo() {
+  snap.mode = 'budgetKos'
 }
 </script>
 
@@ -63,7 +74,7 @@ function startFresh() {
       <button
         type="button"
         class="group relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 text-left shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
-        @click="openModal(t('landing.cta.snapshot.label'))"
+        @click="openModal(t('landing.cta.snapshot.label'), 'budgetKos')"
       >
         <div
           class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500"
@@ -88,7 +99,7 @@ function startFresh() {
       <button
         type="button"
         class="group relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 text-left shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
-        @click="openModal(t('landing.cta.demo.label'))"
+        @click="openModal(t('landing.cta.demo.label'), 'wealthTracker')"
       >
         <div
           class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-400 to-indigo-500"
@@ -151,7 +162,7 @@ function startFresh() {
         </h3>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           <NuxtLink
-            to="/app/snapshot"
+            :to="modalRoute"
             class="group flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-left transition-all hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-sm)]"
             @click="startFresh"
           >
@@ -171,8 +182,9 @@ function startFresh() {
           </NuxtLink>
 
           <NuxtLink
-            to="/app/snapshot?demo=1"
+            :to="`${modalRoute}?demo=1`"
             class="group flex flex-col gap-2 rounded-[var(--radius-card)] border border-[var(--color-border)] p-4 text-left transition-all hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-sm)]"
+            @click="budgetKosDemo"
           >
             <div class="flex items-center gap-2">
               <span class="text-lg">🎮</span>

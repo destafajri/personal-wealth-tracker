@@ -8,7 +8,7 @@
 // reads the same FX-aware valuations the dashboard shows.
 import { computed, watchEffect } from 'vue'
 import SimLauncher from '~/components/simulator/SimLauncher.vue'
-import { t } from '~/lib/copy/strings'
+import { t, tm } from '~/lib/copy/strings'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import {
@@ -72,9 +72,9 @@ watchEffect(() => {
 <template>
   <div class="space-y-5">
     <h1 class="text-2xl font-semibold text-[var(--color-text-primary)]">
-      {{ t('simulator.title') }}
+      {{ tm('simulator.title', snap.mode) }}
     </h1>
-    <p class="text-sm text-[var(--color-text-secondary)]">{{ t('simulator.subtitle') }}</p>
+    <p class="text-sm text-[var(--color-text-secondary)]">{{ tm('simulator.subtitle', snap.mode) }}</p>
     <SimLauncher />
   </div>
 </template>

@@ -763,6 +763,21 @@ export const copy = {
   'cta.mamikos.landing.label': 'Cari Kos Pas di Mamikos',
   'cta.mamikos.landing.body': 'Mulai cek keuangan, lalu cari kos yang pas.',
   'cta.mamikos.action': 'Cari di Mamikos →',
+
+  // ----- wealth tracker overrides (professional tone) -----
+  'wt.metric.netWorth.label': 'Net Worth',
+  'wt.metric.modalSiap.label': 'Modal Siap Distribusi',
+  'wt.metric.dsr.label': 'DSR',
+  'wt.metric.runway.label': 'Runway',
+  'wt.metric.savingsRate.label': 'Savings Rate',
+  'wt.simulator.card.kpr.label': 'Mau KPR',
+  'wt.simulator.card.kpr.body': 'Cek dampak ambil KPR baru ke metrik + goals.',
+  'wt.snapshot.section.penghasilan': 'Penghasilan',
+  'wt.snapshot.section.pengeluaran': 'Pengeluaran rutin',
+  'wt.snapshot.section.cicilanAktif': 'Cicilan aktif',
+  'wt.simulator.title': 'Simulator',
+  'wt.simulator.subtitle': 'Simulasi keputusan keuangan besar — semua hitungan pakai data snapshot kamu.',
+  'wt.nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
 } as const
 
 export type CopyKey = keyof typeof copy
@@ -773,4 +788,18 @@ export function t(key: CopyKey, vars?: Record<string, string | number>): string 
   return raw.replace(/\{(\w+)\}/g, (_, name: string) =>
     vars[name] !== undefined ? String(vars[name]) : `{${name}}`,
   )
+}
+
+// Mode-aware translation: returns wealth-tracker override if mode is
+// 'wealthTracker' and a 'wt.<key>' entry exists, otherwise falls back to t().
+export function tm(
+  key: CopyKey,
+  mode: 'budgetKos' | 'wealthTracker' | null,
+  vars?: Record<string, string | number>,
+): string {
+  if (mode === 'wealthTracker') {
+    const wtKey = `wt.${key}` as CopyKey
+    if (wtKey in copy) return t(wtKey, vars)
+  }
+  return t(key, vars)
 }

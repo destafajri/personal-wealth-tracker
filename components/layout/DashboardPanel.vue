@@ -15,9 +15,12 @@ import GoalSummaryCards from '~/components/dashboard/GoalSummaryCards.vue'
 import ModalOptionsPanel from '~/components/dashboard/ModalOptionsPanel.vue'
 import CtaMamikos from '~/components/common/CtaMamikos.vue'
 import { useDerivedStore } from '~/stores/derived'
+import { useSnapshotStore } from '~/stores/snapshot'
 import { t } from '~/lib/copy/strings'
 
 const derived = useDerivedStore()
+const snap = useSnapshotStore()
+const isBudgetKos = computed(() => snap.mode === 'budgetKos')
 // D11.6 — gate chart mount on having any asset. Both charts only have meaning
 // once there's portfolio data; skipping them on empty state keeps the ECharts
 // chunk (~80 KB gzip) off the wire until the user enters their first row. The
@@ -70,8 +73,8 @@ const EmergencyFundMeter = defineAsyncComponent({
   -->
   <section class="flex flex-col gap-5 p-3" aria-live="polite" aria-atomic="false">
     <HeroPair />
-    <PersonaCard />
-    <CtaMamikos variant="afterPersona" />
+    <PersonaCard v-if="isBudgetKos" />
+    <CtaMamikos v-if="isBudgetKos" variant="afterPersona" />
     <!-- New quick-glance row: Surplus Gauge + Emergency Fund -->
     <div class="grid gap-4 sm:grid-cols-2">
       <SurplusGauge />
@@ -92,6 +95,6 @@ const EmergencyFundMeter = defineAsyncComponent({
     </div>
     <GoalSummaryCards />
     <ModalOptionsPanel />
-    <CtaMamikos variant="dashboardBottom" />
+    <CtaMamikos v-if="isBudgetKos" variant="dashboardBottom" />
   </section>
 </template>

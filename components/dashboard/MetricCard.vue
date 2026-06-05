@@ -4,10 +4,11 @@ import { computed } from 'vue'
 import StatusDot from '~/components/common/StatusDot.vue'
 import { duration } from '~/lib/format/duration'
 import { percent } from '~/lib/format/percent'
-import { t } from '~/lib/copy/strings'
+import { t, tm } from '~/lib/copy/strings'
 import { zoneOf, type MetricKey, type Zone } from '~/lib/finance/thresholds'
 import { useMetricExplainer } from '~/composables/useMetricExplainer'
 import { metricExplainers, type ExplainerKey } from '~/lib/copy/metric-explainers'
+import { useSnapshotStore } from '~/stores/snapshot'
 
 type UnitKind = 'percent' | 'months' | 'pp'
 
@@ -21,6 +22,7 @@ const props = defineProps<{
 }>()
 
 const explainer = useMetricExplainer()
+const snap = useSnapshotStore()
 
 const zone = computed<Zone | null>(() =>
   props.value === null ? null : zoneOf(props.thresholdKey, props.value),
@@ -54,11 +56,11 @@ const display = computed(() => {
     <header class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-1.5">
         <h4 class="text-xs font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
-          {{ t(labelKey) }}
+          {{ tm(labelKey, snap.mode) }}
         </h4>
         <button
           type="button"
-          :aria-label="`Penjelasan ${t(labelKey)}`"
+          :aria-label="`Penjelasan ${tm(labelKey, snap.mode)}`"
           class="inline-flex h-4 w-4 items-center justify-center rounded-full text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
           @click="explainer.open(explainerKey)"
         >

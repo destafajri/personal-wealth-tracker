@@ -11,11 +11,13 @@ import {
   PiggyBank,
   Settings2,
 } from 'lucide-vue-next'
-import { t, type CopyKey } from '~/lib/copy/strings'
+import { t, tm, type CopyKey } from '~/lib/copy/strings'
 import { useSimulator } from '~/composables/useSimulator'
+import { useSnapshotStore } from '~/stores/snapshot'
 import type { SimKey } from '~/lib/types/sim'
 
 const { open } = useSimulator()
+const snap = useSnapshotStore()
 
 interface LauncherCard {
   key: SimKey
@@ -71,8 +73,8 @@ const capacity: LauncherCard[] = [
               {{ t('simulator.card.soon') }}
             </span>
           </div>
-          <div class="font-medium text-[var(--color-text-primary)]">{{ t(card.labelKey) }}</div>
-          <div class="text-xs text-[var(--color-text-secondary)]">{{ t(card.bodyKey) }}</div>
+          <div class="font-medium text-[var(--color-text-primary)]">{{ tm(card.labelKey, snap.mode) }}</div>
+          <div class="text-xs text-[var(--color-text-secondary)]">{{ tm(card.bodyKey, snap.mode) }}</div>
         </component>
       </div>
     </section>
@@ -82,12 +84,6 @@ const capacity: LauncherCard[] = [
         {{ t('simulator.launcher.capacity') }}
       </h3>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <!--
-          Codex round-14: capacity section was hardcoded as non-interactive div w/ cursor-
-          not-allowed (carry-over from Day-6 when all capacity simulators were Soon). Mirror
-          the decisions section's `<component :is>` dispatch so card.enabled actually wires
-          the click + button affordance. Soon badge stays only for !enabled cards.
-        -->
         <component
           :is="card.enabled ? 'button' : 'div'"
           v-for="card in capacity"
@@ -111,8 +107,8 @@ const capacity: LauncherCard[] = [
               {{ t('simulator.card.soon') }}
             </span>
           </div>
-          <div class="font-medium text-[var(--color-text-primary)]">{{ t(card.labelKey) }}</div>
-          <div class="text-xs text-[var(--color-text-secondary)]">{{ t(card.bodyKey) }}</div>
+          <div class="font-medium text-[var(--color-text-primary)]">{{ tm(card.labelKey, snap.mode) }}</div>
+          <div class="text-xs text-[var(--color-text-secondary)]">{{ tm(card.bodyKey, snap.mode) }}</div>
         </component>
       </div>
     </section>
