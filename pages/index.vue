@@ -65,6 +65,9 @@ function startFresh() {
         class="group relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 text-left shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
         @click="openModal(t('landing.cta.snapshot.label'))"
       >
+        <div
+          class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500"
+        />
         <div class="flex items-start gap-3">
           <span class="text-3xl">🏠</span>
           <div>
@@ -141,7 +144,7 @@ function startFresh() {
         class="w-full max-w-md rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-lg)]"
         role="dialog"
         aria-modal="true"
-        :aria-label="t('landing.modal.title')"
+        :aria-label="modalTitle"
       >
         <h3 class="text-lg font-bold text-[var(--color-text-primary)]">
           {{ modalTitle }}
