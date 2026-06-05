@@ -181,7 +181,9 @@ export function applyBudgetKosDemo(snap: SnapshotStore): void {
 
   // Pengeluaran — realistis anak kos Jakarta
   snap.setPengeluaran({
-    pokok: 2_800_000, // sewa kos + makan + transport + listrik
+    biayaKos: 1_200_000, // sewa kos per bulan
+    biayaKosCurrency: 'IDR',
+    pokok: 1_500_000, // makan, transport, listrik (TANPA kos)
     lifestyle: 600_000, // langganan, kopi, jajan
   })
   snap.addPengeluaranLain({ label: 'Pulsa & internet', amount: 150_000 })

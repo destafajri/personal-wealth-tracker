@@ -198,6 +198,8 @@ export interface Pengeluaran {
   pokokCurrency: Currency
   lifestyle: number // /bulan, currency-aware via lifestyleCurrency
   lifestyleCurrency: Currency
+  biayaKos?: number // /bulan, budget-kos only; undefined = 0 for wealth tracker
+  biayaKosCurrency?: Currency
 }
 
 // Emas is split into 5 categories with distinct valuation rates (see lib/finance/emas.ts).
@@ -268,6 +270,8 @@ export function emptySnapshot(): SnapshotState {
       pokokCurrency: 'IDR',
       lifestyle: 0,
       lifestyleCurrency: 'IDR',
+      biayaKos: 0,
+      biayaKosCurrency: 'IDR',
     },
     pengeluaranLain: [],
     asetLikuid: {

@@ -5,6 +5,7 @@ import {
   ArrowLeftRight,
   CreditCard,
   ExternalLink,
+  Home,
   Info,
   LayoutDashboard,
   PiggyBank,
@@ -208,6 +209,29 @@ const cicilanMonthly = computed(() =>
   snap.cicilanAktif.reduce((s, r) => s + (r.cicilanPerBulan || 0), 0),
 )
 const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.value)
+
+// ----- Ringkasan: rent-to-income insight -----
+const rentRatio = computed(() => derived.rentToIncomeRatio)
+const rentRatioZone = computed(() => {
+  const r = rentRatio.value
+  if (r === null) return null
+  if (r <= 25) return 'safe'
+  if (r <= 35) return 'warning'
+  return 'danger'
+})
+const rentRatioMsg = computed(() => {
+  const zone = rentRatioZone.value
+  if (!zone) return ''
+  const pct = Math.round(rentRatio.value!)
+  return t(`budgetKos.biayaKos.ratio.${zone}` as keyof typeof import('~/lib/copy/strings').copy, { pct })
+})
+const rentRecommend = computed(() => {
+  const income = penghasilanTotal.value
+  if (income <= 0) return ''
+  const min = idr(Math.round(income * 0.25))
+  const max = idr(Math.round(income * 0.3))
+  return t('budgetKos.biayaKos.ratio.recommend' as keyof typeof import('~/lib/copy/strings').copy, { min, max })
+})
 </script>
 
 <template>
@@ -259,7 +283,7 @@ const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.va
           variant="rose"
           :value="pengeluaranTotal"
         >
-          <PengeluaranForm hide-header />
+          <PengeluaranForm hide-header show-biaya-kos />
         </CollapsiblePanel>
       </div>
     </div>
@@ -383,6 +407,53 @@ const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.va
           <span class="text-[var(--color-text-muted)]">·</span>
           <span>Pengeluaran {{ idr(pengeluaranTotal) }}</span>
         </div>
+      </div>
+
+      <!-- Rent-to-income insight card -->
+      <div
+        v-if="rentRatio !== null && (snap.pengeluaran.biayaKos ?? 0) > 0"
+        class="rounded-2xl border-2 p-5"
+        :class="{
+          'border-emerald-300 bg-gradient-to-br from-emerald-50 to-teal-50': rentRatioZone === 'safe',
+          'border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-50': rentRatioZone === 'warning',
+          'border-rose-300 bg-gradient-to-br from-rose-50 to-pink-50': rentRatioZone === 'danger',
+        }"
+      >
+        <div class="flex items-center gap-2">
+          <Home class="h-4 w-4" :class="{
+            'text-emerald-600': rentRatioZone === 'safe',
+            'text-amber-600': rentRatioZone === 'warning',
+            'text-rose-600': rentRatioZone === 'danger',
+          }" />
+          <p class="text-xs font-bold uppercase tracking-widest" :class="{
+            'text-emerald-600': rentRatioZone === 'safe',
+            'text-amber-600': rentRatioZone === 'warning',
+            'text-rose-600': rentRatioZone === 'danger',
+          }">
+            {{ t('budgetKos.biayaKos.ratio.label') }}
+          </p>
+        </div>
+        <p class="mt-2 text-3xl font-extrabold tabular-nums" :class="{
+          'text-emerald-700': rentRatioZone === 'safe',
+          'text-amber-700': rentRatioZone === 'warning',
+          'text-rose-700': rentRatioZone === 'danger',
+        }">
+          {{ Math.round(rentRatio!) }}%
+        </p>
+        <p class="mt-1 text-sm text-[var(--color-text-secondary)]">
+          {{ rentRatioMsg }}
+        </p>
+        <div class="mt-2 flex items-center gap-3 text-xs text-[var(--color-text-secondary)]">
+          <span>Biaya kos {{ idr(snap.pengeluaran.biayaKos || 0) }}</span>
+          <span class="text-[var(--color-text-muted)]">·</span>
+          <span>Penghasilan {{ idr(penghasilanTotal) }}</span>
+        </div>
+        <p v-if="rentRatioZone !== 'safe'" class="mt-2 text-xs font-medium" :class="{
+          'text-amber-600': rentRatioZone === 'warning',
+          'text-rose-600': rentRatioZone === 'danger',
+        }">
+          {{ rentRecommend }}
+        </p>
       </div>
 
       <!-- Budget health grid -->

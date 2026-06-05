@@ -169,7 +169,7 @@ function sumCicilanPokok(snap: SnapshotState): number {
 // definition the dashboard metrics use — drift would silently make goal cards disagree
 // with DSR / Runway / SavingsRate.
 export function calcTotalPengeluaran(snap: SnapshotState, prices?: PricesView): number {
-  // PRD §5.1.3 / tech-design §6.1: pokok + lifestyle + Σ pengeluaran lain + Σ cicilan_per_bulan.
+  // PRD §5.1.3 / tech-design §6.1: pokok + lifestyle + biayaKos + Σ pengeluaran lain + Σ cicilan_per_bulan.
   // Pokok + lifestyle + lain rows are FX-converted to IDR via per-field currency; missing
   // FX rate falls through to 0 (same stale-rate posture as sumRowsToIdr).
   const pokokRate =
@@ -180,9 +180,14 @@ export function calcTotalPengeluaran(snap: SnapshotState, prices?: PricesView): 
     snap.pengeluaran.lifestyleCurrency === 'IDR'
       ? 1
       : (rateToIdr(snap.pengeluaran.lifestyleCurrency, prices?.fxRates) ?? 0)
+  const biayaKosRate =
+    (snap.pengeluaran.biayaKosCurrency ?? 'IDR') === 'IDR'
+      ? 1
+      : (rateToIdr(snap.pengeluaran.biayaKosCurrency ?? 'IDR', prices?.fxRates) ?? 0)
   return (
     (snap.pengeluaran.pokok || 0) * pokokRate +
     (snap.pengeluaran.lifestyle || 0) * lifestyleRate +
+    (snap.pengeluaran.biayaKos || 0) * biayaKosRate +
     sumRowsToIdr(snap.pengeluaranLain, prices) +
     sumCicilanPerBulan(snap)
   )
@@ -445,3 +450,19 @@ export function calcAllocationDiscipline(
 // `lib/copy/strings.ts`. Each MetricCard passes its own `emptyKey` literal directly —
 // there is no mapping layer in TS, so the registry stays the single source.
 // (See lib/finance/thresholds.ts for the canonical MetricKey type used by zoneOf.)
+
+// Rent-to-income ratio — biaya kos as a percentage of total monthly penghasilan.
+// Returns null when penghasilan <= 0 or biayaKos <= 0 (nothing to compare).
+// Thresholds: safe ≤25%, warning 25–35%, danger >35%.
+export function calcRentToIncomeRatio(
+  snap: SnapshotState,
+  prices?: PricesView,
+): number | null {
+  const income = totalPenghasilanMonthly(snap, prices)
+  if (income <= 0) return null
+  const cur = snap.pengeluaran.biayaKosCurrency ?? 'IDR'
+  const rate = cur === 'IDR' ? 1 : (rateToIdr(cur, prices?.fxRates) ?? 0)
+  const kosIdr = (snap.pengeluaran.biayaKos || 0) * rate
+  if (kosIdr <= 0) return null
+  return (kosIdr / income) * 100
+}

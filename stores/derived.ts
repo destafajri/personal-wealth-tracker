@@ -11,6 +11,7 @@ import {
   calcDsr,
   calcModalSiap,
   calcNetWorth,
+  calcRentToIncomeRatio,
   calcRunway,
   calcSafeHaven,
   calcSavingsRate,
@@ -97,6 +98,9 @@ export const useDerivedStore = defineStore('derived', () => {
   const runway = computed(() => calcRunway(snapshotState.value, prices.value))
   const savingsRate = computed(() =>
     calcSavingsRate(snapshotState.value, prices.value),
+  )
+  const rentToIncomeRatio = computed(() =>
+    calcRentToIncomeRatio(snapshotState.value, prices.value),
   )
   const safeHaven = computed(() => calcSafeHaven(snapshotState.value, prices.value))
   const allocationDiscipline = computed(() =>
@@ -197,6 +201,7 @@ export const useDerivedStore = defineStore('derived', () => {
     dar,
     runway,
     savingsRate,
+    rentToIncomeRatio,
     safeHaven,
     allocationDiscipline,
     goalHealth,

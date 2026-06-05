@@ -91,6 +91,9 @@ export const copy = {
   'snapshot.penghasilan.lainHelp': 'Sampingan, sewa, freelance, dll.',
   'snapshot.pengeluaran.pokok.label': 'Pokok/bulan',
   'snapshot.pengeluaran.pokok.help': 'Makan, transport, listrik, sewa — yang rutin tiap bulan.',
+  'snapshot.pengeluaran.biayaKos.label': 'Biaya Kos/bulan',
+  'snapshot.pengeluaran.biayaKos.help':
+    'Sewa kos atau kontrakan per bulan — isi terpisah biar kelihatan rasionya.',
   'snapshot.pengeluaran.lifestyle.label': 'Lifestyle/bulan',
   'snapshot.pengeluaran.lifestyle.help': 'Hiburan, langganan, belanja non-pokok.',
   'snapshot.pengeluaran.note':
@@ -765,6 +768,17 @@ export const copy = {
   'cta.mamikos.invest.label': 'Beli Kos Buat Investasi',
   'cta.mamikos.invest.body': 'Dana udah cuma-cuma? Saatnya jadi juragan kos.',
   'cta.mamikos.action': '→',
+
+  // ----- budget-kos: rent-to-income insight -----
+  'budgetKos.biayaKos.ratio.label': 'Rasio Kos/Penghasilan',
+  'budgetKos.biayaKos.ratio.safe':
+    'Biaya kos {pct}% dari penghasilan — masih dalam batas aman. Tetap jaga ya!',
+  'budgetKos.biayaKos.ratio.warning':
+    'Biaya kos {pct}% dari penghasilan — mendekati batas aman (30%). Pertimbangkan kos yang lebih murah atau tambah sampingan.',
+  'budgetKos.biayaKos.ratio.danger':
+    'Biaya kos {pct}% dari penghasilan — melewati batas aman (30%). Tabungan dan pos lain bisa terganggu. Cari kos lebih murah atau tambah penghasilan sampingan.',
+  'budgetKos.biayaKos.ratio.recommend':
+    'Coba cari kos di range {min}–{max}/bulan biar rasio aman.',
 
   // ----- wealth tracker overrides (professional tone) -----
   'wt.metric.netWorth.label': 'Net Worth',
