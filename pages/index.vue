@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ArrowRight, ChevronRight, CloudOff, FileText, Lock, PieChart, Play } from 'lucide-vue-next'
+import { ArrowRight, ChevronRight, CloudOff, Lock } from 'lucide-vue-next'
 import { ref } from 'vue'
 import Badge from '~/components/common/Badge.vue'
 import ButtonCTA from '~/components/common/ButtonCTA.vue'
-import IconChip from '~/components/common/IconChip.vue'
 import { t } from '~/lib/copy/strings'
 import { useSnapshotStore } from '~/stores/snapshot'
 
