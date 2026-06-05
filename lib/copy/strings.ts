@@ -1,30 +1,30 @@
 export const copy = {
   'brand.name': 'Cermat',
-  'brand.tagline': 'Cek keuangan kamu dalam 10 menit',
+  'brand.tagline': 'Cermat ngatur keuangan, biar ngekos makin tenang',
 
-  'landing.hero.title': 'Aman gak kalau gw KPR, Gadai, atau Cicil?',
-  'landing.hero.subtitle': 'Berapa max utang yang aman? Cek keuangan kamu dalam 10 menit.',
+  'landing.hero.title': 'Cermat ngatur keuangan, biar ngekos makin tenang',
+  'landing.hero.subtitle': 'Cek tipe keuangan anak kos kamu — isi data, langsung keluar persona kamu.',
   'landing.hero.trust': 'Tanpa daftar. Tanpa cloud.',
 
-  // Phase-2a Day 3: hero title fragment keys for emerald-accented hero (KPR / Gadai / Cicil
+  // Phase-2a Day 3: hero title fragment keys for emerald-accented hero
   // rendered as <span class="text-primary">). Existing `landing.hero.title` retained for SEO
   // meta + accessibility fallback.
-  'landing.hero.titlePrefix': 'Aman gak kalau gw',
-  'landing.hero.titleWord1': 'KPR',
-  'landing.hero.titleWord2': 'Gadai',
-  'landing.hero.titleWord3': 'Cicil',
+  'landing.hero.titlePrefix': 'Cermat ngatur keuangan, biar',
+  'landing.hero.titleWord1': 'ngekos',
+  'landing.hero.titleWord2': 'hemat',
+  'landing.hero.titleWord3': 'tenang',
 
   // Phase-2a Day 3: trust pills above H1 (v0auto-inspired hero layout).
   'landing.trust.pill.noRegister': 'Tanpa daftar',
   'landing.trust.pill.noCloud': 'Tanpa cloud',
 
-  'landing.cta.snapshot.label': 'Mulai dari Snapshot',
-  'landing.cta.snapshot.body': 'Isi data kamu sendiri (5–10 menit).',
+  'landing.cta.snapshot.label': 'Cek Budget Ngekos',
+  'landing.cta.snapshot.body': 'Cek dulu kamu tipe anak kos apa? Isi data, langsung keluar persona kamu.',
   'landing.cta.snapshot.action': 'Mulai',
 
-  'landing.cta.demo.label': 'Coba dengan data contoh',
-  'landing.cta.demo.body': 'Skip dulu, lihat tools-nya.',
-  'landing.cta.demo.action': 'Coba',
+  'landing.cta.demo.label': 'Wealth Tracker Lengkap',
+  'landing.cta.demo.body': 'Track aset, utang, investasi secara detail — pakai data contoh.',
+  'landing.cta.demo.action': 'Mulai',
 
   // Phase-2a Day 3: default layout navbar right-side tagline (with Clock icon).
   'nav.tagline.tenMinutes': 'Cek Keuangan dalam 10 Menit',
@@ -60,17 +60,17 @@ export const copy = {
   'nav.download.label': 'Unduh xlsx',
   'nav.download.empty': 'Tambah minimal 1 aset dulu',
   'nav.download.pending': 'Menyusun…',
-  'nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
+  'nav.brand.subtitle': 'Cermat ngatur keuangan, biar ngekos makin tenang 💸',
 
   // ----- snapshot page -----
   'snapshot.title': 'Snapshot',
-  'snapshot.section.penghasilan': 'Penghasilan',
-  'snapshot.section.pengeluaran': 'Pengeluaran rutin',
+  'snapshot.section.penghasilan': 'Uang Masuk',
+  'snapshot.section.pengeluaran': 'Biaya Hidup/Bulan',
   'snapshot.section.asetLikuid': 'Aset likuid',
   'snapshot.section.asetNonLikuid': 'Aset non-likuid',
   'snapshot.section.crypto': 'Crypto (live, by unit)',
   'snapshot.section.emas': 'Emas',
-  'snapshot.section.cicilanAktif': 'Cicilan aktif',
+  'snapshot.section.cicilanAktif': 'Utang & Cicilan',
   'snapshot.section.utangPribadi': 'Utang pribadi',
   'snapshot.section.gadai': 'Gadai',
   'snapshot.penghasilan.gajiLabel': 'Gaji Bersih',
@@ -227,13 +227,13 @@ export const copy = {
   'gadai.zone.bahaya': 'Risiko Likuidasi',
 
   // ----- dashboard / metrics -----
-  'metric.netWorth.label': 'Net Worth',
-  'metric.modalSiap.label': 'Modal Siap Distribusi',
+  'metric.netWorth.label': 'Total Kekayaanku',
+  'metric.modalSiap.label': 'Tabungan Siap Pakai',
   'metric.modalSiap.advisory': 'Pertimbangkan keep dana darurat 3–6 bulan terpisah.',
-  'metric.dsr.label': 'DSR',
+  'metric.dsr.label': 'Rasio Utang',
   'metric.dar.label': 'DAR',
-  'metric.runway.label': 'Runway',
-  'metric.savingsRate.label': 'Savings Rate',
+  'metric.runway.label': 'Bisa Bertahan',
+  'metric.savingsRate.label': 'Sisa Uang/Bulan',
   'metric.safeHaven.label': 'Safe Haven',
   'metric.allocationDiscipline.label': 'Allocation Discipline',
   'metric.empty.dsr': 'Isi penghasilan dulu.',
@@ -414,13 +414,13 @@ export const copy = {
   'dashboard.goalHealth.value': '{pct}% on-track',
 
   // ----- simulator (Decide tab) -----
-  'simulator.title': 'Simulator',
-  'simulator.subtitle': 'Simulasi keputusan keuangan besar — semua hitungan pakai data snapshot kamu.',
+  'simulator.title': 'Simulasi Keputusan',
+  'simulator.subtitle': 'Simulasi keputusan keuangan — pakai data kamu langsung.',
   'simulator.launcher.decisions': 'Simulasi Keputusan',
   'simulator.launcher.capacity': 'Cek Kapasitas',
 
-  'simulator.card.kpr.label': 'Mau KPR',
-  'simulator.card.kpr.body': 'Cek dampak ambil KPR baru ke metrik + goals.',
+  'simulator.card.kpr.label': 'Mau Kos/Sewa?',
+  'simulator.card.kpr.body': 'Hitung budget ngekos atau sewa tempat tinggal.',
   'simulator.card.gadai.label': 'Mau Gadai',
   'simulator.card.gadai.body': 'Simulasi gadai emas / aset.',
   'simulator.card.cicil.label': 'Mau Cicil',

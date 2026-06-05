@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowRight, ChevronRight, CloudOff, FileText, Lock, Play } from 'lucide-vue-next'
+import { ArrowRight, ChevronRight, CloudOff, Home, Lock, PieChart } from 'lucide-vue-next'
 // Explicit imports: Nuxt 3 auto-import prefixes components in subdirs
 // (components/common/X.vue -> <CommonX/>). Bare-name usage silently fails at
 // SSR (renders as anonymous, no build error). See memory note
@@ -13,15 +13,12 @@ import { useSnapshotStore } from '~/stores/snapshot'
 
 definePageMeta({ layout: 'default' })
 useSeoMeta({
-  title: `${t('brand.name')} — ${t('brand.tagline')}`,
+  title: `${t('brand.name')} × Mamikos — ${t('brand.tagline')}`,
   description: `${t('landing.hero.subtitle')} ${t('landing.hero.trust')}`,
 })
 
 const snap = useSnapshotStore()
 
-// "Mulai dari Snapshot" semantically means "start fresh". If a prior demo (or any
-// stale data) is still in the Pinia store, wipe it before navigating so the form
-// renders empty. The demo card does its own seeding on the destination side.
 function startFresh() {
   snap.reset()
 }
@@ -29,7 +26,7 @@ function startFresh() {
 
 <template>
   <section class="mx-auto max-w-5xl px-6 py-16 text-center sm:py-24">
-    <div class="mb-10 flex flex-wrap items-center justify-center gap-3">
+    <div class="mb-6 flex flex-wrap items-center justify-center gap-3">
       <Badge size="md">
         <template #icon><Lock class="h-3.5 w-3.5" /></template>
         {{ t('landing.trust.pill.noRegister') }}
@@ -40,13 +37,18 @@ function startFresh() {
       </Badge>
     </div>
 
+    <p class="mb-3 text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">
+      Cermat × Mamikos
+    </p>
+
     <h1
       class="text-balance text-4xl font-bold leading-tight tracking-tight text-[var(--color-text-primary)] sm:text-5xl lg:text-6xl"
     >
       {{ t('landing.hero.titlePrefix') }}
-      <span class="text-[var(--color-primary)]">{{ t('landing.hero.titleWord1') }}</span>,
-      <span class="text-[var(--color-primary)]">{{ t('landing.hero.titleWord2') }}</span>, atau
-      <span class="text-[var(--color-primary)]">{{ t('landing.hero.titleWord3') }}</span>?
+      <span class="text-[var(--color-primary)]">{{ t('landing.hero.titleWord1') }}</span>
+      <span class="text-[var(--color-text-primary)]">,</span>
+      <span class="text-[var(--color-primary)]">{{ t('landing.hero.titleWord2') }}</span>,
+      {{ t('landing.hero.titleWord3') }}
     </h1>
 
     <p class="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-[var(--color-text-secondary)]">
@@ -62,7 +64,7 @@ function startFresh() {
         />
         <div class="flex items-start gap-4">
           <IconChip size="lg">
-            <FileText class="h-6 w-6" />
+            <Home class="h-6 w-6" />
           </IconChip>
           <div class="text-left">
             <h2 class="text-xl font-bold text-[var(--color-text-primary)]">
@@ -86,7 +88,7 @@ function startFresh() {
       >
         <div class="flex items-start gap-4">
           <IconChip variant="neutral" size="lg">
-            <Play class="h-6 w-6" />
+            <PieChart class="h-6 w-6" />
           </IconChip>
           <div class="text-left">
             <h2 class="text-xl font-bold text-[var(--color-text-primary)]">
