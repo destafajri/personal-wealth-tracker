@@ -2,6 +2,19 @@
 
 **Source:** Adapted from Gemini prompt + Cermat codebase analysis
 **Date:** 2026-06-05
+**Status:** Codex-reviewed 2026-06-05, findings addressed
+
+---
+
+## Implementation Priority
+
+This is the canonical build order (also stated in README.md):
+
+1. **Persona & Gamification** (most impactful for contest)
+2. **CTA Mamikos** (brand affinity)
+3. **Copy rewrite** (feel "Mamikos" throughout)
+4. **Share Card** (viral growth engine)
+5. **Kos Rent Budget** (feature depth — stretch goal)
 
 ---
 
@@ -30,7 +43,7 @@ Map existing copy in `lib/copy/strings.ts` to anak kos versions. Not a full repl
 - `lib/copy/metric-explainers.ts` — metric explanations
 - `components/snapshot/` — panel form labels
 - `pages/index.vue` — landing copy
-- `components/simulator/WizardLauncher.vue` — wizard card labels
+- `components/simulator/SimLauncher.vue` — wizard card labels
 
 ### Notes
 - Metric names in `lib/finance/metrics.ts` (internal) are NOT changed — only display copy
@@ -43,24 +56,21 @@ Map existing copy in `lib/copy/strings.ts` to anak kos versions. Not a full repl
 ### Concept
 After the user fills in their snapshot, the system assigns a "Persona" based on their financial profile. Rides on existing metrics.
 
-### Persona ideas (based on Savings Rate + Modal Siap + assets):
-| Persona | Criteria | Tone |
-|---------|----------|------|
-| Sultan Kos | Savings Rate >40%, has investments | Flex, but inspiring |
-| Anak Kos Bijak | Savings Rate 15-40%, disciplined | Positive, relatable |
-| Sobat Indomie | Savings Rate <15% or negative | Funny, with a nudge |
-| Investor Kos | Has stocks/mutual funds/crypto despite living in kos | Cool, "bright future" |
-| Pejuang Akhir Bulan | Runway <1 month | Empathy + actionable tips |
+### Persona table (deterministic — first match wins, top to bottom):
+| # | Persona | Criteria | Tone |
+|---|---------|----------|------|
+| 1 | Sultan Kos | `savingsRate >= 40 && hasInvestments` | Flex, but inspiring |
+| 2 | Investor Kos | `hasInvestments && savingsRate >= 0` | Cool, "bright future" |
+| 3 | Anak Kos Bijak | `savingsRate >= 15` | Positive, relatable |
+| 4 | Pejuang Akhir Bulan | `runway < 1` (month) | Empathy + actionable tips |
+| 5 | Sobat Indomie | fallback (everything else) | Funny, with a nudge |
 
-### Logic (pseudo):
-```
-if (savingsRate >= 40 && hasInvestments) → Sultan Kos
-if (savingsRate >= 40 && !hasInvestments) → Anak Kos Bijak
-if (savingsRate >= 15) → Anak Kos Bijak
-if (hasInvestments && savingsRate >= 0) → Investor Kos
-if (savingsRate < 0) → Pejuang Akhir Bulan
-else → Sobat Indomie
-```
+### Precedence rules
+- Rules are evaluated top-to-bottom. **First match wins.**
+- `hasInvestments` = any of `saham`, `reksaDana`, `crypto`, or `deposito` > 0
+- `savingsRate` = existing metric from `lib/finance/metrics.ts` (read-only)
+- `runway` = existing metric (read-only)
+- If all inputs are zero/empty, show "Isi snapshot dulu ya!" (no persona)
 
 ### Implementation ideas
 - Persona card appears on dashboard after snapshot is filled
@@ -69,9 +79,8 @@ else → Sobat Indomie
 - Persona can change as user updates data
 
 ### Files to create/modify
-- New: `lib/finance/persona.ts` — pure function persona logic
+- New: `lib/finance/persona.ts` — pure function, reads existing metrics only
 - New: `components/dashboard/PersonaCard.vue` — persona display
-- `components/layout/DashboardPanel.vue` — mount persona card
 - `lib/copy/strings.ts` — persona copy registry
 
 ---
@@ -81,14 +90,20 @@ else → Sobat Indomie
 ### Concept
 An aesthetic card summarizing persona + key stats for social media sharing. Like Spotify Wrapped — people share because it looks cool, not because they're asked to.
 
+### Privacy model
+- **Default share content:** persona name + badge only (no amounts)
+- **User opt-in:** toggle to include ratios (savings rate %, runway months) — still no raw IDR amounts
+- **Never shared without explicit tap:** raw net worth, asset values, debt values
+- Rationale: finance-adjacent product in a public contest — safe defaults prevent accidental oversharing
+
 ### Design ideas:
 - Card with gradient background, instagrammable
-- Persona + 3-4 key stats (Total Kekayaan, Savings Rate, Runway)
+- Persona badge + optional ratios (savings rate %, runway)
 - "Cermat x Mamikos" branding
 - QR code or link to app
 
 ### Share methods:
-- **Copy text** — pre-filled template: "Aku [Persona]! 💰 Total kekayaanku Rp X, bisa bertahan Y bulan tanpa penghasilan. Cek keuanganmu juga di Cermat x Mamikos!"
+- **Copy text** — pre-filled template: "Aku [Persona]! Cek keuanganmu juga di Cermat x Mamikos!"
 - **Share to Twitter/X** — compose tweet with text + link
 - **Share to WhatsApp** — wa.me deep link
 - **Download as image** — html2canvas or similar (nice-to-have)
@@ -100,7 +115,7 @@ An aesthetic card summarizing persona + key stats for social media sharing. Like
 
 ### Notes
 - Client-side only — no backend needed
-- Privacy: user must explicitly click share, don't auto-generate
+- Card output must match on-screen persona (no stale data)
 
 ---
 
@@ -119,7 +134,6 @@ Natural CTAs that appear at the right moment, not a generic banner.
 
 ### Target URL
 - `https://mamikos.com` (default)
-- Could be deep link to Mamikos search with budget range (if API available)
 
 ### Implementation ideas
 - New: `components/common/CtaMamikos.vue` — reusable CTA component
@@ -136,26 +150,39 @@ Track kos rent as part of expenses. Not a new module, but an enhancement to the 
 ### Ideas:
 - Kos rent as a dedicated expense category
 - Rent vs income ratio (ideal ≤30%)
-- Average rent comparison per city (nice-to-have)
 - Tips for saving on kos expenses
-
----
-
-## Implementation Priority
-
-1. **Persona & Gamification** (most impactful for contest)
-2. **CTA Mamikos** (brand affinity)
-3. **Copy rewrite** (feel "Mamikos" throughout)
-4. **Share Card** (viral growth engine)
-5. **Kos Rent Budget** (feature depth)
 
 ---
 
 ## 6. Multiple Entry Points on Landing Page
 
 ### Concept
-Instead of a single "Mulai Sekarang" CTA, create **two entry points** with different experiences but the same underlying app:
+Two entry points on the landing page with different experiences but the same underlying engine.
 
+### Mode-difference matrix
+Defines exactly which screens/components differ by mode and which remain identical:
+
+| Screen / Component | `mode=kos` | `mode=full` | Diff? |
+|--------------------|------------|-------------|-------|
+| Landing page (`pages/index.vue`) | Two CTA cards | Two CTA cards | No |
+| Snapshot form (`components/snapshot/`) | Full form (same) | Full form (same) | **No** |
+| Snapshot field visibility | All fields shown | All fields shown | **No** |
+| Dashboard sidebar | Same | Same | **No** |
+| Persona card | Shown | Shown | **No** |
+| CTA Mamikos | Shown | Shown | **No** |
+| Share card | Shown | Shown | **No** |
+| Copy tone | Anak kos casual | Current professional | **Yes** |
+
+### Decision: defer mode branching
+After analysis, the **only difference** between modes is copy tone. The actual screens, fields, and components are identical. Rather than implementing a `mode` param that branches copy logic throughout the app, we will:
+
+1. **Rewrite all copy to anak kos tone** (single mode, no branching)
+2. Keep "Wealth Tracker Lengkap" link on landing as a second CTA pointing to the same `/app/snapshot` route
+3. No `?mode=` param, no conditional UI, no forked flows
+
+This eliminates the implementation risk of a partial app fork while still providing two distinct CTAs on the landing page.
+
+### Landing layout
 ```
 ┌─────────────────────────────────────────────┐
 │              CERMAT x MAMIKOS               │
@@ -178,30 +205,7 @@ Instead of a single "Mulai Sekarang" CTA, create **two entry points** with diffe
 └─────────────────────────────────────────────┘
 ```
 
-### Path 1: "Cek Budget Ngekos" (Anak Kos)
-- Lightweight flow, quick snapshot
-- Casual anak kos copy
-- Instantly get Persona (Sultan Kos / Sobat Indomie / etc)
-- Share card + CTA Mamikos
-- Target: viral growth, brand affinity
-
-### Path 2: "Wealth Tracker Lengkap" (Serious)
-- Existing flow as-is
-- Full snapshot + all wizards
-- Professional but accessible copy
-- For users who want to seriously track assets
-- Target: functional depth
-
-### Implementation
-- Landing page (`pages/index.vue`) has two CTA cards
-- Set entry mode via URL params or localStorage: `/app/snapshot?mode=kos` vs `/app/snapshot?mode=full`
-- UI components detect mode → adjust copy, show/hide persona card, adjust form fields
-- Both use the same calculation engine, only UX layer differs
-
-### Why this works
-- Judges see "Mamikos" in the first path → instant brand affinity score
-- Serious users still get full power → no functionality lost
-- One codebase, two experiences → efficient
+Both CTAs navigate to `/app/snapshot` — no mode param, no branching.
 
 ---
 
