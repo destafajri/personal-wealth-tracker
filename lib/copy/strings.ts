@@ -4,7 +4,7 @@ export const copy = {
 
   'landing.hero.title': 'Cermat ngatur keuangan, biar ngekos makin tenang',
   'landing.hero.subtitle':
-    'Cek tipe keuangan anak kos kamu — isi data, langsung keluar persona kamu.',
+    'Dari cek tipe keuangan, atur aset, sampai siap beli rumah — semuanya dari satu tempat.',
   'landing.hero.trust': 'Tanpa daftar. Tanpa cloud.',
 
   // Phase-2a Day 3: hero title fragment keys for emerald-accented hero
