@@ -34,7 +34,7 @@ function startFresh() {
 }
 
 function budgetKosDemo() {
-  snap.mode = 'budgetKos'
+  snap.mode = pendingMode.value
 }
 </script>
 

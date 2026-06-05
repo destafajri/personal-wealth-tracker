@@ -9,6 +9,7 @@ function clean(overrides: Partial<DirtySignals> = {}): DirtySignals {
     penghasilanLainCount: 0,
     pengeluaranPokok: 0,
     pengeluaranLifestyle: 0,
+    pengeluaranBiayaKos: 0,
     pengeluaranLainCount: 0,
     totalAset: 0,
     cicilanCount: 0,

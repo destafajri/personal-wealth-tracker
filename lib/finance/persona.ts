@@ -36,6 +36,7 @@ export function isSnapshotReady(snapshot: SnapshotState): boolean {
   const hasExpense =
     snapshot.pengeluaran.pokok > 0
     || snapshot.pengeluaran.lifestyle > 0
+    || (snapshot.pengeluaran.biayaKos ?? 0) > 0
     || snapshot.pengeluaranLain.some((r) => r.amount > 0)
   return hasIncome && hasExpense
 }

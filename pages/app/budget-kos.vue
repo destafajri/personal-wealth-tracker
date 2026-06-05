@@ -29,6 +29,7 @@ import { useDerivedStore } from '~/stores/derived'
 import { isSnapshotDirty } from '~/composables/useDirtyGuard'
 import { useMetricExplainer } from '~/composables/useMetricExplainer'
 import { calcTotalPengeluaran } from '~/lib/finance/metrics'
+import { rowToIdr } from '~/lib/finance/fx'
 import { triggerBudgetKosDemo } from '~/lib/fixtures/demoSnapshot'
 import { useFxRates } from '~/composables/usePrices'
 import type { Currency, FxRatesMap, PricesView } from '~/lib/types/snapshot'
@@ -47,10 +48,10 @@ const derived = useDerivedStore()
 const route = useRoute()
 const router = useRouter()
 
-// Force budgetKos mode
+// Force budgetKos mode (AFTER triggerBudgetKosDemo, because reset() clears mode)
 onMounted(() => {
-  snap.mode = 'budgetKos'
   triggerBudgetKosDemo(snap, route, router)
+  snap.mode = 'budgetKos'
 })
 
 // FX rates for non-IDR currency conversion
@@ -78,6 +79,7 @@ const hasData = computed(() =>
     penghasilanLainCount: snap.penghasilanLain.length,
     pengeluaranPokok: snap.pengeluaran.pokok,
     pengeluaranLifestyle: snap.pengeluaran.lifestyle,
+    pengeluaranBiayaKos: snap.pengeluaran.biayaKos ?? 0,
     pengeluaranLainCount: snap.pengeluaranLain.length,
     totalAset: derived.totalAset,
     cicilanCount: snap.cicilanAktif.length,
@@ -144,7 +146,8 @@ const nextCtaLabel = computed(() => {
 
 function sumRows(rows: { amount?: number; currency?: string }[] | undefined): number {
   if (!rows) return 0
-  return rows.reduce((sum, row) => sum + (row.amount || 0), 0)
+  const fx = derived.priceView?.fxRates
+  return rows.reduce((sum, row) => sum + rowToIdr(row as import('~/lib/types/snapshot').AssetRow, fx), 0)
 }
 
 const penghasilanTotal = computed(() => derived.penghasilanMonthlyIdr)

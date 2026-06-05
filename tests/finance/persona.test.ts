@@ -42,6 +42,14 @@ describe('isSnapshotReady', () => {
     })
     expect(isSnapshotReady(s)).toBe(true)
   })
+
+  it('returns true when only biayaKos is filled (no pokok/lifestyle)', () => {
+    const s = snap({
+      penghasilan: { amount: 5_000_000, currency: 'IDR' },
+      pengeluaran: { pokok: 0, lifestyle: 0, pokokCurrency: 'IDR', lifestyleCurrency: 'IDR', biayaKos: 1_200_000, biayaKosCurrency: 'IDR' },
+    })
+    expect(isSnapshotReady(s)).toBe(true)
+  })
 })
 
 describe('hasInvestments', () => {

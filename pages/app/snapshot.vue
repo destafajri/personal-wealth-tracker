@@ -84,6 +84,7 @@ const hasData = computed(() =>
     penghasilanLainCount: snap.penghasilanLain.length,
     pengeluaranPokok: snap.pengeluaran.pokok,
     pengeluaranLifestyle: snap.pengeluaran.lifestyle,
+    pengeluaranBiayaKos: snap.pengeluaran.biayaKos ?? 0,
     pengeluaranLainCount: snap.pengeluaranLain.length,
     totalAset: derived.totalAset,
     cicilanCount: snap.cicilanAktif.length,
