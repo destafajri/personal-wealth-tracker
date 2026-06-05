@@ -69,14 +69,14 @@ function goDemo() {
       {{ t('landing.hero.subtitle') }}
     </p>
 
-    <div class="mx-auto mt-14 max-w-md">
+    <div class="mx-auto mt-14 max-w-lg">
       <div
         class="group relative flex flex-col gap-5 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
       >
         <div
           class="absolute inset-x-0 top-0 h-1 rounded-t-[var(--radius-card)] bg-[var(--color-primary)]"
         />
-        <div class="flex items-start gap-4">
+        <div class="flex items-center gap-4">
           <IconChip size="lg">
             <FileText class="h-6 w-6" />
           </IconChip>
@@ -98,7 +98,7 @@ function goDemo() {
       </div>
     </div>
 
-    <div class="mx-auto mt-8 max-w-md">
+    <div class="mx-auto mt-8 max-w-lg">
       <CtaMamikos variant="landing" />
     </div>
 
