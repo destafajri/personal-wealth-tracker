@@ -191,7 +191,7 @@ const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.va
 </script>
 
 <template>
-  <div class="space-y-5">
+  <div class="mx-auto max-w-2xl space-y-5 px-4 pb-8 pt-4 sm:px-6">
     <h1 class="sr-only">Cek Budget Ngekos</h1>
 
     <div
