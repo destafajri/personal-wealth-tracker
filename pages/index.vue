@@ -15,6 +15,12 @@ useSeoMeta({
 
 const snap = useSnapshotStore()
 const showModal = ref(false)
+const modalTitle = ref('')
+
+function openModal(title: string) {
+  modalTitle.value = title
+  showModal.value = true
+}
 
 function startFresh() {
   snap.reset()
@@ -57,10 +63,7 @@ function startFresh() {
       <button
         type="button"
         class="group relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 text-left shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
-        @click="showModal = true"
-      >
-        <div
-          class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500"
+        @click="openModal(t('landing.cta.snapshot.label'))"
         />
         <div class="flex items-start gap-3">
           <span class="text-3xl">🏠</span>
@@ -82,7 +85,7 @@ function startFresh() {
       <button
         type="button"
         class="group relative flex flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-6 text-left shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
-        @click="showModal = true"
+        @click="openModal(t('landing.cta.demo.label'))"
       >
         <div
           class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-400 to-indigo-500"
@@ -141,7 +144,7 @@ function startFresh() {
         :aria-label="t('landing.modal.title')"
       >
         <h3 class="text-lg font-bold text-[var(--color-text-primary)]">
-          {{ t('landing.modal.title') }}
+          {{ modalTitle }}
         </h3>
         <div class="mt-4 grid gap-4 sm:grid-cols-2">
           <NuxtLink
