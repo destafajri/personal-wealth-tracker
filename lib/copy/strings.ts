@@ -1,10 +1,10 @@
 export const copy = {
   'brand.name': 'Cermat',
-  'brand.tagline': 'Cermat ngatur keuangan, biar ngekos makin tenang',
+  'brand.tagline': 'Cermat kelola duit, dari ngekos sampai punya rumah',
 
-  'landing.hero.title': 'Cermat ngatur keuangan, biar ngekos makin tenang',
+  'landing.hero.title': 'Cermat kelola duit, dari ngekos sampai punya rumah',
   'landing.hero.subtitle':
-    'Dari cek tipe keuangan, atur aset, sampai siap beli rumah — semuanya dari satu tempat.',
+    'Cek kondisi keuangan, atur aset, sampai siap beli rumah — semuanya dari satu tempat.',
   'landing.hero.trust': 'Tanpa daftar. Tanpa cloud.',
 
   // Phase-2a Day 3: hero title fragment keys for emerald-accented hero
