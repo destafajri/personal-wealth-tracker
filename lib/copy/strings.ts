@@ -26,7 +26,7 @@ export const copy = {
   'landing.cta.demo.body': 'Track aset, utang, investasi secara detail — pakai data contoh.',
   'landing.cta.demo.action': 'Coba',
 
-  'landing.modal.title': 'Mulai Cek Keuangan',
+  'landing.modal.title': 'Cek Budget Ngekos',
   'landing.modal.fresh.label': 'Isi Data Sendiri',
   'landing.modal.fresh.body': 'Isi snapshot kamu (5–10 menit).',
   'landing.modal.fresh.action': 'Mulai',
