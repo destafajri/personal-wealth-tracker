@@ -3,7 +3,7 @@
 **Priority:** HIGH (the soul of the mini-product for the Mamikos Vibe Coding Contest)
 **Primary persona:** Anak Kos (rental budget, lifestyle, frugal living)
 **Secondary persona:** Juragan Kos (tease as "coming soon", not fully built)
-**Status:** Implementation-ready (codex-reviewed 2026-06-05)
+**Status:** ✅ Implemented on branch `alignment` (codex-reviewed 2026-06-05, all findings resolved)
 
 ---
 
@@ -25,27 +25,48 @@ This is the canonical build order. Both docs in this folder follow this ordering
 
 ---
 
+## Architecture Decision: Separate Pages
+
+Phase 3 was originally planned as a single `/app/snapshot` page with mode branching. During implementation, this was changed to **two completely separate pages** to avoid contaminating the Wealth Tracker:
+
+| Aspect | Budget Kos (`/app/budget-kos`) | Wealth Tracker (`/app/snapshot`) |
+|--------|-------------------------------|----------------------------------|
+| Layout | `default` (no sidebar) | `app` (sidebar + tab bar) |
+| Tabs | 4 (Cash Flow, Kas, Utang, Ringkasan) | 6 (Cash Flow, Kas, Investasi, Aset Tetap, Utang, Ringkasan) |
+| Ringkasan | Gamified persona hero + surplus + health cards | DashboardPanel + DashboardSummary + charts |
+| Copy tone | Casual anak kos | Professional (`wt.*` overrides via `tm()`) |
+| Demo data | Anak kos profile (gaji 3.5jt, paylater, motor) | Rio profile (gaji 6.5jt, KPR, saham, crypto) |
+| CTA Mamikos | Shown in Ringkasan | Hidden |
+| Persona card | Shown in Ringkasan (inline gradient hero) | Hidden |
+| Emas panel | Not shown | Shown (with Maintenance badge) |
+
+### Mode system
+`stores/snapshot.ts` has `mode: AppMode | null` where `AppMode = 'budgetKos' | 'wealthTracker'`. Each page sets its mode on mount. The `tm()` helper in `lib/copy/strings.ts` resolves copy based on mode.
+
+---
+
 ## Scope
 
-### 3.1 Persona & Gamification
+### 3.1 Persona & Gamification ✅
 - Persona system based on financial profile (deterministic rules, see `inspiration-and-ideas.md` §2)
-- Persona appears based on snapshot data (income, saving rate, total assets)
-- Shareable badge/label
+- Persona hero card with gradient background, emoji, and glass-morphism stat boxes
+- Appears in Budget Kos Ringkasan tab only
 
-### 3.2 CTA Mamikos Integration
-- "Cari Kos di Mamikos" button placed naturally in the flow
-- Appears at relevant moments (e.g., rent budget too high → "Find a cheaper kos?")
+### 3.2 CTA Mamikos Integration ✅
+- "Cari Kos Sesuai Budgetmu" link in Budget Kos Ringkasan
 - Deep link to `https://mamikos.com`
+- Hidden in Wealth Tracker
 
-### 3.3 Copywriting & Branding (Anak Kos Theme)
-- Rewrite UI copywriting in relatable anak kos language
-- Terminology mapping in `inspiration-and-ideas.md` §1
-- Tone: casual, friendly, helpful — not formal banking
+### 3.3 Copywriting & Branding ✅
+- Dual copy system: base labels (casual) + `wt.*` overrides (professional)
+- `tm()` helper resolves labels based on current mode
+- Wealth Tracker shows: "Net Worth", "DSR", "Savings Rate", "Mau KPR"
+- Budget Kos shows: "Total Kekayaanku", "Rasio Utang", "Sisa Uang/Bulan"
 
-### 3.4 Share Feature
+### 3.4 Share Feature (Next session)
 - Share persona + key stats to social media
-- Privacy: users must explicitly opt-in; amounts hidden by default, only persona + ratios shown
-- Share methods: copy text, Twitter/X, WhatsApp (image export is nice-to-have)
+- Privacy: users must explicitly opt-in; amounts hidden by default
+- Planned as P4 — not yet implemented
 
 ### 3.5 Kos Rent Budget (Stretch Goal)
 - Track kos rent as a dedicated expense category
@@ -56,23 +77,22 @@ This is the canonical build order. Both docs in this folder follow this ordering
 
 ## Preservation Boundary
 
-This phase adds **new read-only layers** on top of existing finance logic. The boundary is:
+This phase adds **new layers** on top of existing finance logic. The boundary is:
 
-### Allowed (no approval needed)
-- Display-copy changes in `lib/copy/strings.ts` and `lib/copy/metric-explainers.ts`
-- New read-only derived labels, cards, badges (persona, CTA)
+### Allowed (done)
+- Display-copy changes in `lib/copy/strings.ts` (base labels + `wt.*` overrides)
 - New components that only **read** from existing stores
-- CTA/Mamikos link placement in templates
+- Mode flag in `stores/snapshot.ts` (`mode: AppMode | null`)
+- Conditional rendering via `v-if="isBudgetKos"` in existing components
+- New page (`pages/app/budget-kos.vue`) with its own Ringkasan
 
-### Guarded but allowed (requires spec before coding)
-- New derived metrics in a **new** file (e.g., `lib/finance/persona.ts`) — must not modify existing files in `lib/finance/`
-- Conditional UI branching based on mode param (`?mode=kos` vs `?mode=full`)
-
-### Not allowed in this phase
-- Changing any existing finance formulas in `lib/finance/`
-- Silently repurposing existing snapshot fields
-- Modifying OJK disclaimer text (stays formal)
-- Changing any behavior in the "Wealth Tracker Lengkap" path — it must remain identical to current production
+### Zero-diff verified (Wealth Tracker untouched)
+- `lib/finance/metrics.ts` — no changes
+- `lib/finance/derived.ts` — no changes
+- `lib/finance/goals.ts` — no changes
+- `lib/finance/thresholds.ts` — no changes
+- `lib/finance/emas.ts` — no changes
+- All Wealth Tracker calculations, charts, and flows identical to main branch
 
 ---
 
@@ -84,11 +104,14 @@ This phase adds **new read-only layers** on top of existing finance logic. The b
 ---
 
 ## Success Criteria
-- [ ] Landing page instantly feels "Mamikos" (not a generic finance app)
-- [ ] Persona system works with deterministic rules (no ambiguous precedence)
-- [ ] Share button generates privacy-safe content (no raw amounts unless user opts in)
-- [ ] CTA "Cari Kos di Mamikos" appears naturally in relevant flows
-- [ ] Existing "Wealth Tracker Lengkap" flow is zero-diff from current production
+- [x] Landing page instantly feels "Mamikos" (not a generic finance app)
+- [x] Persona system works with deterministic rules (no ambiguous precedence)
+- [x] CTA "Cari Kos di Mamikos" appears naturally in Budget Kos Ringkasan
+- [x] Budget Kos and Wealth Tracker are completely separate pages with different dashboards
+- [x] Wealth Tracker is zero-diff from main branch (verified via codex review)
+- [x] Dual copy system: casual for Budget Kos, professional for Wealth Tracker
+- [x] Separate demo data for each mode (anak kos profile vs Rio profile)
+- [ ] Share button generates privacy-safe content (P4 — next session)
 
 ---
 

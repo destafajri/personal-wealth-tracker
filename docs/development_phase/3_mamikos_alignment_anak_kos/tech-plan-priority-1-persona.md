@@ -1,8 +1,7 @@
 # Tech Plan: Priority 1 — Persona & Gamification
 
-**Status:** DRAFT v2 — codex-reviewed, findings addressed
+**Status:** ✅ Implemented on branch `alignment`
 **Date:** 2026-06-05
-**Prerequisite:** Codex-reviewed Phase 3 docs (commit `7204413`)
 
 ---
 
@@ -118,23 +117,21 @@ Owned by `PersonaCard.vue`, not by the resolver.
 
 ### Exact mount point
 
-In `components/layout/DashboardPanel.vue`, insert **between `HeroPair` and the SurplusGauge/EmergencyFund row**:
+Persona is rendered **inline** in `pages/app/budget-kos.vue` Ringkasan tab (not in DashboardPanel). It uses a full gradient background hero card with glass-morphism stat boxes:
 
 ```vue
-<!-- Current structure -->
-<section class="flex flex-col gap-5 p-3">
-  <HeroPair />
-  <!-- >>> INSERT PersonaCard HERE <<< -->
-  <div class="grid gap-4 sm:grid-cols-2">
-    <SurplusGauge />
-    <EmergencyFundMeter />
-  </div>
-  <MetricGrid />
-  ...
-</section>
+<!-- In budget-kos.vue, Ringkasan tab -->
+<div v-if="persona && personaStyle"
+  class="relative overflow-hidden rounded-2xl bg-gradient-to-br p-6 text-center shadow-xl"
+  :class="personaStyle.gradient">
+  <span class="text-6xl drop-shadow-lg">{{ personaStyle.emoji }}</span>
+  <h3>{{ persona label }}</h3>
+  <p>{{ persona tagline }}</p>
+  <!-- 2 glass stat boxes: savings rate %, runway months -->
+</div>
 ```
 
-Why this position: persona is the first thing the user sees after the hero summary — it's a "reward" for filling in data, placed before the detailed metrics.
+In `DashboardPanel.vue`, PersonaCard is wrapped with `v-if="isBudgetKos"` (computed from `snap.mode === 'budgetKos'`) — it never renders in Wealth Tracker mode.
 
 ### Card skeleton
 
@@ -181,36 +178,50 @@ Single source of truth: `PersonaResult.key` is used to look up copy from this re
 
 ---
 
-## 6. Execution Steps
+## 6. Execution Steps — Completed
 
-| # | Action | File | Detail |
+| # | Action | File | Status |
 |---|--------|------|--------|
-| 1 | **Create** persona types + logic | `lib/finance/persona.ts` | `PersonaKey`, `PersonaResult`, `PersonaInput`, `PersonaTone`, `resolvePersona()`, `hasInvestments()`, `isSnapshotReady()` |
-| 2 | **Append** persona copy | `lib/copy/strings.ts` | Add `persona.*` entries for all 5 personas + stat labels |
-| 3 | **Create** PersonaCard component | `components/dashboard/PersonaCard.vue` | Gradient card + 2 stats row (savingsRate %, runway months) + `PERSONA_STYLE_MAP` |
-| 4 | **Mount** PersonaCard | `components/layout/DashboardPanel.vue` | Insert between `<HeroPair />` and the SurplusGauge/EmergencyFund grid |
-| 5 | **Create** unit tests | `tests/finance/persona.test.ts` | Test all 5 personas + fallback + null (not ready) + edge cases (negative savingsRate, null values) |
-| 6 | **Verify** typecheck + tests | `vue-tsc --noEmit` + `vitest run` | Zero regressions |
+| 1 | **Create** persona types + logic | `lib/finance/persona.ts` | ✅ Done |
+| 2 | **Append** persona copy | `lib/copy/strings.ts` | ✅ Done |
+| 3 | **Create** PersonaCard component | `components/dashboard/PersonaCard.vue` | ✅ Done |
+| 4 | **Inline** persona in budget-kos Ringkasan | `pages/app/budget-kos.vue` | ✅ Done (inline hero, not PersonaCard component) |
+| 5 | **Guard** PersonaCard in DashboardPanel | `components/layout/DashboardPanel.vue` | ✅ Done (`v-if="isBudgetKos"`) |
+| 6 | **Create** unit tests | `tests/finance/persona.test.ts` | ✅ Done |
+| 7 | **Verify** typecheck + tests | `vue-tsc --noEmit` + `vitest run` | ✅ Passed |
 
 ---
 
-## 7. Preservation Boundary
+## 7. Preservation Boundary — Verified
 
-### Files NOT touched
+### Files NOT touched (zero-diff from main)
 - `lib/finance/metrics.ts` ❌
 - `lib/finance/emas.ts` ❌
 - `lib/finance/thresholds.ts` ❌
+- `lib/finance/goals.ts` ❌
 - `stores/derived.ts` ❌
-- `stores/snapshot.ts` ❌
 
-### Files modified (append/insert only)
-- `lib/copy/strings.ts` — append persona copy namespace
-- `components/layout/DashboardPanel.vue` — insert one `<PersonaCard />` line
+### Files modified
+- `lib/copy/strings.ts` — persona copy namespace + `wt.*` overrides + `tm()` helper
+- `stores/snapshot.ts` — `AppMode` type + `mode` ref
+- `components/layout/DashboardPanel.vue` — `v-if="isBudgetKos"` guard
+- `components/dashboard/HeroPair.vue` — `tm()` for labels
+- `components/dashboard/MetricCard.vue` — `tm()` for labels
+- `components/layout/TopNav.vue` — `tm()` for brand subtitle
+- `components/simulator/SimLauncher.vue` — `tm()` for card labels
+- `pages/app/simulator.vue` — `tm()` for title/subtitle
+- `pages/app/snapshot.vue` — mode set after demo trigger
+- `pages/index.vue` — dynamic modal routing
+- `layouts/default.vue` — budget-kos subtitle next to logo
+- `lib/fixtures/demoSnapshot.ts` — `applyBudgetKosDemo()` + `triggerBudgetKosDemo()`
 
 ### Files created (new)
 - `lib/finance/persona.ts`
 - `components/dashboard/PersonaCard.vue`
+- `pages/app/budget-kos.vue`
 - `tests/finance/persona.test.ts`
+- `components/snapshot/BudgetKosRecap.vue` (unused, can remove)
+- `composables/useModeCopy.ts` (unused, can remove)
 
 ---
 

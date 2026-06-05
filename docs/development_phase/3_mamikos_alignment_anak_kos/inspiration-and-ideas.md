@@ -2,7 +2,7 @@
 
 **Source:** Adapted from Gemini prompt + Cermat codebase analysis
 **Date:** 2026-06-05
-**Status:** Codex-reviewed 2026-06-05, findings addressed
+**Status:** ✅ Implemented on branch `alignment`
 
 ---
 
@@ -154,33 +154,37 @@ Track kos rent as part of expenses. Not a new module, but an enhancement to the 
 
 ---
 
-## 6. Multiple Entry Points on Landing Page
+## 6. Multiple Entry Points on Landing Page — ✅ Implemented
 
-### Concept
-Two entry points on the landing page with different experiences but the same underlying engine.
+### Architecture: Separate pages (not mode branching)
 
-### Mode-difference matrix
-Defines exactly which screens/components differ by mode and which remain identical:
+Each CTA on the landing page now routes to its own page with a completely different experience:
 
-| Screen / Component | `mode=kos` | `mode=full` | Diff? |
-|--------------------|------------|-------------|-------|
-| Landing page (`pages/index.vue`) | Two CTA cards | Two CTA cards | No |
-| Snapshot form (`components/snapshot/`) | Full form (same) | Full form (same) | **No** |
-| Snapshot field visibility | All fields shown | All fields shown | **No** |
-| Dashboard sidebar | Same | Same | **No** |
-| Persona card | Shown | Shown | **No** |
-| CTA Mamikos | Shown | Shown | **No** |
-| Share card | Shown | Shown | **No** |
-| Copy tone | Anak kos casual | Current professional | **Yes** |
+| Aspect | Budget Kos (`/app/budget-kos`) | Wealth Tracker (`/app/snapshot`) |
+|--------|-------------------------------|----------------------------------|
+| Layout | `default` (no sidebar, no top tab bar) | `app` (sidebar + Track/Plan/Decide tabs) |
+| Tabs | 4 (Cash Flow, Kas, Utang, Ringkasan) | 6 (full) |
+| Ringkasan | Gamified persona hero + surplus + health cards | DashboardPanel + charts + goals |
+| Copy tone | Casual anak kos (base labels) | Professional (`wt.*` overrides via `tm()`) |
+| Demo data | Anak kos profile (gaji 3.5jt, paylater, motor) | Rio profile (gaji 6.5jt, KPR, saham, crypto) |
+| CTA Mamikos | Shown in Ringkasan | Hidden |
+| Persona card | Shown in Ringkasan (inline gradient hero) | Hidden |
 
-### Decision: defer mode branching
-After analysis, the **only difference** between modes is copy tone. The actual screens, fields, and components are identical. Rather than implementing a `mode` param that branches copy logic throughout the app, we will:
+### Mode system
+`stores/snapshot.ts` has `mode: AppMode | null` where `AppMode = 'budgetKos' | 'wealthTracker'`. Each page sets its mode on mount:
+- `budget-kos.vue`: `snap.mode = 'budgetKos'` then `triggerBudgetKosDemo()`
+- `snapshot.vue`: `triggerDemoFromQuery()` first (which calls `reset()`), then `snap.mode = 'wealthTracker'`
 
-1. **Rewrite all copy to anak kos tone** (single mode, no branching)
-2. Keep "Wealth Tracker Lengkap" link on landing as a second CTA pointing to the same `/app/snapshot` route
-3. No `?mode=` param, no conditional UI, no forked flows
+### Dual copy system
+`lib/copy/strings.ts` has:
+- Base labels: casual anak kos tone (e.g., "Total Kekayaanku", "Rasio Utang")
+- `wt.*` overrides: professional tone (e.g., "Net Worth", "DSR")
+- `tm(key, mode)` helper: returns `wt.*` version when mode=`wealthTracker`, base otherwise
 
-This eliminates the implementation risk of a partial app fork while still providing two distinct CTAs on the landing page.
+### Landing page routing
+Landing modal routes are dynamic based on which CTA card was clicked:
+- "Cek Budget Ngekos" → `/app/budget-kos` (fresh) or `/app/budget-kos?demo=1` (with data)
+- "Wealth Tracker Lengkap" → `/app/snapshot` (fresh) or `/app/snapshot?demo=1` (with data)
 
 ### Landing layout
 ```
@@ -205,7 +209,19 @@ This eliminates the implementation risk of a partial app fork while still provid
 └─────────────────────────────────────────────┘
 ```
 
-Both CTAs navigate to `/app/snapshot` — no mode param, no branching.
+### Files changed
+- `pages/app/budget-kos.vue` — **new** page with inline Ringkasan
+- `pages/app/snapshot.vue` — mode set after demo trigger
+- `stores/snapshot.ts` — `AppMode` type + `mode` ref
+- `lib/copy/strings.ts` — `wt.*` overrides + `tm()` helper
+- `lib/fixtures/demoSnapshot.ts` — `applyBudgetKosDemo()` + `triggerBudgetKosDemo()`
+- `components/layout/DashboardPanel.vue` — `v-if="isBudgetKos"` on PersonaCard/CtaMamikos
+- `components/dashboard/HeroPair.vue` — `tm()` for metric labels
+- `components/dashboard/MetricCard.vue` — `tm()` for metric labels
+- `components/layout/TopNav.vue` — `tm()` for brand subtitle
+- `components/simulator/SimLauncher.vue` — `tm()` for card labels
+- `pages/app/simulator.vue` — `tm()` for title/subtitle
+- `pages/index.vue` — dynamic modal route based on `pendingMode`
 
 ---
 
