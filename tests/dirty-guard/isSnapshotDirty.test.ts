@@ -43,6 +43,7 @@ describe('isSnapshotDirty', () => {
     ['penghasilanLainCount', 1],
     ['pengeluaranPokok', 1],
     ['pengeluaranLifestyle', 1],
+    ['pengeluaranBiayaKos', 1],
     ['pengeluaranLainCount', 1],
     ['totalAset', 1],
     ['cicilanCount', 1],
