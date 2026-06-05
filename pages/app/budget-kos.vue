@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watchEffect } from 'vue'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeftRight,
@@ -28,6 +28,8 @@ import { useDerivedStore } from '~/stores/derived'
 import { isSnapshotDirty } from '~/composables/useDirtyGuard'
 import { calcTotalPengeluaran } from '~/lib/finance/metrics'
 import { triggerBudgetKosDemo } from '~/lib/fixtures/demoSnapshot'
+import { useFxRates } from '~/composables/usePrices'
+import type { Currency, FxRatesMap, PricesView } from '~/lib/types/snapshot'
 import {
   resolvePersona,
   hasInvestments,
@@ -47,6 +49,23 @@ const router = useRouter()
 onMounted(() => {
   snap.mode = 'budgetKos'
   triggerBudgetKosDemo(snap, route, router)
+})
+
+// FX rates for non-IDR currency conversion
+const fx = useFxRates()
+watchEffect(() => {
+  const fxRates: FxRatesMap = { USD: null, SGD: null, EUR: null, JPY: null, KRW: null }
+  for (const row of fx.data.value?.rates ?? []) {
+    const base = row.pair.replace(/IDR$/, '') as Exclude<Currency, 'IDR'>
+    fxRates[base] = row.rate
+  }
+  derived.setPrices({
+    goldDigitalIdrPerGram: null,
+    goldAntam1gIdr: null,
+    fxRates,
+    idxByTicker: {},
+    cryptoByCoinId: {},
+  } satisfies PricesView)
 })
 
 const hasData = computed(() =>
