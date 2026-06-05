@@ -163,6 +163,26 @@ function budgetKosDemo() {
           {{ t('cta.mamikos.action') }}
         </span>
       </a>
+
+      <a
+        href="https://mamikos.com/jual/cari?type=Kost"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group flex items-center gap-4 rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 p-4 text-left transition-all hover:bg-amber-100 hover:shadow-[var(--shadow-sm)]"
+      >
+        <span class="text-2xl">👑</span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-amber-800">
+            {{ t('cta.mamikos.invest.label') }}
+          </p>
+          <p class="mt-0.5 text-xs text-amber-600">
+            {{ t('cta.mamikos.invest.body') }}
+          </p>
+        </div>
+        <span class="shrink-0 text-xs font-medium text-amber-600 group-hover:underline">
+          {{ t('cta.mamikos.action') }}
+        </span>
+      </a>
     </div>
 
     <!-- Modal: fresh or demo — NuxtLinks only, no navigateTo -->

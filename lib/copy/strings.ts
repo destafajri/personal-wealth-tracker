@@ -762,6 +762,8 @@ export const copy = {
   'cta.mamikos.landing.body': 'Mulai cek keuangan, lalu cari kos yang pas.',
   'cta.mamikos.rumah.label': 'Cari Rumah Impianmu',
   'cta.mamikos.rumah.body': 'Sudah siap secara finansial? Cek rumah yang tersedia.',
+  'cta.mamikos.invest.label': 'Beli Kos Buat Investasi',
+  'cta.mamikos.invest.body': 'Dana udah cuma-cuma? Saatnya jadi juragan kos.',
   'cta.mamikos.action': '→',
 
   // ----- wealth tracker overrides (professional tone) -----
