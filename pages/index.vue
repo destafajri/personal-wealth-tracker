@@ -125,7 +125,7 @@ function budgetKosDemo() {
     <!-- CTA Mamikos as horizontal collaboration banner -->
     <div class="mx-auto mt-6 max-w-3xl">
       <a
-        href="https://mamikos.com"
+        href="https://mamikos.com/cari?suggestion_type=location&rent=2&sort=price,-&price=10000-20000000&singgahsini=0"
         target="_blank"
         rel="noopener noreferrer"
         class="group flex items-center gap-4 rounded-[var(--radius-card)] border border-emerald-200 bg-emerald-50 p-4 text-left transition-all hover:bg-emerald-100 hover:shadow-[var(--shadow-sm)]"

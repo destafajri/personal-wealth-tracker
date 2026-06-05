@@ -758,9 +758,9 @@ export const copy = {
   'cta.mamikos.afterPersona.body': 'Temukan kos pas di Mamikos — hemat tanpa ribet.',
   'cta.mamikos.dashboardBottom.label': 'Mau Pindah Kos?',
   'cta.mamikos.dashboardBottom.body': 'Cek kos available di Mamikos, sesuai budget kamu.',
-  'cta.mamikos.landing.label': 'Cari Kos Pas di Mamikos',
+  'cta.mamikos.landing.label': 'Cari Kos Sekitar Kamu',
   'cta.mamikos.landing.body': 'Mulai cek keuangan, lalu cari kos yang pas.',
-  'cta.mamikos.action': 'Cari di Mamikos →',
+  'cta.mamikos.action': '→',
 
   // ----- wealth tracker overrides (professional tone) -----
   'wt.metric.netWorth.label': 'Net Worth',

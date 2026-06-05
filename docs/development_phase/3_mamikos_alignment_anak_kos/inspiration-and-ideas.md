@@ -129,7 +129,7 @@ Natural CTAs that appear at the right moment, not a generic banner.
 |--------|-----|-----------|
 | After viewing persona | "Cari Kos Sesuai Budgetmu di Mamikos" | Natural next step |
 | Rent ratio >30% of income | "Budget sewamu terlalu besar! Cari kos yang lebih murah?" | Actionable |
-| Landing page | "Mulai Cek Keuangan, Cari Kos Pas di Mamikos" | Entry point |
+| Landing page | "Mulai Cek Keuangan, Cari Kos Sekitar Kamu" | Entry point |
 | Bottom of dashboard | "Mau pindah kos? Cek dulu budgetmu" | Soft nudge |
 
 ### Target URL
