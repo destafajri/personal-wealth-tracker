@@ -45,7 +45,7 @@ and conditional rendering were introduced across earlier commits in this branch.
 
 ## 3. Landing Page Routing
 
-- [ ] "Cek Budget Ngekos" modal → links go to `/app/budget-kos` and `/app/budget-kos?demo=1`
+- [ ] "Cek Tipe Anak Kos Kamu" modal → links go to `/app/budget-kos` and `/app/budget-kos?demo=1`
 - [ ] "Wealth Tracker Lengkap" modal → links go to `/app/snapshot` and `/app/snapshot?demo=1`
 - [ ] `pendingMode` ref correctly sets mode before navigation
 - [ ] `startFresh()` resets store then sets mode

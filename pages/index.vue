@@ -41,7 +41,7 @@ function budgetKosDemo() {
 <template>
   <section class="mx-auto max-w-5xl px-6 py-16 text-center sm:py-24">
     <p class="mb-3 text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)]">
-      Cermat × Mamikos
+      Cermat
     </p>
 
     <h1

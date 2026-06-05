@@ -36,7 +36,7 @@ import {
 } from '~/lib/finance/persona'
 
 definePageMeta({ layout: 'default', ssr: false })
-useSeoMeta({ title: `Cek Budget Ngekos — ${t('brand.name')}` })
+useSeoMeta({ title: `Cek Tipe Anak Kos Kamu — ${t('brand.name')}` })
 
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
@@ -193,7 +193,7 @@ const totalUtang = computed(() => cicilanAktifTotal.value + utangPribadiTotal.va
 
 <template>
   <div class="mx-auto max-w-2xl space-y-5 px-4 pb-8 pt-4 sm:px-6">
-    <h1 class="sr-only">Cek Budget Ngekos</h1>
+    <h1 class="sr-only">Cek Tipe Anak Kos Kamu</h1>
 
     <div
       v-if="hasData"

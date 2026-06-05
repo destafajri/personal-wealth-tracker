@@ -183,7 +183,7 @@ Each CTA on the landing page now routes to its own page with a completely differ
 
 ### Landing page routing
 Landing modal routes are dynamic based on which CTA card was clicked:
-- "Cek Budget Ngekos" → `/app/budget-kos` (fresh) or `/app/budget-kos?demo=1` (with data)
+- "Cek Tipe Anak Kos Kamu" → `/app/budget-kos` (fresh) or `/app/budget-kos?demo=1` (with data)
 - "Wealth Tracker Lengkap" → `/app/snapshot` (fresh) or `/app/snapshot?demo=1` (with data)
 
 ### Landing layout
