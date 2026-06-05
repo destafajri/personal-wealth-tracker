@@ -6,6 +6,7 @@ import { ArrowRight, ChevronRight, CloudOff, FileText, Lock, Play } from 'lucide
 // `feedback-nuxt-component-subdir-prefix`.
 import Badge from '~/components/common/Badge.vue'
 import ButtonCTA from '~/components/common/ButtonCTA.vue'
+import CtaMamikos from '~/components/common/CtaMamikos.vue'
 import IconChip from '~/components/common/IconChip.vue'
 import { t } from '~/lib/copy/strings'
 import { useSnapshotStore } from '~/stores/snapshot'
@@ -103,6 +104,10 @@ function startFresh() {
           </ButtonCTA>
         </NuxtLink>
       </div>
+    </div>
+
+    <div class="mx-auto mt-8 max-w-3xl">
+      <CtaMamikos variant="landing" />
     </div>
   </section>
 </template>

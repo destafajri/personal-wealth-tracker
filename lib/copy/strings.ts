@@ -746,6 +746,15 @@ export const copy = {
   'persona.sobatIndomie.tagline': 'Hemat itu pilihan, tapi yang penting happy!',
   'persona.stats.savingsRate': 'Sisa Uang/Bulan',
   'persona.stats.runway': 'Bisa Bertahan',
+
+  // ----- CTA Mamikos (Phase 3 Priority 2) -----
+  'cta.mamikos.afterPersona.label': 'Cari Kos Sesuai Budgetmu',
+  'cta.mamikos.afterPersona.body': 'Temukan kos pas di Mamikos — hemat tanpa ribet.',
+  'cta.mamikos.dashboardBottom.label': 'Mau Pindah Kos?',
+  'cta.mamikos.dashboardBottom.body': 'Cek kos available di Mamikos, sesuai budget kamu.',
+  'cta.mamikos.landing.label': 'Cari Kos Pas di Mamikos',
+  'cta.mamikos.landing.body': 'Mulai cek keuangan, lalu cari kos yang pas.',
+  'cta.mamikos.action': 'Cari di Mamikos →',
 } as const
 
 export type CopyKey = keyof typeof copy
