@@ -15,6 +15,7 @@ const props = defineProps<{
   cooldownRemaining?: number
   onRefresh?: () => void | Promise<void>
   hideHeader?: boolean
+  disabled?: boolean
 }>()
 
 const snap = useSnapshotStore()
@@ -83,6 +84,15 @@ function field(key: keyof EmasState, value: number | null) {
   <section
     class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
   >
+    <!-- Maintenance banner -->
+    <div
+      v-if="disabled"
+      class="mb-4 flex items-center gap-2 rounded-[var(--radius-input)] border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-800 dark:border-amber-600 dark:bg-amber-900/40 dark:text-amber-200"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span class="text-xs font-medium">Harga emas sedang dalam perbaikan. Fitur emas sementara dinonaktifkan.</span>
+    </div>
+
     <header v-if="!hideHeader || onRefresh" class="mb-3">
       <div class="flex items-start gap-3">
         <h3 v-if="!hideHeader" class="text-base font-semibold text-[var(--color-text-primary)]">
@@ -134,6 +144,7 @@ function field(key: keyof EmasState, value: number | null) {
           <InputQuantity
             unit="gram"
             :step="0.01"
+            :disabled="disabled"
             :model-value="snap.emas.digitalGram || null"
             @update:model-value="field('digitalGram', $event)"
           />
@@ -163,6 +174,7 @@ function field(key: keyof EmasState, value: number | null) {
           <InputQuantity
             unit="gram"
             :step="0.1"
+            :disabled="disabled"
             :model-value="snap.emas.fisikAntamGram || null"
             @update:model-value="field('fisikAntamGram', $event)"
           />
@@ -203,6 +215,7 @@ function field(key: keyof EmasState, value: number | null) {
               <InputQuantity
                 unit="gram"
                 :step="0.1"
+                :disabled="disabled"
                 :model-value="snap.emas.perhiasan18KGram || null"
                 @update:model-value="field('perhiasan18KGram', $event)"
               />
@@ -231,6 +244,7 @@ function field(key: keyof EmasState, value: number | null) {
               <InputQuantity
                 unit="gram"
                 :step="0.1"
+                :disabled="disabled"
                 :model-value="snap.emas.perhiasan14KGram || null"
                 @update:model-value="field('perhiasan14KGram', $event)"
               />
@@ -259,6 +273,7 @@ function field(key: keyof EmasState, value: number | null) {
               <InputQuantity
                 unit="gram"
                 :step="0.1"
+                :disabled="disabled"
                 :model-value="snap.emas.perhiasan10KGram || null"
                 @update:model-value="field('perhiasan10KGram', $event)"
               />

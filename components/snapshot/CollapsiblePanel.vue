@@ -13,6 +13,8 @@ const props = withDefaults(
     variant?: 'emerald' | 'neutral' | 'amber' | 'rose'
     defaultOpen?: boolean
     value?: number | null
+    disabled?: boolean
+    badge?: string
   }>(),
   {
     subtitle: undefined,
@@ -20,6 +22,8 @@ const props = withDefaults(
     variant: 'neutral',
     defaultOpen: false,
     value: undefined,
+    disabled: false,
+    badge: undefined,
   },
 )
 
@@ -35,17 +39,26 @@ const open = ref<boolean>(props.defaultOpen)
   >
     <button
       type="button"
-      class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--color-surface-low)]/50 sm:px-5"
+      class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors sm:px-5"
+      :class="disabled ? 'cursor-not-allowed opacity-60' : 'hover:bg-[var(--color-surface-low)]/50'"
       :aria-expanded="open"
-      @click="open = !open"
+      @click="!disabled && (open = !open)"
     >
       <IconChip v-if="icon" :variant="variant" size="md">
         <component :is="icon" :size="18" :stroke-width="1.75" />
       </IconChip>
       <div class="min-w-0 flex-1">
-        <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
-          {{ title }}
-        </h3>
+        <div class="flex items-center gap-2">
+          <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
+            {{ title }}
+          </h3>
+          <span
+            v-if="badge"
+            class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700"
+          >
+            {{ badge }}
+          </span>
+        </div>
         <p
           v-if="subtitle"
           class="mt-0.5 text-xs text-[var(--color-text-secondary)]"
