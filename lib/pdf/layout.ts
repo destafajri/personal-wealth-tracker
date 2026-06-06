@@ -91,6 +91,7 @@ function renderDonutCanvas(
   canvasW: number,
   canvasH: number,
 ): string {
+  if (typeof document === 'undefined') return ''
   const canvas = document.createElement('canvas')
   canvas.width = canvasW
   canvas.height = canvasH
@@ -163,7 +164,11 @@ function renderDonutCanvas(
     legendY += 16
   }
 
-  return canvas.toDataURL('image/png')
+  const dataUrl = canvas.toDataURL('image/png')
+  // Release canvas memory
+  canvas.width = 0
+  canvas.height = 0
+  return dataUrl
 }
 
 export function drawDonutChart(

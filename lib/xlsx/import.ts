@@ -246,7 +246,7 @@ export async function parseImportFile(
 
   // 2. Read file into workbook
   const buffer = await file.arrayBuffer()
-  const wb = XLSX.read(new Uint8Array(buffer), { type: 'array' })
+  const wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellFormula: false })
 
   // 3. Extract _meta sheet
   const metaSheetName = wb.SheetNames.find(
