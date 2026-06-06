@@ -63,7 +63,7 @@ const anyChipVisible = computed(() => chips.value.some((c) => c.hasValue))
 <template>
   <div class="grid min-w-0 gap-3 sm:grid-cols-2">
     <article
-      class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+      class="min-w-0 overflow-x-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
     >
       <header class="flex items-center gap-1.5">
         <h3 class="text-xs font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
@@ -105,7 +105,7 @@ const anyChipVisible = computed(() => chips.value.some((c) => c.hasValue))
       </p>
     </article>
     <article
-      class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+      class="min-w-0 overflow-x-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
     >
       <header class="flex items-center gap-1.5">
         <h3 class="text-xs font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">

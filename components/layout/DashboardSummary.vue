@@ -220,7 +220,7 @@ const dsrZoneText = computed(() => {
         <span class="flex-1 truncate text-[11px] text-[var(--color-text-secondary)]">
           Kas / Tabungan
         </span>
-        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums text-[var(--color-text-primary)]">
+        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
           {{ idr(kas) }}
         </span>
       </li>
@@ -233,7 +233,7 @@ const dsrZoneText = computed(() => {
         <span class="flex-1 truncate text-[11px] text-[var(--color-text-secondary)]">
           Investasi
         </span>
-        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums text-[var(--color-text-primary)]">
+        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
           {{ idr(investasi) }}
         </span>
       </li>
@@ -246,7 +246,7 @@ const dsrZoneText = computed(() => {
         <span class="flex-1 truncate text-[11px] text-[var(--color-text-secondary)]">
           Aset Tetap
         </span>
-        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums text-[var(--color-text-primary)]">
+        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
           {{ idr(asetTetap) }}
         </span>
       </li>
@@ -259,7 +259,7 @@ const dsrZoneText = computed(() => {
         <span class="flex-1 truncate text-[11px] text-[var(--color-text-secondary)]">
           Utang
         </span>
-        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums text-[var(--color-danger-rose)]">
+        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums break-all text-[var(--color-danger-rose)]">
           {{ utang > 0 ? '−' : '' }}{{ idr(utang) }}
         </span>
       </li>

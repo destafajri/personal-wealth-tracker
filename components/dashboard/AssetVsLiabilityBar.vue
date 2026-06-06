@@ -21,7 +21,7 @@ const hasUtang = computed(() => utang.value > 0)
 
 <template>
   <section
-    class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+    class="min-w-0 overflow-x-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
   >
     <header class="mb-3">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
@@ -30,7 +30,7 @@ const hasUtang = computed(() => utang.value > 0)
     </header>
 
     <!-- Stacked bar -->
-    <div class="h-4 overflow-hidden rounded-full bg-[var(--color-surface-low)]">
+    <div class="h-4 overflow-x-hidden rounded-full bg-[var(--color-surface-low)]">
       <div class="flex h-full" :style="{ width: '100%' }">
         <div
           class="h-full rounded-l-full bg-[var(--color-primary)] transition-all duration-500"

@@ -71,7 +71,7 @@ const EmergencyFundMeter = defineAsyncComponent({
     the user fills in / edits snapshot rows. "polite" (not "assertive")
     avoids interrupting in-progress typing.
   -->
-  <section class="flex min-w-0 flex-col gap-5 overflow-hidden p-3" aria-live="polite" aria-atomic="false">
+  <section class="flex min-w-0 flex-col gap-5 overflow-x-hidden p-3" aria-live="polite" aria-atomic="false">
     <HeroPair />
     <PersonaCard v-if="isBudgetKos" />
     <CtaMamikos v-if="isBudgetKos" variant="afterPersona" />

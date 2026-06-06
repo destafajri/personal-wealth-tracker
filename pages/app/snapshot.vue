@@ -532,7 +532,7 @@ watchEffect(() => {
       </div>
     </div>
 
-    <div v-if="activeTabId === 'ringkasan'" class="min-w-0 space-y-4 overflow-hidden">
+    <div v-if="activeTabId === 'ringkasan'" class="min-w-0 space-y-4 overflow-x-hidden">
       <header
         class="flex items-start gap-3 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-gradient-to-br from-[var(--color-primary)]/8 via-[var(--color-surface-card)] to-[var(--color-surface-card)] px-4 py-4 sm:px-5"
       >
@@ -549,7 +549,7 @@ watchEffect(() => {
         </div>
       </header>
       <!-- Visual dashboard FIRST — TL;DR in 3 seconds -->
-      <div class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-2 sm:p-3">
+      <div class="min-w-0 overflow-x-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-2 sm:p-3">
         <DashboardPanel />
       </div>
       <!-- Detail breakdown BELOW — audit trail, grid 2-col on desktop -->

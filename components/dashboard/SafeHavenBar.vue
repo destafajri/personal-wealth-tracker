@@ -78,7 +78,7 @@ const option = computed(() => ({
 
 <template>
   <section
-    class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+    class="min-w-0 overflow-x-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
   >
     <header class="mb-3 flex items-baseline justify-between">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
@@ -90,7 +90,7 @@ const option = computed(() => ({
     </header>
 
     <template v-if="hasData">
-      <div class="h-10 w-full overflow-hidden">
+      <div class="h-10 w-full overflow-x-hidden">
         <VChart :option="option" autoresize />
       </div>
       <div class="mt-3 grid grid-cols-2 gap-3 text-xs">

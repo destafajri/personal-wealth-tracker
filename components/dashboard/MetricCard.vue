@@ -51,7 +51,7 @@ const display = computed(() => {
 
 <template>
   <article
-    class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 pb-5"
+    class="min-w-0 overflow-x-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 pb-5"
   >
     <header class="flex items-center justify-between gap-2">
       <div class="flex items-center gap-1.5">

@@ -24,7 +24,7 @@ const STATUS_DOT: Record<GoalStatus, string> = {
 
 <template>
   <section
-    class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+    class="min-w-0 overflow-x-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
   >
     <header class="mb-3 flex items-center justify-between gap-2">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">

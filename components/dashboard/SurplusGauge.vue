@@ -34,7 +34,7 @@ const statusText = computed(() => {
 
 <template>
   <section
-    class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+    class="min-w-0 overflow-x-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
   >
     <header class="mb-3 flex items-center justify-between">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
@@ -57,7 +57,7 @@ const statusText = computed(() => {
         <span>Pengeluaran {{ income > 0 ? ((expense / income) * 100).toFixed(0) + '%' : '' }}</span>
         <span>Pendapatan</span>
       </div>
-      <div class="mt-1 h-2 overflow-hidden rounded-full bg-[var(--color-primary)]/15">
+      <div class="mt-1 h-2 overflow-x-hidden rounded-full bg-[var(--color-primary)]/15">
         <div
           class="h-full rounded-full transition-all duration-500"
           :class="isPositive ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-danger-rose)]'"
