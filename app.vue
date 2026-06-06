@@ -2,7 +2,7 @@
 useHead({
   script: [
     {
-      innerHTML: `(function(){try{if(localStorage.getItem('cermat-theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}})()`,
+      innerHTML: `(function(){try{var t=localStorage.getItem('cermat-theme');var d=t==='dark'||(t!=='light'&&new Date().getHours()>=18||new Date().getHours()<6);if(d)document.documentElement.classList.add('dark')}catch(e){}})()`,
       type: 'text/javascript',
       tagPriority: 'critical',
     },

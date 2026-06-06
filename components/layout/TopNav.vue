@@ -14,7 +14,7 @@ import ImportModal from '~/components/layout/ImportModal.vue'
 const derived = useDerivedStore()
 const snap = useSnapshotStore()
 const toast = useToast()
-const { resolved, toggle: toggleTheme } = useTheme()
+const { mode: themeMode, resolved, toggle: toggleTheme } = useTheme()
 
 // Disabled only when snapshot is completely empty
 const downloadDisabled = computed(() =>
@@ -112,12 +112,18 @@ async function onFileSelected(e: Event) {
       <div class="flex items-center gap-2">
         <button
           type="button"
-          :aria-label="resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          :aria-label="themeMode === 'auto' ? 'Auto (time-based)' : resolved === 'dark' ? 'Dark mode' : 'Light mode'"
           class="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-low)] hover:text-[var(--color-text-primary)]"
+          :title="themeMode === 'auto' ? 'Auto' : resolved === 'dark' ? 'Dark' : 'Light'"
           @click="toggleTheme"
         >
-          <Sun v-if="resolved === 'dark'" :size="18" />
-          <Moon v-else :size="18" />
+          <Sun v-if="themeMode === 'light'" :size="18" />
+          <Moon v-else-if="themeMode === 'dark'" :size="18" />
+          <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2.5" /><path d="M5.6 5.6l1.8 1.8" /><path d="M2 12h2.5" />
+            <path d="M20 14.5A7 7 0 0 1 14.5 20 7 7 0 0 0 20 14.5z" fill="currentColor" />
+          </svg>
         </button>
 
         <input

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    variant?: 'emerald' | 'neutral' | 'amber' | 'rose'
+    variant?: 'emerald' | 'neutral' | 'amber' | 'rose' | 'sky'
     size?: 'md' | 'lg'
   }>(),
   { variant: 'emerald', size: 'md' },
@@ -20,6 +20,8 @@ withDefaults(
         'bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]',
       variant === 'rose' &&
         'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
+      variant === 'sky' &&
+        'bg-sky-100 text-sky-600',
     ]"
   >
     <slot />

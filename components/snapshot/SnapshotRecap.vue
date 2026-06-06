@@ -321,6 +321,7 @@ function rdJenisLabel(jenis: string): string {
 }
 
 const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide'
+const AVATAR_BADGE = 'inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold leading-none text-white'
 </script>
 
 <template>
@@ -544,7 +545,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
             >
               <div class="flex items-baseline justify-between gap-3">
                 <span class="min-w-0 truncate">
-                  <span :class="CATEGORY_BADGE + ' bg-emerald-50 text-[var(--color-primary)]'">Deposito</span>
+                  <span :class="AVATAR_BADGE + ' bg-sky-500'">D</span>
                   <span class="ml-1.5 text-[var(--color-text-secondary)]">{{ row.label || 'Deposito' }}</span>
                 </span>
                 <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
@@ -562,7 +563,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
             >
               <div class="flex items-baseline justify-between gap-3">
                 <span class="min-w-0 truncate">
-                  <span :class="CATEGORY_BADGE + ' bg-amber-50 text-[var(--color-warning-amber)]'">RD</span>
+                  <span :class="AVATAR_BADGE + ' bg-teal-500'">RD</span>
                   <span class="ml-1.5 text-[var(--color-text-secondary)]">{{ row.label || 'Reksa Dana' }}</span>
                 </span>
                 <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
@@ -580,7 +581,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
             >
               <div class="flex items-baseline justify-between gap-3">
                 <span class="min-w-0 truncate">
-                  <span :class="CATEGORY_BADGE + ' bg-blue-50 text-blue-600'">SBN</span>
+                  <span :class="AVATAR_BADGE + ' bg-indigo-500'">SN</span>
                   <span class="ml-1.5 text-[var(--color-text-secondary)]">{{ row.label || 'SBN' }}</span>
                 </span>
                 <span class="min-w-0 break-all text-right tabular-nums text-[var(--color-text-primary)]">
@@ -597,7 +598,7 @@ const CATEGORY_BADGE = 'inline-block rounded px-1.5 py-px text-[9px] font-semibo
               class="flex items-baseline justify-between gap-3 py-1.5"
             >
               <span class="min-w-0 truncate">
-                <Coins :size="11" :stroke-width="1.75" class="-mt-0.5 mr-1 inline-block text-[var(--color-warning-amber)]" />
+                <Coins :size="12" :stroke-width="2" class="-mt-0.5 mr-1 inline-block text-amber-500" />
                 <span class="text-[var(--color-text-secondary)]">{{ row.label }}</span>
                 <span class="ml-1 text-[10px] text-[var(--color-text-muted)]">
                   · {{ row.gram }}g

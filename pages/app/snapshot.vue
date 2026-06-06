@@ -460,7 +460,7 @@ watchEffect(() => {
           title="Deposito, Reksa Dana, SBN"
           subtitle="Fixed-income dengan bunga / yield"
           :icon="Landmark"
-          variant="neutral"
+          variant="emerald"
           :value="depoRdSbnTotal"
         >
           <AsetLikuidPanel
@@ -472,7 +472,7 @@ watchEffect(() => {
           title="Emas"
           subtitle="Antam, perhiasan, dan emas digital"
           :icon="Coins"
-          variant="neutral"
+          variant="amber"
           :value="emasTotal"
         >
           <EmasPanel
@@ -534,7 +534,7 @@ watchEffect(() => {
         title="Properti, Kendaraan, Lainnya"
         subtitle="Aset fisik dan barang berharga"
         :icon="Home"
-        variant="neutral"
+        variant="sky"
         :value="asetTetapTotal"
       >
         <AsetNonLikuidPanel hide-header />

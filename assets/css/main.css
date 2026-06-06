@@ -101,14 +101,14 @@
 
 /* ── Dark mode token overrides ── */
 .dark {
-  --color-surface: #0f172a;
-  --color-surface-card: #1e293b;
-  --color-surface-low: #1e293b;
-  --color-border: #334155;
-  --color-border-strong: #475569;
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
+  --color-surface: #0d1117;
+  --color-surface-card: #161b22;
+  --color-surface-low: #161b22;
+  --color-border: #30363d;
+  --color-border-strong: #484f58;
+  --color-text-primary: #e6edf3;
+  --color-text-secondary: #8b949e;
+  --color-text-muted: #6e7681;
   --color-accent-emerald-soft: rgba(5, 150, 105, 0.15);
   --color-warning-amber-soft: rgba(180, 83, 9, 0.15);
   --color-danger-rose-soft: rgba(190, 18, 60, 0.15);
