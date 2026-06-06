@@ -158,7 +158,7 @@ const dsrZoneText = computed(() => {
           <TrendingUp :size="11" class="text-[var(--color-primary)]" />
           <span class="text-[10px] font-medium">Pendapatan</span>
         </div>
-        <p class="mt-1 text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
+        <p class="mt-1 text-[10px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
           {{ idr(penghasilan) }}
         </p>
       </div>
@@ -169,7 +169,7 @@ const dsrZoneText = computed(() => {
           <TrendingDown :size="11" class="text-[var(--color-danger-rose)]" />
           <span class="text-[10px] font-medium">Pengeluaran</span>
         </div>
-        <p class="mt-1 text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
+        <p class="mt-1 text-[10px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
           {{ idr(pengeluaran) }}
         </p>
       </div>
@@ -194,7 +194,7 @@ const dsrZoneText = computed(() => {
       </div>
       <p
         :class="[
-          'mt-1 break-all text-lg font-bold tabular-nums leading-tight',
+          'mt-1 break-all text-base font-bold tabular-nums leading-tight',
           surplusPositive
             ? 'text-[var(--color-primary)]'
             : surplus < 0
@@ -211,7 +211,7 @@ const dsrZoneText = computed(() => {
 
     <!-- Per-section totals with colored left borders -->
     <ul class="space-y-2">
-      <li class="flex items-center gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-primary)] bg-[var(--color-surface-card)] px-3 py-2">
+      <li class="flex items-start gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-primary)] bg-[var(--color-surface-card)] px-3 py-2">
         <span
           class="grid h-6 w-6 shrink-0 place-items-center rounded bg-[var(--color-accent-emerald-soft)] text-[var(--color-primary)]"
         >
@@ -220,11 +220,11 @@ const dsrZoneText = computed(() => {
         <span class="flex-1 truncate text-[11px] text-[var(--color-text-secondary)]">
           Kas / Tabungan
         </span>
-        <span class="text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
+        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums text-[var(--color-text-primary)]">
           {{ idr(kas) }}
         </span>
       </li>
-      <li class="flex items-center gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-warning-amber)] bg-[var(--color-surface-card)] px-3 py-2">
+      <li class="flex items-start gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-warning-amber)] bg-[var(--color-surface-card)] px-3 py-2">
         <span
           class="grid h-6 w-6 shrink-0 place-items-center rounded bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]"
         >
@@ -233,11 +233,11 @@ const dsrZoneText = computed(() => {
         <span class="flex-1 truncate text-[11px] text-[var(--color-text-secondary)]">
           Investasi
         </span>
-        <span class="text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
+        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums text-[var(--color-text-primary)]">
           {{ idr(investasi) }}
         </span>
       </li>
-      <li class="flex items-center gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-text-muted)] bg-[var(--color-surface-card)] px-3 py-2">
+      <li class="flex items-start gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-text-muted)] bg-[var(--color-surface-card)] px-3 py-2">
         <span
           class="grid h-6 w-6 shrink-0 place-items-center rounded bg-[var(--color-surface-low)] text-[var(--color-text-secondary)]"
         >
@@ -246,11 +246,11 @@ const dsrZoneText = computed(() => {
         <span class="flex-1 truncate text-[11px] text-[var(--color-text-secondary)]">
           Aset Tetap
         </span>
-        <span class="text-[11px] font-semibold tabular-nums break-all text-[var(--color-text-primary)]">
+        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums text-[var(--color-text-primary)]">
           {{ idr(asetTetap) }}
         </span>
       </li>
-      <li class="flex items-center gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-danger-rose)] bg-[var(--color-surface-card)] px-3 py-2">
+      <li class="flex items-start gap-2.5 rounded-[var(--radius-input)] border-l-2 border-l-[var(--color-danger-rose)] bg-[var(--color-surface-card)] px-3 py-2">
         <span
           class="grid h-6 w-6 shrink-0 place-items-center rounded bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]"
         >
@@ -259,7 +259,7 @@ const dsrZoneText = computed(() => {
         <span class="flex-1 truncate text-[11px] text-[var(--color-text-secondary)]">
           Utang
         </span>
-        <span class="text-[11px] font-semibold tabular-nums break-all text-[var(--color-danger-rose)]">
+        <span class="shrink-0 text-right text-[11px] font-semibold tabular-nums text-[var(--color-danger-rose)]">
           {{ utang > 0 ? '−' : '' }}{{ idr(utang) }}
         </span>
       </li>
@@ -277,7 +277,7 @@ const dsrZoneText = computed(() => {
           <p class="text-[10px] font-medium text-[var(--color-text-secondary)]">
             Kekayaan Bersih
           </p>
-          <p class="break-all text-base font-bold tabular-nums text-[var(--color-text-primary)]">
+          <p class="break-all text-sm font-bold tabular-nums text-[var(--color-text-primary)]">
             {{ idr(netWorth) }}
           </p>
         </div>

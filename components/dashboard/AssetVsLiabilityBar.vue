@@ -21,7 +21,7 @@ const hasUtang = computed(() => utang.value > 0)
 
 <template>
   <section
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+    class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
   >
     <header class="mb-3">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
@@ -45,7 +45,7 @@ const hasUtang = computed(() => utang.value > 0)
     </div>
 
     <!-- Legend -->
-    <div class="mt-2 flex items-center justify-between text-[11px]">
+    <div class="mt-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px]">
       <span class="flex items-center gap-1.5">
         <span class="inline-block h-2 w-2 rounded-full bg-[var(--color-primary)]" />
         <span class="text-[var(--color-text-secondary)]">Aset</span>

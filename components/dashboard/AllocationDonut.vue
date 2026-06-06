@@ -79,7 +79,7 @@ const option = computed(() => ({
 
 <template>
   <section
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+    class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
   >
     <header class="mb-2 flex items-baseline justify-between">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
@@ -89,7 +89,7 @@ const option = computed(() => ({
         {{ t('chart.allocation.legendTotal') }} {{ idr(total) }}
       </span>
     </header>
-    <div v-if="hasData" class="h-64">
+    <div v-if="hasData" class="h-64 w-full overflow-hidden">
       <VChart :option="option" autoresize />
     </div>
     <p

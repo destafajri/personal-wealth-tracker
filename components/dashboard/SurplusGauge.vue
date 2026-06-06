@@ -34,7 +34,7 @@ const statusText = computed(() => {
 
 <template>
   <section
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+    class="min-w-0 overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
   >
     <header class="mb-3 flex items-center justify-between">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
