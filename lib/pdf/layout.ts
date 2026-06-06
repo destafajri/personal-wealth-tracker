@@ -83,8 +83,8 @@ export function drawMetricCards(doc: jsPDF, metrics: MetricCardData[], startY: n
 export function drawCompositeStatus(doc: jsPDF, status: CompositeStatus, y: number): number {
   const labels: Record<CompositeStatus, string> = { sehat: 'Status Keuangan: Sehat', waspada: 'Status Keuangan: Perlu Perhatian', agresif: 'Status Keuangan: Agresif', bahaya: 'Status Keuangan: Kritis', sparse: 'Status Keuangan: Data belum lengkap' }
   const colors: Record<CompositeStatus, [number, number, number]> = { sehat: [16, 185, 129], waspada: [245, 158, 11], agresif: [220, 80, 40], bahaya: [239, 68, 68], sparse: [156, 163, 175] }
-  const c = colors[status] ?? [156, 163, 175]
-  const label = labels[status] ?? 'Status Keuangan: Data belum lengkap'
+  const c = colors[status]
+  const label = labels[status]
 
   doc.setFillColor(c[0], c[1], c[2])
   doc.roundedRect(MARGIN, y, 70, 8, 2, 2, 'F')
@@ -138,8 +138,8 @@ export function drawHealthMetrics(doc: jsPDF, metrics: HealthMetric[], startY: n
     doc.text(m.value, x + 4, y + 16)
 
     // Status badge
-    const badgeX = x + cardW - 28
-    const badgeW = 24
+    const badgeX = x + cardW - 34
+    const badgeW = 30
     doc.setFillColor(cr, cg, cb)
     doc.roundedRect(badgeX, y + 4, badgeW, 6, 1.5, 1.5, 'F')
     doc.setFontSize(7)

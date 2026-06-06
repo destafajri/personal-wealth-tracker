@@ -2,8 +2,7 @@ import { formatIdrPdf, formatPercentPdf } from '~/lib/pdf/format'
 import { rateToIdr } from '~/lib/finance/fx'
 import type { PricesView, CicilanRow } from '~/lib/types/snapshot'
 import { zoneOf, type Zone, type MetricKey } from '~/lib/finance/thresholds'
-import { EMAS_CATEGORIES, totalGramOf, pawnedGramOf, ratePerGram, tertahanGoldIdr, type EmasCategory } from '~/lib/finance/emas'
-import type { GadaiJaminanKind } from '~/lib/types/snapshot'
+import { EMAS_CATEGORIES, ratePerGram, type EmasCategory } from '~/lib/finance/emas'
 
 export interface MetricCardData {
   label: string
@@ -102,9 +101,7 @@ export function gatherPdfMetrics(derived: {
   savingsRate: number | null
   tertahanGoldIdr: number
 }): MetricCardData[] {
-  const asetLikuidTersedia = derived.totalAset - derived.totalUtang > 0
-    ? derived.totalAset - derived.tertahanGoldIdr
-    : derived.totalAset
+  const asetLikuidTersedia = Math.max(0, derived.totalAset - derived.tertahanGoldIdr)
   return [
     { label: 'Net Worth', value: formatIdrPdf(derived.netWorth) },
     {
@@ -174,10 +171,28 @@ export function gatherPdfTables(
   }
 
   // Aset table — subtotals per category + % Aset
-  const totalAset = (snap.asetLikuid.kas ?? []).reduce((s, r) => s + r.amount, 0) +
-    Object.values(snap.asetLikuid).flat().reduce((s, r) => s + (r.amount || 0), 0) +
-    Object.values(snap.asetNonLikuid).flat().reduce((s, r) => s + (r.amount || 0), 0) +
-    snap.saham.reduce((s, r) => s + (r.lot * 100 * r.hargaRataRata), 0)
+  // Denominator: IDR-normalized total matching dashboard's totalAset
+  const fxToIdr = (amt: number, cur?: string) => {
+    if (!cur || cur === 'IDR') return amt
+    return amt * (rateToIdr(cur as 'USD', prices?.fxRates) ?? 0)
+  }
+  const EMAS_GRAM_FIELDS: Record<EmasCategory, keyof typeof snap.emas> = {
+    digital: 'digitalGram',
+    fisikAntam: 'fisikAntamGram',
+    perhiasan18K: 'perhiasan18KGram',
+    perhiasan14K: 'perhiasan14KGram',
+    perhiasan10K: 'perhiasan10KGram',
+  }
+  const likuidIdr = Object.values(snap.asetLikuid).flat().reduce((s, r) => s + fxToIdr(r.amount || 0, r.currency), 0)
+  const nonLikuidIdr = Object.values(snap.asetNonLikuid).flat().reduce((s, r) => s + (r.amount || 0), 0)
+  const sahamIdr = snap.saham.reduce((s, r) => s + (r.lot * 100 * r.hargaRataRata), 0)
+  let emasTotalIdr = 0
+  for (const cat of EMAS_CATEGORIES) {
+    const grams = snap.emas[EMAS_GRAM_FIELDS[cat]] || 0
+    emasTotalIdr += grams * ratePerGram(cat, prices)
+  }
+  const cryptoIdr = (snap as { crypto?: Array<{ amount: number; currency?: string }> }).crypto?.reduce((s, r) => s + fxToIdr(r.amount || 0, r.currency), 0) ?? 0
+  const totalAset = likuidIdr + nonLikuidIdr + sahamIdr + emasTotalIdr + cryptoIdr
 
   const asetRows: string[][] = []
   const likuidLabels: Record<string, string> = { kas: 'Kas & Tabungan', deposito: 'Deposito & Bunga', reksaDana: 'Reksa Dana', sbn: 'SBN' }
@@ -228,13 +243,6 @@ export function gatherPdfTables(
     perhiasan18K: 'Perhiasan 18K',
     perhiasan14K: 'Perhiasan 14K',
     perhiasan10K: 'Perhiasan 10K',
-  }
-  const EMAS_GRAM_FIELDS: Record<EmasCategory, keyof typeof snap.emas> = {
-    digital: 'digitalGram',
-    fisikAntam: 'fisikAntamGram',
-    perhiasan18K: 'perhiasan18KGram',
-    perhiasan14K: 'perhiasan14KGram',
-    perhiasan10K: 'perhiasan10KGram',
   }
   let emasCatTotal = 0
   let hasEmas = false
