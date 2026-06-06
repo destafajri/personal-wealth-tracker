@@ -35,6 +35,9 @@ export const copy = {
   'landing.modal.demo.label': 'Pakai Data Contoh',
   'landing.modal.demo.body': 'Skip isi data, langsung lihat hasilnya.',
   'landing.modal.demo.action': 'Coba',
+  'landing.modal.import.label': 'Lanjutin Data Cermat',
+  'landing.modal.import.body': 'Udah punya file export Cermat? Masukin ke sini biar nggak usah mulai dari nol.',
+  'landing.modal.import.action': 'Lanjutin',
 
   // Phase-2a Day 3: default layout navbar right-side tagline (with Clock icon).
   'nav.tagline.tenMinutes': 'Cek Keuangan dalam 10 Menit',

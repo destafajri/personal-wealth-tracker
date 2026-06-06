@@ -36,6 +36,7 @@ export interface ImportResult {
   ok: boolean
   snapshot?: SnapshotState
   goalsData?: GoalsImportData
+  exportedAt?: string
   errors: ImportError[]
   warnings: ImportWarning[]
   skippedRows: number
@@ -313,6 +314,7 @@ export async function parseImportFile(
     ok: true,
     snapshot: dataResult.snapshot,
     goalsData: dataResult.goalsData,
+    exportedAt: metaResult.exportedAt || undefined,
     errors: [],
     warnings: goalsWarnings,
     skippedRows: 0,

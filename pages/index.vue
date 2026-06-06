@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ArrowRight, ChevronRight, CloudOff, Lock } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import Badge from '~/components/common/Badge.vue'
 import ButtonCTA from '~/components/common/ButtonCTA.vue'
+import ImportModal from '~/components/layout/ImportModal.vue'
 import { t } from '~/lib/copy/strings'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { useImportXlsx } from '~/composables/useImportXlsx'
 
 definePageMeta({ layout: 'default' })
 useSeoMeta({
@@ -16,6 +18,18 @@ const snap = useSnapshotStore()
 const showModal = ref(false)
 const modalTitle = ref('')
 const pendingMode = ref<'budgetKos' | 'wealthTracker'>('budgetKos')
+
+const { selectFile, phase: importPhase } = useImportXlsx()
+const importOpen = ref(false)
+const fileInput = ref<HTMLInputElement | null>(null)
+const router = useRouter()
+
+watch(importPhase, (p) => {
+  if (p === 'done') {
+    snap.mode = 'wealthTracker'
+    router.push('/app/snapshot')
+  }
+})
 
 const modalRoute = computed(() =>
   pendingMode.value === 'budgetKos' ? '/app/budget-kos' : '/app/snapshot',
@@ -34,6 +48,20 @@ function startFresh() {
 
 function budgetKosDemo() {
   snap.mode = pendingMode.value
+}
+
+function onImportClick() {
+  fileInput.value?.click()
+}
+
+async function onFileSelected(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  showModal.value = false
+  importOpen.value = true
+  await selectFile(file)
+  input.value = ''
 }
 </script>
 
@@ -240,6 +268,34 @@ function budgetKosDemo() {
             </ButtonCTA>
           </NuxtLink>
         </div>
+
+        <!-- Import XLSX — only for Rekap Duit Kamu (wealthTracker mode) -->
+        <button
+          v-if="pendingMode === 'wealthTracker'"
+          type="button"
+          class="mt-2 flex items-center gap-3 rounded-[var(--radius-card)] border border-dashed border-[var(--color-border)] p-3.5 text-left transition-all hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/5"
+          @click="onImportClick"
+        >
+          <span class="text-lg">📁</span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-[var(--color-text-primary)]">
+              {{ t('landing.modal.import.label') }}
+            </p>
+            <p class="text-xs text-[var(--color-text-secondary)]">
+              {{ t('landing.modal.import.body') }}
+            </p>
+          </div>
+          <span class="shrink-0 text-xs font-medium text-[var(--color-primary)]">
+            {{ t('landing.modal.import.action') }} →
+          </span>
+        </button>
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".xlsx"
+          class="hidden"
+          @change="onFileSelected"
+        />
         <button
           type="button"
           class="mt-4 w-full text-center text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
@@ -249,5 +305,8 @@ function budgetKosDemo() {
         </button>
       </div>
     </div>
+
+    <!-- Import XLSX modal — reuses existing ImportModal component -->
+    <ImportModal :open="importOpen" @close="importOpen = false" />
   </section>
 </template>
