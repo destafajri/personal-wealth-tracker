@@ -2,6 +2,8 @@ import { formatIdrPdf, formatPercentPdf } from '~/lib/pdf/format'
 import { rateToIdr } from '~/lib/finance/fx'
 import type { PricesView, CicilanRow } from '~/lib/types/snapshot'
 import { zoneOf, type Zone, type MetricKey } from '~/lib/finance/thresholds'
+import { EMAS_CATEGORIES, totalGramOf, pawnedGramOf, ratePerGram, tertahanGoldIdr, type EmasCategory } from '~/lib/finance/emas'
+import type { GadaiJaminanKind } from '~/lib/types/snapshot'
 
 export interface MetricCardData {
   label: string
@@ -98,7 +100,11 @@ export function gatherPdfMetrics(derived: {
   totalUtang: number
   runway: number | null
   savingsRate: number | null
+  tertahanGoldIdr: number
 }): MetricCardData[] {
+  const asetLikuidTersedia = derived.totalAset - derived.totalUtang > 0
+    ? derived.totalAset - derived.tertahanGoldIdr
+    : derived.totalAset
   return [
     { label: 'Net Worth', value: formatIdrPdf(derived.netWorth) },
     {
@@ -107,6 +113,7 @@ export function gatherPdfMetrics(derived: {
     },
     { label: 'Total Aset', value: formatIdrPdf(derived.totalAset) },
     { label: 'Total Utang', value: formatIdrPdf(derived.totalUtang) },
+    { label: 'Aset Likuid Tersedia', value: formatIdrPdf(asetLikuidTersedia) },
     {
       label: 'Dana Darurat',
       value: derived.runway !== null
@@ -125,7 +132,7 @@ export function gatherPdfTables(
     emas: { digitalGram: number; fisikAntamGram: number; perhiasan18KGram: number; perhiasan14KGram: number; perhiasan10KGram: number }
     cicilanAktif: Array<{ id: string; tipe: string; label: string; sisaPokok: number; cicilanPerBulan: number; tenorSisaBulan?: number }>
     utangPribadi: Array<{ id: string; label: string; sisaPokok: number; cicilanPerBulan?: number; tempoBulan?: number }>
-    gadai: Array<{ id: string; label: string; jaminan: string; piutangIdr: number }>
+    gadai: Array<{ id: string; label: string; jaminan: string; piutangIdr: number; gramTertahan?: number }>
   },
   _goals: Array<{ id: string; kind: string; label: string; targetIdr: number }>,
   goalProgressData: Array<{ label: string; targetIdr: number; currentIdr: number; progressPct: number }>,
@@ -214,10 +221,42 @@ export function gatherPdfTables(
     asetRows.push(['Saham', 'SUBTOTAL', formatIdrPdf(catTotal), totalAset > 0 ? `${((catTotal / totalAset) * 100).toFixed(1).replace('.', ',')}%` : '-'])
   }
 
-  // Emas
-  const totalGram = snap.emas.digitalGram + snap.emas.fisikAntamGram + snap.emas.perhiasan18KGram + snap.emas.perhiasan14KGram + snap.emas.perhiasan10KGram
-  if (totalGram > 0) {
-    asetRows.push(['Emas', `${totalGram.toFixed(1)} g`, 'N/A', '-'])
+  // Emas — per-category breakdown with digadaikan badge
+  const EMAS_LABELS: Record<EmasCategory, string> = {
+    digital: 'Digital',
+    fisikAntam: 'Antam',
+    perhiasan18K: 'Perhiasan 18K',
+    perhiasan14K: 'Perhiasan 14K',
+    perhiasan10K: 'Perhiasan 10K',
+  }
+  const EMAS_GRAM_FIELDS: Record<EmasCategory, keyof typeof snap.emas> = {
+    digital: 'digitalGram',
+    fisikAntam: 'fisikAntamGram',
+    perhiasan18K: 'perhiasan18KGram',
+    perhiasan14K: 'perhiasan14KGram',
+    perhiasan10K: 'perhiasan10KGram',
+  }
+  let emasCatTotal = 0
+  let hasEmas = false
+  for (const cat of EMAS_CATEGORIES) {
+    const grams = snap.emas[EMAS_GRAM_FIELDS[cat]] || 0
+    if (grams <= 0) continue
+    hasEmas = true
+    const rate = ratePerGram(cat, prices)
+    const value = grams * rate
+    emasCatTotal += value
+    const pawned = snap.gadai.reduce((s, g) => {
+      if (g.jaminan !== `emas:${cat}`) return s
+      return s + (g.gramTertahan || 0)
+    }, 0)
+    const gramLabel = pawned > 0
+      ? `${grams.toFixed(1)} g (${pawned.toFixed(1)}g digadaikan)`
+      : `${grams.toFixed(1)} g`
+    const valueStr = rate > 0 ? formatIdrPdf(value) : 'N/A'
+    asetRows.push(['Emas', `  ${EMAS_LABELS[cat]}`, `${gramLabel}  ${valueStr}`, totalAset > 0 ? `${((value / totalAset) * 100).toFixed(1).replace('.', ',')}%` : '-'])
+  }
+  if (hasEmas) {
+    asetRows.push(['Emas', 'SUBTOTAL', formatIdrPdf(emasCatTotal), totalAset > 0 ? `${((emasCatTotal / totalAset) * 100).toFixed(1).replace('.', ',')}%` : '-'])
   }
 
   if (asetRows.length > 0) {
@@ -288,6 +327,7 @@ export function gatherPdfTables(
       ['DSR: total cicilan/bulan / total pendapatan/bulan x 100%'],
       ['DAR: total utang / total aset x 100%'],
       ['Safe Haven: (kas + deposito + SBN + RD pasar uang + emas) / total aset x 100%'],
+      ['Aset Likuid Tersedia: total aset - nilai emas yang dijaminkan (digadai)'],
       ['Semua angka bersifat estimasi dan bukan rekomendasi investasi'],
     ],
   })
@@ -330,6 +370,7 @@ export function gatherRecommendations(snap: {
   dsr: number | null
   penghasilanMonthlyIdr: number
   pengeluaranMonthlyIdr: number
+  safeHaven: number | null
 }): RecommendationData {
   const { modalSiap, dsr, penghasilanMonthlyIdr, pengeluaranMonthlyIdr } = derived
 
@@ -345,6 +386,13 @@ export function gatherRecommendations(snap: {
       insights.push(`Modal Siap Distribusi ${formatIdrPdf(modalSiap)} = ${modalMonths.toFixed(1).replace('.', ',')} bulan pengeluaran, cukup untuk lunasi utang prioritas.`)
     } else {
       insights.push(`Modal Siap Distribusi ${formatIdrPdf(modalSiap)} = ${modalMonths.toFixed(1).replace('.', ',')} bulan pengeluaran, prioritas utang bunga tinggi dulu.`)
+    }
+  }
+  if (derived.safeHaven !== null) {
+    if (derived.safeHaven > 40) {
+      insights.push(`Safe Haven ${derived.safeHaven.toFixed(1).replace('.', ',')}% di atas target 30% - portfolio terlalu defensif, pertimbangkan diversifikasi ke growth assets.`)
+    } else if (derived.safeHaven < 15) {
+      insights.push(`Safe Haven ${derived.safeHaven.toFixed(1).replace('.', ',')}% sangat rendah - pertimbangkan menambah aset defensif (kas, deposito, emas).`)
     }
   }
 

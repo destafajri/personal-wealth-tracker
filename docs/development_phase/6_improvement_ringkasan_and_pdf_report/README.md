@@ -394,3 +394,87 @@ Verify per sample:
 7. **Page 5:** Detail Aset with subtotals + % allocation → advisor can audit
 8. **Page 6:** Methodology note → transparency builds trust
 9. Key message: "Satu PDF, tiga audiens — user buat self-reflection, advisor buat konsultasi, dokumen formal buat lampiran KPR"
+
+---
+
+## Phase 6.1: Gadai Transparency + PDF Polish
+
+**Priority:** MEDIUM (trust gap for users with gadai — asset transparency)
+**Prerequisite:** Phase 6 v2 fixes merged
+**Effort estimate:** S (Small — ~1 session)
+
+### Motivation
+
+AI tetangga reviewed Phase 6 v2 PDF output and identified:
+1. **Gadai transparency gap**: Emas yang di-gadai tetap masuk total aset (accounting correct), tapi PDF ga nunjukin mana aset yang "locked" sebagai jaminan gadai. User dengan gadai besar bisa misinterpret total aset sebagai available.
+2. **Composite status over-alarming**: Single Safe Haven "bahaya" metric → composite "Kritis" too alarming. Fixed in Phase 6 v2 with new "Agresif" tier.
+3. **Insight kurang**: PDF cuma show 1 insight padahal spec bilang "top 2 most relevant".
+
+### 6.1.1 Emas Breakdown + "(digadaikan)" Badge
+
+**Current behavior**: Single emas line — `Emas 16.0 g N/A -`
+
+**New behavior**: Per-category breakdown with pawned indicator
+
+```
+Emas   Digital            5.0 g              Rp 12.935.000   2.0%
+Emas   Antam              8.0 g (3.0g digadaikan)  Rp 20.696.000   3.3%
+Emas   Perhiasan 18K      3.0 g              N/A             -
+Emas   SUBTOTAL                              Rp 33.631.000   5.3%
+```
+
+**Implementation:**
+- Loop through `EMAS_CATEGORIES` from `lib/finance/emas.ts`
+- For each category with grams > 0, show: category label, grams, IDR value
+- If `pawnedGramOf(snap, cat) > 0`, append `(Xg digadaikan)` to gram label
+- IDR value uses `ratePerGram(cat, prices)` — N/A if no price data
+- Keep subtotal row
+
+### 6.1.2 "Aset Likuid Tersedia" Metric Card
+
+**What it adds:** 7th metric card on Page 1 showing available liquid assets after subtracting gadai-pledged value.
+
+```
+Net Worth          Surplus/Bulan     Total Aset
+Rp 361.393.794     Rp 4.429.402      Rp 631.819.994
+
+Total Utang        Aset Likuid Tersedia   Dana Darurat
+Rp 270.426.200     Rp 588.427.994         4 thn 6 bln
+
+Savings Rate
+39,6%
+```
+
+**Formula:** `Aset Likuid Tersedia = Total Aset - tertahanGoldIdr`
+
+This gives a more honest picture of what assets are actually available vs locked as gadai collateral.
+
+### 6.1.3 Insight Enrichment (Safe Haven)
+
+Add 2nd insight for portfolio balance:
+
+- **Safe Haven > 40%**: "Safe Haven {value}% di atas target 30% - portfolio terlalu defensif, pertimbangkan diversifikasi ke growth assets."
+- **Safe Haven < 15%**: "Safe Haven {value}% sangat rendah - pertimbangkan menambah aset defensif (kas, deposito, emas)."
+
+These count toward the existing "top 2 most relevant" limit.
+
+### 6.1.4 Methodology Note Update
+
+Add row: `Aset Likuid Tersedia: total aset - nilai emas yang dijaminkan (digadai)`
+
+### 6.1.5 Phase 6 v2 Bug Fixes (completed)
+
+These were fixed before Phase 6.1:
+
+1. **Composite status "Kritis" over-alarming**: Added "Agresif" tier — single bahaya metric → "Agresif" (orange), 2+ bahaya → "Kritis" (red)
+2. **Metric-specific zone labels**: Safe Haven uses Konservatif/Seimbang/Agresif; Deviasi uses Sesuai Rencana/Perlu Rebalance/Off-Plan
+3. **"Lunasi" vs "Prepay"**: Partial payoff shows "Prepay" + honest framing ("Pokok berkurang Rp X, cicilan/bulan tetap")
+4. **Pensiun separate category**: BPJS + DPLK now separate subtotal from Aset Tetap
+5. **Unicode rendering**: Replaced ×, ÷, −, → with ASCII for reliable jsPDF Helvetica output
+
+### Verification
+
+- `npx vue-tsc --noEmit` — typecheck clean
+- `npx vitest run` — all tests pass
+- Manual: PDF with gadai shows "(Xg digadaikan)" + Aset Likuid Tersedia card
+- Manual: PDF without gadai shows no digadaikan text

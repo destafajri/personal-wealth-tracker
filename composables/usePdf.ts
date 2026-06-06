@@ -22,7 +22,7 @@ import {
 import type { DonutSegment } from '~/lib/pdf/layout'
 import { sumRowsToIdr, sumCryptoIdr, sumStockIdr } from '~/lib/finance/metrics'
 import { rateToIdr } from '~/lib/finance/fx'
-import { totalGoldIdr } from '~/lib/finance/emas'
+import { totalGoldIdr, tertahanGoldIdr } from '~/lib/finance/emas'
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10)
@@ -39,6 +39,8 @@ export function usePdf() {
 
     const prices = derived.priceView ?? undefined
 
+    const tertahanGold = tertahanGoldIdr(snap, prices)
+
     // 1. Gather metrics
     const metrics = gatherPdfMetrics({
       netWorth: derived.netWorth,
@@ -47,6 +49,7 @@ export function usePdf() {
       totalUtang: derived.totalUtang,
       runway: derived.runway,
       savingsRate: derived.savingsRate,
+      tertahanGoldIdr: tertahanGold,
     })
 
     // 2. Gather goals progress
@@ -105,6 +108,7 @@ export function usePdf() {
       dsr: derived.dsr,
       penghasilanMonthlyIdr: derived.penghasilanMonthlyIdr,
       pengeluaranMonthlyIdr: monthlyExpenses,
+      safeHaven: derived.safeHaven,
     })
 
     // 3. Prepare chart data
