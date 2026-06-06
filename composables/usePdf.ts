@@ -4,12 +4,15 @@ import { useGoalsStore } from '~/stores/goals'
 import { FI_MULTIPLIER } from '~/stores/goals'
 import { goalProgress } from '~/lib/finance/goals'
 import { formatIdrPdf } from '~/lib/pdf/format'
-import { gatherPdfMetrics, gatherPdfTables } from '~/lib/pdf/metrics'
+import { gatherPdfMetrics, gatherPdfTables, gatherHealthMetrics, gatherRecommendations } from '~/lib/pdf/metrics'
 import {
   createPdfDocument,
   drawHeader,
   drawFooter,
   drawMetricCards,
+  drawCompositeStatus,
+  drawHealthMetrics,
+  drawRecommendationPage,
   drawNetWorthBars,
   drawDonutChart,
   drawDetailTable,
@@ -75,7 +78,34 @@ export function usePdf() {
       }
     })
 
-    const tables = gatherPdfTables(snap, goalsStore.goals, goalsProgress, prices)
+    const tables = gatherPdfTables(snap, goalsStore.goals, goalsProgress, prices, {
+      gaji: snap.penghasilan.amount,
+      gajiCurrency: snap.penghasilan.currency,
+      penghasilanLain: snap.penghasilanLain,
+      dividendAnnual: derived.dividendAnnual,
+      bungaSbnAnnual: derived.bungaSbnAnnual,
+      bungaDepositoAnnual: derived.bungaDepositoAnnual,
+    })
+
+    // 2b. Gather health metrics
+    const { metrics: healthMetrics, compositeStatus } = gatherHealthMetrics({
+      dsr: derived.dsr,
+      dar: derived.dar,
+      runway: derived.runway,
+      savingsRate: derived.savingsRate,
+      safeHaven: derived.safeHaven,
+      allocationDiscipline: derived.allocationDiscipline,
+    })
+
+    // 2c. Gather recommendations
+    const monthlyExpenses = derived.penghasilanMonthlyIdr - derived.surplusIdr
+    const recommendations = gatherRecommendations(snap, {
+      modalSiap: derived.modalSiap,
+      surplusIdr: derived.surplusIdr,
+      dsr: derived.dsr,
+      penghasilanMonthlyIdr: derived.penghasilanMonthlyIdr,
+      pengeluaranMonthlyIdr: monthlyExpenses,
+    })
 
     // 3. Prepare chart data
 
@@ -139,7 +169,8 @@ export function usePdf() {
 
     let y = 28
     y = drawMetricCards(doc, metrics, y)
-    y += 6
+    y = drawCompositeStatus(doc, compositeStatus, y)
+    y += 4
 
     // Charts row: 3 side by side
     const chartGap = 5
@@ -157,7 +188,25 @@ export function usePdf() {
 
     y += chartH + 4
 
-    // ---- Page 2+: Detail tables ----
+    // ---- Page 2: Financial Health Metrics ----
+    if (healthMetrics.length > 0) {
+      doc.addPage()
+      pageNum++
+      drawHeader(doc)
+      drawFooter(doc, pageNum)
+      drawHealthMetrics(doc, healthMetrics, 28)
+    }
+
+    // ---- Page 3: Rekomendasi Distribusi Modal ----
+    if (recommendations.recommendations.length > 0 || recommendations.modalSiap > 0) {
+      doc.addPage()
+      pageNum++
+      drawHeader(doc)
+      drawFooter(doc, pageNum)
+      drawRecommendationPage(doc, recommendations, 28)
+    }
+
+    // ---- Page 4+: Detail tables ----
     for (const table of tables) {
       doc.addPage()
       pageNum++
