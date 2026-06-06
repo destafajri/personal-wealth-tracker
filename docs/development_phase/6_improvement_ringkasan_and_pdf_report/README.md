@@ -410,7 +410,7 @@ AI tetangga reviewed Phase 6 v2 PDF output and identified:
 2. **Composite status over-alarming**: Single Safe Haven "bahaya" metric → composite "Kritis" too alarming. Fixed in Phase 6 v2 with new "Agresif" tier.
 3. **Insight kurang**: PDF cuma show 1 insight padahal spec bilang "top 2 most relevant".
 
-### 6.1.1 Emas Breakdown + "(digadaikan)" Badge
+### 6.1.1 Emas Breakdown + "(digadaikan)" Badge **(emas-only)**
 
 **Current behavior**: Single emas line — `Emas 16.0 g N/A -`
 
@@ -445,9 +445,9 @@ Savings Rate
 39,6%
 ```
 
-**Formula:** `Aset Likuid Tersedia = Total Aset - tertahanGoldIdr`
+**Formula:** `Aset Likuid Tersedia = Total Aset - tertahanGoldIdr` (current scope: emas only)
 
-This gives a more honest picture of what assets are actually available vs locked as gadai collateral.
+This gives a more honest picture of what assets are actually available vs locked as gadai collateral. Note: current implementation only deducts emas-collateral value. Non-emas gadai (BPKB kendaraan, sertifikat tanah) are not yet deducted — deferred to Phase 7.
 
 ### 6.1.3 Insight Enrichment (Safe Haven)
 
@@ -460,7 +460,7 @@ These count toward the existing "top 2 most relevant" limit.
 
 ### 6.1.4 Methodology Note Update
 
-Add row: `Aset Likuid Tersedia: total aset - nilai emas yang dijaminkan (digadai)`
+Add row: `Aset Likuid Tersedia: total aset - nilai aset yang dijaminkan (current scope: emas)`
 
 ### 6.1.5 Phase 6 v2 Bug Fixes (completed)
 
@@ -478,3 +478,16 @@ These were fixed before Phase 6.1:
 - `npx vitest run` — all tests pass
 - Manual: PDF with gadai shows "(Xg digadaikan)" + Aset Likuid Tersedia card
 - Manual: PDF without gadai shows no digadaikan text
+
+### Known Limitations (Phase 6.1)
+
+- **Gadai handling is emas-only**: Current implementation only detects and badges gold-collateral gadai contracts. Non-emas gadai (BPKB kendaraan, sertifikat tanah, elektronik, saham) are not reflected in "(digadaikan)" badge or Aset Likuid Tersedia deduction.
+- **KPR/KKB not treated as "locked"**: Aset rumah/kendaraan tetap dihitung sebagai fully owned — user mental model: "rumah ini punya gue meskipun KPR belum lunas". This is an explicit design decision, not a bug.
+
+### Phase 7 Backlog — Gadai Generalization
+
+- Generalize gadai handling to support any collateral type via `gadai.assetType` field
+- Dynamic badge wording: "(dijaminkan BPKB)", "(dijaminkan sertifikat)"
+- Aset Likuid Tersedia formula update: deduct all pledged asset values, not just emas
+- Document KPR/KKB decision boundary explicitly
+- Rename internal variable `tertahanGoldIdr` → `tertahanGadaiIdr` for semantic clarity

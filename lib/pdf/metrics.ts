@@ -327,7 +327,7 @@ export function gatherPdfTables(
       ['DSR: total cicilan/bulan / total pendapatan/bulan x 100%'],
       ['DAR: total utang / total aset x 100%'],
       ['Safe Haven: (kas + deposito + SBN + RD pasar uang + emas) / total aset x 100%'],
-      ['Aset Likuid Tersedia: total aset - nilai emas yang dijaminkan (digadai)'],
+      ['Aset Likuid Tersedia: total aset - nilai aset yang dijaminkan (current scope: emas)'],
       ['Semua angka bersifat estimasi dan bukan rekomendasi investasi'],
     ],
   })
