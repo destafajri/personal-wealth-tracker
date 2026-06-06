@@ -44,7 +44,7 @@ export function gatherPdfTables(
     saham: Array<{ id: string; ticker: string; lot: number; hargaRataRata: number }>
     emas: { digitalGram: number; fisikAntamGram: number; perhiasan18KGram: number; perhiasan14KGram: number; perhiasan10KGram: number }
     cicilanAktif: Array<{ id: string; tipe: string; label: string; sisaPokok: number; cicilanPerBulan: number; tenorSisaBulan?: number }>
-    utangPribadi: Array<{ id: string; label: string; sisaPokok: number }>
+    utangPribadi: Array<{ id: string; label: string; sisaPokok: number; cicilanPerBulan?: number; tempoBulan?: number }>
   },
   goals: Array<{ id: string; kind: string; label: string; targetIdr: number }>,
   goalProgressData: Array<{ label: string; targetIdr: number; currentIdr: number; progressPct: number }>,
@@ -96,12 +96,17 @@ export function gatherPdfTables(
   // Utang Pribadi table
   const utangPribadiRows: string[][] = []
   for (const u of snap.utangPribadi) {
-    utangPribadiRows.push([u.label, formatIdrPdf(u.sisaPokok)])
+    utangPribadiRows.push([
+      u.label,
+      formatIdrPdf(u.sisaPokok),
+      u.tempoBulan != null ? `${u.tempoBulan} bln` : '-',
+      u.cicilanPerBulan ? formatIdrPdf(u.cicilanPerBulan) : '-',
+    ])
   }
   if (utangPribadiRows.length > 0) {
     tables.push({
       title: 'Utang Pribadi',
-      headers: ['Nama', 'Sisa Utang'],
+      headers: ['Nama', 'Sisa Utang', 'Tempo', 'Cicilan/Bulan'],
       rows: utangPribadiRows,
     })
   }

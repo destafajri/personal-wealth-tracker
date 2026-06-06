@@ -223,7 +223,7 @@ export function drawNetWorthBars(
   doc.setFontSize(9)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(0, 0, 0)
-  doc.text('Aset vs Utang', startX + w / 2, startY + 8, { align: 'center' })
+  doc.text('Rasio Aset vs Utang', startX + w / 2, startY + 8, { align: 'center' })
 
   // Aset bar
   const asetBarH = Math.max((totalAset / maxVal) * (h - 35), 3)
