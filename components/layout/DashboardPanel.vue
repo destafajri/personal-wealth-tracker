@@ -71,23 +71,23 @@ const EmergencyFundMeter = defineAsyncComponent({
     the user fills in / edits snapshot rows. "polite" (not "assertive")
     avoids interrupting in-progress typing.
   -->
-  <section class="flex flex-col gap-5 p-3" aria-live="polite" aria-atomic="false">
+  <section class="flex min-w-0 flex-col gap-5 overflow-x-hidden p-3" aria-live="polite" aria-atomic="false">
     <HeroPair />
     <PersonaCard v-if="isBudgetKos" />
     <CtaMamikos v-if="isBudgetKos" variant="afterPersona" />
     <!-- New quick-glance row: Surplus Gauge + Emergency Fund -->
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div class="grid gap-4 lg:grid-cols-2">
       <SurplusGauge />
       <EmergencyFundMeter />
     </div>
     <MetricGrid />
     <!-- Donut charts row -->
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div class="grid gap-4 lg:grid-cols-2">
       <AllocationDonut />
       <ExpenseBreakdownDonut />
     </div>
     <!-- Bar charts row -->
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div class="grid gap-4 lg:grid-cols-2">
       <div v-if="hasAnyAsset">
         <SafeHavenBar />
       </div>

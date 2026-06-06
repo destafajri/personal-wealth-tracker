@@ -50,7 +50,7 @@ const milestones = [3, 6, 9, 12]
 
 <template>
   <section
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
+    class="min-w-0 overflow-x-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4"
   >
     <header class="mb-3 flex items-center justify-between">
       <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
@@ -90,7 +90,7 @@ const milestones = [3, 6, 9, 12]
 
     <!-- Progress bar with milestones -->
     <div class="relative mt-3">
-      <div class="h-2 overflow-hidden rounded-full bg-[var(--color-surface-low)]">
+      <div class="h-2 overflow-x-hidden rounded-full bg-[var(--color-surface-low)]">
         <div
           :class="['h-full rounded-full transition-all duration-500', zoneColor]"
           :style="{ width: fillPct + '%' }"
