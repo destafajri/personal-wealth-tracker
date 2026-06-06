@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { Download, ShieldCheck } from 'lucide-vue-next'
+import { Download, Moon, ShieldCheck, Sun } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { t, tm } from '~/lib/copy/strings'
 import { useDerivedStore } from '~/stores/derived'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useXlsx } from '~/composables/useXlsx'
+import { useTheme } from '~/composables/useTheme'
 
 const derived = useDerivedStore()
 const snap = useSnapshotStore()
 const downloadDisabled = computed(() => derived.totalAset === 0)
+const { resolved, toggle: toggleTheme } = useTheme()
 
 // useXlsx dynamic-imports SheetJS on first call, so the first click pays the
 // ~700KB chunk cost. Subsequent clicks reuse the cached module — keep
@@ -45,8 +47,19 @@ async function onDownload() {
         </span>
       </NuxtLink>
 
-      <button
-        type="button"
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          :aria-label="resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-low)] hover:text-[var(--color-text-primary)]"
+          @click="toggleTheme"
+        >
+          <Sun v-if="resolved === 'dark'" :size="18" />
+          <Moon v-else :size="18" />
+        </button>
+
+        <button
+          type="button"
         :disabled="downloadDisabled || downloading"
         :title="downloadDisabled ? t('nav.download.empty') : undefined"
         class="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--color-border)] px-4 py-1.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-surface-low)] disabled:cursor-not-allowed disabled:opacity-50"
@@ -57,6 +70,7 @@ async function onDownload() {
           {{ downloading ? t('nav.download.pending') : t('nav.download.label') }}
         </span>
       </button>
+      </div>
     </div>
   </header>
 </template>

@@ -17,6 +17,7 @@
     "@fontsource/geist-sans": "^5.2.5",
     "@pinia/nuxt": "^0.7.0",
     "echarts": "^6.1.0",
+    "html2canvas": "^1.4.1",
     "lucide-vue-next": "^0.460.0",
     "nuxt": "^3.14.0",
     "pinia": "^2.2.6",

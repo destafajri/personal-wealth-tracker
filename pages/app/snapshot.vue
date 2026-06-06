@@ -292,6 +292,7 @@ watchEffect(() => {
   const view: PricesView = {
     goldDigitalIdrPerGram: gold.data.value?.hargaJual ?? null,
     goldAntam1gIdr: gold.data.value?.antam1g ?? null,
+    goldSource: gold.data.value?.source ?? null,
     fxRates,
     idxByTicker: idxMap,
     cryptoByCoinId: cryptoMap,
@@ -429,6 +430,7 @@ watchEffect(() => {
             :live-pending="gold.pending.value"
             :cooldown-remaining="gold.cooldownRemaining.value"
             :on-refresh="gold.forceRefresh"
+            :gold-source="gold.data.value?.source ?? null"
             disabled
           />
         </CollapsiblePanel>

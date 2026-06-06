@@ -256,6 +256,7 @@ export interface CryptoRateView {
 export interface PricesView {
   goldDigitalIdrPerGram: number | null // Pegadaian Digital hargaJual (savings endpoint)
   goldAntam1gIdr: number | null // Antam 1g list price (table endpoint)
+  goldSource?: 'pegadaian' | 'paxg' | 'stale' | null
   fxRates: FxRatesMap
   idxByTicker: Record<string, number | null> // IDR per lembar
   cryptoByCoinId: Record<string, CryptoRateView> // per-coin rates (key = canonical id)

@@ -8,15 +8,10 @@ import {
   type PegadaianTableResponse,
 } from '~/lib/prices/pegadaian'
 
-// `name` bumped to v2 when the Antam table fetch was added — retires any v1 cache
-// entries that pre-date the table source and only carried digital prices.
 export default defineCachedEventHandler(
   async (): Promise<GoldPayload> => {
     const now = new Date().toISOString()
     try {
-      // Run both fetches in parallel — savings has digital hargaJual/hargaBeli;
-      // table has the per-weight Antam list we need at berat=1.0.
-      // Pegadaian blocks minimal bot-like UAs — send realistic browser headers.
       const browserHeaders = {
         'user-agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
@@ -34,29 +29,40 @@ export default defineCachedEventHandler(
         }),
       ])
       if (savings.status === 'rejected') {
-        console.warn('[prices/gold] savings fetch failed', savings.reason)
-        return buildGoldStalePayload(now)
+        console.warn('[prices/gold] Pegadaian savings fetch failed — trying PAXG fallback', savings.reason)
+        return paxgFallback(now)
       }
       if (table.status === 'rejected') {
         console.warn('[prices/gold] antam table fetch failed', table.reason)
       }
       const tableRes = table.status === 'fulfilled' ? table.value : null
-      return parsePegadaianToGold(savings.value, tableRes, now)
+      const result = parsePegadaianToGold(savings.value, tableRes, now)
+      // If Pegadaian returned data but incomplete (null prices), also try PAXG
+      if (result.stale) {
+        console.warn('[prices/gold] Pegadaian returned incomplete data — trying PAXG fallback')
+        return paxgFallback(now)
+      }
+      return result
     } catch (err) {
-      console.warn('[prices/gold] unexpected error', err)
-      return buildGoldStalePayload(now)
+      console.warn('[prices/gold] unexpected error — trying PAXG fallback', err)
+      return paxgFallback(now)
     }
   },
   {
     name: 'prices-gold-v2',
     maxAge: 60 * 60,
     swr: true,
-    // Stable key — strip the `force` param so a user-forced refresh updates the
-    // SAME cache entry instead of pinning a parallel one under a different URL hash.
     getKey: () => 'default',
-    // `force=1` from the client refresh button: mark current entry expired so the
-    // handler re-fetches upstream and writes the fresh payload back to cache for
-    // everyone (vs shouldBypassCache, which skips the write).
     shouldInvalidateCache: (event) => getQuery(event).force === '1',
   },
 )
+
+async function paxgFallback(now: string): Promise<GoldPayload> {
+  try {
+    const paxg = await $fetch<GoldPayload>('/api/prices/gold-paxg')
+    if (!paxg.stale) return paxg
+  } catch {
+    console.warn('[prices/gold] PAXG fallback also failed')
+  }
+  return buildGoldStalePayload(now)
+}

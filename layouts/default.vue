@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { Clock, ShieldCheck } from 'lucide-vue-next'
+import { Clock, Moon, ShieldCheck, Sun } from 'lucide-vue-next'
 import FooterDisclaimer from '~/components/layout/FooterDisclaimer.vue'
 import MetricExplainerModal from '~/components/dashboard/MetricExplainerModal.vue'
 import { t } from '~/lib/copy/strings'
+import { useTheme } from '~/composables/useTheme'
 
 const route = useRoute()
+const { resolved, toggle: toggleTheme } = useTheme()
 </script>
 
 <template>
@@ -39,6 +41,15 @@ const route = useRoute()
             </template>
           </span>
         </NuxtLink>
+        <button
+          type="button"
+          :aria-label="resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-low)] hover:text-[var(--color-text-primary)]"
+          @click="toggleTheme"
+        >
+          <Sun v-if="resolved === 'dark'" :size="18" />
+          <Moon v-else :size="18" />
+        </button>
       </div>
     </header>
 
