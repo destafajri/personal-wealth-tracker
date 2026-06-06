@@ -251,7 +251,7 @@ export const copy = {
   'metric.runway.label': 'Bisa Bertahan',
   'metric.savingsRate.label': 'Sisa Uang/Bulan',
   'metric.safeHaven.label': 'Safe Haven',
-  'metric.allocationDiscipline.label': 'Allocation Discipline',
+  'metric.allocationDiscipline.label': 'Target Alokasi Saham',
   'metric.empty.dsr': 'Isi penghasilan dulu.',
   'metric.empty.dar': 'Isi aset dulu.',
   'metric.empty.runway': 'Isi pengeluaran dulu.',

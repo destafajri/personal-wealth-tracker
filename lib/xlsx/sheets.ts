@@ -88,7 +88,7 @@ export function buildRingkasan(ctx: XlsxContext): Row[] {
     ['Runway (bulan)', derived.runway],
     ['Savings Rate (%)', derived.savingsRate],
     ['Safe Haven (%)', derived.safeHaven],
-    ['Allocation Discipline', derived.allocationDiscipline],
+    ['Target Alokasi Saham', derived.allocationDiscipline],
     ['Goal Health (%)', derived.goalHealth],
     [],
     ['Penghasilan (IDR/bln)', null],
