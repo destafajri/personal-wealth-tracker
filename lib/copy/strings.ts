@@ -35,6 +35,9 @@ export const copy = {
   'landing.modal.demo.label': 'Pakai Data Contoh',
   'landing.modal.demo.body': 'Skip isi data, langsung lihat hasilnya.',
   'landing.modal.demo.action': 'Coba',
+  'landing.modal.import.label': 'Lanjutin Data Cermat',
+  'landing.modal.import.body': 'Udah punya file export Cermat? Masukin ke sini biar nggak usah mulai dari nol.',
+  'landing.modal.import.action': 'Lanjutin',
 
   // Phase-2a Day 3: default layout navbar right-side tagline (with Clock icon).
   'nav.tagline.tenMinutes': 'Cek Keuangan dalam 10 Menit',
@@ -69,9 +72,10 @@ export const copy = {
   'nav.decide': 'Decide',
   'nav.discover': 'Discover',
   'nav.soon': 'Soon',
-  'nav.download.label': 'Unduh xlsx',
-  'nav.download.empty': 'Tambah minimal 1 aset dulu',
-  'nav.download.pending': 'Menyusun…',
+  'nav.download.label': 'Unduh Laporan',
+  'nav.download.empty': 'Isi data keuangan dulu untuk mengunduh laporan',
+  'nav.download.pendingXlsx': 'Menyusun XLSX…',
+  'nav.download.pendingPdf': 'Menyusun PDF…',
   'nav.brand.subtitle': 'Cermat ngatur keuangan, biar ngekos makin tenang 💸',
 
   // ----- snapshot page -----
@@ -250,7 +254,7 @@ export const copy = {
   'metric.runway.label': 'Bisa Bertahan',
   'metric.savingsRate.label': 'Sisa Uang/Bulan',
   'metric.safeHaven.label': 'Safe Haven',
-  'metric.allocationDiscipline.label': 'Allocation Discipline',
+  'metric.allocationDiscipline.label': 'Target Alokasi Saham',
   'metric.empty.dsr': 'Isi penghasilan dulu.',
   'metric.empty.dar': 'Isi aset dulu.',
   'metric.empty.runway': 'Isi pengeluaran dulu.',
@@ -795,6 +799,24 @@ export const copy = {
   'wt.simulator.subtitle':
     'Simulasi keputusan keuangan besar — semua hitungan pakai data snapshot kamu.',
   'wt.nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
+
+  // ----- toast (Phase 5) -----
+  'toast.import.success': 'Data berhasil diimpor dari XLSX.',
+  'toast.import.partial': '{skipped} baris dilewati karena format tidak valid',
+  'toast.import.error.fileType': 'Format file yang didukung: .xlsx',
+  'toast.import.error.fileSize': 'Ukuran file terlalu besar (maks 5MB)',
+  'toast.import.error.notCermat': 'File bukan template Cermat',
+  'toast.import.error.schemaVersion':
+    'Versi template tidak didukung. Export ulang dari Cermat terbaru.',
+  'toast.import.error.noSnapshot': 'Sheet Snapshot tidak ditemukan',
+  'toast.import.error.snapshotFormat': 'Format sheet Snapshot tidak sesuai',
+  'toast.import.error.empty': 'File kosong, tidak ada data untuk diimpor',
+  'toast.download.downloading':
+    'PDF & XLSX sedang diunduh. Tidak terlihat?',
+  'toast.download.retryPdf': 'Unduh Ulang PDF',
+  'toast.download.retryXlsx': 'Unduh Ulang XLSX',
+  'toast.download.pdfFailed': 'PDF gagal dibuat. Silakan coba lagi.',
+  'toast.download.allFailed': 'Laporan gagal dibuat. Silakan coba lagi.',
 } as const
 
 export type CopyKey = keyof typeof copy

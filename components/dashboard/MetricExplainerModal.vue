@@ -19,13 +19,16 @@ const ZONE_CLASS: Record<ZoneLabel, string> = {
   Konservatif:
     'bg-[var(--color-accent-emerald-soft)] text-[var(--color-accent-emerald)]',
   Tight: 'bg-[var(--color-accent-emerald-soft)] text-[var(--color-accent-emerald)]',
+  Sesuai: 'bg-[var(--color-accent-emerald-soft)] text-[var(--color-accent-emerald)]',
   Aman: 'bg-[var(--color-accent-emerald-soft)] text-[var(--color-accent-emerald)]',
   Waspada: 'bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]',
   Seimbang: 'bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]',
   Drift: 'bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]',
+  'Mulai Melenceng': 'bg-[var(--color-warning-amber-soft)] text-[var(--color-warning-amber)]',
   Bahaya: 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
   Agresif: 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
   'Off-Plan': 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
+  'Jauh dari Target': 'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
   'Risiko Likuidasi':
     'bg-[var(--color-danger-rose-soft)] text-[var(--color-danger-rose)]',
 }
@@ -157,7 +160,7 @@ onBeforeUnmount(() => {
                 Formula
               </div>
               <p
-                class="tabular mt-1 break-words font-mono text-[12px] text-[var(--color-text-primary)]"
+                class="tabular mt-1 whitespace-pre-line break-words font-mono text-[12px] text-[var(--color-text-primary)]"
               >
                 {{ spec.formula }}
               </p>

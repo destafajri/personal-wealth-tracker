@@ -12,6 +12,7 @@ import {
   type LiquidAssetCategory,
   type NonLiquidAssetCategory,
   type PenghasilanGaji,
+  type SnapshotState,
   type StockHolding,
   type UtangPribadiRow,
 } from '~/lib/types/snapshot'
@@ -352,6 +353,26 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     mode.value = null
   }
 
+  function applyImportedState(state: SnapshotState) {
+    Object.assign(penghasilan, state.penghasilan)
+    penghasilanLain.value = [...state.penghasilanLain]
+    Object.assign(pengeluaran, state.pengeluaran)
+    pengeluaranLain.value = [...state.pengeluaranLain]
+    ;(['kas', 'deposito', 'reksaDana', 'sbn'] as const).forEach(
+      (k) => (asetLikuid[k] = [...state.asetLikuid[k]]),
+    )
+    ;(['properti', 'kendaraan', 'pensiun'] as const).forEach(
+      (k) => (asetNonLikuid[k] = [...state.asetNonLikuid[k]]),
+    )
+    Object.assign(emas, state.emas)
+    saham.value = [...state.saham]
+    cryptoLive.value = [...state.crypto]
+    cicilanAktif.value = [...state.cicilanAktif]
+    utangPribadi.value = [...state.utangPribadi]
+    gadai.value = [...state.gadai]
+    isDemo.value = false
+  }
+
   return {
     penghasilan,
     penghasilanLain,
@@ -403,5 +424,6 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     updatePengeluaranLain,
     removePengeluaranLain,
     reset,
+    applyImportedState,
   }
 })

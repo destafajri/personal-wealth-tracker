@@ -43,6 +43,10 @@ const AllocationDonut = defineAsyncComponent({
   loader: () => import('~/components/dashboard/AllocationDonut.vue'),
   loadingComponent: ChartLoading,
 })
+const AssetAllocationDonut = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/AssetAllocationDonut.vue'),
+  loadingComponent: ChartLoading,
+})
 const SafeHavenBar = defineAsyncComponent({
   loader: () => import('~/components/dashboard/SafeHavenBar.vue'),
   loadingComponent: ChartLoading,
@@ -82,6 +86,9 @@ const EmergencyFundMeter = defineAsyncComponent({
     </div>
     <MetricGrid />
     <!-- Donut charts row -->
+    <div v-if="hasAnyAsset">
+      <AssetAllocationDonut />
+    </div>
     <div class="grid gap-4 lg:grid-cols-2">
       <AllocationDonut />
       <ExpenseBreakdownDonut />

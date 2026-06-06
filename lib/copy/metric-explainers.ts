@@ -26,8 +26,11 @@ export type ZoneLabel =
   | 'Seimbang'
   | 'Agresif'
   | 'Tight'
+  | 'Sesuai'
   | 'Drift'
+  | 'Mulai Melenceng'
   | 'Off-Plan'
+  | 'Jauh dari Target'
   | 'Aman'
   | 'Risiko Likuidasi'
 
@@ -188,26 +191,26 @@ export const metricExplainers: Record<ExplainerKey, ExplainerSpec> = {
   },
 
   allocationDiscipline: {
-    title: 'Allocation Discipline',
+    title: 'Target Alokasi Saham',
     definition:
-      'Rata-rata seberapa miring komposisi (mix) portofolio saham kamu dibanding komposisi yang implied dari lots target. Mengukur disiplin rebalancing, BUKAN progress akumulasi (yang ada di progress bar per kartu). Satuannya percentage point (pp).',
+      'Ngukur seberapa dekat komposisi saham kamu sekarang dibanding target yang kamu tentukan (via lots target). Makin kecil angkanya, makin sesuai dengan rencana alokasi kamu. Satuannya percentage point (pp).',
     formula:
-      'Allocation Discipline = (1/n) × Σ |Bobot Live − Bobot Target| · Bobot Target di-derive dari (lots target × harga) tiap saham',
+      'Rata-rata selisih bobot aktual vs target (pp)\n\nΣ |Bobot Aktual − Bobot Target| ÷ n saham\n\nBobot Aktual = (lot × 100 × harga) ÷ total portofolio × 100%\nBobot Target = (lots target × harga) ÷ total target × 100%',
     zones: [
       {
-        label: 'Tight',
+        label: 'Sesuai',
         range: '<5pp',
-        body: 'Komposisi mendekati target. Disiplin tinggi — drift kecil.',
+        body: 'Portofolio kamu sudah sesuai target. Pertahankan!',
       },
       {
-        label: 'Drift',
-        range: '5–15pp',
-        body: 'Posisi mulai melenceng dari target. Bisa di-rebalance kapan saja.',
+        label: 'Mulai Melenceng',
+        range: '5-15pp',
+        body: 'Ada beberapa saham yang bobotnya mulai jauh dari target. Bisa dipertimbangkan buat rebalance.',
       },
       {
-        label: 'Off-Plan',
+        label: 'Jauh dari Target',
         range: '>15pp',
-        body: 'Jauh dari target. Bisa di-rebalance, atau review lots target-nya kalau prioritas portfolio udah berubah.',
+        body: 'Komposisi saham kamu udah cukup jauh dari rencana. Mungkin perlu rebalance atau cek ulang target alokasinya.',
       },
     ],
     note: 'Butuh ≥2 saham dengan lots target — composition drift gak meaningful dengan universe 1. Edge case yang sering bikin bingung: kalau semua emiten kurang lot-nya secara proporsional sama (mis. BBCA 10/100 + BBRI 10/100 lot), mix-nya tetap match target → drift 0pp. Buat lihat progress akumulasi per emiten, pakai lots progress bar di kartu saham. Bobot target juga bergeser kalau harga bergerak — by design buat akumulator (lots target tetap, bobot adaptif).',

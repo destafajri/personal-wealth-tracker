@@ -88,7 +88,7 @@ export function buildRingkasan(ctx: XlsxContext): Row[] {
     ['Runway (bulan)', derived.runway],
     ['Savings Rate (%)', derived.savingsRate],
     ['Safe Haven (%)', derived.safeHaven],
-    ['Allocation Discipline', derived.allocationDiscipline],
+    ['Target Alokasi Saham', derived.allocationDiscipline],
     ['Goal Health (%)', derived.goalHealth],
     [],
     ['Penghasilan (IDR/bln)', null],
@@ -99,8 +99,8 @@ export function buildRingkasan(ctx: XlsxContext): Row[] {
     ['Bunga Deposito/tahun', derived.bungaDepositoAnnual],
     [],
     ['Pengeluaran (IDR/bln)', null],
-    ['Pokok', snap.pengeluaran.pokok],
-    ['Lifestyle', snap.pengeluaran.lifestyle],
+    ['Pokok', snap.pengeluaran.pokok, null, snap.pengeluaran.pokokCurrency ?? 'IDR'],
+    ['Lifestyle', snap.pengeluaran.lifestyle, null, snap.pengeluaran.lifestyleCurrency ?? 'IDR'],
     [],
     ['Counts', null],
     ['Saham emiten', snap.saham.length],
@@ -159,11 +159,21 @@ export function buildSnapshot(snap: SnapshotState, prices: PricesView): Row[] {
     )
   }
 
-  // Pengeluaran (IDR only by design)
-  rows.push(snapshotMoneyRow('pengeluaran', 'pokok', 'Pokok', snap.pengeluaran.pokok, 'IDR', fx))
+  // Pengeluaran — currency-aware (pokokCurrency / lifestyleCurrency)
+  rows.push(snapshotMoneyRow('pengeluaran', 'pokok', 'Pokok', snap.pengeluaran.pokok, snap.pengeluaran.pokokCurrency, fx))
   rows.push(
-    snapshotMoneyRow('pengeluaran', 'lifestyle', 'Lifestyle', snap.pengeluaran.lifestyle, 'IDR', fx),
+    snapshotMoneyRow('pengeluaran', 'lifestyle', 'Lifestyle', snap.pengeluaran.lifestyle, snap.pengeluaran.lifestyleCurrency, fx),
   )
+  if (snap.pengeluaran.biayaKos) {
+    rows.push(
+      snapshotMoneyRow('pengeluaran', 'biayaKos', 'Biaya Kos', snap.pengeluaran.biayaKos, snap.pengeluaran.biayaKosCurrency ?? 'IDR', fx),
+    )
+  }
+  for (const r of snap.pengeluaranLain) {
+    rows.push(
+      snapshotMoneyRow('pengeluaranLain', r.id, r.label, r.amount, r.currency ?? 'IDR', fx),
+    )
+  }
 
   // Aset likuid — sukuBungaPercent + rdJenis now ride in their own cells.
   for (const cat of ['kas', 'deposito', 'reksaDana', 'sbn'] as const) {

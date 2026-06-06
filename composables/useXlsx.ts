@@ -8,7 +8,6 @@ import { useDerivedStore } from '~/stores/derived'
 import { FI_MULTIPLIER, useGoalsStore } from '~/stores/goals'
 import { useSnapshotStore } from '~/stores/snapshot'
 import type { PricesView, SnapshotState } from '~/lib/types/snapshot'
-import { rateToIdr } from '~/lib/finance/fx'
 import { SCHEMA_VERSION, type XlsxContext } from '~/lib/xlsx/sheets'
 import { buildWorkbook } from '~/lib/xlsx/workbook'
 
@@ -43,18 +42,6 @@ export function useXlsx() {
     const goalsStore = useGoalsStore()
 
     const prices: PricesView = derived.priceView ?? emptyPrices()
-    const fx = prices.fxRates
-
-    // Normalize pengeluaran to IDR at the export boundary so sheet builders
-    // (which label these columns as IDR) stay consistent for non-IDR inputs.
-    const pokokRate =
-      snap.pengeluaran.pokokCurrency === 'IDR'
-        ? 1
-        : (rateToIdr(snap.pengeluaran.pokokCurrency, fx) ?? 0)
-    const lifestyleRate =
-      snap.pengeluaran.lifestyleCurrency === 'IDR'
-        ? 1
-        : (rateToIdr(snap.pengeluaran.lifestyleCurrency, fx) ?? 0)
 
     const snapState: SnapshotState = {
       penghasilan: {
@@ -63,10 +50,12 @@ export function useXlsx() {
       },
       penghasilanLain: [...snap.penghasilanLain],
       pengeluaran: {
-        pokok: (snap.pengeluaran.pokok || 0) * pokokRate,
-        pokokCurrency: 'IDR',
-        lifestyle: (snap.pengeluaran.lifestyle || 0) * lifestyleRate,
-        lifestyleCurrency: 'IDR',
+        pokok: snap.pengeluaran.pokok,
+        pokokCurrency: snap.pengeluaran.pokokCurrency,
+        lifestyle: snap.pengeluaran.lifestyle,
+        lifestyleCurrency: snap.pengeluaran.lifestyleCurrency,
+        biayaKos: snap.pengeluaran.biayaKos,
+        biayaKosCurrency: snap.pengeluaran.biayaKosCurrency,
       },
       pengeluaranLain: [...snap.pengeluaranLain],
       asetLikuid: {
