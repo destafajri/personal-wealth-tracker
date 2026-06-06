@@ -9,8 +9,9 @@ import {
 } from '~/lib/prices/pegadaian'
 
 export default defineCachedEventHandler(
-  async (): Promise<GoldPayload> => {
+  async (event): Promise<GoldPayload> => {
     const now = new Date().toISOString()
+    const force = getQuery(event).force === '1'
     try {
       const browserHeaders = {
         'user-agent':
@@ -30,22 +31,21 @@ export default defineCachedEventHandler(
       ])
       if (savings.status === 'rejected') {
         console.warn('[prices/gold] Pegadaian savings fetch failed — trying PAXG fallback', savings.reason)
-        return paxgFallback(now)
+        return paxgFallback(now, force)
       }
       if (table.status === 'rejected') {
         console.warn('[prices/gold] antam table fetch failed', table.reason)
       }
       const tableRes = table.status === 'fulfilled' ? table.value : null
       const result = parsePegadaianToGold(savings.value, tableRes, now)
-      // If Pegadaian returned data but incomplete (null prices), also try PAXG
       if (result.stale) {
         console.warn('[prices/gold] Pegadaian returned incomplete data — trying PAXG fallback')
-        return paxgFallback(now)
+        return paxgFallback(now, force)
       }
       return result
     } catch (err) {
       console.warn('[prices/gold] unexpected error — trying PAXG fallback', err)
-      return paxgFallback(now)
+      return paxgFallback(now, force)
     }
   },
   {
@@ -57,9 +57,11 @@ export default defineCachedEventHandler(
   },
 )
 
-async function paxgFallback(now: string): Promise<GoldPayload> {
+async function paxgFallback(now: string, force: boolean): Promise<GoldPayload> {
   try {
-    const paxg = await $fetch<GoldPayload>('/api/prices/gold-paxg')
+    const paxg = await $fetch<GoldPayload>('/api/prices/gold-paxg', {
+      query: force ? { force: '1' } : undefined,
+    })
     if (!paxg.stale) return paxg
   } catch {
     console.warn('[prices/gold] PAXG fallback also failed')
