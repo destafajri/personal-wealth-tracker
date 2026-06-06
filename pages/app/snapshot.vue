@@ -292,6 +292,7 @@ watchEffect(() => {
   const view: PricesView = {
     goldDigitalIdrPerGram: gold.data.value?.hargaJual ?? null,
     goldAntam1gIdr: gold.data.value?.antam1g ?? null,
+    goldSource: gold.data.value?.source ?? null,
     fxRates,
     idxByTicker: idxMap,
     cryptoByCoinId: cryptoMap,
@@ -420,8 +421,6 @@ watchEffect(() => {
           :icon="Coins"
           variant="neutral"
           :value="emasTotal"
-          disabled
-          badge="Maintenance"
         >
           <EmasPanel
             hide-header
@@ -429,7 +428,7 @@ watchEffect(() => {
             :live-pending="gold.pending.value"
             :cooldown-remaining="gold.cooldownRemaining.value"
             :on-refresh="gold.forceRefresh"
-            disabled
+            :gold-source="gold.data.value?.source ?? null"
           />
         </CollapsiblePanel>
       </div>

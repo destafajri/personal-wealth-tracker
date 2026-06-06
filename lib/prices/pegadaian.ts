@@ -27,6 +27,8 @@ export interface PegadaianTableResponse {
 // the digital tabungan rate per 0.01 gram (smallest unit users transact in) — we
 // multiply by 100 inside the parser so every downstream consumer reads per-gram
 // consistently. Antam table is already per 1 gram (we read the berat=1.0 row).
+export type GoldSource = 'pegadaian' | 'paxg' | 'stale'
+
 export interface GoldPayload {
   hargaJual: number | null // Pegadaian Digital per gram (sell-side / our valuation rate)
   hargaBeli: number | null // Pegadaian Digital per gram (buy-side)
@@ -34,6 +36,7 @@ export interface GoldPayload {
   tglBerlaku: string | null
   stale: boolean
   fetchedAt: string
+  source: GoldSource
 }
 
 export const PEGADAIAN_URL = 'https://pegadaian.co.id/gold/prices/savings'
@@ -72,6 +75,7 @@ export function parsePegadaianToGold(
     tglBerlaku: savingsRes.data?.tglBerlaku ?? null,
     stale: hargaJual === null || hargaBeli === null || antam1g === null,
     fetchedAt: now,
+    source: hargaJual === null ? 'stale' : 'pegadaian',
   }
 }
 
@@ -83,5 +87,6 @@ export function buildGoldStalePayload(now: string): GoldPayload {
     tglBerlaku: null,
     stale: true,
     fetchedAt: now,
+    source: 'stale',
   }
 }

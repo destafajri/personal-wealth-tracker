@@ -21,6 +21,7 @@ function emptyPrices(): PricesView {
   return {
     goldDigitalIdrPerGram: null,
     goldAntam1gIdr: null,
+    goldSource: null,
     fxRates: { USD: null, SGD: null, EUR: null, JPY: null, KRW: null },
     idxByTicker: {},
     cryptoByCoinId: {},

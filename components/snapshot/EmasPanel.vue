@@ -16,6 +16,7 @@ const props = defineProps<{
   onRefresh?: () => void | Promise<void>
   hideHeader?: boolean
   disabled?: boolean
+  goldSource?: 'pegadaian' | 'paxg' | 'stale' | null
 }>()
 
 const snap = useSnapshotStore()
@@ -91,6 +92,29 @@ function field(key: keyof EmasState, value: number | null) {
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span class="text-xs font-medium">Harga emas sedang dalam perbaikan. Fitur emas sementara dinonaktifkan.</span>
+    </div>
+
+    <!-- Price source badge -->
+    <div
+      v-if="goldSource === 'pegadaian'"
+      class="mb-3 flex items-center gap-1.5 text-[11px] text-[var(--color-text-muted)]"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Harga dari Pegadaian.co.id</span>
+    </div>
+    <div
+      v-else-if="goldSource === 'paxg'"
+      class="mb-3 flex items-start gap-2 rounded-[var(--radius-input)] border border-[var(--color-warning-amber)]/30 bg-[var(--color-warning-amber-soft)] px-3 py-2 text-xs text-[var(--color-warning-amber)]"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Harga acuan internasional (PAXG). Valuasi berdasarkan harga buyback. Harga jual baru biasanya 4–12% lebih tinggi tergantung jenis emas.</span>
+    </div>
+    <div
+      v-else-if="goldSource === 'stale'"
+      class="mb-3 flex items-center gap-1.5 text-[11px] text-[var(--color-danger-rose)]"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      <span>Harga emas tidak tersedia saat ini</span>
     </div>
 
     <header v-if="!hideHeader || onRefresh" class="mb-3">

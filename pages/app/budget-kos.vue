@@ -65,6 +65,7 @@ watchEffect(() => {
   derived.setPrices({
     goldDigitalIdrPerGram: null,
     goldAntam1gIdr: null,
+    goldSource: null,
     fxRates,
     idxByTicker: {},
     cryptoByCoinId: {},

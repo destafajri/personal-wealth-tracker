@@ -87,7 +87,7 @@ function onKeydown(e: KeyboardEvent) {
     return
   }
   if (e.key === 'Tab' && panelRef.value) {
-    const focusable = focusableIn(panelRef.value)
+    const focusable = focusableIn(panelRef.value as HTMLElement)
     if (focusable.length === 0) {
       e.preventDefault()
       panelRef.value.focus()

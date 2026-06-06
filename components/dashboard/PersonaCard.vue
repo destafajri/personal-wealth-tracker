@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { Share2 } from 'lucide-vue-next'
 import { useDerivedStore } from '~/stores/derived'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { resolvePersona, hasInvestments, isSnapshotReady, type PersonaKey } from '~/lib/finance/persona'
 import { t } from '~/lib/copy/strings'
+import ShareCard from '~/components/common/ShareCard.vue'
 
 const derived = useDerivedStore()
 const snap = useSnapshotStore()
+const shareOpen = ref(false)
 
 const snapshotState = computed(() => ({
   penghasilan: snap.penghasilan,
@@ -54,6 +57,14 @@ const style = computed(() => persona.value ? PERSONA_STYLE_MAP[persona.value.key
       <h3 class="text-lg font-semibold">
         {{ t(`persona.${persona.key}.label` as import('~/lib/copy/strings').CopyKey) }}
       </h3>
+      <button
+        type="button"
+        class="ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
+        aria-label="Share persona"
+        @click="shareOpen = true"
+      >
+        <Share2 :size="14" />
+      </button>
     </div>
     <p class="mt-1 text-sm opacity-90">
       {{ t(`persona.${persona.key}.tagline` as import('~/lib/copy/strings').CopyKey) }}
@@ -68,5 +79,6 @@ const style = computed(() => persona.value ? PERSONA_STYLE_MAP[persona.value.key
         <div class="font-semibold">{{ derived.runway != null ? `${Math.round(derived.runway)} bulan` : '—' }}</div>
       </div>
     </div>
+    <ShareCard :open="shareOpen" @close="shareOpen = false" />
   </div>
 </template>

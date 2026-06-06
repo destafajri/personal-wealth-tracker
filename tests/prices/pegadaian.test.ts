@@ -32,6 +32,7 @@ describe('parsePegadaianToGold', () => {
       tglBerlaku: '2026-05-28',
       stale: false,
       fetchedAt: NOW,
+      source: 'pegadaian',
     })
   })
 
@@ -44,6 +45,7 @@ describe('parsePegadaianToGold', () => {
       tglBerlaku: null,
       stale: true,
       fetchedAt: NOW,
+      source: 'stale',
     })
   })
 
@@ -112,6 +114,7 @@ describe('buildGoldStalePayload', () => {
       tglBerlaku: null,
       stale: true,
       fetchedAt: NOW,
+      source: 'stale',
     })
   })
 })
