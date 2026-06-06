@@ -191,13 +191,13 @@ const downloadDisabled = computed(() =>
 async function onDownloadReport() {
   if (downloadDisabled.value || downloadPhase.value !== 'idle') return
   try {
-    downloadPhase.value = 'xlsx'
-    await nextTick()
-    await xlsx.download()
-
     downloadPhase.value = 'pdf'
     await nextTick()
     await pdf.generatePdf()
+
+    downloadPhase.value = 'xlsx'
+    await nextTick()
+    await xlsx.download()
 
     toast.showToast(t('toast.download.downloading'), {
       type: 'info',
@@ -208,13 +208,13 @@ async function onDownloadReport() {
       ],
     })
   } catch {
-    if (downloadPhase.value === 'xlsx') {
+    if (downloadPhase.value === 'pdf') {
       toast.showToast(t('toast.download.allFailed'), { type: 'error' })
     } else {
       toast.showToast(t('toast.download.pdfFailed'), {
         type: 'error',
         actions: [
-          { label: t('toast.download.retryPdf'), handler: () => pdf.generatePdf() },
+          { label: t('toast.download.retryXlsx'), handler: () => xlsx.download() },
         ],
       })
     }
