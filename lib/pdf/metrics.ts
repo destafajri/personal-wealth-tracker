@@ -30,7 +30,7 @@ export function gatherPdfMetrics(derived: {
     {
       label: 'Dana Darurat',
       value: derived.runway !== null
-        ? `${derived.runway.toFixed(1).replace('.', ',')} bulan`
+        ? derived.runway >= 12 ? '12+ bulan' : `${derived.runway.toFixed(1).replace('.', ',')} bulan`
         : 'N/A',
     },
     { label: 'Savings Rate', value: formatPercentPdf(derived.savingsRate) },
@@ -80,19 +80,29 @@ export function gatherPdfTables(
     })
   }
 
-  // Cicilan table
+  // Cicilan Aktif table
   const cicilanRows: string[][] = []
   for (const c of snap.cicilanAktif) {
     cicilanRows.push([c.label, formatIdrPdf(c.sisaPokok), c.tenorSisaBulan != null ? `${c.tenorSisaBulan} bln` : '-', formatIdrPdf(c.cicilanPerBulan)])
-  }
-  for (const u of snap.utangPribadi) {
-    cicilanRows.push([u.label, formatIdrPdf(u.sisaPokok), '-', '-'])
   }
   if (cicilanRows.length > 0) {
     tables.push({
       title: 'Cicilan Aktif',
       headers: ['Nama', 'Sisa Utang', 'Sisa Tenor', 'Cicilan/Bulan'],
       rows: cicilanRows,
+    })
+  }
+
+  // Utang Pribadi table
+  const utangPribadiRows: string[][] = []
+  for (const u of snap.utangPribadi) {
+    utangPribadiRows.push([u.label, formatIdrPdf(u.sisaPokok)])
+  }
+  if (utangPribadiRows.length > 0) {
+    tables.push({
+      title: 'Utang Pribadi',
+      headers: ['Nama', 'Sisa Utang'],
+      rows: utangPribadiRows,
     })
   }
 
