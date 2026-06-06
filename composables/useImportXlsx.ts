@@ -29,11 +29,11 @@ export function useImportXlsx() {
         phase.value = 'preview'
       } else {
         const firstError = importResult.errors[0]
-        errorMessage.value = firstError?.message ?? 'toast.download.allFailed'
+        errorMessage.value = firstError?.message ?? 'toast.import.error.notCermat'
         phase.value = 'error'
       }
     } catch {
-      errorMessage.value = 'toast.download.allFailed'
+      errorMessage.value = 'toast.import.error.notCermat'
       phase.value = 'error'
     }
   }

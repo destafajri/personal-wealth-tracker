@@ -1,4 +1,5 @@
-import type { Goal, GoalBucketCategory } from '~/lib/types/goals'
+import type { Goal, GoalBucketCategory, GoalKind } from '~/lib/types/goals'
+import { GOAL_KINDS } from '~/lib/types/goals'
 import type { SnapshotState } from '~/lib/types/snapshot'
 import { SCHEMA_VERSION } from '~/lib/xlsx/sheets'
 import { goalsPayloadSchema, snapshotSchema } from '~/lib/xlsx/import-schemas'
@@ -163,7 +164,8 @@ export function parseGoalsSheet(
     if (!row || row.length < GOALS_INPUT_COLS) continue
 
     const goalId = String(row[0] ?? '')
-    const goalType = String(row[1] ?? 'CUSTOM')
+    const rawKind = String(row[1] ?? 'CUSTOM')
+    const goalType: GoalKind = (GOAL_KINDS as readonly string[]).includes(rawKind) ? rawKind as GoalKind : 'CUSTOM'
     const label = String(row[2] ?? '')
     const targetAmount = Number(row[3])
     const targetDate = String(row[4] ?? '')
@@ -195,7 +197,7 @@ export function parseGoalsSheet(
 
     goals.push({
       id: goalId,
-      kind: goalType as Goal['kind'],
+      kind: goalType,
       label,
       targetIdr: Number.isFinite(targetAmount) ? targetAmount : 0,
       targetDate,
@@ -250,7 +252,7 @@ export async function parseImportFile(
 
   // 3. Extract _meta sheet
   const metaSheetName = wb.SheetNames.find(
-    (n: string) => n === '_meta' || n === '_meta',
+    (n: string) => n.toLowerCase() === '_meta',
   )
   if (!metaSheetName) {
     return fail('NO_META', 'toast.import.error.notCermat')
@@ -299,7 +301,7 @@ export async function parseImportFile(
     const goalsParsed = parseGoalsSheet(goalsRows)
     goalsWarnings = goalsParsed.warnings
     // If data_json didn't provide goals, use the Goals sheet as fallback
-    if (!dataResult.goalsData && goalsParsed.goals.length > 0) {
+    if (dataResult.goalsData.goals.length === 0 && goalsParsed.goals.length > 0) {
       dataResult.goalsData = {
         goals: goalsParsed.goals,
         assumedAnnualReturnReal: 0.05,

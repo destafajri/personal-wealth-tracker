@@ -3,7 +3,6 @@ import { X, AlertTriangle, CheckCircle, Loader2 } from 'lucide-vue-next'
 import { watch, nextTick, ref, onBeforeUnmount, onMounted } from 'vue'
 import { useImportXlsx, type ImportPhase } from '~/composables/useImportXlsx'
 import { t } from '~/lib/copy/strings'
-import { idr } from '~/lib/format/idr'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()

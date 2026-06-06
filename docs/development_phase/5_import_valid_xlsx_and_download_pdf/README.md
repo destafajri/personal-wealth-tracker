@@ -158,7 +158,7 @@
 - `html2canvas` already installed in project — used for chart rendering in PDF
 - `jspdf` to be added as dependency for PDF structure and text layout
 - Existing `composables/useXlsx.ts` handles XLSX export with 6-sheet structure
-- `Snapshot` sheet uses 8-column schema: `section | rowId | name | category | amount | freq | note | extra`
+- `Snapshot` sheet uses 8-column schema: `section | id | label | value_source | source_currency | value_idr | suku_bunga_percent | rd_jenis`
 - `_meta` sheet stores `schemaVersion` (currently `1`) for compatibility checks
 - Import reads `Snapshot` + `Goals` + `_meta` only; derived sheets ignored
 - Goals derived fields (`current_progress`, `status`, etc.) recalculated after import, not trusted from file

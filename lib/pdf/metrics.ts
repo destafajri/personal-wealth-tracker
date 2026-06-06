@@ -1,4 +1,6 @@
 import { formatIdrPdf, formatPercentPdf } from '~/lib/pdf/format'
+import { rateToIdr } from '~/lib/finance/fx'
+import type { PricesView } from '~/lib/types/snapshot'
 
 export interface MetricCardData {
   label: string
@@ -39,15 +41,16 @@ export function gatherPdfMetrics(derived: {
 
 export function gatherPdfTables(
   snap: {
-    asetLikuid: Record<string, Array<{ id: string; label: string; amount: number }>>
+    asetLikuid: Record<string, Array<{ id: string; label: string; amount: number; currency?: string }>>
     asetNonLikuid: Record<string, Array<{ id: string; label: string; amount: number }>>
     saham: Array<{ id: string; ticker: string; lot: number; hargaRataRata: number }>
     emas: { digitalGram: number; fisikAntamGram: number; perhiasan18KGram: number; perhiasan14KGram: number; perhiasan10KGram: number }
     cicilanAktif: Array<{ id: string; tipe: string; label: string; sisaPokok: number; cicilanPerBulan: number; tenorSisaBulan?: number }>
     utangPribadi: Array<{ id: string; label: string; sisaPokok: number; cicilanPerBulan?: number; tempoBulan?: number }>
   },
-  goals: Array<{ id: string; kind: string; label: string; targetIdr: number }>,
+  _goals: Array<{ id: string; kind: string; label: string; targetIdr: number }>,
   goalProgressData: Array<{ label: string; targetIdr: number; currentIdr: number; progressPct: number }>,
+  prices?: PricesView,
 ): TableData[] {
   const tables: TableData[] = []
 
@@ -55,7 +58,10 @@ export function gatherPdfTables(
   const asetRows: string[][] = []
   for (const [cat, rows] of Object.entries(snap.asetLikuid)) {
     for (const r of rows) {
-      asetRows.push([cat, r.label, formatIdrPdf(r.amount), '-'])
+      const cur = (r as { currency?: string }).currency ?? 'IDR'
+      const rate = cur === 'IDR' ? 1 : (rateToIdr(cur as 'USD', prices?.fxRates) ?? 0)
+      const rowIdr = r.amount * rate
+      asetRows.push([cat, r.label, formatIdrPdf(rowIdr), '-'])
     }
   }
   for (const [cat, rows] of Object.entries(snap.asetNonLikuid)) {

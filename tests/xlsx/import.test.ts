@@ -4,12 +4,12 @@ import { SCHEMA_VERSION } from '~/lib/xlsx/sheets'
 
 describe('import: validateFileMetadata', () => {
   it('accepts .xlsx files under 5MB', () => {
-    const file = new File(['x'], 'test.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const file = { name: 'test.xlsx', size: 100 } as File
     expect(validateFileMetadata(file)).toBeNull()
   })
 
   it('rejects non-.xlsx files', () => {
-    const file = new File(['x'], 'test.csv')
+    const file = { name: 'test.csv', size: 100 } as File
     const err = validateFileMetadata(file)
     expect(err?.code).toBe('FILE_TYPE')
   })

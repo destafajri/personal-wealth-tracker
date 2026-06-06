@@ -18,6 +18,7 @@ import {
 } from '~/lib/pdf/layout'
 import type { DonutSegment } from '~/lib/pdf/layout'
 import { sumRowsToIdr, sumCryptoIdr, sumStockIdr } from '~/lib/finance/metrics'
+import { rateToIdr } from '~/lib/finance/fx'
 import { totalGoldIdr } from '~/lib/finance/emas'
 
 function todayISO(): string {
@@ -74,7 +75,7 @@ export function usePdf() {
       }
     })
 
-    const tables = gatherPdfTables(snap, goalsStore.goals, goalsProgress)
+    const tables = gatherPdfTables(snap, goalsStore.goals, goalsProgress, prices)
 
     // 3. Prepare chart data
 
@@ -112,10 +113,13 @@ export function usePdf() {
     if (pensiunVal > 0) assetSegments.push({ label: 'Pensiun', value: pensiunVal, color: '#c084fc' })
 
     // --- Expense breakdown donut ---
+    const fxRates = prices?.fxRates
     const expenseSegments: DonutSegment[] = []
-    const pokok = snap.pengeluaran.pokok || 0
-    const lifestyle = snap.pengeluaran.lifestyle || 0
-    const lainTotal = snap.pengeluaranLain.reduce((s, r) => s + (r.amount || 0), 0)
+    const pokokRate = snap.pengeluaran.pokokCurrency === 'IDR' ? 1 : (rateToIdr(snap.pengeluaran.pokokCurrency, fxRates) ?? 0)
+    const lifestyleRate = snap.pengeluaran.lifestyleCurrency === 'IDR' ? 1 : (rateToIdr(snap.pengeluaran.lifestyleCurrency, fxRates) ?? 0)
+    const pokok = (snap.pengeluaran.pokok || 0) * pokokRate
+    const lifestyle = (snap.pengeluaran.lifestyle || 0) * lifestyleRate
+    const lainTotal = sumRowsToIdr(snap.pengeluaranLain, prices)
     const cicilanTotal =
       snap.cicilanAktif.reduce((s, r) => s + (r.cicilanPerBulan || 0), 0) +
       snap.utangPribadi.reduce((s, r) => s + (r.cicilanPerBulan || 0), 0)

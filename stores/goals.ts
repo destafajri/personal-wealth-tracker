@@ -66,8 +66,17 @@ export const useGoalsStore = defineStore('goals', () => {
   }
 
   function applyImportedGoals(imported: Goal[], assumedReturn: number) {
-    goals.value = [...imported]
-    assumedAnnualReturnReal.value = assumedReturn
+    // Enforce single FI goal — keep first, convert rest to CUSTOM
+    let fiSeen = false
+    const sanitized = imported.map((g) => {
+      if (g.kind === 'FI') {
+        if (fiSeen) return { ...g, kind: 'CUSTOM' as const }
+        fiSeen = true
+      }
+      return g
+    })
+    goals.value = sanitized
+    setAssumedReturn(assumedReturn)
   }
 
   return {
