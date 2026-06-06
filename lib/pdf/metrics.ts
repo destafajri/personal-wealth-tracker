@@ -19,9 +19,28 @@ export interface HealthMetric {
   label: string
   value: string
   zone: Zone
+  zoneLabel: string
   description: string
   target: string
 }
+
+const METRIC_ZONE_LABELS: Partial<Record<MetricKey, [string, string, string]>> = {
+  safeHaven: ['Konservatif', 'Seimbang', 'Agresif'],
+  allocationDiscipline: ['Sesuai Rencana', 'Perlu Rebalance', 'Off-Plan'],
+}
+
+function metricZoneLabel(key: MetricKey, zone: Zone): string {
+  const labels = METRIC_ZONE_LABELS[key]
+  if (labels) {
+    const idx = zone === 'sehat' ? 0 : zone === 'waspada' ? 1 : 2
+    return labels[idx]!
+  }
+  if (zone === 'sehat') return 'Sehat'
+  if (zone === 'waspada') return 'Waspada'
+  return 'Kritis'
+}
+
+export type CompositeStatus = 'sehat' | 'waspada' | 'agresif' | 'bahaya' | 'sparse'
 
 export function gatherHealthMetrics(derived: {
   dsr: number | null
@@ -30,12 +49,13 @@ export function gatherHealthMetrics(derived: {
   savingsRate: number | null
   safeHaven: number | null
   allocationDiscipline: number | null
-}): { metrics: HealthMetric[]; compositeStatus: 'sehat' | 'waspada' | 'bahaya' | 'sparse' } {
+}): { metrics: HealthMetric[]; compositeStatus: CompositeStatus } {
   const metrics: HealthMetric[] = []
 
   const add = (key: MetricKey, label: string, raw: number | null, formatValue: (v: number) => string, description: string, target: string) => {
     if (raw === null) return
-    metrics.push({ key, label, value: formatValue(raw), zone: zoneOf(key, raw), description, target })
+    const zone = zoneOf(key, raw)
+    metrics.push({ key, label, value: formatValue(raw), zone, zoneLabel: metricZoneLabel(key, zone), description, target })
   }
 
   add('dsr', 'DSR (Debt Service Ratio)', derived.dsr, v => formatPercentPdf(v), 'Beban cicilan vs pendapatan', 'Target: <30%')
@@ -48,14 +68,23 @@ export function gatherHealthMetrics(derived: {
   add('safeHaven', 'Safe Haven Ratio', derived.safeHaven, v => formatPercentPdf(v), '% aset defensif (kas, deposito, SBN, RD pasar uang, emas)', 'Target: 20-30%')
   add('allocationDiscipline', 'Deviasi Alokasi Saham', derived.allocationDiscipline, v => `${v.toFixed(1).replace('.', ',')} pp`, 'Deviasi dari alokasi target', 'Target: <5 pp')
 
-  // Composite status: any bahaya → bahaya, any waspada → waspada, sparse → sparse, else sehat
-  let compositeStatus: 'sehat' | 'waspada' | 'bahaya' | 'sparse' = 'sehat'
+  // Composite status:
+  //   2+ bahaya → bahaya (Kritis)
+  //   1 bahaya  → agresif (single aggressive metric, not crisis)
+  //   any waspada (no bahaya) → waspada (Perlu Perhatian)
+  //   all sehat → sehat
+  //   <3 metrics → sparse
+  let compositeStatus: CompositeStatus = 'sehat'
   if (metrics.length < 3) {
     compositeStatus = 'sparse'
   } else {
-    for (const m of metrics) {
-      if (m.zone === 'bahaya') { compositeStatus = 'bahaya'; break }
-      if (m.zone === 'waspada') { compositeStatus = 'waspada' }
+    const bahayaCount = metrics.filter(m => m.zone === 'bahaya').length
+    if (bahayaCount >= 2) {
+      compositeStatus = 'bahaya'
+    } else if (bahayaCount === 1) {
+      compositeStatus = 'agresif'
+    } else if (metrics.some(m => m.zone === 'waspada')) {
+      compositeStatus = 'waspada'
     }
   }
 
@@ -159,7 +188,7 @@ export function gatherPdfTables(
     asetRows.push([label, `SUBTOTAL`, formatIdrPdf(catTotal), totalAset > 0 ? `${((catTotal / totalAset) * 100).toFixed(1).replace('.', ',')}%` : '-'])
   }
 
-  const nonLikuidLabels: Record<string, string> = { properti: 'Aset Tetap', kendaraan: 'Aset Tetap', pensiun: 'Aset Tetap' }
+  const nonLikuidLabels: Record<string, string> = { properti: 'Aset Tetap', kendaraan: 'Aset Tetap', pensiun: 'Pensiun' }
   const nonLikuidByLabel: Record<string, Array<{ id: string; label: string; amount: number }>> = {}
   for (const [key, label] of Object.entries(nonLikuidLabels)) {
     const rows = (snap.asetNonLikuid as Record<string, Array<{ id: string; label: string; amount: number }>>)[key]
@@ -251,14 +280,14 @@ export function gatherPdfTables(
     headers: ['Asumsi & Dasar Perhitungan'],
     rows: [
       ['Harga emas: harga buyback (Pegadaian/Antam reference)'],
-      ['Estimasi dividen saham: rata-rata yield per emiten × jumlah lembar'],
-      ['Estimasi bunga deposito: rate × saldo / 12'],
-      ['Estimasi bunga SBN: kupon rate aktual × nominal / 12'],
-      ['Dana darurat: pengeluaran bulanan × bulan tertanggung'],
-      ['Modal Siap Distribusi: aset likuid − (pengeluaran bulanan × 6)'],
-      ['DSR: total cicilan/bulan ÷ total pendapatan/bulan × 100%'],
-      ['DAR: total utang ÷ total aset × 100%'],
-      ['Safe Haven: (kas + deposito + SBN + RD pasar uang + emas) ÷ total aset × 100%'],
+      ['Estimasi dividen saham: rata-rata yield per emiten x jumlah lembar'],
+      ['Estimasi bunga deposito: rate x saldo / 12'],
+      ['Estimasi bunga SBN: kupon rate aktual x nominal / 12'],
+      ['Dana darurat: pengeluaran bulanan x bulan tertanggung'],
+      ['Modal Siap Distribusi: aset likuid - (pengeluaran bulanan x 6)'],
+      ['DSR: total cicilan/bulan / total pendapatan/bulan x 100%'],
+      ['DAR: total utang / total aset x 100%'],
+      ['Safe Haven: (kas + deposito + SBN + RD pasar uang + emas) / total aset x 100%'],
       ['Semua angka bersifat estimasi dan bukan rekomendasi investasi'],
     ],
   })
@@ -353,20 +382,25 @@ export function gatherRecommendations(snap: {
   for (const c of candidates) {
     if (remaining <= 0) break
     const allocation = Math.min(c.sisaPokok, remaining)
+    const isFullPayoff = allocation >= c.sisaPokok
     remaining -= allocation
 
     let impact = ''
-    if (c.cicilanPerBulan > 0 && income > 0 && currentDsr !== null) {
+    if (isFullPayoff && c.cicilanPerBulan > 0 && income > 0 && currentDsr !== null) {
       const dsrDrop = (c.cicilanPerBulan / income) * 100
       const newDsr = currentDsr - dsrDrop
-      impact = `DSR ${currentDsr.toFixed(1).replace('.', ',')}% → ${newDsr.toFixed(1).replace('.', ',')}% (-${dsrDrop.toFixed(1).replace('.', ',')} pp)`
+      impact = `DSR ${currentDsr.toFixed(1).replace('.', ',')}% -> ${newDsr.toFixed(1).replace('.', ',')}% (-${dsrDrop.toFixed(1).replace('.', ',')} pp)`
       currentDsr = newDsr
+    } else if (!isFullPayoff && c.sisaPokok > 0) {
+      const pctReduced = ((allocation / c.sisaPokok) * 100).toFixed(0)
+      impact = `Pokok berkurang ${formatIdrPdf(allocation)} (${pctReduced}% sisa pokok); cicilan/bulan tetap`
     } else {
       impact = `Sisa utang berkurang ${formatIdrPdf(allocation)}`
     }
     if (remaining > 0) impact += `; sisa modal ${formatIdrPdf(remaining)}`
 
-    recommendations.push({ label: `Lunasi ${c.label}`, allocation, impact })
+    const verb = isFullPayoff ? 'Lunasi' : 'Prepay'
+    recommendations.push({ label: `${verb} ${c.label}`, allocation, impact })
   }
 
   // Gadai redemption (tier 6)

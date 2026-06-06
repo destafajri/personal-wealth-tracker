@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf'
 import type { MetricCardData, TableData, HealthMetric } from '~/lib/pdf/metrics'
+import type { CompositeStatus } from '~/lib/pdf/metrics'
 import type { Zone } from '~/lib/finance/thresholds'
 import { formatIndonesianDate, formatIdrPdf } from '~/lib/pdf/format'
 
@@ -79,9 +80,9 @@ export function drawMetricCards(doc: jsPDF, metrics: MetricCardData[], startY: n
   return startY + rows * (cardH + gapY)
 }
 
-export function drawCompositeStatus(doc: jsPDF, status: 'sehat' | 'waspada' | 'bahaya' | 'sparse', y: number): number {
-  const labels: Record<string, string> = { sehat: 'Status Keuangan: Sehat', waspada: 'Status Keuangan: Perlu Perhatian', bahaya: 'Status Keuangan: Kritis', sparse: 'Status Keuangan: Data belum lengkap' }
-  const colors: Record<string, [number, number, number]> = { sehat: [16, 185, 129], waspada: [245, 158, 11], bahaya: [239, 68, 68], sparse: [156, 163, 175] }
+export function drawCompositeStatus(doc: jsPDF, status: CompositeStatus, y: number): number {
+  const labels: Record<CompositeStatus, string> = { sehat: 'Status Keuangan: Sehat', waspada: 'Status Keuangan: Perlu Perhatian', agresif: 'Status Keuangan: Agresif', bahaya: 'Status Keuangan: Kritis', sparse: 'Status Keuangan: Data belum lengkap' }
+  const colors: Record<CompositeStatus, [number, number, number]> = { sehat: [16, 185, 129], waspada: [245, 158, 11], agresif: [220, 80, 40], bahaya: [239, 68, 68], sparse: [156, 163, 175] }
   const c = colors[status] ?? [156, 163, 175]
   const label = labels[status] ?? 'Status Keuangan: Data belum lengkap'
 
@@ -100,12 +101,6 @@ function zoneColor(zone: Zone): [number, number, number] {
   if (zone === 'sehat') return [16, 185, 129]
   if (zone === 'waspada') return [245, 158, 11]
   return [239, 68, 68]
-}
-
-function zoneLabel(zone: Zone): string {
-  if (zone === 'sehat') return 'Sehat'
-  if (zone === 'waspada') return 'Waspada'
-  return 'Kritis'
 }
 
 export function drawHealthMetrics(doc: jsPDF, metrics: HealthMetric[], startY: number): number {
@@ -150,7 +145,7 @@ export function drawHealthMetrics(doc: jsPDF, metrics: HealthMetric[], startY: n
     doc.setFontSize(7)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(255, 255, 255)
-    doc.text(zoneLabel(m.zone), badgeX + badgeW / 2, y + 8.2, { align: 'center' })
+    doc.text(m.zoneLabel, badgeX + badgeW / 2, y + 8.2, { align: 'center' })
     doc.setTextColor(0, 0, 0)
 
     // Description line
