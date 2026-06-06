@@ -3,6 +3,7 @@ import TopNav from '~/components/layout/TopNav.vue'
 import TabBar from '~/components/layout/TabBar.vue'
 import DashboardSummary from '~/components/layout/DashboardSummary.vue'
 import FooterDisclaimer from '~/components/layout/FooterDisclaimer.vue'
+import ToastContainer from '~/components/common/ToastContainer.vue'
 import MetricExplainerModal from '~/components/dashboard/MetricExplainerModal.vue'
 import SimHost from '~/components/simulator/SimHost.vue'
 import { useDirtyGuard } from '~/composables/useDirtyGuard'
@@ -43,5 +44,6 @@ useDirtyGuard()
     <FooterDisclaimer />
     <MetricExplainerModal />
     <SimHost />
+    <ToastContainer />
   </div>
 </template>

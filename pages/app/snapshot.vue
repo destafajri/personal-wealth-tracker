@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watchEffect } from 'vue'
+import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import {
   AlertTriangle,
@@ -9,6 +9,7 @@ import {
   Bitcoin,
   Coins,
   CreditCard,
+  Download,
   Home,
   Info,
   Landmark,
@@ -43,6 +44,9 @@ import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useGoalsStore } from '~/stores/goals'
 import { isSnapshotDirty } from '~/composables/useDirtyGuard'
+import { useXlsx } from '~/composables/useXlsx'
+import { usePdf } from '~/composables/usePdf'
+import { useToast } from '~/composables/useToast'
 import { triggerDemoFromQuery } from '~/lib/fixtures/demoSnapshot'
 import {
   useCryptoPrices,
@@ -172,13 +176,56 @@ function goToTab(id: SnapshotTabId) {
   }
 }
 
-function goNext() {
-  // Last tab is Ringkasan (view), so its "next" routes out to /app/goals;
-  // earlier tabs walk through the TABS array in order.
-  if (isLastTab.value) {
-    router.push('/app/goals')
-    return
+const xlsx = useXlsx()
+const pdf = usePdf()
+const toast = useToast()
+
+type DownloadPhase = 'idle' | 'xlsx' | 'pdf'
+const downloadPhase = ref<DownloadPhase>('idle')
+const downloadDisabled = computed(() =>
+  derived.totalAset === 0 &&
+  derived.totalUtang === 0 &&
+  derived.penghasilanMonthlyIdr === 0,
+)
+
+async function onDownloadReport() {
+  if (downloadDisabled.value || downloadPhase.value !== 'idle') return
+  try {
+    downloadPhase.value = 'xlsx'
+    await nextTick()
+    await xlsx.download()
+
+    downloadPhase.value = 'pdf'
+    await nextTick()
+    await pdf.generatePdf()
+
+    toast.showToast(t('toast.download.downloading'), {
+      type: 'info',
+      durationMs: 5000,
+      actions: [
+        { label: t('toast.download.retryPdf'), handler: () => pdf.generatePdf() },
+        { label: t('toast.download.retryXlsx'), handler: () => xlsx.download() },
+      ],
+    })
+  } catch {
+    if (downloadPhase.value === 'xlsx') {
+      toast.showToast(t('toast.download.allFailed'), { type: 'error' })
+    } else {
+      toast.showToast(t('toast.download.pdfFailed'), {
+        type: 'error',
+        actions: [
+          { label: t('toast.download.retryPdf'), handler: () => pdf.generatePdf() },
+        ],
+      })
+    }
+  } finally {
+    downloadPhase.value = 'idle'
   }
+}
+
+function goNext() {
+  // Last tab is Ringkasan — button becomes "Unduh Laporan"
+  if (isLastTab.value) return
   goToTab(TABS[activeIndex.value + 1]!.id)
 }
 
@@ -188,10 +235,16 @@ function goPrev() {
 }
 
 const nextCtaLabel = computed(() => {
-  if (activeTabId.value === 'ringkasan') return 'Lanjut ke Plan'
+  if (activeTabId.value === 'ringkasan') {
+    if (downloadPhase.value === 'xlsx') return 'Menyusun XLSX...'
+    if (downloadPhase.value === 'pdf') return 'Menyusun PDF...'
+    return 'Unduh Laporan'
+  }
   if (activeTabId.value === 'utang') return 'Simpan & Lihat Hasil'
   return 'Simpan & Lanjutkan'
 })
+
+const isDownloading = computed(() => downloadPhase.value !== 'idle')
 
 // Per-section subtotals shown in each CollapsiblePanel header (so user sees the
 // running total at a glance without expanding). Mirrors DashboardSummary's helper
@@ -584,6 +637,17 @@ watchEffect(() => {
           ← Sebelumnya
         </ButtonSecondary>
         <ButtonPrimary
+          v-if="isLastTab"
+          :disabled="downloadDisabled || isDownloading"
+          :title="downloadDisabled ? 'Isi data keuangan dulu untuk mengunduh laporan' : undefined"
+          class="w-full whitespace-nowrap sm:ml-auto sm:w-auto"
+          @click="onDownloadReport"
+        >
+          <Download :size="16" class="mr-1.5 inline-block" />
+          {{ nextCtaLabel }}
+        </ButtonPrimary>
+        <ButtonPrimary
+          v-else
           class="w-full whitespace-nowrap sm:ml-auto sm:w-auto"
           @click="goNext"
         >
@@ -592,7 +656,7 @@ watchEffect(() => {
       </div>
       <p class="mt-3 flex items-center justify-center gap-1.5 text-xs text-[var(--color-text-muted)] sm:mt-2 sm:text-[11px]">
         <Lock :size="12" :stroke-width="2" class="shrink-0 sm:h-3 sm:w-3" />
-        <span>Data disimpan lokal di browser kamu, tidak dikirim ke server.</span>
+        <span>Data disimpan lokal di browser kamu, tidak dikirim ke server. Unduh XLSX untuk simpan data & lanjutkan kapan saja.</span>
       </p>
     </div>
   </div>

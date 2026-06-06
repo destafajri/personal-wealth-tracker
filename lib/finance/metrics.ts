@@ -19,7 +19,7 @@ import type {
 
 // Liquid asset rows can be in IDR/USD/SGD/EUR/JPY (per-row currency). Convert each to IDR
 // using the latest FX rate; rows with stale rates fall through to 0 (UI surfaces stale).
-function sumRowsToIdr(rows: AssetRow[], prices?: PricesView): number {
+export function sumRowsToIdr(rows: AssetRow[], prices?: PricesView): number {
   return rows.reduce((s, r) => s + rowToIdr(r, prices?.fxRates), 0)
 }
 

@@ -65,6 +65,11 @@ export const useGoalsStore = defineStore('goals', () => {
     assumedAnnualReturnReal.value = 0.05
   }
 
+  function applyImportedGoals(imported: Goal[], assumedReturn: number) {
+    goals.value = [...imported]
+    assumedAnnualReturnReal.value = assumedReturn
+  }
+
   return {
     goals,
     assumedAnnualReturnReal,
@@ -75,6 +80,7 @@ export const useGoalsStore = defineStore('goals', () => {
     removeGoal,
     setAssumedReturn,
     reset,
+    applyImportedGoals,
   }
 })
 

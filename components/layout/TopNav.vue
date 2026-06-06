@@ -1,30 +1,92 @@
 <script setup lang="ts">
-import { Download, Moon, ShieldCheck, Sun } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { Download, Moon, ShieldCheck, Sun, Upload } from 'lucide-vue-next'
+import { computed, nextTick, ref } from 'vue'
 import { t, tm } from '~/lib/copy/strings'
 import { useDerivedStore } from '~/stores/derived'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useXlsx } from '~/composables/useXlsx'
+import { usePdf } from '~/composables/usePdf'
 import { useTheme } from '~/composables/useTheme'
+import { useToast } from '~/composables/useToast'
+import { useImportXlsx } from '~/composables/useImportXlsx'
+import ImportModal from '~/components/layout/ImportModal.vue'
 
 const derived = useDerivedStore()
 const snap = useSnapshotStore()
-const downloadDisabled = computed(() => derived.totalAset === 0)
+const toast = useToast()
 const { resolved, toggle: toggleTheme } = useTheme()
 
-// useXlsx dynamic-imports SheetJS on first call, so the first click pays the
-// ~700KB chunk cost. Subsequent clicks reuse the cached module — keep
-// `downloading` to gate concurrent clicks and surface "Menyusun…" affordance.
+// Disabled only when snapshot is completely empty
+const downloadDisabled = computed(() =>
+  derived.totalAset === 0 &&
+  derived.totalUtang === 0 &&
+  derived.penghasilanMonthlyIdr === 0,
+)
+
+type DownloadPhase = 'idle' | 'xlsx' | 'pdf'
+const phase = ref<DownloadPhase>('idle')
+
 const xlsx = useXlsx()
-const downloading = ref(false)
-async function onDownload() {
-  if (downloadDisabled.value || downloading.value) return
-  downloading.value = true
+const pdf = usePdf()
+
+async function onDownloadReport() {
+  if (downloadDisabled.value || phase.value !== 'idle') return
   try {
+    phase.value = 'xlsx'
+    await nextTick()
     await xlsx.download()
+
+    phase.value = 'pdf'
+    await nextTick()
+    await pdf.generatePdf()
+
+    // Success toast with retry links
+    toast.showToast(t('toast.download.downloading'), {
+      type: 'info',
+      durationMs: 5000,
+      actions: [
+        { label: t('toast.download.retryPdf'), handler: () => pdf.generatePdf() },
+        { label: t('toast.download.retryXlsx'), handler: () => xlsx.download() },
+      ],
+    })
+  } catch {
+    if (phase.value === 'xlsx') {
+      toast.showToast(t('toast.download.allFailed'), { type: 'error' })
+    } else {
+      toast.showToast(t('toast.download.pdfFailed'), {
+        type: 'error',
+        actions: [
+          { label: t('toast.download.retryPdf'), handler: () => pdf.generatePdf() },
+        ],
+      })
+    }
   } finally {
-    downloading.value = false
+    phase.value = 'idle'
   }
+}
+
+function downloadLabel(): string {
+  if (phase.value === 'xlsx') return t('nav.download.pendingXlsx')
+  if (phase.value === 'pdf') return t('nav.download.pendingPdf')
+  return t('nav.download.label')
+}
+
+// Import flow
+const { selectFile } = useImportXlsx()
+const importOpen = ref(false)
+const fileInput = ref<HTMLInputElement | null>(null)
+
+function onImportClick() {
+  fileInput.value?.click()
+}
+
+async function onFileSelected(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  importOpen.value = true
+  await selectFile(file)
+  input.value = ''
 }
 </script>
 
@@ -58,19 +120,35 @@ async function onDownload() {
           <Moon v-else :size="18" />
         </button>
 
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".xlsx"
+          class="hidden"
+          @change="onFileSelected"
+        />
         <button
           type="button"
-        :disabled="downloadDisabled || downloading"
-        :title="downloadDisabled ? t('nav.download.empty') : undefined"
-        class="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--color-border)] px-4 py-1.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-surface-low)] disabled:cursor-not-allowed disabled:opacity-50"
-        @click="onDownload"
-      >
-        <Download :size="16" />
-        <span class="hidden sm:inline">
-          {{ downloading ? t('nav.download.pending') : t('nav.download.label') }}
-        </span>
-      </button>
+          class="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--color-border)] px-4 py-1.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-surface-low)]"
+          @click="onImportClick"
+        >
+          <Upload :size="16" />
+          <span class="hidden sm:inline">Import</span>
+        </button>
+
+        <button
+          type="button"
+          :disabled="downloadDisabled || phase !== 'idle'"
+          :title="downloadDisabled ? t('nav.download.empty') : undefined"
+          class="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--color-border)] px-4 py-1.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-surface-low)] disabled:cursor-not-allowed disabled:opacity-50"
+          @click="onDownloadReport"
+        >
+          <Download :size="16" />
+          <span class="hidden sm:inline">{{ downloadLabel() }}</span>
+        </button>
       </div>
     </div>
   </header>
+
+  <ImportModal :open="importOpen" @close="importOpen = false" />
 </template>
