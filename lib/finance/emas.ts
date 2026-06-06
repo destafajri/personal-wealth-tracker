@@ -9,11 +9,12 @@ import type {
 // Source: market norms (2025–2026 Pegadaian / toko emas data); midpoints of the bands
 // the user provided. Centralised so we surface them as ESTIMASI copy beside each input.
 //
-// Digital savings uses Pegadaian's own `hargaJual` (already a buyback price), no multiplier.
+// Digital savings uses Pegadaian's own `hargaJual` (Tabungan Emas top-up price, ~4% over spot).
+// Fisik Antam buyback ≈ spot ≈ 89.7% of Antam list price (Antam jual/beli spread ~11.4%).
 //
 // IMPORTANT: these are *estimates*; UI MUST surface them as such.
 export const EMAS_VALUATION = {
-  fisikAntamSpread: 0.897, // ~10.3% spread vs list (Antam buyback)
+  fisikAntamSpread: 0.897, // Antam buyback ≈ 89.7% of list (Jun 2026: 2,584k / 2,881k)
   perhiasan18K: 0.595, // ~57–62% Antam (kadar ~75%)
   perhiasan14K: 0.455, // ~43–48% Antam (kadar ~58.3%)
   perhiasan10K: 0.375, // ~35–40% Antam (kadar ~41.7%)

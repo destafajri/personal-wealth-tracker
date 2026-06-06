@@ -107,7 +107,7 @@ function field(key: keyof EmasState, value: number | null) {
       class="mb-3 flex items-start gap-2 rounded-[var(--radius-input)] border border-[var(--color-warning-amber)]/30 bg-[var(--color-warning-amber-soft)] px-3 py-2 text-xs text-[var(--color-warning-amber)]"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <span>Harga estimasi dari PAXG (USD). Bisa berbeda ±5-10% dari harga Antam resmi.</span>
+      <span>Harga acuan internasional (PAXG). Valuasi berdasarkan harga buyback. Harga jual baru biasanya 4–12% lebih tinggi tergantung jenis emas.</span>
     </div>
     <div
       v-else-if="goldSource === 'stale'"
