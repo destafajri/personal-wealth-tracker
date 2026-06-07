@@ -67,6 +67,22 @@ const EmergencyFundMeter = defineAsyncComponent({
   loader: () => import('~/components/dashboard/EmergencyFundMeter.vue'),
   loadingComponent: ChartLoading,
 })
+const CermatScoreHero = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/CermatScoreHero.vue'),
+  loadingComponent: ChartLoading,
+})
+const AchievementGrid = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/AchievementGrid.vue'),
+  loadingComponent: ChartLoading,
+})
+const CashFlowSankey = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/CashFlowSankey.vue'),
+  loadingComponent: ChartLoading,
+})
+const WhatIfSimulator = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/WhatIfSimulator.vue'),
+  loadingComponent: ChartLoading,
+})
 </script>
 
 <template>
@@ -77,6 +93,11 @@ const EmergencyFundMeter = defineAsyncComponent({
   -->
   <section class="flex min-w-0 flex-col gap-5 overflow-x-hidden p-3" aria-live="polite" aria-atomic="false">
     <HeroPair />
+    <!-- Phase 6.2: Cermat Score + Badges (wealth-tracker only) -->
+    <template v-if="!isBudgetKos">
+      <CermatScoreHero />
+      <AchievementGrid />
+    </template>
     <PersonaCard v-if="isBudgetKos" />
     <CtaMamikos v-if="isBudgetKos" variant="afterPersona" />
     <!-- New quick-glance row: Surplus Gauge + Emergency Fund -->
@@ -100,6 +121,11 @@ const EmergencyFundMeter = defineAsyncComponent({
       </div>
       <AssetVsLiabilityBar />
     </div>
+    <!-- Phase 6.2: Sankey + What-If (wealth-tracker only) -->
+    <template v-if="!isBudgetKos && hasAnyAsset">
+      <CashFlowSankey />
+      <WhatIfSimulator />
+    </template>
     <GoalSummaryCards />
     <ModalOptionsPanel />
     <CtaMamikos v-if="isBudgetKos" variant="dashboardBottom" />

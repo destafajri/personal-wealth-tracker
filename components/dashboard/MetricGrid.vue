@@ -1,61 +1,99 @@
 <script setup lang="ts">
-// PRD §5.4 layout: 6 health metrics under Hero pair. Goal Health (composite) is
-// shown alongside the Goal cards panel, NOT here — surfaces in Day 5.
+import { computed } from 'vue'
 import MetricCard from '~/components/dashboard/MetricCard.vue'
 import { useDerivedStore } from '~/stores/derived'
+import type { MetricKey } from '~/lib/finance/thresholds'
+import type { ExplainerKey } from '~/lib/copy/metric-explainers'
+import type { CopyKey } from '~/lib/copy/strings'
+
+type UnitKind = 'percent' | 'months' | 'pp'
+
+interface CardDef {
+  key: string
+  thresholdKey: MetricKey
+  labelKey: CopyKey
+  emptyKey: CopyKey
+  explainerKey: ExplainerKey
+  value: number | null
+  unit: UnitKind
+}
 
 const derived = useDerivedStore()
+
+const cards = computed<CardDef[]>(() => [
+  {
+    key: 'dsr',
+    thresholdKey: 'dsr',
+    labelKey: 'metric.dsr.label',
+    emptyKey: 'metric.empty.dsr',
+    explainerKey: 'dsr',
+    value: derived.dsr,
+    unit: 'percent',
+  },
+  {
+    key: 'runway',
+    thresholdKey: 'runway',
+    labelKey: 'metric.runway.label',
+    emptyKey: 'metric.empty.runway',
+    explainerKey: 'runway',
+    value: derived.runway,
+    unit: 'months',
+  },
+  {
+    key: 'savingsRate',
+    thresholdKey: 'savingsRate',
+    labelKey: 'metric.savingsRate.label',
+    emptyKey: 'metric.empty.savingsRate',
+    explainerKey: 'savingsRate',
+    value: derived.savingsRate,
+    unit: 'percent',
+  },
+  {
+    key: 'dar',
+    thresholdKey: 'dar',
+    labelKey: 'metric.dar.label',
+    emptyKey: 'metric.empty.dar',
+    explainerKey: 'dar',
+    value: derived.dar,
+    unit: 'percent',
+  },
+  {
+    key: 'safeHaven',
+    thresholdKey: 'safeHaven',
+    labelKey: 'metric.safeHaven.label',
+    emptyKey: 'metric.empty.safeHaven',
+    explainerKey: 'safeHaven',
+    value: derived.safeHaven,
+    unit: 'percent',
+  },
+  {
+    key: 'allocationDiscipline',
+    thresholdKey: 'allocationDiscipline',
+    labelKey: 'metric.allocationDiscipline.label',
+    emptyKey: 'metric.empty.allocationDiscipline',
+    explainerKey: 'allocationDiscipline',
+    value: derived.allocationDiscipline,
+    unit: 'pp',
+  },
+])
 </script>
 
 <template>
   <div class="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
-    <MetricCard
-      threshold-key="dsr"
-      label-key="metric.dsr.label"
-      empty-key="metric.empty.dsr"
-      explainer-key="dsr"
-      :value="derived.dsr"
-      unit="percent"
-    />
-    <MetricCard
-      threshold-key="runway"
-      label-key="metric.runway.label"
-      empty-key="metric.empty.runway"
-      explainer-key="runway"
-      :value="derived.runway"
-      unit="months"
-    />
-    <MetricCard
-      threshold-key="savingsRate"
-      label-key="metric.savingsRate.label"
-      empty-key="metric.empty.savingsRate"
-      explainer-key="savingsRate"
-      :value="derived.savingsRate"
-      unit="percent"
-    />
-    <MetricCard
-      threshold-key="dar"
-      label-key="metric.dar.label"
-      empty-key="metric.empty.dar"
-      explainer-key="dar"
-      :value="derived.dar"
-      unit="percent"
-    />
-    <MetricCard
-      threshold-key="safeHaven"
-      label-key="metric.safeHaven.label"
-      empty-key="metric.empty.safeHaven"
-      explainer-key="safeHaven"
-      :value="derived.safeHaven"
-      unit="percent"
-    />
-    <MetricCard
-      threshold-key="allocationDiscipline"
-      label-key="metric.allocationDiscipline.label"
-      empty-key="metric.empty.allocationDiscipline"
-      explainer-key="allocationDiscipline"
-      :value="derived.allocationDiscipline"
-      unit="pp"
-    />
+    <div
+      v-for="(card, i) in cards"
+      :key="card.key"
+      class="animate-fade-slide-up"
+      :style="{ animationDelay: `${i * 80}ms` }"
+    >
+      <MetricCard
+        :threshold-key="card.thresholdKey"
+        :label-key="card.labelKey"
+        :empty-key="card.emptyKey"
+        :explainer-key="card.explainerKey"
+        :value="card.value"
+        :unit="card.unit"
+      />
+    </div>
   </div>
 </template>
