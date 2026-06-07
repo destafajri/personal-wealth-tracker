@@ -89,7 +89,7 @@ export const copy = {
   'snapshot.section.cicilanAktif': 'Utang & Cicilan',
   'snapshot.section.utangPribadi': 'Utang pribadi',
   'snapshot.section.gadai': 'Gadai',
-  'snapshot.penghasilan.gajiLabel': 'Gaji Bersih',
+  'snapshot.penghasilan.gajiLabel': 'Gaji Bersih atau Uang Bulanan',
   'snapshot.penghasilan.gajiHelp': 'Take-home pay setelah PPh21.',
   'snapshot.penghasilan.lainLabel': 'Penghasilan Lain',
   'snapshot.penghasilan.lainHelp': 'Sampingan, sewa, freelance, dll.',
