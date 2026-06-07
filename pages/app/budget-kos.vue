@@ -285,6 +285,52 @@ const rentRecommend = computed(() => {
   const max = idr(Math.round(income * 0.3))
   return t('budgetKos.biayaKos.ratio.recommend' as keyof typeof import('~/lib/copy/strings').copy, { min, max })
 })
+
+// ----- Item A: kos-to-surplus action bridge -----
+const recommendedMidKos = computed(() => Math.round(penghasilanTotal.value * 0.275))
+const surplusIfRecommendedKos = computed(() => {
+  const currentKos = snap.pengeluaran.biayaKos ?? 0
+  if (currentKos <= 0 || penghasilanTotal.value <= 0) return null
+  return surplusAmt.value + (currentKos - recommendedMidKos.value)
+})
+
+// ----- Item B: mini savings projection -----
+const savingsProjection = computed(() => {
+  const surplus = surplusAmt.value
+  const kas = kasTotal.value
+  const expense = pengeluaranTotal.value
+  if (penghasilanTotal.value <= 0) return null
+  if (surplus > 0) {
+    const target = expense * 3
+    const gap = Math.max(0, target - kas)
+    if (gap <= 0) return { type: 'achieved' as const, message: 'Dana darurat 3 bulan sudah terkumpul!' }
+    const months = Math.ceil(gap / surplus)
+    return { type: 'onTrack' as const, months, fv: kas + surplus * months }
+  }
+  if (surplus === 0) return { type: 'zero' as const, message: 'Target pertama: bikin surplus positif dulu.' }
+  // surplus < 0
+  if (kas <= 0) return { type: 'deficit' as const, message: 'Surplus minus — utang bisa membesar tiap bulan.' }
+  const monthsUntilBroke = Math.ceil(kas / Math.abs(surplus))
+  return { type: 'deficit' as const, months: monthsUntilBroke }
+})
+
+// ----- Item C: mini cashflow bar -----
+const cashflowSegments = computed(() => {
+  const income = penghasilanTotal.value
+  if (income <= 0) return []
+  const kos = snap.pengeluaran.biayaKos ?? 0
+  const pokok = snap.pengeluaran.pokok ?? 0
+  const lifestyle = snap.pengeluaran.lifestyle ?? 0
+  const cicilan = cicilanMonthly.value
+  const sisa = surplusAmt.value
+  return [
+    { label: 'Kos', amount: kos, color: 'bg-blue-400' },
+    { label: 'Pokok', amount: pokok, color: 'bg-emerald-500' },
+    { label: 'Lifestyle', amount: lifestyle, color: 'bg-amber-400' },
+    { label: 'Cicilan', amount: cicilan, color: 'bg-rose-400' },
+    { label: 'Sisa', amount: Math.abs(sisa), color: sisa >= 0 ? 'bg-green-500' : 'bg-red-400' },
+  ].filter(s => s.amount > 0)
+})
 </script>
 
 <template>
@@ -513,6 +559,51 @@ const rentRecommend = computed(() => {
         </div>
       </div>
 
+      <!-- Item C: Mini cashflow bar -->
+      <div v-if="cashflowSegments.length > 0" class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4">
+        <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Cashflow Bulanan</p>
+        <div class="flex h-6 overflow-hidden rounded-full">
+          <div
+            v-for="seg in cashflowSegments"
+            :key="seg.label"
+            :class="seg.color"
+            class="flex items-center justify-center transition-all duration-500"
+            :style="{ width: `${(seg.amount / penghasilanTotal) * 100}%` }"
+          >
+            <span v-if="(seg.amount / penghasilanTotal) * 100 > 12" class="text-[9px] font-bold text-white drop-shadow-sm">{{ Math.round((seg.amount / penghasilanTotal) * 100) }}%</span>
+          </div>
+        </div>
+        <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-[var(--color-text-secondary)]">
+          <span v-for="seg in cashflowSegments" :key="seg.label" class="flex items-center gap-1">
+            <span class="inline-block h-2 w-2 rounded-full" :class="seg.color" />
+            {{ seg.label }} {{ idr(seg.amount) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Item B: Mini savings projection -->
+      <div v-if="savingsProjection" class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4">
+        <template v-if="savingsProjection.type === 'onTrack'">
+          <p class="text-sm text-[var(--color-text-primary)]">
+            💰 Konsisten nabung surplus → <strong class="text-emerald-600">{{ savingsProjection.months }} bulan</strong> lagi kekumpul dana darurat 3 bulan.
+          </p>
+        </template>
+        <template v-else-if="savingsProjection.type === 'achieved'">
+          <p class="text-sm font-medium text-emerald-600">✅ {{ savingsProjection.message }}</p>
+        </template>
+        <template v-else-if="savingsProjection.type === 'zero'">
+          <p class="text-sm text-[var(--color-text-secondary)]">🎯 {{ savingsProjection.message }}</p>
+        </template>
+        <template v-else-if="savingsProjection.type === 'deficit' && savingsProjection.months">
+          <p class="text-sm text-rose-600">
+            ⚠️ Tabungan habis dalam ~{{ savingsProjection.months }} bulan kalau tetap defisit.
+          </p>
+        </template>
+        <template v-else>
+          <p class="text-sm text-rose-600">⚠️ {{ savingsProjection.message }}</p>
+        </template>
+      </div>
+
       <!-- Rent-to-income insight card -->
       <div
         v-if="rentRatio !== null && (snap.pengeluaran.biayaKos ?? 0) > 0"
@@ -560,6 +651,13 @@ const rentRecommend = computed(() => {
           'text-rose-600': rentRatioZone === 'danger',
         }">
           {{ rentRecommend }}
+        </p>
+        <!-- Item A: kos-to-surplus action bridge -->
+        <p
+          v-if="surplusIfRecommendedKos !== null && surplusIfRecommendedKos > surplusAmt && rentRatioZone !== 'safe'"
+          class="mt-1.5 rounded-lg bg-white/60 px-3 py-2 text-xs font-medium text-[var(--color-text-primary)]"
+        >
+          💡 Kalau pindah ke kos {{ idr(recommendedMidKos) }}, surplus naik ke ~{{ idr(surplusIfRecommendedKos) }}/bulan.
         </p>
       </div>
 
