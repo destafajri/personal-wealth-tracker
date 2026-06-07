@@ -10,6 +10,49 @@
 - **B. Metric labels:** Created `lib/finance/metric-labels.ts` — centralized Indonesian display labels. ScoreHero breakdown no longer shows raw camelCase keys.
 - **C. Safe Haven floor:** When `totalAssets < 3 × monthlyExpenses`, Safe Haven treated as Incomplete Data → 0 points (prevents "100% safe" on Rp 1jt cash-only user in deficit).
 
+### Amendment 2 (2026-06-07) — Multi-persona sample data (SHOULD-HAVE / stretch)
+
+**Status:** SHOULD-HAVE / stretch (Day 11-12). Above demo-critical MUST.
+
+**Architecture:** Picker "Pakai Data Contoh" changed from 1-button→1-data to list of 10 personas. Each selection loads `(mode + snapshot)`.
+```typescript
+interface SamplePersona {
+  id: string
+  nama: string
+  emoji: string
+  mode: 'wealthTracker' | 'budgetKos'
+  blurb: string
+  snapshot: SnapshotState
+}
+```
+§9 not violated: budget-kos personas load into budget-kos mode (own Ringkasan), wealth-tracker into wealth-tracker mode.
+
+**Roster (10 personas, spectrum bottom→top):**
+
+| # | Persona | Emoji | Mode | Showcase | Target |
+|---|---|---|---|---|---|
+| 1 | Mahasiswa Pas-pasan | 🎓 | budget-kos | Pejuang, runway tipis | survival |
+| 2 | Mahasiswa Mandiri | 💪 | budget-kos | budget-kos "menang" | surplus sehat |
+| 3 | Mahasiswa Sultan | 🃏 | wealth-tracker | "skor menipu" (lantai 500) | Rimbun ~675 |
+| 4 | Korban Judol | 🎰 | wealth-tracker | Sankey gut-punch | Tunas ~200 |
+| 5 | Terjebak Cicilan | ⛓️ | wealth-tracker | jebakan utang | Bibit ~50 |
+| 6 | Pegawai Muda + KPR | 💼 | wealth-tracker | flagship balanced | Hutan 825 |
+| 7 | Freelancer Bebas Utang | 🎨 | wealth-tracker | null-handling proof | Rimbun ~700 |
+| 8 | Juragan Kos | 🏠 | wealth-tracker | tier-integrity (Hutan-tapi-merah) | Hutan ~850 |
+| 9 | Pensiunan Mapan | 🧓 | wealth-tracker | near-perfect | Hutan ~975 |
+| 10 | Sultan Properti | 👑 | wealth-tracker | wow net worth ~Rp13M | Hutan ~925 |
+
+**Naming (OJK-friendly):** "Korban Judol" (victim framing), line items "Top-up/Hobi Online" (not "Judi"). Sultan = archetype "Sultan Properti", never real names.
+
+**Sankey override:** node "Top-up/Hobi Online" (#4 Judol) MUST standalone, never grouped into "Lainnya" despite limit-N top-6 rule.
+
+**Priority tiers:**
+- Tier 1 (wajib): #6 Pegawai + #4 Judol
+- Tier 2: #5 Cicilan + #8 Juragan Kos
+- Tier 3 (bonus): #1, #2, #3, #7, #9, #10
+
+**Calibration note:** debt-free users have a "floor 500" (DSR+DAR N/A→full + Goal N/A + Alloc N/A). #3 Mahasiswa Sultan intentionally scores ~675 (Rimbun) despite zero financial literacy — lesson is in the breakdown, not the total. Do NOT change formula.
+
 ---
 
 ## Motivation
