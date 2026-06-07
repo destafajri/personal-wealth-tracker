@@ -16,7 +16,7 @@ interface Tab {
 // so the routes don't have to mirror the labelKey verbatim.
 const tabs: Tab[] = [
   { to: '/app/snapshot', labelKey: 'nav.track', icon: FileText, enabled: true },
-  { to: '/app/goals', labelKey: 'nav.plan', icon: Target, enabled: true },
+  { to: '/app/goals', labelKey: 'nav.plan', icon: Target, enabled: false },
   { to: '/app/simulator', labelKey: 'nav.decide', icon: Sparkles, enabled: true },
   { to: '/app/discover', labelKey: 'nav.discover', icon: Compass, enabled: false },
 ]
