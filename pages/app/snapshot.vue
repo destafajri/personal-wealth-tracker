@@ -120,7 +120,8 @@ function resetDemo() {
   snap.reset()
 }
 
-const personas = PERSONAS
+// Only show personas matching current page mode
+const personas = computed(() => PERSONAS.filter((p) => p.mode === 'wealthTracker'))
 const activePersonaId = ref<string | null>(null)
 
 function switchPersona(p: SamplePersona) {

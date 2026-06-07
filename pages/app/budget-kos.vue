@@ -12,6 +12,7 @@ import {
   ShoppingCart,
   TrendingUp,
   Wallet,
+  X,
 } from 'lucide-vue-next'
 import { t } from '~/lib/copy/strings'
 import { idr } from '~/lib/format/idr'
@@ -31,6 +32,7 @@ import { useMetricExplainer } from '~/composables/useMetricExplainer'
 import { calcTotalPengeluaran } from '~/lib/finance/metrics'
 import { rowToIdr } from '~/lib/finance/fx'
 import { triggerBudgetKosDemo } from '~/lib/fixtures/demoSnapshot'
+import { PERSONAS, applyPersona, type SamplePersona } from '~/lib/fixtures/personas'
 import { useFxRates } from '~/composables/usePrices'
 import type { Currency, FxRatesMap, PricesView } from '~/lib/types/snapshot'
 import {
@@ -52,7 +54,28 @@ const router = useRouter()
 onMounted(() => {
   triggerBudgetKosDemo(snap, route, router)
   snap.mode = 'budgetKos'
+  if (snap.isDemo) {
+    activePersonaId.value = 'mahasiswa-pas-pasan'
+  }
 })
+
+const budgetKosPersonas = computed(() => PERSONAS.filter((p) => p.mode === 'budgetKos'))
+const activePersonaId = ref<string | null>(null)
+
+function resetDemo() {
+  snap.reset()
+  snap.mode = 'budgetKos'
+  activePersonaId.value = null
+}
+
+function switchPersona(p: SamplePersona) {
+  applyPersona(snap, p)
+  snap.mode = 'budgetKos'
+  activePersonaId.value = p.id
+  if (p.mode === 'wealthTracker') {
+    navigateTo('/app/snapshot')
+  }
+}
 
 // FX rates for non-IDR currency conversion
 const fx = useFxRates()
@@ -267,6 +290,42 @@ const rentRecommend = computed(() => {
 <template>
   <div class="mx-auto max-w-2xl space-y-5 px-4 pb-8 pt-4 sm:px-6">
     <h1 class="sr-only">Cek Tipe Anak Kos Kamu</h1>
+
+    <!-- Demo banner + persona picker -->
+    <div
+      v-if="snap.isDemo"
+      class="rounded-[var(--radius-card)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 px-4 py-3 text-sm text-[var(--color-text-secondary)]"
+    >
+      <div class="flex items-start gap-3">
+        <Info class="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-primary)]" />
+        <p class="flex-1">{{ t('snapshot.demo.banner') }}</p>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 py-1 text-xs font-medium text-[var(--color-text-primary)] hover:border-[var(--color-primary)]"
+          @click="resetDemo"
+        >
+          <X class="h-3 w-3" />
+          {{ t('snapshot.demo.reset') }}
+        </button>
+      </div>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button
+          v-for="p in budgetKosPersonas"
+          :key="p.id"
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border px-2.5 py-1 text-xs font-medium transition"
+          :class="
+            activePersonaId === p.id
+              ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white'
+              : 'border-[var(--color-border)] bg-[var(--color-surface-card)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]'
+          "
+          @click="switchPersona(p)"
+        >
+          <span>{{ p.emoji }}</span>
+          <span>{{ p.nama }}</span>
+        </button>
+      </div>
+    </div>
 
     <div
       v-if="hasData"
