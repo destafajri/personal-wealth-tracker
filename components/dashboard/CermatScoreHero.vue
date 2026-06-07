@@ -13,6 +13,7 @@ const score = computed(() => derived.cermatScore.score)
 const level = computed(() => derived.cermatScore.level)
 const contributions = computed(() => derived.cermatScore.contributions)
 const ratio = computed(() => score.value / 1000)
+const isDeficit = computed(() => (derived.surplusIdr ?? 0) < 0)
 
 const displayedScore = useCountUp(score)
 
@@ -98,7 +99,10 @@ const tierRingColor = computed(() => {
           >
             {{ level.label }}
           </span>
-          <span v-if="level.tier > 0" class="text-xs text-[var(--color-text-muted)]">
+          <span v-if="level.tier > 0 && isDeficit" class="text-xs font-medium text-[var(--color-danger-rose)]">
+            · Hati-hati Defisit
+          </span>
+          <span v-else-if="level.tier > 0" class="text-xs text-[var(--color-text-muted)]">
             · {{ level.subtitle }}
           </span>
         </div>

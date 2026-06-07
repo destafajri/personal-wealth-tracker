@@ -3,12 +3,17 @@
 **Priority:** HIGH (wow factor for vibe coding contest demo)
 **Prerequisite:** Phase 6+6.1 merged
 **Effort estimate:** XL (12 days — tight, no buffer)
-**Scope status:** Locked after 3-round AI tetangga collaboration + Amendment 1
+**Scope status:** Locked after 6-round AI tetangga collaboration + Amendments 1-3
 
 ### Amendment 1 (2026-06-07)
 - **A. Tier icons:** 🏆 → 👑 (crown = sultan/royal mastery), 🌳→🌴, 🌲→🌾 to differentiate tiers. Added `subtitle` field per tier (e.g., "Mapan Finansial").
 - **B. Metric labels:** Created `lib/finance/metric-labels.ts` — centralized Indonesian display labels. ScoreHero breakdown no longer shows raw camelCase keys.
 - **C. Safe Haven floor:** When `totalAssets < 3 × monthlyExpenses`, Safe Haven treated as Incomplete Data → 0 points (prevents "100% safe" on Rp 1jt cash-only user in deficit).
+
+### Amendment 3 (2026-06-07) — Label & tone fixes (AI tetangga review 6)
+
+- **A. DSR/DAR naming corrected:** DSR → "Beban Cicilan" (was "Rasio Utang"), DAR → "Rasio Utang" (was raw acronym). Semantics now match: DSR = beban cicilan bulanan, DAR = utang/aset. Consistent across sidebar, card, and breakdown (3-zone consistency).
+- **B. Deficit tone gate:** When `surplusIdr < 0`, tier subtitle switches to "Hati-hati Defisit" (red) instead of positive labels like "Tumbuh Stabil". Formula unchanged — only display tone affected.
 
 ### Amendment 2 (2026-06-07) — Multi-persona sample data (SHOULD-HAVE / stretch)
 

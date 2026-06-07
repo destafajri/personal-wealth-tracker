@@ -304,7 +304,7 @@ const dsrZoneText = computed(() => {
     <!-- DSR mini bar -->
     <div>
       <div class="flex items-center justify-between text-[10px]">
-        <span class="font-medium text-[var(--color-text-secondary)]">DSR</span>
+        <span class="font-medium text-[var(--color-text-secondary)]">Beban Cicilan</span>
         <span class="flex items-center gap-1">
           <span
             v-if="dsrZoneText"
