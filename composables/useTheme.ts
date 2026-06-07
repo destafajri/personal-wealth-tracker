@@ -81,9 +81,14 @@ export function useTheme() {
     mode.value = nextMap[mode.value]
   }
 
+  function setMode(m: ThemeMode) {
+    mode.value = m
+  }
+
   return {
     mode,
     resolved: computed(() => resolved.value),
     toggle,
+    setMode,
   }
 }
