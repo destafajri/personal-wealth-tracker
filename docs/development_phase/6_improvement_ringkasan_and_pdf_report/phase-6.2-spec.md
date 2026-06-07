@@ -6,7 +6,7 @@
 **Scope status:** Locked after 3-round AI tetangga collaboration + Amendment 1
 
 ### Amendment 1 (2026-06-07)
-- **A. Tier icons:** 🏆 → 🏞️ (botanical consistency), 🌳→🌴, 🌲→🌾 to differentiate tiers. Added `subtitle` field per tier (e.g., "Mapan Finansial").
+- **A. Tier icons:** 🏆 → 👑 (crown = sultan/royal mastery), 🌳→🌴, 🌲→🌾 to differentiate tiers. Added `subtitle` field per tier (e.g., "Mapan Finansial").
 - **B. Metric labels:** Created `lib/finance/metric-labels.ts` — centralized Indonesian display labels. ScoreHero breakdown no longer shows raw camelCase keys.
 - **C. Safe Haven floor:** When `totalAssets < 3 × monthlyExpenses`, Safe Haven treated as Incomplete Data → 0 points (prevents "100% safe" on Rp 1jt cash-only user in deficit).
 
