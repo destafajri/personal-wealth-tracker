@@ -125,7 +125,7 @@ const personas = computed(() => PERSONAS.filter((p) => p.mode === 'wealthTracker
 const activePersonaId = ref<string | null>(null)
 
 function switchPersona(p: SamplePersona) {
-  applyPersona(snap, p)
+  applyPersona(snap, p, goals)
   activePersonaId.value = p.id
   if (p.mode === 'budgetKos') {
     navigateTo('/app/budget-kos')

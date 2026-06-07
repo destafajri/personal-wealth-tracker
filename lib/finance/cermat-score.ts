@@ -86,7 +86,10 @@ function nullHandling(
     return calcTotalUtang(snap) === 0 ? 'notApplicable' : 'incompleteData'
   }
   if (key === 'allocationDiscipline') {
-    return snap.saham.length === 0 ? 'notApplicable' : 'incompleteData'
+    // No stocks = not applicable. Has stocks but metric still null = <2 with targets = also
+    // not applicable (metric undefined, not user's fault). Only "incomplete" if we had enough
+    // stocks to calculate but something else went wrong.
+    return 'notApplicable'
   }
   if (key === 'goalHealth') {
     // No goals defined = neutral, not penalized

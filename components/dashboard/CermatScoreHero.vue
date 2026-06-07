@@ -2,7 +2,10 @@
 import { computed } from 'vue'
 import { useDerivedStore } from '~/stores/derived'
 import { useCountUp } from '~/composables/useCountUp'
-import { metricLabel } from '~/lib/finance/metric-labels'
+import { t, tm, type CopyKey } from '~/lib/copy/strings'
+import { useSnapshotStore } from '~/stores/snapshot'
+
+const snap = useSnapshotStore()
 
 const derived = useDerivedStore()
 
@@ -12,6 +15,23 @@ const contributions = computed(() => derived.cermatScore.contributions)
 const ratio = computed(() => score.value / 1000)
 
 const displayedScore = useCountUp(score)
+
+// Map contribution keys → copy string keys (same source as MetricGrid)
+const CONTRIBUTION_LABELS: Record<string, CopyKey> = {
+  dsr: 'metric.dsr.label',
+  dar: 'metric.dar.label',
+  savingsRate: 'metric.savingsRate.label',
+  runway: 'metric.runway.label',
+  safeHaven: 'metric.safeHaven.label',
+  goalHealth: 'metric.goalHealth.label',
+  netWorthVsExpenses: 'metric.netWorthVsExpenses.label',
+  allocationDiscipline: 'metric.allocationDiscipline.label',
+}
+
+function contributionLabel(key: string): string {
+  const copyKey = CONTRIBUTION_LABELS[key]
+  return copyKey ? tm(copyKey, snap.mode) : key
+}
 
 // SVG ring params
 const RADIUS = 54
@@ -104,7 +124,7 @@ const tierRingColor = computed(() => {
                 'bg-rose-400': c.zone === 'bahaya',
               }"
             />
-            <span class="text-[var(--color-text-secondary)]">{{ metricLabel(c.metric) }}</span>
+            <span class="text-[var(--color-text-secondary)]">{{ contributionLabel(c.metric) }}</span>
             <span class="tabular font-medium text-[var(--color-text-primary)]">
               {{ c.points }}/{{ c.maxPoints }}
             </span>

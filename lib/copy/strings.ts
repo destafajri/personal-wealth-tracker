@@ -255,6 +255,8 @@ export const copy = {
   'metric.savingsRate.label': 'Sisa Uang/Bulan',
   'metric.safeHaven.label': 'Safe Haven',
   'metric.allocationDiscipline.label': 'Target Alokasi Saham',
+  'metric.goalHealth.label': 'Progress Tujuan',
+  'metric.netWorthVsExpenses.label': 'Bantalan Kekayaan',
   'metric.empty.dsr': 'Isi penghasilan dulu.',
   'metric.empty.dar': 'Isi aset dulu.',
   'metric.empty.runway': 'Isi pengeluaran dulu.',

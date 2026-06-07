@@ -1,7 +1,9 @@
 import type { useSnapshotStore } from '~/stores/snapshot'
-import type { SnapshotState } from '~/lib/types/snapshot'
+import type { useGoalsStore } from '~/stores/goals'
+import type { GoalKind } from '~/lib/types/goals'
 
 type SnapshotStore = ReturnType<typeof useSnapshotStore>
+type GoalsStore = ReturnType<typeof useGoalsStore>
 
 export interface SamplePersona {
   id: string
@@ -380,11 +382,18 @@ export function getPersona(id: string): SamplePersona | undefined {
   return PERSONAS.find((p) => p.id === id)
 }
 
-export function applyPersona(snap: SnapshotStore, persona: SamplePersona): void {
+export function applyPersona(
+  snap: SnapshotStore,
+  persona: SamplePersona,
+  goals?: GoalsStore,
+): void {
   snap.reset()
-  // Set mode before applying so the dashboard renders correctly
+  if (goals) goals.reset()
   if (persona.mode === 'budgetKos') {
     snap.mode = 'budgetKos' as any
   }
   persona.apply(snap)
+  if (persona.id === 'terjebak-cicilan' && goals) {
+    goals.addGoal({ kind: 'DP_RUMAH', label: 'DP Rumah Kecil', targetIdr: 30_000_000, targetDate: '', buckets: ['kas', 'deposito', 'reksaDana'] })
+  }
 }

@@ -225,9 +225,9 @@ describe('calcCermatScore', () => {
     expect(safeHaven.zone).toBe('bahaya')
     expect(safeHaven.points).toBe(0)
 
-    // Allocation: null (universe < 2, 1 stock no lotsTarget) but saham.length > 0 → incomplete → 0
-    // Total: 200 + 200 + 150 + 150 + 0 + 100 + 50 + 0 = 850
-    expect(result.score).toBe(850)
+    // Allocation: null (universe < 2, 1 stock no lotsTarget) → N/A → 50
+    // Total: 200 + 200 + 150 + 150 + 0 + 100 + 50 + 50 = 900
+    expect(result.score).toBe(900)
     expect(result.level.label).toBe('Hutan')
     expect(result.level.tier).toBe(5)
   })
