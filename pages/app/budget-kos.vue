@@ -659,7 +659,7 @@ const cashflowSegments = computed(() => {
         <!-- Item A: kos-to-surplus action bridge -->
         <p
           v-if="surplusIfRecommendedKos !== null && surplusIfRecommendedKos > surplusAmt && rentRatioZone !== 'safe'"
-          class="mt-1.5 rounded-lg bg-[var(--color-surface-low)] px-3 py-2 text-xs font-medium text-[var(--color-text-primary)]"
+          class="mt-1.5 rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-800 dark:bg-green-900/25 dark:text-green-300"
         >
           💡 Kalau pindah ke kos {{ idr(recommendedMidKos) }}, surplus naik ke ~{{ idr(surplusIfRecommendedKos) }}/bulan.
         </p>
