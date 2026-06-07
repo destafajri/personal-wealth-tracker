@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useDerivedStore } from '~/stores/derived'
 import { useCountUp } from '~/composables/useCountUp'
+import { metricLabel } from '~/lib/finance/metric-labels'
 
 const derived = useDerivedStore()
 
@@ -77,6 +78,9 @@ const tierRingColor = computed(() => {
           >
             {{ level.label }}
           </span>
+          <span v-if="level.tier > 0" class="text-xs text-[var(--color-text-muted)]">
+            · {{ level.subtitle }}
+          </span>
         </div>
         <p v-if="level.tier === 0" class="mt-2 text-xs text-[var(--color-text-muted)]">
           Isi minimal 3 metrik untuk melihat skor kamu
@@ -100,7 +104,7 @@ const tierRingColor = computed(() => {
                 'bg-rose-400': c.zone === 'bahaya',
               }"
             />
-            <span class="text-[var(--color-text-secondary)]">{{ c.metric }}</span>
+            <span class="text-[var(--color-text-secondary)]">{{ metricLabel(c.metric) }}</span>
             <span class="tabular font-medium text-[var(--color-text-primary)]">
               {{ c.points }}/{{ c.maxPoints }}
             </span>

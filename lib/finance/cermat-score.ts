@@ -27,17 +27,18 @@ export interface ScoreContribution {
 export interface CermatLevel {
   tier: number
   label: string
+  subtitle: string
   icon: string
   color: string
 }
 
 export const LEVELS: CermatLevel[] = [
-  { tier: 0, label: 'Belum Dinilai', icon: '—', color: 'text-gray-400' },
-  { tier: 1, label: 'Bibit', icon: '🌱', color: 'text-emerald-300' },
-  { tier: 2, label: 'Tunas', icon: '🌿', color: 'text-emerald-400' },
-  { tier: 3, label: 'Pohon', icon: '🌳', color: 'text-emerald-500' },
-  { tier: 4, label: 'Rimbun', icon: '🌲', color: 'text-emerald-600' },
-  { tier: 5, label: 'Hutan', icon: '🏆', color: 'text-amber-500' },
+  { tier: 0, label: 'Belum Dinilai', subtitle: 'Mulai isi data', icon: '—', color: 'text-gray-400' },
+  { tier: 1, label: 'Bibit', subtitle: 'Langkah Awal', icon: '🌱', color: 'text-emerald-300' },
+  { tier: 2, label: 'Tunas', subtitle: 'Tumbuh Stabil', icon: '🌿', color: 'text-emerald-400' },
+  { tier: 3, label: 'Pohon', subtitle: 'Kokoh Finansial', icon: '🌴', color: 'text-emerald-500' },
+  { tier: 4, label: 'Rimbun', subtitle: 'Hampir Mapan', icon: '🌾', color: 'text-emerald-600' },
+  { tier: 5, label: 'Hutan', subtitle: 'Mapan Finansial', icon: '👑', color: 'text-amber-500' },
 ]
 
 function levelOf(score: number): CermatLevel {
@@ -170,6 +171,24 @@ export function calcCermatScore(
     }
 
     metricsWithData++
+
+    // Safe Haven floor: if total assets < 3× monthly expenses, the ratio is
+    // meaningless (e.g., cash-only user with Rp 1jt gets "100% safe" while in
+    // deficit). Treat as incomplete data → 0 points.
+    if (key === 'safeHaven') {
+      const totalAssets = calcTotalAset(snap, prices)
+      const burn = calcTotalPengeluaran(snap, prices)
+      if (burn > 0 && totalAssets < burn * 3) {
+        contributions.push({
+          metric: key,
+          zone: 'bahaya',
+          points: 0,
+          maxPoints: weight,
+        })
+        continue
+      }
+    }
+
     const zone = zoneOf(key, value)
     const pts = zonePoints(zone, weight)
     score += pts

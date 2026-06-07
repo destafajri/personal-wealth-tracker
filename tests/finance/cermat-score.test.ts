@@ -319,4 +319,47 @@ describe('calcCermatScore', () => {
     expect(LEVELS[0]!.tier).toBe(0)
     expect(LEVELS[5]!.tier).toBe(5)
   })
+
+  it('Safe Haven floor: assets < 3× expenses → 0 points even if ratio is 100%', () => {
+    const snap = emptySnapshot()
+    snap.penghasilan = { amount: 4_000_000, currency: 'IDR' }
+    snap.pengeluaran = {
+      pokok: 3_500_000,
+      pokokCurrency: 'IDR',
+      lifestyle: 1_000_000,
+      lifestyleCurrency: 'IDR',
+      biayaKos: 0,
+      biayaKosCurrency: 'IDR',
+    }
+    // cicilan = 2.1jt → total expense = 6.6jt
+    snap.cicilanAktif.push(
+      { id: 'c1', tipe: 'PAYLATER', label: 'PayLater', sisaPokok: 1_200_000, cicilanPerBulan: 400_000, jenisBunga: 'Flat' },
+      { id: 'c2', tipe: 'PINJOL', label: 'Pinjol', sisaPokok: 4_000_000, cicilanPerBulan: 900_000, jenisBunga: 'Flat' },
+    )
+    // Kas 1.15jt — assets < 3× expenses (1.15jt < 3×6.6jt=19.8jt) → floor triggered
+    snap.asetLikuid.kas.push(row(1_150_000))
+    const result = calcCermatScore(snap, null, NO_PRICES)
+    const shContrib = result.contributions.find((c) => c.metric === 'safeHaven')!
+    expect(shContrib.points).toBe(0)
+    expect(shContrib.zone).toBe('bahaya')
+  })
+
+  it('Safe Haven floor NOT triggered when assets ≥ 3× expenses', () => {
+    const snap = emptySnapshot()
+    snap.penghasilan = { amount: 10_000_000, currency: 'IDR' }
+    snap.pengeluaran = {
+      pokok: 3_000_000,
+      pokokCurrency: 'IDR',
+      lifestyle: 2_000_000,
+      lifestyleCurrency: 'IDR',
+      biayaKos: 0,
+      biayaKosCurrency: 'IDR',
+    }
+    // Expense = 5jt, 3× = 15jt. Kas 50jt → well above floor
+    snap.asetLikuid.kas.push(row(50_000_000))
+    const result = calcCermatScore(snap, null, NO_PRICES)
+    const shContrib = result.contributions.find((c) => c.metric === 'safeHaven')!
+    // Kas = safe, total aset = 50jt, safe haven = 100% → sehat
+    expect(shContrib.points).toBe(100)
+  })
 })

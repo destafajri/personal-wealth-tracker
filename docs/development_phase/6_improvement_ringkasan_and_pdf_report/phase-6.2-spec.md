@@ -3,7 +3,12 @@
 **Priority:** HIGH (wow factor for vibe coding contest demo)
 **Prerequisite:** Phase 6+6.1 merged
 **Effort estimate:** XL (12 days — tight, no buffer)
-**Scope status:** Locked after 3-round AI tetangga collaboration
+**Scope status:** Locked after 3-round AI tetangga collaboration + Amendment 1
+
+### Amendment 1 (2026-06-07)
+- **A. Tier icons:** 🏆 → 🏞️ (botanical consistency), 🌳→🌴, 🌲→🌾 to differentiate tiers. Added `subtitle` field per tier (e.g., "Mapan Finansial").
+- **B. Metric labels:** Created `lib/finance/metric-labels.ts` — centralized Indonesian display labels. ScoreHero breakdown no longer shows raw camelCase keys.
+- **C. Safe Haven floor:** When `totalAssets < 3 × monthlyExpenses`, Safe Haven treated as Incomplete Data → 0 points (prevents "100% safe" on Rp 1jt cash-only user in deficit).
 
 ---
 
@@ -113,6 +118,7 @@ Key design decision: **debt-free user is rewarded, not penalized.**
   - Savings Rate null + no income data → 0 points (push user to fill)
   - Runway null + no expense data → 0 points
   - Safe Haven null + no assets → 0 points
+  - **Safe Haven floor (Amendment 1):** Safe Haven value is non-null BUT `totalAssets < 3 × monthlyExpenses` → treat as Incomplete Data → 0 points. Prevents "100% safe" score on users with minimal assets who are in deficit.
 
 ### Net Worth vs Expenses (threshold-based, not binary)
 
@@ -147,14 +153,14 @@ Exposed via `stores/derived.ts` as a new computed property.
 
 ### 5 tiers based on Cermat Score
 
-| Tier | Score Range | Label | Icon | Color |
-|---|---|---|---|---|
-| 0 | — | Belum Dinilai | — | `gray-400` |
-| 1 | 1-200 | Bibit | 🌱 | `emerald-300` |
-| 2 | 201-400 | Tunas | 🌿 | `emerald-400` |
-| 3 | 401-600 | Pohon | 🌳 | `emerald-500` |
-| 4 | 601-800 | Rimbun | 🌲 | `emerald-600` |
-| 5 | 801-1000 | Hutan | 🏆 | `amber-500` |
+| Tier | Score Range | Label | Subtitle | Icon | Color |
+|---|---|---|---|---|---|
+| 0 | — | Belum Dinilai | Mulai isi data | — | `gray-400` |
+| 1 | 1-200 | Bibit | Langkah Awal | 🌱 | `emerald-300` |
+| 2 | 201-400 | Tunas | Tumbuh Stabil | 🌿 | `emerald-400` |
+| 3 | 401-600 | Pohon | Kokoh Finansial | 🌴 | `emerald-500` |
+| 4 | 601-800 | Rimbun | Hampir Mapan | 🌾 | `emerald-600` |
+| 5 | 801-1000 | Hutan | Mapan Finansial | 👑 | `amber-500` |
 
 > **"Belum Dinilai" state:** Before user inputs minimum data (at least 3 metrics with values), display "Belum Dinilai" with placeholder ring. Avoid labeling new user as "Bibit" — that feels punishing during onboarding. Once ≥3 metrics have data, tier system activates.
 
@@ -505,6 +511,7 @@ function useCountUp(target: Ref<number>, duration = 1200): Ref<number>
 |---|---|
 | `lib/finance/cermat-score.ts` | Score calculation + level classification |
 | `lib/finance/badges.ts` | Badge definitions + unlock logic |
+| `lib/finance/metric-labels.ts` | Centralized Indonesian display labels for score breakdown |
 | `composables/useWhatIf.ts` | What-If Simulator state + projection math |
 | `composables/useCountUp.ts` | Count-up animation utility |
 | `components/dashboard/CermatScoreHero.vue` | Score ring + level display |
