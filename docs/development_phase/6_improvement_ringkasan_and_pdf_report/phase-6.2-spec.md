@@ -10,6 +10,46 @@
 - **B. Metric labels:** Created `lib/finance/metric-labels.ts` — centralized Indonesian display labels. ScoreHero breakdown no longer shows raw camelCase keys.
 - **C. Safe Haven floor:** When `totalAssets < 3 × monthlyExpenses`, Safe Haven treated as Incomplete Data → 0 points (prevents "100% safe" on Rp 1jt cash-only user in deficit).
 
+### Amendment 4 (2026-06-07) — Budget-kos Ringkasan enrichment (AI tetangga review 7)
+
+**Problem:** Budget-kos Ringkasan stuck at Phase 3 (persona hero + 4 cards + 1 CTA). Wealth-tracker got full Phase 6.2 (Cermat Score, Sankey, What-If, 8 metrics). The asimetri is jomplang. Core diagnosis: page shows "Surplus +0, Sisa 0%, Bertahan 0 bln" = dead-end without a path forward.
+
+**3 improvements (ordered by priority):**
+
+#### A. Kos-to-surplus action bridge (priority 1 — cheapest, highest value)
+**What:** Merge actionable insight into existing Rent-to-income card (not new card). Combine Rasio Kos + recommended range + surplus into one sentence.
+**Example:** *"Kos kamu 35% dari penghasilan — kalau pindah ke Rp 650k, surplus naik dari Rp 0 ke ~Rp 150k/bulan."*
+**Formula (fixed):** `surplusIfRecommendedKos = surplus + (currentKos - recommendedMidKos)` where `recommendedMidKos = income × 0.275` (midpoint of 25-30% range). Uses mid-range (not max) for stronger motivation number.
+**Data source:** All exist — `derived.rentToIncomeRatio`, `rentRecommend`, `derived.surplusIdr`, `penghasilanTotal`. One new computed: `surplusIfRecommendedKos`.
+**Location:** Merge into existing Rent-to-income card (below `rentRecommend` line), not a new separate card.
+**§9 compliance:** No new chart, no new metric — connects existing data points. Budget-kos stays light & emotional.
+
+#### B. Mini savings projection (priority 2)
+**What:** 1-line forward-looking projection from surplus. Not ECharts — pure text + CSS.
+**Dynamic months calculation:** Target = dana darurat 3× pengeluaran bulanan. `monthsToTarget = Math.ceil((target - kasTotal) / surplus)` when surplus > 0. Shows how many months to reach meaningful goal, not hardcoded "6 bulan".
+**Example surplus >0:** *"Konsisten nabung surplus → 5 bulan lagi kekumpul dana darurat 3 bulan."*
+**Example surplus = 0:** *"Surplus masih 0 — target pertama: bikin positif dulu."*
+**Example surplus < 0 (defisit):** Show runway warning instead: *"Tabungan habis dalam ~3 bulan kalau tetap defisit."* Formula: `monthsUntilBroke = Math.ceil(kasTotal / Math.abs(surplus))`. Honest warning, not skipped.
+**Data source:** `derived.surplusIdr`, `kasTotal`, `pengeluaranTotal`. Simple linear (no compound — budget-kos users don't invest yet).
+**Location:** New card below Surplus Hero.
+**§9 compliance:** Not What-If simulator (no sliders, no ECharts). Text-only projection, 1 line of math. Lighter by design.
+
+#### C. Mini cashflow bar (priority 3)
+**What:** Horizontal stacked bar showing income → kos/pokok/lifestyle/cicilan/sisa. CSS flexbox only — **NOT ECharts Sankey** (that's wealth-tracker's signature).
+**Layout:** Single row: `[kos][pokok][lifestyle][cicilan][sisa]` colored segments. Width proportional to % of income. Labels on hover/tooltip.
+**Colors (reuse existing expense palette from Amendment 1):** Kos=blue, Pokok=emerald, Lifestyle=amber, Cicilan=rose, Sisa=green (if >0) / red (if <0). Same palette as Komposisi Pengeluaran donut — no new colors.
+**Data source:** `penghasilanTotal`, `biayaKos`, `pokok`, `lifestyle`, `cicilanMonthly`, `surplusAmt` — all already computed in page.
+**Location:** Between Surplus Hero and Rent-to-income card.
+**§9 compliance:** CSS bar, not chart library. Visually distinct from Sankey. Budget-kos = simple bar, wealth-tracker = complex flow. Different characters maintained.
+
+**Constraints (inherited from tetangga review 7):**
+- ❌ NO Cermat Score / Sankey / What-If chart in budget-kos
+- ❌ NO interactive kos slider (defer to Phase 7)
+- ❌ NO touching scoring engine or persona fixtures
+- ✅ All 3 items use existing computed data — zero new state fields needed
+
+**Effort estimate:** S (½ day — 3 small UI cards, no new infrastructure)
+
 ### Amendment 3 (2026-06-07) — Label & tone fixes (AI tetangga review 6)
 
 - **A. DSR/DAR naming corrected:** DSR → "Beban Cicilan" (was "Rasio Utang"), DAR → "Rasio Utang" (was raw acronym). Semantics now match: DSR = beban cicilan bulanan, DAR = utang/aset. Consistent across sidebar, card, and breakdown (3-zone consistency).
