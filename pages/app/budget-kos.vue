@@ -305,6 +305,7 @@ const savingsProjection = computed(() => {
     const gap = Math.max(0, target - kas)
     if (gap <= 0) return { type: 'achieved' as const, message: 'Dana darurat 3 bulan sudah terkumpul!' }
     const months = Math.ceil(gap / surplus)
+    if (months > 24) return { type: 'thin' as const, message: 'Surplus masih tipis — fokus naikin dulu sebelum mikir target.' }
     return { type: 'onTrack' as const, months, fv: kas + surplus * months }
   }
   if (surplus === 0) return { type: 'zero' as const, message: 'Target pertama: bikin surplus positif dulu.' }
@@ -592,6 +593,9 @@ const cashflowSegments = computed(() => {
           <p class="text-sm font-medium text-emerald-600">✅ {{ savingsProjection.message }}</p>
         </template>
         <template v-else-if="savingsProjection.type === 'zero'">
+          <p class="text-sm text-[var(--color-text-secondary)]">🎯 {{ savingsProjection.message }}</p>
+        </template>
+        <template v-else-if="savingsProjection.type === 'thin'">
           <p class="text-sm text-[var(--color-text-secondary)]">🎯 {{ savingsProjection.message }}</p>
         </template>
         <template v-else-if="savingsProjection.type === 'deficit' && savingsProjection.months">

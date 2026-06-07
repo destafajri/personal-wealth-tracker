@@ -33,15 +33,6 @@ const mahasiswaPasPasan: SamplePersona = {
       pokok: 1_000_000,
       lifestyle: 300_000,
     })
-    snap.addCicilan({
-      tipe: 'PAYLATER',
-      label: 'Cicilan Laptop',
-      sisaPokok: 1_500_000,
-      cicilanPerBulan: 200_000,
-      sukuBunga: 12,
-      tenorSisaBulan: 8,
-      jenisBunga: 'Flat',
-    })
     snap.addLikuid('kas', { label: 'GoPay', amount: 150_000 })
     snap.addLikuid('kas', { label: 'Dana', amount: 350_000 })
     snap.setDemo(true)
