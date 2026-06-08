@@ -341,14 +341,14 @@ const cashflowSegments = computed(() => {
     <!-- Demo banner + persona picker -->
     <div
       v-if="snap.isDemo"
-      class="rounded-[var(--radius-card)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 px-4 py-3 text-sm text-[var(--color-text-secondary)]"
+      class="rounded-[var(--radius-card)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 px-3 py-2.5 text-[12px] leading-5 text-[var(--color-text-secondary)] sm:px-4 sm:py-3 sm:text-sm sm:leading-6"
     >
-      <div class="flex items-start gap-3">
-        <Info class="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-primary)]" />
-        <p class="flex-1">{{ t('snapshot.demo.banner') }}</p>
+      <div class="flex items-start gap-2 sm:gap-3">
+        <Info class="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--color-primary)] sm:h-4 sm:w-4" />
+        <p class="min-w-0 flex-1 max-w-[24ch] sm:max-w-none">{{ t('snapshot.demo.banner') }}</p>
         <button
           type="button"
-          class="inline-flex items-center gap-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 py-1 text-xs font-medium text-[var(--color-text-primary)] hover:border-[var(--color-primary)]"
+          class="inline-flex items-center gap-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-text-primary)] hover:border-[var(--color-primary)] sm:px-3 sm:text-xs"
           @click="resetDemo"
         >
           <X class="h-3 w-3" />
@@ -657,13 +657,42 @@ const cashflowSegments = computed(() => {
           {{ rentRecommend }}
         </p>
         <!-- Item A: kos-to-surplus action bridge -->
-        <p
+        <div
           v-if="surplusIfRecommendedKos !== null && surplusIfRecommendedKos > surplusAmt && rentRatioZone !== 'safe'"
-          class="mt-1.5 rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-800 dark:bg-green-900/25 dark:text-green-300"
+          class="mt-2.5 rounded-xl bg-[#EAF3DE] px-3 py-3 text-[#173404] shadow-sm dark:bg-emerald-950/30 dark:text-emerald-50"
         >
-          💡 Kalau pindah ke kos {{ idr(recommendedMidKos) }}, surplus naik ke ~{{ idr(surplusIfRecommendedKos) }}/bulan.
-        </p>
+          <div class="flex items-start gap-3 border-l-4 border-[#7AA63A] pl-3">
+            <span class="mt-0.5 shrink-0 text-sm text-[#27500A]">↗</span>
+            <div class="min-w-0">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-[#27500A] dark:text-emerald-300">
+                Dampak kalau pindah kos
+              </p>
+              <p class="mt-1 text-[13px] font-semibold leading-5 text-[#173404] dark:text-emerald-50">
+                Kalau pindah ke kos {{ idr(recommendedMidKos) }}, surplus naik ke ~{{ idr(surplusIfRecommendedKos) }}/bulan.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- CTA Mamikos — dynamic price range based on biayaKos -->
+      <a
+        :href="mamikosSearchUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group flex items-center gap-3 rounded-xl border border-l-4 border-[var(--color-border)] border-l-emerald-500 bg-[var(--color-surface-card)] p-4 transition-shadow hover:shadow-md"
+      >
+        <span class="text-2xl">🏢</span>
+        <div class="min-w-0 flex-1">
+          <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">
+            Cari Kos Sesuai Budgetmu
+          </h4>
+          <p class="text-xs text-[var(--color-text-secondary)]">
+            {{ mamikosSearchLabel }}
+          </p>
+        </div>
+        <ExternalLink :size="14" class="shrink-0 text-emerald-600 group-hover:underline" />
+      </a>
 
       <!-- Budget health grid -->
       <div v-if="kasTotal > 0 || totalUtang > 0" class="grid gap-3 sm:grid-cols-2">
@@ -688,25 +717,6 @@ const cashflowSegments = computed(() => {
           </p>
         </div>
       </div>
-
-      <!-- CTA Mamikos — dynamic price range based on biayaKos -->
-      <a
-        :href="mamikosSearchUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="group flex items-center gap-3 rounded-xl border border-l-4 border-[var(--color-border)] border-l-emerald-500 bg-[var(--color-surface-card)] p-4 transition-shadow hover:shadow-md"
-      >
-        <span class="text-2xl">🏢</span>
-        <div class="min-w-0 flex-1">
-          <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">
-            Cari Kos Sesuai Budgetmu
-          </h4>
-          <p class="text-xs text-[var(--color-text-secondary)]">
-            {{ mamikosSearchLabel }}
-          </p>
-        </div>
-        <ExternalLink :size="14" class="shrink-0 text-emerald-600 group-hover:underline" />
-      </a>
     </div>
 
     <!-- Navigation footer -->

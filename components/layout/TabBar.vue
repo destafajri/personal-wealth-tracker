@@ -70,8 +70,13 @@ const tabs: Tab[] = [
           v-else
           class="flex cursor-not-allowed flex-col items-center gap-1 py-2 text-[11px] font-medium text-[var(--color-text-muted)] opacity-60"
         >
-          <component :is="tab.icon" :size="20" />
-          {{ t(tab.labelKey) }}
+          <div class="relative flex items-center justify-center">
+            <component :is="tab.icon" :size="20" />
+            <span class="absolute -right-5 -top-1 scale-90">
+              <PillSoon />
+            </span>
+          </div>
+          <span class="max-w-full truncate">{{ t(tab.labelKey) }}</span>
         </span>
       </li>
     </ul>
