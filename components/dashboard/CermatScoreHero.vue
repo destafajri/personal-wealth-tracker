@@ -17,6 +17,20 @@ const isDeficit = computed(() => (derived.surplusIdr ?? 0) < 0)
 
 const displayedScore = useCountUp(score)
 
+const mobileContributions = computed(() => {
+  const zoneRank = {
+    bahaya: 0,
+    waspada: 1,
+    sehat: 2,
+  } as const
+
+  return [...contributions.value].sort((left, right) => {
+    const zoneDiff = zoneRank[left.zone] - zoneRank[right.zone]
+    if (zoneDiff !== 0) return zoneDiff
+    return left.points - right.points
+  })
+})
+
 // Map contribution keys → copy string keys (same source as MetricGrid)
 const CONTRIBUTION_LABELS: Record<string, CopyKey> = {
   dsr: 'metric.dsr.label',
@@ -111,9 +125,34 @@ const tierRingColor = computed(() => {
         </p>
 
         <!-- Contribution breakdown -->
+        <div v-if="level.tier > 0" class="mt-4 border-y border-[var(--color-border)]/60 py-2 sm:hidden">
+          <div
+            v-for="c in mobileContributions"
+            :key="c.metric"
+            class="flex items-center justify-between gap-3 py-2.5 text-sm last:pb-0 first:pt-0"
+          >
+            <div class="flex min-w-0 flex-1 items-center gap-2.5">
+              <span
+                class="inline-block h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                :class="{
+                  'bg-emerald-500': c.zone === 'sehat',
+                  'bg-amber-400': c.zone === 'waspada',
+                  'bg-rose-400': c.zone === 'bahaya',
+                }"
+              />
+              <span class="min-w-0 flex-1 leading-snug text-[var(--color-text-secondary)]">
+                {{ contributionLabel(c.metric) }}
+              </span>
+            </div>
+            <span class="shrink-0 text-right text-sm tabular font-semibold text-[var(--color-text-primary)]">
+              {{ c.points }}/{{ c.maxPoints }}
+            </span>
+          </div>
+        </div>
+
         <div
           v-if="level.tier > 0"
-          class="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5"
+          class="mt-3 hidden sm:grid sm:grid-cols-2 sm:gap-x-4 sm:gap-y-1.5"
         >
           <div
             v-for="c in contributions"
