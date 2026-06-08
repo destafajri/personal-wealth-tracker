@@ -29,8 +29,7 @@ const { mode: themeMode, resolved, setMode: setTheme } = useTheme()
             {{ t('brand.name') }}
           </span>
           <span
-            class="hidden items-center gap-1.5 text-xs text-[var(--color-text-secondary)] sm:inline-flex sm:text-sm"
-            :class="route.path.startsWith('/app/budget-kos') ? 'inline-flex' : 'hidden sm:inline-flex'"
+            class="hidden items-center gap-1.5 text-xs text-[var(--color-text-secondary)] lg:inline-flex lg:text-sm"
           >
             <template v-if="route.path.startsWith('/app/budget-kos')">
               {{ t('nav.brand.subtitle') }}

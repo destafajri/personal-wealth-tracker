@@ -87,7 +87,7 @@ function isOpen(key: Section) { return openSections.value.has(key) }
       >
         <button
           type="button"
-          class="flex w-full items-center gap-2 p-3 text-left"
+          class="flex w-full items-start gap-2 p-3 text-left sm:items-center"
           @click="toggle('cashflow')"
           :aria-expanded="isOpen('cashflow')"
         >
@@ -95,24 +95,24 @@ function isOpen(key: Section) { return openSections.value.has(key) }
           <div class="min-w-0 flex-1">
             <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Cash Flow</h4>
           </div>
-          <span class="text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">
+          <span class="min-w-0 max-w-[9rem] break-words text-right text-sm font-semibold tabular-nums leading-tight text-[var(--color-text-primary)] sm:max-w-none">
             {{ idr(penghasilanTotal) }}
           </span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('cashflow') && 'rotate-180'" />
         </button>
         <div v-show="isOpen('cashflow')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
-            <li class="flex justify-between py-1.5">
+            <li class="flex items-start justify-between gap-3 py-1.5">
               <span class="text-[var(--color-text-secondary)]">Penghasilan</span>
-              <span class="tabular-nums text-[var(--color-text-primary)]">{{ idr(penghasilanTotal) }}</span>
+              <span class="max-w-[9rem] break-words text-right tabular-nums text-[var(--color-text-primary)] sm:max-w-none">{{ idr(penghasilanTotal) }}</span>
             </li>
-            <li class="flex justify-between py-1.5">
+            <li class="flex items-start justify-between gap-3 py-1.5">
               <span class="text-[var(--color-text-secondary)]">Pengeluaran</span>
-              <span class="tabular-nums text-[var(--color-text-primary)]">{{ idr(pengeluaranTotal) }}</span>
+              <span class="max-w-[9rem] break-words text-right tabular-nums text-[var(--color-text-primary)] sm:max-w-none">{{ idr(pengeluaranTotal) }}</span>
             </li>
-            <li class="flex justify-between py-1.5 font-semibold">
+            <li class="flex items-start justify-between gap-3 py-1.5 font-semibold">
               <span :class="surplusAmt >= 0 ? 'text-emerald-700' : 'text-rose-700'">Surplus</span>
-              <span class="tabular-nums" :class="surplusAmt >= 0 ? 'text-emerald-700' : 'text-rose-700'">
+              <span class="max-w-[9rem] break-words text-right tabular-nums sm:max-w-none" :class="surplusAmt >= 0 ? 'text-emerald-700' : 'text-rose-700'">
                 {{ surplusAmt >= 0 ? '+' : '' }}{{ idr(surplusAmt) }}
               </span>
             </li>
@@ -127,7 +127,7 @@ function isOpen(key: Section) { return openSections.value.has(key) }
       >
         <button
           type="button"
-          class="flex w-full items-center gap-2 p-3 text-left"
+          class="flex w-full items-start gap-2 p-3 text-left sm:items-center"
           @click="toggle('kas')"
           :aria-expanded="isOpen('kas')"
         >
@@ -135,14 +135,14 @@ function isOpen(key: Section) { return openSections.value.has(key) }
           <div class="min-w-0 flex-1">
             <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Kas & Tabungan</h4>
           </div>
-          <span class="text-sm font-semibold tabular-nums text-[var(--color-text-primary)]">{{ idr(kasTotal) }}</span>
+          <span class="min-w-0 max-w-[9rem] break-words text-right text-sm font-semibold tabular-nums leading-tight text-[var(--color-text-primary)] sm:max-w-none">{{ idr(kasTotal) }}</span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('kas') && 'rotate-180'" />
         </button>
         <div v-show="isOpen('kas')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
-            <li v-for="row in snap.asetLikuid.kas" :key="row.id" class="flex justify-between py-1.5">
-              <span class="text-[var(--color-text-secondary)]">{{ row.label || 'Kas' }}</span>
-              <span class="tabular-nums text-[var(--color-text-primary)]">{{ idr(row.amount || 0) }}</span>
+            <li v-for="row in snap.asetLikuid.kas" :key="row.id" class="flex items-start justify-between gap-3 py-1.5">
+              <span class="min-w-0 flex-1 text-[var(--color-text-secondary)]">{{ row.label || 'Kas' }}</span>
+              <span class="max-w-[9rem] break-words text-right tabular-nums text-[var(--color-text-primary)] sm:max-w-none">{{ idr(row.amount || 0) }}</span>
             </li>
           </ul>
         </div>
@@ -155,7 +155,7 @@ function isOpen(key: Section) { return openSections.value.has(key) }
       >
         <button
           type="button"
-          class="flex w-full items-center gap-2 p-3 text-left"
+          class="flex w-full items-start gap-2 p-3 text-left sm:items-center"
           @click="toggle('cicilan')"
           :aria-expanded="isOpen('cicilan')"
         >
@@ -163,18 +163,18 @@ function isOpen(key: Section) { return openSections.value.has(key) }
           <div class="min-w-0 flex-1">
             <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Cicilan</h4>
           </div>
-          <span class="text-sm font-semibold tabular-nums text-[var(--color-danger-rose)]">{{ idr(cicilanSisa) }}</span>
+          <span class="min-w-0 max-w-[9rem] break-words text-right text-sm font-semibold tabular-nums leading-tight text-[var(--color-danger-rose)] sm:max-w-none">{{ idr(cicilanSisa) }}</span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('cicilan') && 'rotate-180'" />
         </button>
         <div v-show="isOpen('cicilan')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
             <li v-for="row in snap.cicilanAktif" :key="row.id" class="space-y-0.5 py-1.5">
-              <div class="flex justify-between">
-                <span class="text-[var(--color-text-secondary)]">
+              <div class="flex items-start justify-between gap-3">
+                <span class="min-w-0 flex-1 text-[var(--color-text-secondary)]">
                   <span class="text-[10px] uppercase tracking-wide text-[var(--color-danger-rose)]">{{ row.tipe }}</span>
                   {{ row.label || row.tipe }}
                 </span>
-                <span class="tabular-nums text-[var(--color-text-primary)]">{{ idr(row.sisaPokok || 0) }}</span>
+                <span class="max-w-[9rem] break-words text-right tabular-nums text-[var(--color-text-primary)] sm:max-w-none">{{ idr(row.sisaPokok || 0) }}</span>
               </div>
               <p class="text-[10px] text-[var(--color-text-muted)]">{{ idr(row.cicilanPerBulan || 0) }}/bln</p>
             </li>
@@ -189,7 +189,7 @@ function isOpen(key: Section) { return openSections.value.has(key) }
       >
         <button
           type="button"
-          class="flex w-full items-center gap-2 p-3 text-left"
+          class="flex w-full items-start gap-2 p-3 text-left sm:items-center"
           @click="toggle('utang')"
           :aria-expanded="isOpen('utang')"
         >
@@ -197,14 +197,14 @@ function isOpen(key: Section) { return openSections.value.has(key) }
           <div class="min-w-0 flex-1">
             <h4 class="text-sm font-semibold text-[var(--color-text-primary)]">Utang Pribadi</h4>
           </div>
-          <span class="text-sm font-semibold tabular-nums text-[var(--color-danger-rose)]">{{ idr(utangPribadiSisa) }}</span>
+          <span class="min-w-0 max-w-[9rem] break-words text-right text-sm font-semibold tabular-nums leading-tight text-[var(--color-danger-rose)] sm:max-w-none">{{ idr(utangPribadiSisa) }}</span>
           <ChevronDown :size="14" class="shrink-0 text-[var(--color-text-muted)] transition-transform" :class="isOpen('utang') && 'rotate-180'" />
         </button>
         <div v-show="isOpen('utang')" class="border-t border-[var(--color-border)] px-3 pb-3">
           <ul class="divide-y divide-[var(--color-border)] text-sm">
-            <li v-for="row in snap.utangPribadi" :key="row.id" class="flex justify-between py-1.5">
-              <span class="text-[var(--color-text-secondary)]">{{ row.label || 'Utang' }}</span>
-              <span class="tabular-nums text-[var(--color-text-primary)]">{{ idr(row.sisaPokok || 0) }}</span>
+            <li v-for="row in snap.utangPribadi" :key="row.id" class="flex items-start justify-between gap-3 py-1.5">
+              <span class="min-w-0 flex-1 text-[var(--color-text-secondary)]">{{ row.label || 'Utang' }}</span>
+              <span class="max-w-[9rem] break-words text-right tabular-nums text-[var(--color-text-primary)] sm:max-w-none">{{ idr(row.sisaPokok || 0) }}</span>
             </li>
           </ul>
         </div>

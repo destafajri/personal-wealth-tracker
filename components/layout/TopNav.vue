@@ -104,7 +104,7 @@ async function onFileSelected(e: Event) {
         <span class="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
           {{ t('brand.name') }}
         </span>
-        <span class="hidden text-xs text-[var(--color-text-secondary)] sm:inline">
+        <span class="hidden text-xs text-[var(--color-text-secondary)] lg:inline">
           {{ tm('nav.brand.subtitle', snap.mode) }}
         </span>
       </NuxtLink>
