@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Compass, FileText, Sparkles, Target } from 'lucide-vue-next'
+import PillSoon from '~/components/common/PillSoon.vue'
 import { t } from '~/lib/copy/strings'
 import type { CopyKey } from '~/lib/copy/strings'
 
@@ -16,8 +17,8 @@ interface Tab {
 // so the routes don't have to mirror the labelKey verbatim.
 const tabs: Tab[] = [
   { to: '/app/snapshot', labelKey: 'nav.track', icon: FileText, enabled: true },
-  { to: '/app/goals', labelKey: 'nav.plan', icon: Target, enabled: true },
-  { to: '/app/simulator', labelKey: 'nav.decide', icon: Sparkles, enabled: true },
+  { to: '/app/goals', labelKey: 'nav.plan', icon: Target, enabled: false },
+  { to: '/app/simulator', labelKey: 'nav.decide', icon: Sparkles, enabled: false },
   { to: '/app/discover', labelKey: 'nav.discover', icon: Compass, enabled: false },
 ]
 </script>
@@ -44,11 +45,7 @@ const tabs: Tab[] = [
         >
           <component :is="tab.icon" :size="16" />
           {{ t(tab.labelKey) }}
-          <span
-            class="rounded-[var(--radius-pill)] bg-[var(--color-surface-low)] px-2 py-0.5 text-[10px] uppercase tracking-wide"
-          >
-            {{ t('nav.soon') }}
-          </span>
+          <PillSoon />
         </span>
       </li>
     </ul>

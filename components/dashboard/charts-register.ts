@@ -4,7 +4,7 @@
 // registration runs on demand, alongside the dynamic import of `vue-echarts`.
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { BarChart, PieChart } from 'echarts/charts'
+import { BarChart, LineChart, PieChart, SankeyChart } from 'echarts/charts'
 import {
   GridComponent,
   LegendComponent,
@@ -20,6 +20,8 @@ export function registerEcharts(): void {
     CanvasRenderer,
     BarChart,
     PieChart,
+    SankeyChart,
+    LineChart,
     GridComponent,
     LegendComponent,
     TitleComponent,

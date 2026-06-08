@@ -10,7 +10,7 @@ const props = withDefaults(
     title: string
     subtitle?: string
     icon?: Component
-    variant?: 'emerald' | 'neutral' | 'amber' | 'rose'
+    variant?: 'emerald' | 'neutral' | 'amber' | 'rose' | 'sky'
     defaultOpen?: boolean
     value?: number | null
     disabled?: boolean

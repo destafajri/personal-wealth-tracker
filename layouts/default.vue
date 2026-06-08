@@ -6,7 +6,7 @@ import { t } from '~/lib/copy/strings'
 import { useTheme } from '~/composables/useTheme'
 
 const route = useRoute()
-const { resolved, toggle: toggleTheme } = useTheme()
+const { mode: themeMode, resolved, setMode: setTheme } = useTheme()
 </script>
 
 <template>
@@ -41,15 +41,43 @@ const { resolved, toggle: toggleTheme } = useTheme()
             </template>
           </span>
         </NuxtLink>
-        <button
-          type="button"
-          :aria-label="resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
-          class="inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition hover:bg-[var(--color-surface-low)] hover:text-[var(--color-text-primary)]"
-          @click="toggleTheme"
-        >
-          <Sun v-if="resolved === 'dark'" :size="18" />
-          <Moon v-else :size="18" />
-        </button>
+        <!-- Theme segmented toggle -->
+        <div class="inline-flex items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface-low)] p-0.5">
+          <button
+            type="button"
+            :aria-label="'Light mode'"
+            class="inline-flex h-7 w-7 items-center justify-center rounded-full transition"
+            :class="themeMode === 'light' ? 'bg-[var(--color-surface-card)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'"
+            title="Light"
+            @click="setTheme('light')"
+          >
+            <Sun :size="14" />
+          </button>
+          <button
+            type="button"
+            :aria-label="'Auto (time-based)'"
+            class="inline-flex h-7 w-7 items-center justify-center rounded-full transition"
+            :class="themeMode === 'auto' ? 'bg-[var(--color-surface-card)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'"
+            title="Auto"
+            @click="setTheme('auto')"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2" /><path d="M5.6 5.6l1.4 1.4" /><path d="M2 12h2" />
+              <path d="M20 14.5A7 7 0 0 1 14.5 20 7 7 0 0 0 20 14.5z" fill="currentColor" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            :aria-label="'Dark mode'"
+            class="inline-flex h-7 w-7 items-center justify-center rounded-full transition"
+            :class="themeMode === 'dark' ? 'bg-[var(--color-surface-card)] text-[var(--color-text-primary)] shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'"
+            title="Dark"
+            @click="setTheme('dark')"
+          >
+            <Moon :size="14" />
+          </button>
+        </div>
       </div>
     </header>
 

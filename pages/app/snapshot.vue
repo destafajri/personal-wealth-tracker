@@ -48,6 +48,7 @@ import { useXlsx } from '~/composables/useXlsx'
 import { usePdf } from '~/composables/usePdf'
 import { useToast } from '~/composables/useToast'
 import { triggerDemoFromQuery } from '~/lib/fixtures/demoSnapshot'
+import { PERSONAS, applyPersona, type SamplePersona } from '~/lib/fixtures/personas'
 import {
   useCryptoPrices,
   useFxRates,
@@ -110,9 +111,25 @@ onMounted(() => {
   // clears mode to null.
   triggerDemoFromQuery(snap, route, router)
   snap.mode = 'wealthTracker'
+  // If demo loaded, mark default persona as active
+  if (snap.isDemo) {
+    activePersonaId.value = 'pegawai-muda-kpr'
+  }
 })
 function resetDemo() {
   snap.reset()
+}
+
+// Only show personas matching current page mode
+const personas = computed(() => PERSONAS.filter((p) => p.mode === 'wealthTracker'))
+const activePersonaId = ref<string | null>(null)
+
+function switchPersona(p: SamplePersona) {
+  applyPersona(snap, p, goals)
+  activePersonaId.value = p.id
+  if (p.mode === 'budgetKos') {
+    navigateTo('/app/budget-kos')
+  }
 }
 
 // Phase-2a Day 5 — bolt-inspired tabbed snapshot. Per-input store writes still fire
@@ -360,18 +377,38 @@ watchEffect(() => {
 
     <div
       v-if="snap.isDemo"
-      class="flex items-start gap-3 rounded-[var(--radius-card)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 px-4 py-3 text-sm text-[var(--color-text-secondary)]"
+      class="rounded-[var(--radius-card)] border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 px-4 py-3 text-sm text-[var(--color-text-secondary)]"
     >
-      <Info class="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-primary)]" />
-      <p class="flex-1">{{ t('snapshot.demo.banner') }}</p>
-      <button
-        type="button"
-        class="inline-flex items-center gap-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 py-1 text-xs font-medium text-[var(--color-text-primary)] hover:border-[var(--color-primary)]"
-        @click="resetDemo"
-      >
-        <X class="h-3 w-3" />
-        {{ t('snapshot.demo.reset') }}
-      </button>
+      <div class="flex items-start gap-3">
+        <Info class="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-primary)]" />
+        <p class="flex-1">{{ t('snapshot.demo.banner') }}</p>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 py-1 text-xs font-medium text-[var(--color-text-primary)] hover:border-[var(--color-primary)]"
+          @click="resetDemo"
+        >
+          <X class="h-3 w-3" />
+          {{ t('snapshot.demo.reset') }}
+        </button>
+      </div>
+      <!-- Persona picker -->
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button
+          v-for="p in personas"
+          :key="p.id"
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border px-2.5 py-1 text-xs font-medium transition"
+          :class="
+            activePersonaId === p.id
+              ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white'
+              : 'border-[var(--color-border)] bg-[var(--color-surface-card)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]'
+          "
+          @click="switchPersona(p)"
+        >
+          <span>{{ p.emoji }}</span>
+          <span>{{ p.nama }}</span>
+        </button>
+      </div>
     </div>
 
     <div
@@ -460,7 +497,7 @@ watchEffect(() => {
           title="Deposito, Reksa Dana, SBN"
           subtitle="Fixed-income dengan bunga / yield"
           :icon="Landmark"
-          variant="neutral"
+          variant="emerald"
           :value="depoRdSbnTotal"
         >
           <AsetLikuidPanel
@@ -472,7 +509,7 @@ watchEffect(() => {
           title="Emas"
           subtitle="Antam, perhiasan, dan emas digital"
           :icon="Coins"
-          variant="neutral"
+          variant="amber"
           :value="emasTotal"
         >
           <EmasPanel
@@ -534,7 +571,7 @@ watchEffect(() => {
         title="Properti, Kendaraan, Lainnya"
         subtitle="Aset fisik dan barang berharga"
         :icon="Home"
-        variant="neutral"
+        variant="sky"
         :value="asetTetapTotal"
       >
         <AsetNonLikuidPanel hide-header />

@@ -4,6 +4,7 @@
 // on the /app/goals page. Empty state: gentle CTA to the Plan tab.
 import { computed } from 'vue'
 import GoalHealthChip from '~/components/dashboard/GoalHealthChip.vue'
+import PillSoon from '~/components/common/PillSoon.vue'
 import { t } from '~/lib/copy/strings'
 import { useDerivedStore } from '~/stores/derived'
 import { useGoalsStore } from '~/stores/goals'
@@ -34,9 +35,14 @@ const STATUS_DOT: Record<GoalStatus, string> = {
     </header>
 
     <p v-if="visibleGoals.length === 0" class="text-xs text-[var(--color-text-muted)]">
-      <NuxtLink to="/app/goals" class="underline hover:text-[var(--color-primary-dark)]">
+
+      <!-- TODO: enable link when Plan tab goes live (feature coming soon, needs improvement) -->
+      <!-- <NuxtLink to="/app/goals" class="underline hover:text-[var(--color-primary-dark)]">
         {{ t('dashboard.goals.empty') }}
-      </NuxtLink>
+      </NuxtLink> -->
+
+      {{ t('dashboard.goals.empty') }}
+      <PillSoon class="ml-1" />
     </p>
 
     <ul v-else class="space-y-2">

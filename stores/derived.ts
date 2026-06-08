@@ -21,6 +21,8 @@ import {
   totalPenghasilanMonthly,
   type ModalSiapIncludes,
 } from '~/lib/finance/metrics'
+import { calcCermatScore } from '~/lib/finance/cermat-score'
+import { calcBadges } from '~/lib/finance/badges'
 import { calcGoalHealth, goalProgress, surplus } from '~/lib/finance/goals'
 import { breakdownGoldIdr } from '~/lib/finance/emas'
 import { runModalOptions } from '~/lib/finance/sims/modal-options'
@@ -184,6 +186,19 @@ export const useDerivedStore = defineStore('derived', () => {
     }),
   )
 
+  // Cermat Score — weighted sum of metric zones (0-1000) + level classification (Bibit→Hutan).
+  // Depends on all metric computeds above + goalHealth. Recomputes reactively when any input
+  // changes. goalHealth passed as a raw number (not a ref) because the calc fn is pure.
+  const cermatScore = computed(() =>
+    calcCermatScore(snapshotState.value, goalHealth.value, prices.value),
+  )
+
+  // Achievement badges — pure derived from snapshot + prices. 5 OJK-friendly badges.
+  // localStorage persistence handled at component level (celebration animation).
+  const badges = computed(() =>
+    calcBadges(snapshotState.value, prices.value),
+  )
+
   // No `isEmpty` gate here. The Screen-10 all-empty visual is handled in DashboardPanel
   // by always rendering HeroPair + MetricGrid; each MetricCard renders "—" + hint when
   // its underlying value is null (per-metric rule, D0.5). TopNav.downloadDisabled
@@ -217,6 +232,8 @@ export const useDerivedStore = defineStore('derived', () => {
     bungaDepositoAnnual,
     penghasilanMonthlyIdr,
     modalOptions,
+    cermatScore,
+    badges,
     modalSiapIncludes,
     toggleModalSiapInclude,
     setModalSiapInclude,

@@ -1,6 +1,8 @@
 import { jsPDF } from 'jspdf'
-import type { MetricCardData, TableData } from '~/lib/pdf/metrics'
-import { formatIndonesianDate } from '~/lib/pdf/format'
+import type { MetricCardData, TableData, HealthMetric } from '~/lib/pdf/metrics'
+import type { CompositeStatus } from '~/lib/pdf/metrics'
+import type { Zone } from '~/lib/finance/thresholds'
+import { formatIndonesianDate, formatIdrPdf } from '~/lib/pdf/format'
 
 const PAGE_W = 297
 const PAGE_H = 210
@@ -78,7 +80,188 @@ export function drawMetricCards(doc: jsPDF, metrics: MetricCardData[], startY: n
   return startY + rows * (cardH + gapY)
 }
 
-// --- Canvas-based donut chart ---
+export function drawCompositeStatus(doc: jsPDF, status: CompositeStatus, y: number): number {
+  const labels: Record<CompositeStatus, string> = { sehat: 'Status Keuangan: Sehat', waspada: 'Status Keuangan: Perlu Perhatian', agresif: 'Status Keuangan: Agresif', bahaya: 'Status Keuangan: Kritis', sparse: 'Status Keuangan: Data belum lengkap' }
+  const colors: Record<CompositeStatus, [number, number, number]> = { sehat: [16, 185, 129], waspada: [245, 158, 11], agresif: [220, 80, 40], bahaya: [239, 68, 68], sparse: [156, 163, 175] }
+  const c = colors[status]
+  const label = labels[status]
+
+  doc.setFillColor(c[0], c[1], c[2])
+  doc.roundedRect(MARGIN, y, 70, 8, 2, 2, 'F')
+  doc.setFontSize(8)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(255, 255, 255)
+  doc.text(label, MARGIN + 4, y + 5.5)
+  doc.setTextColor(0, 0, 0)
+
+  return y + 12
+}
+
+function zoneColor(zone: Zone): [number, number, number] {
+  if (zone === 'sehat') return [16, 185, 129]
+  if (zone === 'waspada') return [245, 158, 11]
+  return [239, 68, 68]
+}
+
+export function drawHealthMetrics(doc: jsPDF, metrics: HealthMetric[], startY: number): number {
+  const cols = 2
+  const gapX = 8
+  const gapY = 6
+  const cardW = (CONTENT_W - (cols - 1) * gapX) / cols
+  const cardH = 26
+  let y = startY
+
+  for (let i = 0; i < metrics.length; i++) {
+    const col = i % cols
+    const row = Math.floor(i / cols)
+    const x = MARGIN + col * (cardW + gapX)
+    y = startY + row * (cardH + gapY)
+    const m = metrics[i]!
+    const [cr, cg, cb] = zoneColor(m.zone)
+
+    // Card background
+    doc.setFillColor(245, 245, 245)
+    doc.rect(x, y, cardW, cardH, 'F')
+    doc.setDrawColor(220, 220, 220)
+    doc.setLineWidth(0.2)
+    doc.rect(x, y, cardW, cardH, 'S')
+
+    // Metric name
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(0, 0, 0)
+    doc.text(m.label, x + 4, y + 7)
+
+    // Value
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text(m.value, x + 4, y + 16)
+
+    // Status badge
+    const badgeX = x + cardW - 34
+    const badgeW = 30
+    doc.setFillColor(cr, cg, cb)
+    doc.roundedRect(badgeX, y + 4, badgeW, 6, 1.5, 1.5, 'F')
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(255, 255, 255)
+    doc.text(m.zoneLabel, badgeX + badgeW / 2, y + 8.2, { align: 'center' })
+    doc.setTextColor(0, 0, 0)
+
+    // Description line
+    doc.setFontSize(6.5)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(120, 120, 120)
+    doc.text(m.description, x + 4, y + 21)
+
+    // Target line
+    doc.setTextColor(100, 100, 100)
+    doc.text(m.target, x + 4, y + 24.5)
+    doc.setTextColor(0, 0, 0)
+  }
+
+  const totalRows = Math.ceil(metrics.length / cols)
+  return startY + totalRows * (cardH + gapY) + 2
+}
+
+import type { RecommendationData } from '~/lib/pdf/metrics'
+
+export function drawRecommendationPage(doc: jsPDF, data: RecommendationData, startY: number): void {
+  let y = startY
+
+  // Modal Siap Distribusi header
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(0, 0, 0)
+  doc.text(`Modal Siap Distribusi: ${formatIdrPdf(data.modalSiap)}`, MARGIN, y)
+  y += 5
+  doc.setFontSize(7)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(120, 120, 120)
+  doc.text('(Dana setelah dana darurat 3-6 bulan terpenuhi)', MARGIN, y)
+  y += 7
+
+  // Insight statements
+  if (data.insights.length > 0) {
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(0, 100, 180)
+    doc.text('Insight:', MARGIN, y)
+    y += 4
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(60, 60, 60)
+    for (const insight of data.insights) {
+      const lines = doc.splitTextToSize(`• ${insight}`, CONTENT_W - 4)
+      doc.text(lines, MARGIN + 2, y)
+      y += lines.length * 3.5 + 1
+    }
+    y += 3
+  }
+
+  // Recommendations
+  if (data.recommendations.length > 0) {
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(0, 0, 0)
+    doc.text('REKOMENDASI:', MARGIN, y)
+    y += 6
+
+    for (let i = 0; i < data.recommendations.length; i++) {
+      if (y > PAGE_H - MARGIN - 15) break
+      const r = data.recommendations[i]!
+
+      // Number + label
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`${i + 1}. ${r.label}`, MARGIN + 2, y)
+      y += 4
+
+      // Allocation
+      doc.setFontSize(8)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(100, 100, 100)
+      doc.text(`Alokasi: ${formatIdrPdf(r.allocation)}`, MARGIN + 6, y)
+      y += 3.5
+
+      // Impact (may wrap)
+      const impactLines = doc.splitTextToSize(`Impact: ${r.impact}`, CONTENT_W - 12)
+      doc.text(impactLines, MARGIN + 6, y)
+      y += impactLines.length * 3.2 + 3
+      doc.setTextColor(0, 0, 0)
+    }
+  } else if (data.modalSiap <= 0) {
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'italic')
+    doc.setTextColor(180, 100, 0)
+    doc.text('Modal belum tersedia. Fokus bangun dana darurat 3-6 bulan dulu.', MARGIN + 4, y)
+    doc.setTextColor(0, 0, 0)
+  } else {
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'italic')
+    doc.setTextColor(16, 185, 129)
+    doc.text('Tidak ada utang yang perlu dilunasi. Pertimbangkan investasi tambahan.', MARGIN + 4, y)
+    doc.setTextColor(0, 0, 0)
+  }
+
+  // Surplus note
+  if (data.surplusAfterAllDebt > 0 && data.recommendations.length > 0) {
+    y += 4
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'italic')
+    doc.setTextColor(100, 100, 100)
+    doc.text(`Sisa modal ${formatIdrPdf(data.surplusAfterAllDebt)} — pertimbangkan investasi tambahan (lihat opsi di app).`, MARGIN + 2, y)
+    doc.setTextColor(0, 0, 0)
+  }
+
+  // Disclaimer
+  y += 6
+  doc.setFontSize(6.5)
+  doc.setFont('helvetica', 'italic')
+  doc.setTextColor(150, 150, 150)
+  const disclaimer = 'CATATAN: Pertimbangkan keep dana darurat 3-6 bulan pengeluaran terpisah dari Modal Siap Distribusi. Semua rekomendasi bersifat saran, bukan rekomendasi investasi.'
+  const dLines = doc.splitTextToSize(disclaimer, CONTENT_W)
+  doc.text(dLines, MARGIN, y)
+}
 
 export interface DonutSegment {
   label: string
