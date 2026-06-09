@@ -76,7 +76,7 @@ export const copy = {
   'nav.download.empty': 'Isi data keuangan dulu untuk mengunduh laporan',
   'nav.download.pendingXlsx': 'Menyusun XLSX…',
   'nav.download.pendingPdf': 'Menyusun PDF…',
-  'nav.brand.subtitle': 'Cermat ngatur keuangan, biar ngekos makin tenang 💸',
+  'nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
 
   // ----- snapshot page -----
   'snapshot.title': 'Snapshot',
@@ -800,7 +800,7 @@ export const copy = {
   'wt.simulator.title': 'Simulator',
   'wt.simulator.subtitle':
     'Simulasi keputusan keuangan besar — semua hitungan pakai data snapshot kamu.',
-  'wt.nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
+  // 'wt.nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
 
   // ----- toast (Phase 5) -----
   'toast.import.success': 'Data berhasil diimpor dari XLSX.',
