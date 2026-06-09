@@ -60,7 +60,7 @@ export const copy = {
   // composition, no prescription. Renders below the rose-tinted NW number in
   // HeroPair when derived.netWorth < 0.
   'metric.netWorth.statusNegative':
-    'Status: Aset bersih negatif. Utang {liabilities} melebihi total aset {assets}. Cek komposisi utang & likuiditas di panel kanan buat evaluasi posisi kamu.',
+    'Status: Aset bersih negatif. Utang {liabilities} melebihi total aset {assets}. Cek komposisi utang & likuiditas di Ringkasan Cepat buat evaluasi posisi kamu.',
 
   'snapshot.demo.banner':
     'Kamu lagi lihat data contoh — angka di sini cuma persona fiktif, bukan datamu.',
@@ -76,7 +76,7 @@ export const copy = {
   'nav.download.empty': 'Isi data keuangan dulu untuk mengunduh laporan',
   'nav.download.pendingXlsx': 'Menyusun XLSX…',
   'nav.download.pendingPdf': 'Menyusun PDF…',
-  'nav.brand.subtitle': 'Cermat ngatur keuangan, biar ngekos makin tenang 💸',
+  'nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
 
   // ----- snapshot page -----
   'snapshot.title': 'Snapshot',
@@ -751,7 +751,7 @@ export const copy = {
   // ----- persona (Phase 3 Priority 1) -----
   'persona.sultanKos.label': 'Sultan Kos',
   'persona.sultanKos.tagline': 'Gaji mewah, investasi jalan, top!',
-  'persona.investorKos.label': 'Investor Kos',
+  'persona.investorKos.label': 'Bibit Investor',
   'persona.investorKos.tagline': 'Sudah mulai investasi, masa depan cerah!',
   'persona.anakKosBijak.label': 'Anak Kos Bijak',
   'persona.anakKosBijak.tagline': 'Disiplin ngatur keuangan, Respect!',
@@ -800,7 +800,7 @@ export const copy = {
   'wt.simulator.title': 'Simulator',
   'wt.simulator.subtitle':
     'Simulasi keputusan keuangan besar — semua hitungan pakai data snapshot kamu.',
-  'wt.nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
+  // 'wt.nav.brand.subtitle': 'Cek Rupiah Mu Agar Teratur 💸',
 
   // ----- toast (Phase 5) -----
   'toast.import.success': 'Data berhasil diimpor dari XLSX.',
