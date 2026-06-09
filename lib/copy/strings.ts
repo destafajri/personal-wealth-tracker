@@ -60,7 +60,7 @@ export const copy = {
   // composition, no prescription. Renders below the rose-tinted NW number in
   // HeroPair when derived.netWorth < 0.
   'metric.netWorth.statusNegative':
-    'Status: Aset bersih negatif. Utang {liabilities} melebihi total aset {assets}. Cek komposisi utang & likuiditas di panel kanan buat evaluasi posisi kamu.',
+    'Status: Aset bersih negatif. Utang {liabilities} melebihi total aset {assets}. Cek komposisi utang & likuiditas di Ringkasan Cepat buat evaluasi posisi kamu.',
 
   'snapshot.demo.banner':
     'Kamu lagi lihat data contoh — angka di sini cuma persona fiktif, bukan datamu.',
