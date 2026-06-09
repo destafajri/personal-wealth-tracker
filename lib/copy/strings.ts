@@ -751,7 +751,7 @@ export const copy = {
   // ----- persona (Phase 3 Priority 1) -----
   'persona.sultanKos.label': 'Sultan Kos',
   'persona.sultanKos.tagline': 'Gaji mewah, investasi jalan, top!',
-  'persona.investorKos.label': 'Investor Kos',
+  'persona.investorKos.label': 'Bibit Investor',
   'persona.investorKos.tagline': 'Sudah mulai investasi, masa depan cerah!',
   'persona.anakKosBijak.label': 'Anak Kos Bijak',
   'persona.anakKosBijak.tagline': 'Disiplin ngatur keuangan, Respect!',
