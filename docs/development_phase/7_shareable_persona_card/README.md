@@ -25,7 +25,7 @@ Phase 7 menjawab feedback juri demo: fitur yang dorong **viral growth ringan, bu
 
 ### Konteks singkat
 
-- Cermat udah punya **persona engine** (`lib/finance/persona.ts`, 5 archetype: Sultan Kos, Investor Kos, Anak Kos Bijak, Pejuang Akhir Bulan, Sobat Indomie).
+- Cermat udah punya **persona engine** (`lib/finance/persona.ts`, 5 archetype: Sultan Kos, Bibit Investor, Anak Kos Bijak, Pejuang Akhir Bulan, Sobat Indomie).
 - Hasil persona saat ini "mati di layar" — di-render di `PersonaCard.vue` di budget-kos Ringkasan, dan ada modal `ShareCard.vue` yang sudah pakai `html2canvas` buat download PNG.
 - **Gap-nya:** implementasi share existing belum diaudit untuk privacy, belum di-design generic (Phase 7.2 mau reuse buat hasil lain), masih pakai `<Teleport>` (kena memory note SSR hydration), dan belum ada entry point share yang natural di luar PersonaCard.
 - Phase 7.1 = **rapikan + audit + generalisasi** infra share yang udah ada, dengan persona card sebagai use-case implementasinya.

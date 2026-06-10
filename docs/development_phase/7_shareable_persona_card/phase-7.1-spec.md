@@ -76,7 +76,7 @@ Initial spec post recon kode existing (`useShare.ts` + `ShareCard.vue` + `html2c
 
 ## 1. Motivation
 
-Feedback juri demo: Cermat perlu **viral growth lever**. Phase 6.2 udah ngasih persona archetype (Sultan Kos, Investor Kos, Anak Kos Bijak, Pejuang Akhir Bulan, Sobat Indomie) — user dapet identitas finansial 1-baris yang relatable. Tapi:
+Feedback juri demo: Cermat perlu **viral growth lever**. Phase 6.2 udah ngasih persona archetype (Sultan Kos, Bibit Investor, Anak Kos Bijak, Pejuang Akhir Bulan, Sobat Indomie) — user dapet identitas finansial 1-baris yang relatable. Tapi:
 
 - Hasil persona "mati di layar" — user tahu dia "Anak Kos Bijak", terus apa?
 - Tidak ada artefak yang bisa di-pamerin keluar app.
