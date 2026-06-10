@@ -1,96 +1,96 @@
 # Phase 7: Shareable Persona Card & Viral Growth
 
 **Branch:** TBD (proposed: `phase-7-shareable-card`)
-**Status:** 🔒 **SPEC LOCKED v3** — post AI tetangga round 2 (verdict 🟢 lock-able). Round 1 + round 2 refinements applied. Menunggu lampu hijau final dari tetangga di versi locked v3 sebelum implementasi.
-**Prerequisite:** Phase 6+6.1+6.2 merged ke main (saat ini di branch `improvement-ringkasan-and-pdf-phase-2`)
+**Status:** 🔒 **SPEC LOCKED v3** — post neighbor-AI round 2 (verdict 🟢 lock-able). Round 1 + round 2 refinements applied. Awaiting final green light from the neighbor on the locked v3 before implementation.
+**Prerequisite:** Phase 6+6.1+6.2 merged into main (currently on branch `improvement-ringkasan-and-pdf-phase-2`)
 
-> **⛔ Implementation gate:** Spec locked, **tapi jangan mulai ngoding** sebelum tetangga konfirmasi versi locked v3.
+> **⛔ Implementation gate:** Spec is locked, **but do not start coding** before the neighbor confirms the locked v3.
 
 ---
 
 ## Overview
 
-Phase 7 menjawab feedback juri demo: fitur yang dorong **viral growth ringan, budaya share & ngajak orang nyoba, brand affinity Mamikos**. Phase 6.2 udah bikin persona system yang kuat — Phase 7 ngubah hasil persona itu jadi artefak visual yang **bisa di-share keluar app**, sehingga tiap user yang share = ajakan organik ke Cermat × Mamikos.
+Phase 7 answers the demo jury's feedback: a feature that drives **lightweight viral growth, a share-and-invite culture, and Mamikos brand affinity**. Phase 6.2 already built a strong persona system — Phase 7 turns that persona output into a visual artifact that **can be shared outside the app**, so every user share becomes an organic invitation into Cermat × Mamikos.
 
 | Sub-phase | Focus | Key Deliverables |
 |-----------|-------|------------------|
-| **7.1** | Shareable Persona Card | Generic card generator (image-gen), privacy guardrails, persona card use-case pertama, deep link share (opsional) |
-| **7.2** | (TBD) | Reuse card generator buat hasil lain (mis. ringkasan kalkulator, badge milestone) — di-design later |
+| **7.1** | Shareable Persona Card | Generic card generator (image-gen), privacy guardrails, persona card as first use-case, share deep link (optional) |
+| **7.2** | (TBD) | Reuse the card generator for other outputs (e.g. calculator summary, milestone badge) — designed later |
 
 ---
 
 ## Phase 7.1 — Shareable Persona Card
 
-**Spec:** [`phase-7.1-spec.md`](./phase-7.1-spec.md) (draft v1 — belum dikunci, menunggu review tetangga)
+**Spec:** [`phase-7.1-spec.md`](./phase-7.1-spec.md) (draft v1 — not yet locked, awaiting neighbor review)
 
-### Konteks singkat
+### Quick context
 
-- Cermat udah punya **persona engine** (`lib/finance/persona.ts`, 5 archetype: Sultan Kos, Bibit Investor, Anak Kos Bijak, Pejuang Akhir Bulan, Sobat Indomie).
-- Hasil persona saat ini "mati di layar" — di-render di `PersonaCard.vue` di budget-kos Ringkasan, dan ada modal `ShareCard.vue` yang sudah pakai `html2canvas` buat download PNG.
-- **Gap-nya:** implementasi share existing belum diaudit untuk privacy, belum di-design generic (Phase 7.2 mau reuse buat hasil lain), masih pakai `<Teleport>` (kena memory note SSR hydration), dan belum ada entry point share yang natural di luar PersonaCard.
-- Phase 7.1 = **rapikan + audit + generalisasi** infra share yang udah ada, dengan persona card sebagai use-case implementasinya.
+- Cermat already has a **persona engine** (`lib/finance/persona.ts`, 5 archetypes: Sultan Kos, Bibit Investor, Anak Kos Bijak, Pejuang Akhir Bulan, Sobat Indomie).
+- The current persona output is "dead on the screen" — rendered in `PersonaCard.vue` inside the budget-kos Summary, and there is a `ShareCard.vue` modal that already uses `html2canvas` to download a PNG.
+- **The gap:** the existing share implementation has not been audited for privacy, isn't designed to be generic (Phase 7.2 wants to reuse it for other outputs), still uses `<Teleport>` (which triggers the SSR hydration memory note), and there is no natural share entry point outside of PersonaCard.
+- Phase 7.1 = **clean up + audit + generalize** the existing share infra, using the persona card as the implementation use-case.
 
-### Status implementasi existing yang relevan (referensi recon awal — belum berubah, implementasi belum dimulai)
+### Existing implementation status (initial recon reference — unchanged, implementation not started)
 
-| Aset | Status | Catatan |
+| Asset | Status | Notes |
 |---|---|---|
-| `lib/finance/persona.ts` | ✅ ada | Engine resolve persona dari snapshot (5 keys) |
-| `lib/copy/strings.ts` (`persona.*`) | ✅ ada | Label + tagline 5 persona |
-| `components/dashboard/PersonaCard.vue` | ✅ ada | Card hasil persona + tombol Share2 → buka modal |
-| `components/common/ShareCard.vue` | ⚠️ ada, perlu rework | Modal share (Salin/WhatsApp/X/Download). Pakai Teleport, hard-coded persona, belum diaudit privacy |
-| `composables/useShare.ts` | ⚠️ ada, perlu rework | Logic share + `html2canvas` capture. Belum generic, signature terikat ke `PersonaKey` |
-| `package.json` → `html2canvas: ^1.4.1` | ✅ terinstall | Dipakai dynamic-import di `useShare.ts`, lazy load |
-| Wealth-tracker share entry | ❌ tidak ada | Tidak ada PersonaCard di mode wealth-tracker — share belum nyambung ke sana |
+| `lib/finance/persona.ts` | ✅ exists | Engine that resolves a persona from a snapshot (5 keys) |
+| `lib/copy/strings.ts` (`persona.*`) | ✅ exists | Label + tagline for the 5 personas |
+| `components/dashboard/PersonaCard.vue` | ✅ exists | Persona result card + Share2 button → opens modal |
+| `components/common/ShareCard.vue` | ⚠️ exists, needs rework | Share modal (Copy/WhatsApp/X/Download). Uses Teleport, hard-coded persona, no privacy audit |
+| `composables/useShare.ts` | ⚠️ exists, needs rework | Share logic + `html2canvas` capture. Not generic, signature is bound to `PersonaKey` |
+| `package.json` → `html2canvas: ^1.4.1` | ✅ installed | Used via dynamic-import in `useShare.ts`, lazy-loaded |
+| Wealth-tracker share entry | ❌ missing | No PersonaCard in wealth-tracker mode — share isn't wired there |
 
-### Constraint (inherited dari AI tetangga ide-7.1)
+### Constraints (inherited from neighbor-AI idea-7.1)
 
-- ❌ JANGAN reuse infra PDF (`composables/usePdf.ts`, `lib/pdf/*`) — beda jalur (laporan formal multi-page vs 1 image sosmed-ratio)
-- ❌ JANGAN sentuh scoring engine, persona fixtures, atau mode existing
-- ✅ Semua client-side (no upload gambar ke server — konsisten privacy stance)
-- ✅ Jangan ekspos data keuangan asli di kartu (samarkan/agregat — spec wajib whitelist eksplisit)
-- ✅ Branding Mamikos halus, jangan norak
-- ✅ Card generator **di-design generic** (Phase 7.2-ready), tapi implementasi 7.1 tetap satu use-case (persona card)
+- ❌ DO NOT reuse the PDF infra (`composables/usePdf.ts`, `lib/pdf/*`) — different pipeline (formal multi-page report vs single social-ratio image)
+- ❌ DO NOT touch the scoring engine, persona fixtures, or existing modes
+- ✅ Everything client-side (no image upload to server — consistent with the privacy stance)
+- ✅ Do not expose raw financial data on the card (mask/aggregate — the spec must specify an explicit whitelist)
+- ✅ Mamikos branding stays subtle, not garish
+- ✅ The card generator is **designed generic** (Phase 7.2-ready), but the 7.1 implementation still ships only one use-case (persona card)
 
 ---
 
 ## Review Workflow
 
-Mengikuti pola Phase 6.2 (lihat memory `feedback-codex-review-workflow.md` & `feedback-spec-workflow.md`):
+Follows the Phase 6.2 pattern (see memory `feedback-codex-review-workflow.md` & `feedback-spec-workflow.md`):
 
-1. **Draft spec** (Claude/Zai) → committed di folder ini
-2. **Lempar ke AI tetangga** → review dari luar (cek privacy beneran kepegang, cek generic vs hardcoded, cek reuse map realistis, cek scope nggak balloon)
-3. **Iterasi spec** (Amendments) sampai tight
-4. **Setelah spec locked** → baru implementasi (separate phase)
+1. **Draft spec** (Claude/Zai) → committed in this folder
+2. **Send to neighbor AI** → external review (verify privacy is actually enforced, generic vs hardcoded, that the reuse map is honest, that scope doesn't balloon)
+3. **Iterate on spec** (Amendments) until tight
+4. **After spec is locked** → only then implementation (separate phase)
 
 ---
 
 ## Out of Scope (Phase 7.1)
 
-- Implementasi (spec-only sampai locked)
-- Multi-template card (1 template persona dulu)
-- Server-side image generation (semua client-side)
-- Deep link tracking / analytics (opsional — sebut di spec, tapi bukan must)
-- Reuse buat hasil kalkulator (itu Phase 7.2 — generic design siap, tapi belum diimplementasi)
-- Confetti / animation pas card di-generate
-- Custom image (user upload foto) — privacy risk, tidak relevan
+- Implementation (spec-only until locked)
+- Multi-template card (single persona template for now)
+- Server-side image generation (everything stays client-side)
+- Deep link tracking / analytics (optional — mentioned in the spec, but not a must)
+- Reuse for calculator results (that's Phase 7.2 — generic design is ready, but not implemented)
+- Confetti / animation when the card is generated
+- Custom image (user-uploaded photo) — privacy risk, not relevant
 
 ---
 
 ## Phase 7+ Backlog (deferred)
 
-**Phase 7.2 candidates** (sorted by tetangga signal strength):
-- 🟢 **Tier-share Bibit→Hutan** (flagged tetangga round 1 sebagai kandidat **paling flexy** — Cermat Score level system udah ada di Phase 6.2, tinggal pasang Layer 3 share card baru di atas seam Layer 1+2 dari 7.1)
-- Reuse card generator buat hasil kalkulator / What-If projection
-- Wealth-tracker persona share entry point (defer dari 7.1)
-- 9:16 story aspect ratio sebagai output yang available di UI (layout udah disiapkan vertical-friendly di 7.1)
-- Analytics tracking share (count, viral coefficient) — boleh nyusul setelah 7.1 ship
+**Phase 7.2 candidates** (sorted by neighbor signal strength):
+- 🟢 **Tier-share Bibit→Hutan** (flagged by the neighbor in round 1 as the **most flexible** candidate — the Cermat Score level system already exists in Phase 6.2, so it's just bolting a new Layer 3 share card on top of the Layer 1+2 seam from 7.1)
+- Reuse the card generator for calculator results / What-If projection
+- Wealth-tracker persona share entry point (deferred from 7.1)
+- 9:16 story aspect ratio as a UI-selectable output (the layout is already set up vertical-friendly in 7.1)
+- Share analytics (count, viral coefficient) — can follow after 7.1 ships
 
 **Phase 7.3+ candidates:**
-- "Cek tipe temenmu" dedicated landing `/persona` dengan quiz singkat
+- "Check your friend's type" dedicated landing `/persona` with a short quiz
 - Per-persona CTA copy variation
-- Generalisasi gadai (carry-over dari Phase 6 backlog)
+- Pawn (gadai) generalization (carried over from the Phase 6 backlog)
 - Advisor mode vs User mode toggle (carry-over)
-- Interactive kos slider di budget-kos (carry-over)
+- Interactive kos slider on budget-kos (carry-over)
 
 ---
 
@@ -98,5 +98,5 @@ Mengikuti pola Phase 6.2 (lihat memory `feedback-codex-review-workflow.md` & `fe
 
 | File | Purpose |
 |------|---------|
-| [`README.md`](./README.md) | (file ini) overview Phase 7 |
-| [`phase-7.1-spec.md`](./phase-7.1-spec.md) | Draft spec lengkap Phase 7.1 |
+| [`README.md`](./README.md) | (this file) Phase 7 overview |
+| [`phase-7.1-spec.md`](./phase-7.1-spec.md) | Full Phase 7.1 spec draft |

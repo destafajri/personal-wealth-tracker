@@ -1,278 +1,278 @@
 # Phase 7.1: Shareable Persona Card
 
-**Priority:** HIGH (viral growth lever — direct response feedback juri demo)
+**Priority:** HIGH (viral growth lever — direct response to demo jury feedback)
 **Prerequisite:** Phase 6+6.1+6.2 merged
-**Effort estimate:** M-L (**6-7 hari**, tergantung hasil capture spike Day 1 — html2canvas pass = 6 hari, swap ke html-to-image = 7 hari. Jangan dikejar mepet; nilai fitur ini = polish visual.)
-**Scope status:** 🔒 **LOCKED v3** — post AI tetangga round 2 (verdict 🟢 lock-able). Siap masuk implementasi setelah final ack tetangga di versi locked ini.
+**Effort estimate:** M-L (**6-7 days**, depending on the Day 1 capture spike outcome — html2canvas pass = 6 days, swap to html-to-image = 7 days. Don't rush; the value of this feature is visual polish.)
+**Scope status:** 🔒 **LOCKED v3** — post neighbor-AI round 2 (verdict 🟢 lock-able). Ready to enter implementation after final neighbor ack on this locked version.
 
-> **⛔ IMPLEMENTATION GATE — JANGAN GAS DULU:** Per instruksi tetangga + user, **jangan mulai ngoding** sebelum tetangga konfirmasi versi locked v3 ini. Update spec final dulu, tunggu lampu hijau, baru implementasi.
+> **⛔ IMPLEMENTATION GATE — DO NOT START YET:** Per the neighbor's + the user's instruction, **do not start coding** before the neighbor confirms this locked v3. Finalize the spec, wait for the green light, then implement.
 
-> **Catatan reviewer:** Spec ini sengaja **tidak menulis kode**. Field "Files to Touch" dan "Design hint" memberi konteks, tapi keputusan akhir (canvas vs html-to-image, struktur generic-nya, dll) sengaja dipertahankan terbuka sampai review tetangga selesai. Bagian "Open Questions" di bawah adalah daftar eksplisit yang gua mau dikritisi.
+> **Reviewer note:** This spec deliberately **does not write code**. The "Files to Touch" and "Design hint" fields provide context, but the final decisions (canvas vs html-to-image, the shape of the generic structure, etc.) are deliberately left open until the neighbor review is complete. The "Open Questions" section below is the explicit list of things I want critiqued.
 
 ---
 
 ## Revision History
 
-### v3 (2026-06-08) — post AI tetangga round 2 — 🔒 LOCKED
+### v3 (2026-06-08) — post neighbor-AI round 2 — 🔒 LOCKED
 
-Tetangga round 2 verdict: **🟢 spec lock-able.** 6 amendment v2 verified di file (bukan ringkasan). Beberapa execution malah dinilai *lebih bagus dari yang diminta* (capture spike protocol pass/fail/escalate, Indomie display-only rename keep internal key). 1 cosmetic leftover + 5 substantive refinement dari jawaban 7 pertanyaan round 2.
+Neighbor round 2 verdict: **🟢 spec lock-able.** 6 v2 amendments verified in the file (not just summarized). A few were judged to have been *executed better than asked* (the capture spike protocol's pass/fail/escalate, the Indomie display-only rename that keeps the internal key). 1 cosmetic leftover + 5 substantive refinements from the answers to the 7 round-2 questions.
 
 **Round 2 refinements applied:**
 
 | # | Title | Trigger | Section |
 |---|---|---|---|
-| 7 | **Cosmetic: hapus §4 intro basi** | ⚪ Tetangga round 2: line 162 masih kalimat lama "tetap A atau pindah B?" — kontradiksi sama rekomendasi flip di bawah | §4 intro rewrite |
-| 8 | **Effort naik 6-7 hari** | 🟡 Tetangga round 2 Q7: Day 1 spike penuh + risiko swap lib. Range "tergantung hasil spike". | Header, §8 |
-| 9 | **Day 1 = spike PENUH, refactor `useShare` geser ke Day 2** | 🟡 Tetangga round 2 Q1: spike = decision gate, jangan dikompres setengah hari | §8 |
-| 10 | **Native share default: mobile primary, desktop fallback grid primary** | 🟡 Tetangga round 2 Q2: desktop yang support `navigator.share` (Safari macOS/Edge) UX-nya aneh — deteksi touch/pointer, bukan cuma feature-detect | §5.2 (UI pattern), §6.3 |
-| 11 | **Banner copy dipangkas: "Temenmu <persona> 👀 Kamu tipe apa?" + microcopy privacy di bawah tombol** | 🟡 Tetangga round 2 Q4: copy v2 = 3 ide ditumpuk (hasil temen + ajakan + privacy). Banner = 1.5 detik attention, headline harus 1 hook. | §7 visual hint, §9 strings.ts list |
-| 12 | **Anti-pattern: hindari vh/vw & %-height (Amendment 5 follow-up)** | 🟡 Tetangga round 2 Q5: html2canvas render di logical fixed (1080×1080), elemen viewport-unit-based bisa geser | §6.2 anti-pattern list |
+| 7 | **Cosmetic: drop the stale §4 intro line** | ⚪ Neighbor round 2: line 162 still had the old "stick with A or move to B?" line — contradicts the flip recommendation below | §4 intro rewrite |
+| 8 | **Effort bumped to 6-7 days** | 🟡 Neighbor round 2 Q7: full Day 1 spike + lib-swap risk. Range "depends on spike outcome." | Header, §8 |
+| 9 | **Day 1 = FULL spike, `useShare` refactor shifts to Day 2** | 🟡 Neighbor round 2 Q1: the spike is the decision gate, don't compress it into half a day | §8 |
+| 10 | **Native share default: mobile primary, desktop fallback grid primary** | 🟡 Neighbor round 2 Q2: desktops that support `navigator.share` (Safari macOS/Edge) have weird UX — detect touch/pointer, not just feature-detect | §5.2 (UI pattern), §6.3 |
+| 11 | **Banner copy trimmed: "Temenmu <persona> 👀 Kamu tipe apa?" + privacy microcopy below the button** | 🟡 Neighbor round 2 Q4: the v2 copy stacked 3 ideas (friend's result + invite + privacy). A banner gets ~1.5 seconds of attention — the headline must be a single hook. | §7 visual hint, §9 strings.ts list |
+| 12 | **Anti-pattern: avoid vh/vw & %-height (Amendment 5 follow-up)** | 🟡 Neighbor round 2 Q5: html2canvas renders at a logical fixed size (1080×1080), viewport-unit-based elements can shift | §6.2 anti-pattern list |
 
-**Status keputusan yang tetangga konfirmasi (no further bikeshedding):**
-- "Sobat Mie" = LOCKED (Q3 — alternatif "Anak Kos Sejati" / "Pejuang Mie" dicatat tapi tidak dipilih, biar tidak habisin ronde review)
-- §10 open Q v2 → clear, no new open items (Q6)
+**Decisions the neighbor confirmed (no further bikeshedding):**
+- "Sobat Mie" = LOCKED (Q3 — alternatives "Anak Kos Sejati" / "Pejuang Mie" noted but not chosen, to avoid burning review rounds)
+- §10 v2 open Qs → clear, no new open items (Q6)
 
-**⛔ Implementation gate:** spec ini LOCKED tapi **belum dikasih lampu hijau ngoding**. Tetangga & user minta tahan sampai versi locked v3 ini di-review final. Jangan gas implementasi sebelum konfirmasi.
+**⛔ Implementation gate:** this spec is LOCKED but **has not been green-lit for coding**. The neighbor & user asked to hold until this locked v3 gets a final review. Don't push implementation before confirmation.
 
 ---
 
-### v2 (2026-06-08) — post AI tetangga round 1
+### v2 (2026-06-08) — post neighbor-AI round 1
 
-Tetangga verdict: **🟡 minor revision, arsitektur solid, refinement saja.** Yang verified beres dari v1: privacy guardrails (§3), generic 3-layer architecture (§5), Teleport di-drop, reuse map jujur.
+Neighbor verdict: **🟡 minor revision, architecture is solid, refinement only.** What's verified done from v1: privacy guardrails (§3), generic 3-layer architecture (§5), Teleport dropped, honest reuse map.
 
 **Amendments applied:**
 
-| # | Title | Trigger | Section yang berubah |
+| # | Title | Trigger | Section(s) changed |
 |---|---|---|---|
-| 1 | **Capture spike Day 1, jangan lock engine** | 🟠 Tetangga #1: kualitas visual = value utama, html2canvas lemah di gradient → validate dulu, jangan belakangan | §4, §8, §11 |
-| 2 | **Native `navigator.share({ files })` masuk Layer 1** | 🟠 Tetangga #2: target mobile-first; WA/X intent = teks+URL (bukan gambar), download = drop-off tinggi; native share sheet = jalur konversi utama | §5.2, §6.3, §8, §9, §11 |
-| 3 | **Rename "Sobat Indomie" → "Sobat Mie"** | 🟠 Tetangga #3: produk komersial pihak ketiga di artefak publik dengan co-branding Mamikos = risiko asosiasi tanpa izin | §6.5 (NEW), §9 |
-| 4 | **Deep link `?from=share` promote MUST-HAVE** | 🟡 Tetangga #4: tanpa loop landing, share → homepage generik → bounce; ½ hari yang nutup loop viral persis yang juri minta | §7, §8, §9, §11 |
-| 5 | **Layout vertical-friendly dari awal (9:16-ready)** | 🟡 Tetangga #5: WA Status + IG Story = surface share dominan di anak kos Indonesia; minimal layout disiapkan biar 9:16 tinggal flip config, bukan redesign | §6.1, §6.2, §11 |
-| 6 | **Privacy test greylist-boundary assertion** | ⚪ Tetangga minor: stats ON → assert cuma % & bln yang muncul, no derived number nyelip | §3.4 |
+| 1 | **Capture spike on Day 1, don't lock the engine** | 🟠 Neighbor #1: visual quality = the main value, html2canvas is weak on gradients → validate first, don't defer | §4, §8, §11 |
+| 2 | **Native `navigator.share({ files })` goes into Layer 1** | 🟠 Neighbor #2: mobile-first target; WA/X intent = text+URL (not image), download = high drop-off; the native share sheet = the main conversion path | §5.2, §6.3, §8, §9, §11 |
+| 3 | **Rename "Sobat Indomie" → "Sobat Mie"** | 🟠 Neighbor #3: a third-party commercial product on a public artifact co-branded with Mamikos = risk of unauthorized association | §6.5 (NEW), §9 |
+| 4 | **Deep link `?from=share` promoted to MUST-HAVE** | 🟡 Neighbor #4: without a landing loop, share → generic homepage → bounce; ½ day that closes the viral loop is exactly what the jury asked for | §7, §8, §9, §11 |
+| 5 | **Vertical-friendly layout from the start (9:16-ready)** | 🟡 Neighbor #5: WA Status + IG Story = the dominant share surfaces for Indonesian kos kids; at minimum the layout should be set up so 9:16 is a config flip, not a redesign | §6.1, §6.2, §11 |
+| 6 | **Privacy test greylist-boundary assertion** | ⚪ Neighbor minor: stats ON → assert only % and "bln" appear, no derived number sneaks in | §3.4 |
 
-**Tetangga verdict 8 Open Questions** (diintegrate ke §10):
+**Neighbor's verdict on the 8 Open Questions** (integrated into §10):
 
-| # | Q v1 | Verdict tetangga | Action |
+| # | v1 Q | Neighbor verdict | Action |
 |---|---|---|---|
-| 1 | WT entry point | Defer 7.2 ✅ — **catatan**: tier-share (Bibit→Hutan) kandidat kuat 7.2 (paling flexy) | Tambah ke Phase 7+ Backlog (README) |
-| 2 | html2canvas cukup? | Test dulu jangan lock | → Amendment 1 |
-| 3 | Stats default OFF/ON? | **OFF** — persona+emoji udah jadi wow-nya, stats nambah privacy risk tanpa nambah viral | Confirmed (no change) |
+| 1 | WT entry point | Defer 7.2 ✅ — **note**: tier-share (Bibit→Hutan) is a strong 7.2 candidate (most flexible) | Add to Phase 7+ Backlog (README) |
+| 2 | Is html2canvas enough? | Test first, don't lock | → Amendment 1 |
+| 3 | Stats default OFF/ON? | **OFF** — persona+emoji is already the wow factor, stats add privacy risk without adding virality | Confirmed (no change) |
 | 4 | 1:1 vs 9:16 | → Amendment 5 | → Amendment 5 |
-| 5 | CTA generic vs per-persona | Generic dulu, per-persona = polish 7.2 | Confirmed (no change) |
-| 6 | Branding text vs logo | Text-only, setuju | Confirmed (no change) |
+| 5 | CTA generic vs per-persona | Generic first, per-persona = 7.2 polish | Confirmed (no change) |
+| 6 | Branding text vs logo | Text-only, agreed | Confirmed (no change) |
 | 7 | Deep link must vs nice | → Amendment 4 | → Amendment 4 |
-| 8 | Generic timing | Setuju, seam sekarang satu consumer, tahan spekulatif | Confirmed (no change) |
+| 8 | Generic timing | Agreed, seam now has one consumer, resist speculation | Confirmed (no change) |
 
-**Effort impact:** 4-5 hari → 5-6 hari (deep link +½, capture spike +½, buffer swap engine +1 kalau gradient test gagal).
+**Effort impact:** 4-5 days → 5-6 days (deep link +½, capture spike +½, engine-swap buffer +1 if the gradient test fails).
 
 ---
 
 ### v1 (2026-06-08) — initial draft
 
-Initial spec post recon kode existing (`useShare.ts` + `ShareCard.vue` + `html2canvas` udah ada). Lihat git history untuk diff full.
+Initial spec after reconning the existing code (`useShare.ts` + `ShareCard.vue` + `html2canvas` already in place). See git history for the full diff.
 
 ---
 
 ## 1. Motivation
 
-Feedback juri demo: Cermat perlu **viral growth lever**. Phase 6.2 udah ngasih persona archetype (Sultan Kos, Bibit Investor, Anak Kos Bijak, Pejuang Akhir Bulan, Sobat Indomie) — user dapet identitas finansial 1-baris yang relatable. Tapi:
+Demo jury feedback: Cermat needs a **viral growth lever**. Phase 6.2 already shipped persona archetypes (Sultan Kos, Bibit Investor, Anak Kos Bijak, Pejuang Akhir Bulan, Sobat Indomie) — users get a relatable one-line financial identity. But:
 
-- Hasil persona "mati di layar" — user tahu dia "Anak Kos Bijak", terus apa?
-- Tidak ada artefak yang bisa di-pamerin keluar app.
-- Tidak ada hook yang ngajak orang lain nyoba ("eh lo tipe apa?").
+- The persona output is "dead on the screen" — the user knows they're "Anak Kos Bijak", then what?
+- There's no artifact they can show off outside the app.
+- There's no hook that invites others to try ("hey what type are you?").
 
-**Hipotesis:** Ubah hasil persona jadi **kartu visual yang shareable** → user share di sosmed/WA → tiap share = ajakan organik ke Cermat × Mamikos → low-cost viral growth.
+**Hypothesis:** Turn the persona result into a **shareable visual card** → user shares on social/WA → every share = an organic invite to Cermat × Mamikos → low-cost viral growth.
 
-**Sejalan dengan brand affinity Mamikos** — kalau persona-nya bilang "Anak Kos Bijak", ada touchpoint Mamikos yang halus (logo lock-up "Cermat × Mamikos"), bukan banner norak.
+**Aligned with Mamikos brand affinity** — when the persona says "Anak Kos Bijak", there's a subtle Mamikos touchpoint (lock-up logo "Cermat × Mamikos"), not a garish banner.
 
 ---
 
-## 2. Existing State (apa yang udah ada — peta reuse)
+## 2. Existing State (what's already there — reuse map)
 
-Ini bagian KRITIS — banyak infra share sudah ada di repo. Phase 7.1 bukan greenfield. Sebelum draft solusi, audit dulu apa yang udah jalan vs apa yang gap.
+This section is CRITICAL — a lot of share infra already exists in the repo. Phase 7.1 is not greenfield. Before drafting a solution, audit what already works vs what's a gap.
 
-### 2.1. Persona engine (READY — jangan sentuh)
+### 2.1. Persona engine (READY — do not touch)
 
 | File | Role | Phase 7.1 stance |
 |---|---|---|
 | `lib/finance/persona.ts` | `resolvePersona({ savingsRate, runway, hasInvestments, isSnapshotReady }) → PersonaResult` | ✅ Reuse as-is |
-| `lib/copy/strings.ts` (`persona.*` block) | 5 label + 5 tagline + 2 stats label | ✅ Reuse as-is. Mungkin tambah copy CTA share. |
-| `lib/finance/persona.ts` → `PERSONA_STYLE_MAP` (di `PersonaCard.vue`) | gradient + emoji per persona | ⚠️ Saat ini hidup di komponen, bukan source-of-truth terpusat. Pertimbangkan pindahkan ke `lib/finance/persona.ts` agar `ShareCard` dan `PersonaCard` baca dari sumber sama (DRY). |
+| `lib/copy/strings.ts` (`persona.*` block) | 5 labels + 5 taglines + 2 stats labels | ✅ Reuse as-is. May add share CTA copy. |
+| `lib/finance/persona.ts` → `PERSONA_STYLE_MAP` (in `PersonaCard.vue`) | gradient + emoji per persona | ⚠️ Currently lives in the component, not a centralized source-of-truth. Consider moving it into `lib/finance/persona.ts` so `ShareCard` and `PersonaCard` read from the same source (DRY). |
 
-### 2.2. Share infrastructure (PARTIAL — perlu rework)
+### 2.2. Share infrastructure (PARTIAL — needs rework)
 
-| File | Status | Gap untuk Phase 7.1 |
+| File | Status | Gap for Phase 7.1 |
 |---|---|---|
-| `components/dashboard/PersonaCard.vue` | Card hasil persona + tombol Share2 di pojok | ✅ Tombol ada — tinggal pastikan keliatan jelas (ukurannya 7×7, agak kecil — pertimbangkan diperjelas) |
-| `components/common/ShareCard.vue` | Modal share (4 button: Salin/WA/X/Download) + card visual | ⚠️ Major rework needed:<br>• Pakai `<Teleport>` ⇒ memory `feedback-nuxt-teleport-hydration.md` ⇒ refactor jadi inline fixed overlay<br>• Hard-coded persona — perlu generic<br>• Stats toggle expose `savingsRate %` & `runway bulan` — perlu audit privacy<br>• Aspect ratio modal `max-w-sm` belum tentu 1:1 atau 9:16 |
-| `composables/useShare.ts` | `useShare(personaKey: Ref<PersonaKey \| null>)` + `html2canvas` capture | ⚠️ Signature terikat ke `PersonaKey` — perlu generic (Phase 7.2-ready) |
-| `html2canvas@1.4.1` (package) | Terinstall, dynamic-import (lazy) | ✅ Reuse — atau evaluasi alternatif (lihat §4) |
+| `components/dashboard/PersonaCard.vue` | Persona result card + Share2 button in the corner | ✅ Button exists — just make sure it's clearly visible (size 7×7 is a bit small — consider making it more prominent) |
+| `components/common/ShareCard.vue` | Share modal (4 buttons: Copy/WA/X/Download) + visual card | ⚠️ Major rework needed:<br>• Uses `<Teleport>` ⇒ memory `feedback-nuxt-teleport-hydration.md` ⇒ refactor into an inline fixed overlay<br>• Hard-coded persona — needs to be generic<br>• Stats toggle exposes `savingsRate %` & `runway months` — needs a privacy audit<br>• Modal aspect ratio `max-w-sm` is not guaranteed to be 1:1 or 9:16 |
+| `composables/useShare.ts` | `useShare(personaKey: Ref<PersonaKey \| null>)` + `html2canvas` capture | ⚠️ Signature bound to `PersonaKey` — needs to be generic (Phase 7.2-ready) |
+| `html2canvas@1.4.1` (package) | Installed, dynamic-imported (lazy) | ✅ Reuse — or evaluate alternatives (see §4) |
 
 ### 2.3. Entry points (current vs target)
 
-| Lokasi | Current | Phase 7.1 target |
+| Location | Current | Phase 7.1 target |
 |---|---|---|
-| **Budget-kos Ringkasan** (`pages/app/budget-kos.vue` via `DashboardPanel.vue` → `PersonaCard.vue`) | ✅ Tombol Share2 ada | ✅ Stays — jadi entry point utama |
-| **Wealth-tracker Ringkasan** (`/app/snapshot`) | ❌ Tidak ada PersonaCard di wealth-tracker (`v-if="isBudgetKos"`) | 🟡 **Open question** — apakah perlu? (lihat §10 Open Questions) |
-| **Cermat Score Hero** (wealth-tracker) | Belum punya tombol share | 🟡 Defer ke Phase 7.2 (share score = beda artefak, beda privacy) |
+| **Budget-kos Summary** (`pages/app/budget-kos.vue` via `DashboardPanel.vue` → `PersonaCard.vue`) | ✅ Share2 button exists | ✅ Stays — primary entry point |
+| **Wealth-tracker Summary** (`/app/snapshot`) | ❌ No PersonaCard in wealth-tracker (`v-if="isBudgetKos"`) | 🟡 **Open question** — needed? (see §10 Open Questions) |
+| **Cermat Score Hero** (wealth-tracker) | No share button yet | 🟡 Defer to Phase 7.2 (sharing the score = different artifact, different privacy profile) |
 
-### 2.4. Reuse matrix (apa yang panen vs apa yang baru)
+### 2.4. Reuse matrix (what we harvest vs what's new)
 
-| Aspek | Status |
+| Aspect | Status |
 |---|---|
-| Persona resolver logic | 🟢 Panen 100% |
-| Persona label + tagline + emoji | 🟢 Panen 100% |
-| Persona gradient palette | 🟡 Panen tapi pindahkan ke source-of-truth terpusat |
-| Image capture mechanism | 🟢 Panen `html2canvas` (atau evaluasi alternatif — lihat §4) |
+| Persona resolver logic | 🟢 Harvest 100% |
+| Persona label + tagline + emoji | 🟢 Harvest 100% |
+| Persona gradient palette | 🟡 Harvest, but move to a centralized source-of-truth |
+| Image capture mechanism | 🟢 Harvest `html2canvas` (or evaluate alternatives — see §4) |
 | Modal/overlay component | 🔴 Rebuild (drop Teleport, restructure) |
-| Card visual layout | 🟡 Reuse tapi resize ke aspect ratio share-friendly (1:1 atau 9:16) |
-| Action buttons (Salin/WA/X/Download) | 🟢 Panen 100% |
-| Share text generator | 🟡 Panen tapi pastikan tidak leak angka dalam text |
-| **Generic card generator architecture** | 🔴 Baru — saat ini hard-coded persona |
-| **Privacy whitelist explicit** | 🔴 Baru — saat ini implisit |
-| **Deep link "Cek tipe temenmu"** | 🔴 Baru (opsional) |
+| Card visual layout | 🟡 Reuse, but resize to a share-friendly aspect ratio (1:1 or 9:16) |
+| Action buttons (Copy/WA/X/Download) | 🟢 Harvest 100% |
+| Share text generator | 🟡 Harvest but make sure no numbers leak into the text |
+| **Generic card generator architecture** | 🔴 New — currently hard-coded persona |
+| **Explicit privacy whitelist** | 🔴 New — currently implicit |
+| **"Check your friend's type" deep link** | 🔴 New (optional) |
 
 ---
 
 ## 3. Privacy Guardrails (hard requirement)
 
-Sejalan dengan stance Cermat: **100% client-side, zero server upload, zero data leak**. Kartu yang di-share keluar app **wajib tidak bocorin keuangan asli user**.
+Aligned with Cermat's stance: **100% client-side, zero server upload, zero data leak**. A card shared outside the app **must not leak the user's real finances**.
 
-### 3.1. Whitelist (boleh muncul di kartu)
+### 3.1. Whitelist (allowed on the card)
 
-| Item | Boleh muncul | Alasan |
+| Item | Allowed | Why |
 |---|---|---|
-| Nama persona (label) | ✅ | Hasil klasifikasi — tidak reveal angka |
-| Tagline persona | ✅ | Copy statis dari `strings.ts` |
-| Emoji + gradient | ✅ | Visual saja |
-| Branding "Cermat × Mamikos" | ✅ | Identitas app |
-| CTA "tipe keuangan kamu apa?" | ✅ | Ajakan, bukan data |
+| Persona name (label) | ✅ | Classification result — does not reveal numbers |
+| Persona tagline | ✅ | Static copy from `strings.ts` |
+| Emoji + gradient | ✅ | Visual only |
+| Branding "Cermat × Mamikos" | ✅ | App identity |
+| CTA "tipe keuangan kamu apa?" | ✅ | An invitation, not data |
 | URL `cermat.vercel.app` | ✅ | Public URL |
 
-### 3.2. Greylist (boleh muncul TAPI dengan guardrail — DEFAULT OFF)
+### 3.2. Greylist (allowed BUT with a guardrail — DEFAULT OFF)
 
-| Item | Boleh? | Guardrail |
+| Item | Allowed? | Guardrail |
 |---|---|---|
-| Savings Rate % | ⚠️ Default OFF | Toggle "Tampilkan stats" — eksplisit user consent. Saat ini sudah ada di `ShareCard.vue`. Tapi default state perlu dipertimbangkan: aman default OFF (privacy-first). |
-| Runway (bulan) | ⚠️ Default OFF | Idem |
-| Cermat Score (0-1000) | ⚠️ Default OFF (kalau diaktifkan) | Score komposit — tidak reveal angka tunggal, tapi tetap revealing kualitatif. **Phase 7.1: tidak masuk dulu** (Phase 7.2 evaluasi). |
+| Savings Rate % | ⚠️ Default OFF | "Show stats" toggle — explicit user consent. Already present in `ShareCard.vue`. But the default state needs reconsideration: safer default OFF (privacy-first). |
+| Runway (months) | ⚠️ Default OFF | Same |
+| Cermat Score (0-1000) | ⚠️ Default OFF (if enabled) | Composite score — does not reveal a single number, but is still qualitatively revealing. **Phase 7.1: not included for now** (re-evaluate in Phase 7.2). |
 
-### 3.3. Blacklist (DILARANG muncul di kartu)
+### 3.3. Blacklist (NEVER allowed on the card)
 
 | Item | Rule |
 |---|---|
-| Nominal Rupiah (saldo, utang, gaji, pengeluaran) | ❌ NEVER |
-| Detail rincian (label akun, ticker saham, nama bank) | ❌ NEVER |
-| Net Worth nominal | ❌ NEVER |
-| Surplus nominal | ❌ NEVER |
-| Goals nominal | ❌ NEVER |
-| Apapun dari `snapshot.*` raw | ❌ NEVER |
+| Rupiah amounts (balance, debt, salary, expenses) | ❌ NEVER |
+| Detail line items (account labels, stock tickers, bank names) | ❌ NEVER |
+| Net Worth amount | ❌ NEVER |
+| Surplus amount | ❌ NEVER |
+| Goals amount | ❌ NEVER |
+| Anything from `snapshot.*` raw | ❌ NEVER |
 
-### 3.4. Privacy audit checklist (wajib lulus sebelum implementasi merge)
+### 3.4. Privacy audit checklist (must pass before implementation merge)
 
-- [ ] Card komponen hanya menerima props dari **whitelist** (atau toggled greylist)
-- [ ] Tidak ada akses langsung ke `useSnapshotStore` di dalam komponen card (sumber data harus di-funnel via parent)
-- [ ] Share text (yang di-copy ke clipboard / WA / X) tidak mengandung angka apapun
+- [ ] The card component only accepts props from the **whitelist** (or toggled greylist)
+- [ ] No direct access to `useSnapshotStore` inside the card component (data source must be funneled in via the parent)
+- [ ] The share text (copied to clipboard / WA / X) contains no numbers
 - [ ] Default state: stats toggle = OFF
-- [ ] Toggle stats ada label jelas: "Tampilkan stats saya (terlihat publik)" — bukan ambiguous
-- [ ] Filename download = `cermat-<persona-id>.png` (tidak mengandung data user)
-- [ ] **Test unit (blacklist):** snapshot dengan saldo Rp 999.999.999 → output card DOM textContent + share text + PNG metadata tidak boleh mengandung substring "999"
-- [ ] **Test unit (greylist boundary, Amendment 6):** stats toggle ON → assert *hanya* dua angka muncul di DOM: `<savingsRate>%` dan `<runway> bln`. Tidak ada derived number lain nyelip (mis. Cermat Score, net worth, nominal apa pun). Cara: query semua text node, regex `/\d/`, exclude whitelist pattern, assert count = 2.
+- [ ] The stats toggle has a clear label: "Tampilkan stats saya (terlihat publik)" — not ambiguous
+- [ ] Download filename = `cermat-<persona-id>.png` (contains no user data)
+- [ ] **Unit test (blacklist):** snapshot with balance Rp 999,999,999 → the resulting card DOM textContent + share text + PNG metadata must not contain the substring "999"
+- [ ] **Unit test (greylist boundary, Amendment 6):** stats toggle ON → assert that *only* two numbers appear in the DOM: `<savingsRate>%` and `<runway> bln`. No other derived number sneaks in (e.g. Cermat Score, net worth, any amount). How: query all text nodes, regex `/\d/`, exclude the whitelist pattern, assert count = 2.
 
 ---
 
 ## 4. Image Generation Approach
 
-Tiga opsi dipertimbangkan. Saat ini repo pakai opsi A (`html2canvas`). Per Amendment 1 (v2), keputusan engine ditahan sampai capture spike Day 1 selesai — lihat rekomendasi di bawah.
+Three options considered. The repo currently uses option A (`html2canvas`). Per Amendment 1 (v2), the engine decision is held until the Day 1 capture spike completes — see recommendation below.
 
-### Opsi A: `html2canvas` (current) — kandidat default, dimulai dulu di spike
+### Option A: `html2canvas` (current) — default candidate, start here in the spike
 
-**Mekanisme:** Render card sebagai DOM normal (Tailwind), lalu capture jadi PNG via DOM-to-canvas painting.
+**Mechanism:** Render the card as a normal DOM (Tailwind), then capture it as PNG via DOM-to-canvas painting.
 
 **Pros:**
-- Sudah terinstall + dipakai (zero setup baru)
-- Designer tinggal bikin Tailwind component biasa
+- Already installed + already used (zero new setup)
+- Designer just builds a regular Tailwind component
 - Hot reload friendly (DOM = source of truth)
-- Reuse existing card visual nyaris 100%
+- Reuse of the existing card visual is nearly 100%
 
 **Cons:**
-- Bundle: `html2canvas` ~50kb gzip (sudah lazy-loaded — bukan blocker)
-- Quirks rendering: gradient kadang aliasing, custom font kadang miss, CSS variables (`var(--color-*)`) kadang bermasalah → perlu test thorough di dark mode
-- Tidak pixel-perfect dibanding desain
+- Bundle: `html2canvas` ~50kb gzip (already lazy-loaded — not a blocker)
+- Rendering quirks: gradients sometimes alias, custom fonts sometimes miss, CSS variables (`var(--color-*)`) are sometimes problematic → needs thorough testing in dark mode
+- Not pixel-perfect against the design
 
-### Opsi B: Native `<canvas>` API + manual draw
+### Option B: Native `<canvas>` API + manual draw
 
-**Mekanisme:** Draw text + shapes manual pakai Canvas 2D context.
+**Mechanism:** Draw text + shapes manually via the Canvas 2D context.
 
 **Pros:**
 - Pixel-perfect, full control
-- Lighter (zero new dep)
-- Konsisten cross-browser (no DOM quirk)
+- Lighter (zero new dependency)
+- Consistent across browsers (no DOM quirks)
 
 **Cons:**
-- Reinvent layout system (alignment, wrapping, padding)
-- Designer iteration jadi mahal (tiap perubahan = ngoding Canvas)
-- Reuse visual card existing = 0% (rewrite)
+- Reinvent the layout system (alignment, wrapping, padding)
+- Designer iteration becomes expensive (every change = Canvas coding)
+- Reuse of the existing card visual = 0% (rewrite)
 
-### Opsi C: `html-to-image` (alternative DOM-capture lib)
+### Option C: `html-to-image` (alternative DOM-capture lib)
 
-**Mekanisme:** Sama kategori `html2canvas`, lib berbeda. Lebih kecil (~25kb), kadang lebih baik handle modern CSS.
+**Mechanism:** Same category as `html2canvas`, different library. Smaller (~25kb), sometimes handles modern CSS better.
 
 **Pros:**
-- Lebih kecil
-- Lebih baik di gradient / CSS modern
+- Smaller
+- Better at gradients / modern CSS
 
 **Cons:**
-- Migrasi = swap lib + retest semua quirk
-- Sama-sama DOM-capture, kemungkinan tetap kena quirk lain
+- Migration = swap lib + retest all quirks
+- Both are DOM-capture, may still hit other quirks
 
-### Rekomendasi (Amendment 1 — flipped per tetangga review)
+### Recommendation (Amendment 1 — flipped per neighbor review)
 
-**Capture spike dulu di Day 1, baru lock engine.** v1 rekomendasi "stick A" — di-overrule tetangga: value fitur ini = kualitas visual buat dipamerin di IG/Story, dan `html2canvas` punya weakness terkenal di gradient (aliasing) padahal seluruh kartu kita berbasis gradient per persona. Lock-first → ketauan jelek di Day 4 setelah Layer 2+3 di-build di atasnya.
+**Capture spike first on Day 1, then lock the engine.** The v1 recommendation "stick with A" was overruled by the neighbor: the value of this feature is visual quality for showing off on IG/Story, and `html2canvas` has a known weakness on gradients (aliasing), while our entire card is gradient-based per persona. Lock-first → discovers the problem on Day 4 after Layer 2+3 has been built on top.
 
-**Day 1 spike protocol (paralel dengan refactor `useShare` jadi generic):**
+**Day 1 spike protocol (in parallel with refactoring `useShare` into generic):**
 
-1. Build minimal kartu gradient (1 persona, hard-coded, no architecture) — tujuan: validate output quality, bukan code structure.
-2. Capture pakai `html2canvas` → PNG → buka di:
+1. Build a minimal gradient card (1 persona, hard-coded, no architecture) — goal: validate output quality, not code structure.
+2. Capture with `html2canvas` → PNG → open it in:
    - Chrome desktop
-   - Safari mobile (iOS) — historically engine paling rewel sama DOM-capture libs
-   - WhatsApp / IG preview (apakah upload-back retain quality)
-3. Gradient pass criteria: smooth, no banding, no clipping. Drop-shadow render. Font Inter/Plus Jakarta Sans render (not fallback).
-4. **Pass:** lanjut Layer 2+3 dengan `html2canvas`.
-5. **Fail:** swap ke `html-to-image` (Opsi C — lib lebih kecil + reputasi lebih baik di gradient). Re-spike sama lib baru, +1 hari effort.
-6. **Fail keduanya:** eskalasi — pertimbangan: drop gradient → flat color per persona (lebih aman lib-agnostic) atau go Opsi B (native canvas, full control, mahal di iteration).
+   - Safari mobile (iOS) — historically the engine most temperamental with DOM-capture libs
+   - WhatsApp / IG preview (does the upload-back retain quality?)
+3. Gradient pass criteria: smooth, no banding, no clipping. Drop-shadow renders. Inter / Plus Jakarta Sans font renders (not fallback).
+4. **Pass:** continue Layer 2+3 with `html2canvas`.
+5. **Fail:** swap to `html-to-image` (Option C — smaller lib + better reputation on gradients). Re-spike with the new lib, +1 day effort.
+6. **Fail on both:** escalate — consider: drop the gradient → flat color per persona (safer, lib-agnostic) or go Option B (native canvas, full control, expensive on iteration).
 
-**Decision artifact:** simpan PNG hasil spike di `.review/spike-capture-day1/` + 1-paragraf temuan, sebelum proceed.
+**Decision artifact:** save the PNG spike output to `.review/spike-capture-day1/` + a 1-paragraph finding, before proceeding.
 
 ---
 
-## 5. Card Generator: Generic Architecture (untuk Phase 7.2-readiness)
+## 5. Card Generator: Generic Architecture (for Phase 7.2-readiness)
 
-AI tetangga minta: **"image-generation-nya reusable/generic, jangan hardcode khusus persona card. Kedepannya hasil lain (misal hasil kalkulator di Phase 7.2) bakal mau di-share pakai mesin yang sama."**
+Neighbor AI asks: **"the image-generation has to be reusable/generic, don't hardcode it specifically to the persona card. In the future other outputs (e.g. calculator results in Phase 7.2) will be shared with the same engine."**
 
-### 5.1. Saat ini (anti-pattern yang harus dihindari)
+### 5.1. Current state (anti-pattern to avoid)
 
 ```ts
 // composables/useShare.ts (current)
 useShare(personaKey: Ref<PersonaKey | null>) { ... }
 //        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//        Signature terikat ke domain "persona"
+//        Signature is bound to the "persona" domain
 ```
 
-Kalau Phase 7.2 mau share hasil kalkulator, opsinya:
-- Tambah parameter union → signature bloat
-- Bikin `useShareKalkulator()` → duplikat logic capture
+If Phase 7.2 wants to share calculator output, the options are:
+- Add union parameters → signature bloat
+- Build `useShareKalkulator()` → duplicate capture logic
 
-Dua-duanya jelek. Solusi: **separation of concerns**.
+Both are ugly. The solution: **separation of concerns**.
 
 ### 5.2. Generic architecture (proposed)
 
-Tiga lapis, satu domain (`share/`):
+Three layers, one domain (`share/`):
 
 ```
 ┌─────────────────────────────────────┐
-│ Layer 3: Use-case card komponen     │
+│ Layer 3: Use-case card components   │
 │ - PersonaShareCard.vue (Phase 7.1)  │
 │ - KalkulatorShareCard.vue (7.2)     │
 │ - BadgeShareCard.vue (future)       │
@@ -296,67 +296,67 @@ Tiga lapis, satu domain (`share/`):
 ```
 
 **Layer 1 — `useShare()`:**
-- Signature: `useShare()` (no args) → return functions yang menerima payload eksplisit per-call
+- Signature: `useShare()` (no args) → returns functions that accept an explicit payload per-call
 - Functions:
-  - `captureAsPng(el, opts) → Promise<Blob>` — capture DOM jadi PNG (engine yang menang spike Day 1)
+  - `captureAsPng(el, opts) → Promise<Blob>` — capture DOM as PNG (the engine that wins the Day 1 spike)
   - `copyText(text) → Promise<void>` — clipboard
-  - `shareToWa(text)` — `https://wa.me/?text=...` intent (teks+URL fallback)
-  - `shareToTwitter(text)` — `https://twitter.com/intent/tweet?text=...` intent (teks+URL fallback)
-  - **`shareNative({ files, text, title }) → Promise<boolean>` (Amendment 2)** — wrapper di atas `navigator.share()` Web Share API. Return `true` kalau native sheet kebuka, `false` kalau unsupported / user-cancelled / file-share unsupported (browser old). Layer 3 pakai return value buat decide: show fallback grid (Salin/WA/X/Download) atau hide button-nya.
-- Zero domain knowledge — gak tau apa itu PersonaKey.
+  - `shareToWa(text)` — `https://wa.me/?text=...` intent (text+URL fallback)
+  - `shareToTwitter(text)` — `https://twitter.com/intent/tweet?text=...` intent (text+URL fallback)
+  - **`shareNative({ files, text, title }) → Promise<boolean>` (Amendment 2)** — wrapper around the `navigator.share()` Web Share API. Returns `true` if the native sheet opens, `false` if unsupported / user-cancelled / file-share unsupported (old browser). Layer 3 uses the return value to decide: show the fallback grid (Copy/WA/X/Download) or hide the button.
+- Zero domain knowledge — doesn't know what a PersonaKey is.
 
-**Kenapa `shareNative` di Layer 1, bukan Layer 3 (Amendment 2 — per tetangga #2):**
+**Why `shareNative` lives in Layer 1, not Layer 3 (Amendment 2 — per neighbor #2):**
 
-Target user = anak kos Indonesia mobile-first. Realitas UX:
-- WhatsApp/Twitter intent = **teks+URL doang** (PNG-nya ketinggalan).
-- Download → buka Files → upload manual ke IG = **drop-off besar**, terutama di Safari iOS yang nyimpen ke Photos lewat extra step.
-- `navigator.share({ files: [pngBlob] })` = OS-level share sheet → IG / TikTok / Story / WA / Telegram / Twitter app langsung dapet gambar.
+Target user = Indonesian kos kid, mobile-first. UX reality:
+- WhatsApp/Twitter intent = **text+URL only** (the PNG gets lost).
+- Download → open Files → upload manually to IG = **big drop-off**, especially on Safari iOS where saving to Photos requires an extra step.
+- `navigator.share({ files: [pngBlob] })` = OS-level share sheet → IG / TikTok / Story / WA / Telegram / Twitter app receive the image directly.
 
-**Browser support (per 2026):** Web Share API Level 2 (file share) stable di Chrome Android, Safari iOS 15+, Edge. Desktop spotty (Chrome desktop OK, Firefox no). Fallback grid tetap wajib.
+**Browser support (as of 2026):** Web Share API Level 2 (file share) is stable on Chrome Android, Safari iOS 15+, Edge. Desktop is spotty (Chrome desktop OK, Firefox no). The fallback grid is still mandatory.
 
-**UI pattern di Layer 3 — Amendment 10 (round 2 Q2): split default mobile vs desktop:**
+**UI pattern in Layer 3 — Amendment 10 (round 2 Q2): split default for mobile vs desktop:**
 
 ```
-Device detection (touch/pointer-based, BUKAN cuma feature-detect navigator.share):
-  ├─ Mobile (touch primary) + shareNative supported →
-  │     Tombol "Bagikan 📤" primary
-  │     Grid 4 fallback tersembunyi (atau muncul kalau native gagal/cancelled)
+Device detection (touch/pointer-based, NOT just feature-detect navigator.share):
+  ├─ Mobile (primary touch) + shareNative supported →
+  │     "Bagikan 📤" button as primary
+  │     Fallback grid of 4 hidden (or shown if native fails/cancelled)
   │
-  └─ Desktop (pointer/mouse primary) →
-        Grid 4 button (Salin/WA/X/Download) primary
-        Native share tombol HIDDEN — meskipun browser support
-        (Safari macOS/Edge support navigator.share tapi UX desktop sheet
-         aneh & user desktop tidak expect — lebih natural pakai grid)
+  └─ Desktop (primary pointer/mouse) →
+        Grid of 4 buttons (Copy/WA/X/Download) as primary
+        Native share button HIDDEN — even if the browser supports it
+        (Safari macOS/Edge support navigator.share, but the desktop sheet UX
+         is weird & desktop users don't expect it — the grid feels more natural)
 ```
 
-**Kenapa deteksi touch/pointer, bukan murni `navigator.share` exists:** Safari macOS + Edge desktop support `navigator.share`, tapi:
-- Native share sheet desktop = window kecil aneh, jarang dipakai user
-- User desktop expect copy/download flow tradisional
-- Mobile user expect share sheet OS (sudah jadi muscle memory IG/WA Story)
+**Why detect touch/pointer, not purely whether `navigator.share` exists:** Safari macOS + Edge desktop support `navigator.share`, but:
+- The desktop native share sheet = an odd small window, rarely used
+- Desktop users expect a traditional copy/download flow
+- Mobile users expect an OS share sheet (already muscle memory from IG/WA Story)
 
-**Implementation hint:** pakai `matchMedia('(pointer: coarse)')` atau `'ontouchstart' in window` untuk deteksi. Atau combo: `pointer: coarse` AND `navigator.share` AND `navigator.canShare({ files })`. Layer 1 expose `isMobileShareCapable()` helper.
+**Implementation hint:** use `matchMedia('(pointer: coarse)')` or `'ontouchstart' in window` for detection. Or a combo: `pointer: coarse` AND `navigator.share` AND `navigator.canShare({ files })`. Layer 1 exposes an `isMobileShareCapable()` helper.
 
-Bukan: tampilkan tombol "Share" terpisah dari grid di atas mobile (redundant). Native share di mobile = primary path; grid di desktop = primary path. Konsisten = 1 primary path per platform.
+Don't: show a separate "Share" button alongside the grid on mobile (redundant). Native share on mobile = primary path; grid on desktop = primary path. Consistent = 1 primary path per platform.
 
 **Layer 2 — `ShareDialog.vue`:**
-- Props: `open: boolean`, `aspectRatio?: '1:1' | '9:16'` (default `'1:1'` — Amendment 5: layout slot harus vertical-friendly biar seam `aspectRatio` beneran tinggal flip config), `downloadName?: string`, `shareText: string`
+- Props: `open: boolean`, `aspectRatio?: '1:1' | '9:16'` (default `'1:1'` — Amendment 5: the slot layout must be vertical-friendly so the `aspectRatio` seam is genuinely a config flip), `downloadName?: string`, `shareText: string`
 - Slot: `default` (the card visual content)
-- Renders: inline fixed overlay (NOT Teleport) + native-share-first action area (fallback grid). Captures whatever's in the slot.
+- Renders: inline fixed overlay (NOT Teleport) + native-share-first action area (fallback grid). Captures whatever is in the slot.
 - Zero domain knowledge.
 
 **Layer 3 — `PersonaShareCard.vue`:**
 - Domain-specific. Composes Layer 2 + Layer 1.
 - Knows about `PersonaKey`, gradient, emoji, tagline.
-- Phase 7.2: bikin `KalkulatorShareCard.vue` yang juga compose Layer 2 + Layer 1 dengan visual berbeda.
+- Phase 7.2: build `KalkulatorShareCard.vue` that also composes Layer 2 + Layer 1 with a different visual.
 
-### 5.3. Scope discipline (penting!)
+### 5.3. Scope discipline (important!)
 
-**Phase 7.1 implementasi:** Layer 1 + Layer 2 + Layer 3 (persona only).
-**Phase 7.1 BUKAN:** bikin Layer 3 buat use-case lain. Hanya persona.
+**Phase 7.1 implementation:** Layer 1 + Layer 2 + Layer 3 (persona only).
+**Phase 7.1 is NOT:** building Layer 3 for other use-cases. Persona only.
 
-Kenapa? Karena "generic" yang dibikin tanpa real second use-case = over-engineering. Phase 7.2 pas implementasi use-case kedua = momen real-validation buat apakah Layer 1+2-nya beneran generic atau perlu refactor.
+Why? Because "generic" built without a real second use-case = over-engineering. Phase 7.2, when implementing the second use-case, is the real-validation moment for whether Layer 1+2 is actually generic or needs refactoring.
 
-**Risiko & mitigasi:** Kalau Phase 7.2 ternyata butuh feature yang Layer 2 saat ini gak provide (mis. multi-page card), itu refactor wajar — itulah gunanya iterasi. Yang dilarang: bikin Layer 2 yang spekulatif (multi-page support, animation, dll) tanpa real consumer.
+**Risk & mitigation:** if Phase 7.2 turns out to need a feature Layer 2 currently doesn't provide (e.g. multi-page card), that's a fair refactor — that's the point of iteration. What's forbidden: building speculative Layer 2 features (multi-page support, animation, etc.) without a real consumer.
 
 ---
 
@@ -364,182 +364,182 @@ Kenapa? Karena "generic" yang dibikin tanpa real second use-case = over-engineer
 
 ### 6.1. Aspect ratio (Amendment 5 — vertical-friendly seam)
 
-- **Default render: 1:1 (square)** — paling universal (IG post, FB post, WA status thumb).
-- **Phase 7.1 ship:** 1:1 only sebagai output yang available di UI.
-- **TAPI layout slot wajib disusun vertical-friendly dari awal** — sehingga seam `aspectRatio` prop di `ShareDialog` (§5.2) tinggal flip config buat 9:16 di Phase 7.2 / hotfix, bukan redesign visual.
+- **Default render: 1:1 (square)** — most universal (IG post, FB post, WA status thumb).
+- **Phase 7.1 ship:** 1:1 only as the UI-available output.
+- **BUT the slot layout must be structured vertical-friendly from the start** — so the `aspectRatio` prop on `ShareDialog` (§5.2) is just a config flip for 9:16 in Phase 7.2 / hotfix, not a visual redesign.
 
-**Konkretnya:** stack vertikal (emoji → label → tagline → stats → CTA → branding), single-column, padding generous. Hindari layout horizontal 2-kolom atau elemen yang assume aspect 1:1 (mis. circle background yang touch 4 edges). Center-align semuanya. Margin atas/bawah longgar — jadi waktu container di-stretch vertikal (9:16), proporsi gak rusak.
+**Concretely:** vertical stack (emoji → label → tagline → stats → CTA → branding), single-column, generous padding. Avoid horizontal 2-column layouts or elements that assume aspect 1:1 (e.g. a circle background touching all 4 edges). Center-align everything. Generous top/bottom margins — so when the container is stretched vertically (9:16), proportions don't break.
 
-### 6.2. Layout (default render 1:1, vertical-friendly biar 9:16 tinggal flip — Amendment 5)
+### 6.2. Layout (default render 1:1, vertical-friendly so 9:16 is a flip — Amendment 5)
 
 ```
 ┌──────────────────────────────┐
-│                              │  ← padding atas (longgar, scale-friendly)
-│         [EMOJI BESAR]        │  ← 96-128px, drop-shadow
+│                              │  ← top padding (generous, scale-friendly)
+│         [BIG EMOJI]          │  ← 96-128px, drop-shadow
 │                              │
 │      Anak Kos Bijak          │  ← persona label, 2xl/3xl bold
 │   Disiplin ngatur keuangan   │  ← tagline, base, opacity 90%
 │                              │
 │   ┌─ (optional toggle) ──┐   │
-│   │ Sisa Uang   Bertahan │   │  ← stats card (kalau toggle ON)
+│   │ Sisa Uang   Bertahan │   │  ← stats card (if toggle ON)
 │   │   35%       6 bln    │   │     -- DEFAULT OFF
 │   └──────────────────────┘   │
-│                              │  ← spacer (di 9:16 lebih besar — pakai flex grow)
+│                              │  ← spacer (larger in 9:16 — use flex grow)
 │  tipe keuanganmu apa?        │  ← CTA, sm italic
 │  Coba di Cermat × Mamikos    │  ← branding
 │  cermat.vercel.app           │  ← URL, xs mono
-│                              │  ← padding bawah (longgar)
+│                              │  ← bottom padding (generous)
 └──────────────────────────────┘
 ```
 
-**Anti-pattern (tolak):**
-- 2-kolom (emoji kiri, copy kanan) — break di 9:16
-- Absolute-positioned dengan persen yang assume 1:1
-- Circle background ber-radius = 50% width = jadi oval di 9:16
-- **`vh` / `vw` units** atau **`%`-height yang depend ke parent dynamic** (Amendment 12, round 2 Q5) — html2canvas render di **logical fixed size** (mis. 1080×1080), elemen viewport-unit-based bisa geser pas capture lintas device. Pakai fixed/aspect-based sizing (px, em, rem, atau aspect-ratio CSS).
+**Anti-pattern (reject):**
+- 2-column (emoji left, copy right) — breaks in 9:16
+- Absolute-positioned with percentages that assume 1:1
+- Circle background with radius = 50% width → becomes an oval in 9:16
+- **`vh` / `vw` units** or **`%`-height dependent on a dynamic parent** (Amendment 12, round 2 Q5) — html2canvas renders at a **logical fixed size** (e.g. 1080×1080), and viewport-unit-based elements can shift on capture across devices. Use fixed/aspect-based sizing (px, em, rem, or CSS aspect-ratio).
 
-**Pattern OK:**
-- `flex flex-col items-center justify-between` + `flex-grow` di spacer middle
-- Gradient via `bg-gradient-to-b` (top→bottom) — natural di portrait
-- Padding pakai `px-8 py-12` (uniform, scale-friendly)
-- Sizing: `w-[1080px] aspect-square` atau `aspect-[9/16]`, font pakai `text-base/lg/xl/2xl` (rem-based) — bukan `text-[3vw]`
+**OK patterns:**
+- `flex flex-col items-center justify-between` + `flex-grow` on the middle spacer
+- Gradient via `bg-gradient-to-b` (top→bottom) — natural in portrait
+- Padding via `px-8 py-12` (uniform, scale-friendly)
+- Sizing: `w-[1080px] aspect-square` or `aspect-[9/16]`, fonts via `text-base/lg/xl/2xl` (rem-based) — not `text-[3vw]`
 
-Gradient background per persona (reuse + pindahkan `PERSONA_STYLE_MAP` ke `lib/finance/persona.ts` jadi source-of-truth).
+Gradient background per persona (reuse + move `PERSONA_STYLE_MAP` into `lib/finance/persona.ts` as the source-of-truth).
 
 ### 6.3. Visual rules
 
-- **Logo Mamikos:** lock-up text "Cermat × Mamikos" (no logo image — privacy concern, dependency hassle). Halus, di footer.
-- **URL:** static `cermat.vercel.app` di footer (font monospace kecil).
-- **CTA copy:** *"tipe keuangan kamu apa? Coba di Cermat"* — atau iterasi lain. Tone casual, ngajak.
-- **Stats toggle (kalau ON):** card kecil 2-kolom (Sisa Uang %, Bertahan bln) — sudah ada di `ShareCard.vue`, tinggal pastikan default OFF.
-- **Dark mode:** card sebaiknya **selalu light** (gradient warna) — independen dari theme app. Alasannya: dark mode jadi inkonsisten dengan IG/sosmed feed yang dominan light.
-- **Native share button (Amendment 2 + 10):** **mobile-only primary** — label "Bagikan" + emoji 📤. **Desktop:** tombol native ini HIDDEN, grid 4 button (Salin/WA/X/Download) jadi primary (lihat §5.2 UI pattern). Di mobile, kalau `shareNative` return `false` (unsupported/cancelled) → fall back ke grid 4 button.
+- **Mamikos logo:** text lock-up "Cermat × Mamikos" (no logo image — privacy concern, dependency hassle). Subtle, in the footer.
+- **URL:** static `cermat.vercel.app` in the footer (small monospace font).
+- **CTA copy:** *"tipe keuangan kamu apa? Coba di Cermat"* — or other iterations. Casual, inviting tone.
+- **Stats toggle (if ON):** small 2-column card (Sisa Uang %, Bertahan bln) — already in `ShareCard.vue`, just confirm default OFF.
+- **Dark mode:** the card should **always be light** (color gradient) — independent of the app theme. Reason: dark mode is inconsistent with IG/social feeds, which are dominantly light.
+- **Native share button (Amendment 2 + 10):** **mobile-only primary** — label "Bagikan" + emoji 📤. **Desktop:** this native button is HIDDEN, the grid of 4 buttons (Copy/WA/X/Download) is primary (see §5.2 UI pattern). On mobile, if `shareNative` returns `false` (unsupported/cancelled) → fall back to the grid.
 
 ### 6.4. Font
 
-Gunakan font yang sudah di-load app (Inter/Plus Jakarta Sans). **Catatan:** `html2canvas` kadang gagal capture custom font kalau belum fully loaded — wajib tunggu `document.fonts.ready` sebelum capture.
+Use a font already loaded by the app (Inter/Plus Jakarta Sans). **Note:** `html2canvas` sometimes fails to capture a custom font if it hasn't fully loaded — must wait for `document.fonts.ready` before capture.
 
-### 6.5. Persona naming untuk konteks publik (Amendment 3)
+### 6.5. Persona naming for public context (Amendment 3)
 
-Tetangga flag: persona ke-5 saat ini bernama **"Sobat Indomie"**. Di v1, persona cuma muncul in-app sebagai label — aman. Di v2, persona jadi **artefak publik dengan co-branding "Cermat × Mamikos"**. Naro nama produk komersial pihak ketiga (Indomie / Indofood) di kartu yang di-share = risiko:
+The neighbor flagged: the 5th persona is currently named **"Sobat Indomie"**. In v1, the persona only appeared in-app as a label — safe. In v2, the persona becomes a **public artifact co-branded "Cermat × Mamikos"**. Putting a third-party commercial product name (Indomie / Indofood) on a shared card carries risk:
 
-1. Asosiasi brand pihak ketiga tanpa izin (Indofood gak approve usage).
-2. Implikasi "lo gembel sampe makan Indomie" yang nempel ke co-branding Mamikos (Mamikos ikut kebawa).
+1. Unauthorized brand association (Indofood didn't approve the usage).
+2. The "you're so broke you eat Indomie" implication, attached to Mamikos co-branding (Mamikos gets pulled in).
 
-**Recommendation:** Rename ke **"Sobat Mie"** (tetangga's primary suggestion). Alasan:
-- "Sobat Mie" generik (mie instan jenisnya banyak) — tidak asosiasi brand spesifik.
-- Tone hangat & relatable tetap terjaga (sesuai persona empati hemat).
-- 1-kata-beda dari original → minimal disruption ke recognition kalau ada user lama.
+**Recommendation:** Rename to **"Sobat Mie"** (the neighbor's primary suggestion). Reasons:
+- "Sobat Mie" is generic (instant noodles come in many brands) — no specific brand association.
+- Warm & relatable tone is preserved (matches the empathy/budget persona).
+- 1 word different from the original → minimal disruption to recognition for existing users.
 
-**Alternatif (kalau "Sobat Mie" gak click):**
-- "Sobat Hemat" — paling netral, OJK-friendly, tapi flat (kehilangan warmth).
-- "Anak Kos Hemat" — masuk theme "Anak Kos *" tapi numpuk dengan "Anak Kos Bijak".
+**Alternatives (if "Sobat Mie" doesn't click):**
+- "Sobat Hemat" — most neutral, OJK-friendly, but flat (loses warmth).
+- "Anak Kos Hemat" — fits the "Anak Kos *" theme but overlaps with "Anak Kos Bijak".
 
-**Implementasi:**
-- Update `lib/copy/strings.ts`: `persona.sobatIndomie.label` value `"Sobat Indomie"` → `"Sobat Mie"`. Update `persona.sobatIndomie.tagline` kalau referencing "indomie" specifically (current: `"Hemat itu pilihan, tapi yang penting happy!"` — aman, tidak perlu ubah).
-- **Keep internal `PersonaKey` = `'sobatIndomie'`** untuk menghindari breaking change ke localStorage, tests, dan fixtures yang reference key. Display-only rename.
-- Note di kode: comment di `persona.ts` jelaskan kenapa key beda dari display label (technical debt yang reasonable).
+**Implementation:**
+- Update `lib/copy/strings.ts`: change `persona.sobatIndomie.label` value `"Sobat Indomie"` → `"Sobat Mie"`. Update `persona.sobatIndomie.tagline` if it references "indomie" specifically (current: `"Hemat itu pilihan, tapi yang penting happy!"` — safe, no change needed).
+- **Keep the internal `PersonaKey` = `'sobatIndomie'`** to avoid breaking changes to localStorage, tests, and fixtures that reference the key. Display-only rename.
+- Code note: a comment in `persona.ts` explains why the key differs from the display label (reasonable technical debt).
 
-**Open untuk override:** kalau user/tetangga prefer rename internal key juga (consistency > backwards-compat), itu juga acceptable — cost: update 3-5 file + test snapshot regen.
+**Open to override:** if the user/neighbor prefers renaming the internal key too (consistency > backwards-compat), that's also acceptable — cost: update 3-5 files + regen test snapshots.
 
 ---
 
-## 7. Deep Link "Cek Tipe Temenmu" — MUST-HAVE (Amendment 4)
+## 7. Deep Link "Check your friend's type" — MUST-HAVE (Amendment 4)
 
-Status: **MUST-HAVE Phase 7.1** (promote dari opsional per tetangga review).
+Status: **MUST-HAVE in Phase 7.1** (promoted from optional per neighbor review).
 
-### Konsep
+### Concept
 
-Pas user share kartu di sosmed/WA, link yang dibagikan = URL ke landing Cermat yang ngajak orang **nyoba quiz persona singkat** (atau langsung ke onboarding budget-kos). Beda dari sekadar share URL homepage.
+When the user shares the card on social/WA, the shared link = a URL to the Cermat landing page that invites the visitor to **try a short persona quiz** (or go straight to budget-kos onboarding). Different from just sharing the homepage URL.
 
-### Kenapa MUST, bukan opsional (Amendment 4)
+### Why MUST, not optional (Amendment 4)
 
-Tanpa loop landing:
+Without the landing loop:
 ```
-User A share kartu → User B klik link → mendarat di homepage generik → bounce
-```
-
-Dengan loop landing:
-```
-User A share kartu → User B klik link → banner "penasaran tipe kamu?" → CTA → budget-kos onboarding → konversi
+User A shares card → User B clicks link → lands on generic homepage → bounces
 ```
 
-Tetangga: *"Ngapain ship fitur viral tapi pengalaman pendaratan buat yang ngeklik-nya rusak?"* Setuju — fitur viral tanpa landing loop = bocor di mulut botol. Opsi A cuma ½ hari, masuk akal.
+With the landing loop:
+```
+User A shares card → User B clicks link → "curious about your type?" banner → CTA → budget-kos onboarding → conversion
+```
 
-### Opsi A: URL parameter (PILIH untuk 7.1)
+Neighbor: *"Why ship a viral feature but break the landing experience for whoever clicks?"* Agreed — a viral feature without a landing loop = leaking at the bottleneck. Option A is only ½ a day, makes sense.
+
+### Option A: URL parameter (CHOSEN for 7.1)
 
 ```
 https://cermat.vercel.app/?from=share&persona=sobatMie
 ```
 
 **Behavior:**
-- Landing page (`pages/index.vue`) baca query string `from=share` di mount
-- Kalau `from=share` ada → render banner overlay di hero: **"Penasaran tipe kamu? Yuk isi data, gratis & 100% di HP kamu — gak ke server"**
-- Banner punya 1 CTA: **"Cek tipe saya"** → `navigateTo('/app/budget-kos?onboard=1')`
-- Optional: kalau `persona=<key>` valid, banner show preview *"Temanmu adalah Sobat Mie 🍜"* → bikin lebih personal
-- Banner dismissible (X button) — no localStorage persist (next visit, kalau klik link share lain, muncul lagi)
+- The landing page (`pages/index.vue`) reads the query string `from=share` on mount
+- If `from=share` is present → render a banner overlay over the hero: **"Penasaran tipe kamu? Yuk isi data, gratis & 100% di HP kamu — gak ke server"**
+- The banner has 1 CTA: **"Cek tipe saya"** → `navigateTo('/app/budget-kos?onboard=1')`
+- Optional: if `persona=<key>` is valid, the banner shows a preview *"Temanmu adalah Sobat Mie 🍜"* → more personal
+- Banner is dismissible (X button) — no localStorage persist (next visit, if clicking another share link, it reappears)
 
-**Effort:** S (½ hari) — parse query + conditional banner component + 1 string copy.
+**Effort:** S (½ day) — parse query + conditional banner component + 1 copy string.
 
-**Privacy:** `persona=<key>` di URL = nama persona doang, no nominal. Aman (whitelist §3.1).
+**Privacy:** `persona=<key>` in the URL = the persona name only, no amount. Safe (whitelist §3.1).
 
-**Analytics:** boleh nyusul (Phase 7.2 / setelah validasi viral). Loop dulu, ukur belakangan.
+**Analytics:** can come later (Phase 7.2 / after viral validation). Close the loop first, measure later.
 
-### Opsi B: Dedicated landing `/persona` (DEFER ke Phase 7.3)
+### Option B: Dedicated landing `/persona` (DEFER to Phase 7.3)
 
-Halaman terpisah `/persona?ref=share` dengan quiz singkat (3-4 pertanyaan ringan) → output preview persona → CTA ke full app.
+A separate page `/persona?ref=share` with a short quiz (3-4 light questions) → persona preview output → CTA to the full app.
 
-**Effort:** L (2-3 hari) — desain quiz, copy, scoring sederhana. Defer karena Opsi A udah nutup loop minimum viable.
+**Effort:** L (2-3 days) — quiz design, copy, simple scoring. Defer because Option A already closes the minimum-viable loop.
 
-### Visual hint banner — Amendment 11 (round 2 Q4): dipangkas, 1 hook headline
+### Banner visual hint — Amendment 11 (round 2 Q4): trimmed, single-hook headline
 
-Copy v2 (3 ide ditumpuk: hasil temen + ajakan + privacy) → dipangkas jadi headline 1 hook + privacy ke microcopy bawah tombol. Banner mendarat = ±1.5 detik attention, tidak boleh paragraf.
+The v2 copy (3 ideas stacked: friend's result + invite + privacy) → trimmed to a 1-hook headline + privacy microcopy below the button. A landing banner gets ~1.5 seconds of attention, no paragraphs allowed.
 
 ```
 ┌─────────────────────────────────────────────┐
 │  Temenmu Sobat Mie 🍜👀                     │  ← headline = 1 hook
 │  Kamu tipe apa?                             │
 │                                             │
-│  [ Cek gratis → ]              [ × tutup ]  │  ← CTA tegas
+│  [ Cek gratis → ]              [ × tutup ]  │  ← decisive CTA
 │                                             │
-│  🔒 100% di HP kamu — gak ke server         │  ← microcopy privacy
+│  🔒 100% di HP kamu — gak ke server         │  ← privacy microcopy
 └─────────────────────────────────────────────┘
 ```
 
 **Copy spec:**
-- **Headline (1 hook):** `"Temenmu {personaLabel} 👀"` + sub-baris `"Kamu tipe apa?"` (kalau `?persona=<key>` valid). Kalau invalid → fallback: `"Cek tipe keuangan kamu 👀"`.
-- **CTA:** `"Cek gratis →"` (tegas, action-oriented).
-- **Microcopy privacy:** `"🔒 100% di HP kamu — gak ke server"` (kecil, di bawah tombol — bukan di headline).
+- **Headline (1 hook):** `"Temenmu {personaLabel} 👀"` + sub-line `"Kamu tipe apa?"` (if `?persona=<key>` is valid). If invalid → fallback: `"Cek tipe keuangan kamu 👀"`.
+- **CTA:** `"Cek gratis →"` (decisive, action-oriented).
+- **Privacy microcopy:** `"🔒 100% di HP kamu — gak ke server"` (small, below the button — not in the headline).
 
 **Behavior:**
-- Card kecil di atas hero, soft shadow, gradient sesuai persona kalau `persona=` valid (atau emerald default).
-- Bukan modal — non-blocking, biar user bisa langsung scroll-explore kalau gak mau klik.
-- Dismissible (X). No localStorage persist — next visit dari share link lain, muncul lagi.
+- Small card above the hero, soft shadow, gradient matching the persona if `persona=` is valid (or default emerald).
+- Not a modal — non-blocking, so the user can scroll-explore if they don't want to click.
+- Dismissible (X). No localStorage persist — next visit from another share link, it reappears.
 
 ---
 
 ## 8. Implementation Order (LOCKED v3 — post round 2)
 
-**Catatan:** ini urutan implementasi yang sudah di-lock. **Belum dieksekusi** — tunggu konfirmasi tetangga di versi locked v3.
+**Note:** this is the implementation order that's been locked. **Not yet executed** — wait for neighbor confirmation on the locked v3.
 
-**Per Amendment 9 (round 2 Q1):** Day 1 = **capture spike PENUH** (decision gate, jangan dikompres). Refactor `useShare` geser ke Day 2. Spike pondasi → kalau fail dan harus swap engine, itu +1 hari yang real. Effort 6 hari (spike pass first try) sampai 7 hari (perlu swap lib).
+**Per Amendment 9 (round 2 Q1):** Day 1 = **FULL capture spike** (decision gate, do not compress). The `useShare` refactor shifts to Day 2. Spike is foundational → if it fails and the engine has to be swapped, that's +1 real day. Effort is 6 days (spike passes first try) up to 7 days (lib swap needed).
 
-| Hari | Task | Files |
+| Day | Task | Files |
 |---|---|---|
-| **1 (PENUH)** | **🟠 Capture-quality spike (Amendment 1 + 9)** — minimal kartu gradient hard-coded, capture pakai html2canvas, test di Chrome desktop + Safari iOS + WhatsApp/IG preview. Pass criteria: §4 protocol. Simpan PNG ke `.review/spike-capture-day1/`. **Tidak dipaksa setengah hari — spike ini decision gate.** Pas hasilnya fail → swap ke `html-to-image`, re-spike (+1 hari). Fail keduanya → eskalasi (flat color atau native canvas). | spike branch / throwaway component, decision artifact: 1-paragraf temuan |
-| **2 — pagi** | Refactor `useShare.ts` → generic (Layer 1), no domain coupling. **Tambah `shareNative({ files, text, title })` + `isMobileShareCapable()` helper** (Amendment 2 + 10) — feature-detect combo `pointer: coarse` + `navigator.canShare({ files })`. | `composables/useShare.ts` |
-| **2 — siang** | Audit privacy: write unit tests yang assert no-leak (blacklist §3.4) + greylist boundary (Amendment 6) | `tests/composables/useShare.test.ts` (NEW) |
-| **2 — sore** | Build `ShareDialog.vue` (Layer 2): inline fixed overlay (NOT Teleport), `aspectRatio` prop seam (default `'1:1'`), **action area dengan split mobile-primary-native vs desktop-primary-grid (Amendment 10)** | `components/common/ShareDialog.vue` (NEW) |
+| **1 (FULL)** | **🟠 Capture-quality spike (Amendment 1 + 9)** — minimal hard-coded gradient card, capture with html2canvas, test on Chrome desktop + Safari iOS + WhatsApp/IG preview. Pass criteria: §4 protocol. Save PNG into `.review/spike-capture-day1/`. **Do not force half-day — this spike is the decision gate.** If the result fails → swap to `html-to-image`, re-spike (+1 day). If both fail → escalate (flat color or native canvas). | spike branch / throwaway component, decision artifact: 1-paragraph finding |
+| **2 — morning** | Refactor `useShare.ts` → generic (Layer 1), no domain coupling. **Add `shareNative({ files, text, title })` + `isMobileShareCapable()` helper** (Amendment 2 + 10) — feature-detect combo `pointer: coarse` + `navigator.canShare({ files })`. | `composables/useShare.ts` |
+| **2 — midday** | Privacy audit: write unit tests that assert no-leak (blacklist §3.4) + greylist boundary (Amendment 6) | `tests/composables/useShare.test.ts` (NEW) |
+| **2 — afternoon** | Build `ShareDialog.vue` (Layer 2): inline fixed overlay (NOT Teleport), `aspectRatio` prop seam (default `'1:1'`), **action area with split mobile-primary-native vs desktop-primary-grid (Amendment 10)** | `components/common/ShareDialog.vue` (NEW) |
 | 3 | Build `PersonaShareCard.vue` (Layer 3) — **vertical-friendly layout (Amendment 5 + 12)**, no `vh`/`vw`/`%`-height, default stats OFF, gradient via `bg-gradient-to-b` | `components/share/PersonaShareCard.vue` (NEW) |
-| 4 — pagi | Pindahkan `PERSONA_STYLE_MAP` ke `lib/finance/persona.ts` (source-of-truth) | `lib/finance/persona.ts`, `components/dashboard/PersonaCard.vue` |
-| 4 — siang | **Rename "Sobat Indomie" → "Sobat Mie" (Amendment 3 — LOCKED)** di `lib/copy/strings.ts` label. Keep internal `PersonaKey`. Update tests yang assert string. | `lib/copy/strings.ts`, `tests/finance/persona.test.ts` |
-| 4 — sore | Wire entry point di `PersonaCard.vue` (tombol Share → `ShareDialog` baru) + perjelas tombol (size 9×9 + tooltip "Bagikan kartu") | `components/dashboard/PersonaCard.vue` |
-| **5** | **🟡 Deep link `?from=share` handler (Amendment 4 + 11 — MUST)** — landing banner dengan copy yang dipangkas (`"Temenmu <persona> 👀 Kamu tipe apa?"` + CTA "Cek gratis →" + microcopy privacy), parse query, conditional render, dismissible | `pages/index.vue` + `components/landing/ShareInviteBanner.vue` (NEW) |
-| 5 | Cross-browser test capture (Chrome/Safari mobile + desktop), dark mode, slow network 3G, font-loading race, native share di iOS Safari + Chrome Android | manual QA |
-| 6 | Polish: font loading wait (`document.fonts.ready`), error state (capture fail toast), loading state ("Sedang membuat kartu…"), native-share fallback UX, banner gradient per persona | sesuai temuan |
-| **7 (buffer)** | Buffer kalau spike Day 1 fail → swap ke html-to-image + re-spike + revisit Layer 3 styling. Atau polish iteration based on QA. | sesuai temuan |
+| 4 — morning | Move `PERSONA_STYLE_MAP` into `lib/finance/persona.ts` (source-of-truth) | `lib/finance/persona.ts`, `components/dashboard/PersonaCard.vue` |
+| 4 — midday | **Rename "Sobat Indomie" → "Sobat Mie" (Amendment 3 — LOCKED)** in `lib/copy/strings.ts` label. Keep internal `PersonaKey`. Update tests that assert the string. | `lib/copy/strings.ts`, `tests/finance/persona.test.ts` |
+| 4 — afternoon | Wire the entry point in `PersonaCard.vue` (Share button → new `ShareDialog`) + make the button more visible (size 9×9 + tooltip "Bagikan kartu") | `components/dashboard/PersonaCard.vue` |
+| **5** | **🟡 Deep link `?from=share` handler (Amendment 4 + 11 — MUST)** — landing banner with trimmed copy (`"Temenmu <persona> 👀 Kamu tipe apa?"` + CTA "Cek gratis →" + privacy microcopy), parse query, conditional render, dismissible | `pages/index.vue` + `components/landing/ShareInviteBanner.vue` (NEW) |
+| 5 | Cross-browser capture test (Chrome/Safari mobile + desktop), dark mode, slow network 3G, font-loading race, native share on iOS Safari + Chrome Android | manual QA |
+| 6 | Polish: font loading wait (`document.fonts.ready`), error state (capture-fail toast), loading state ("Sedang membuat kartu…"), native-share fallback UX, per-persona banner gradient | as findings dictate |
+| **7 (buffer)** | Buffer if Day 1 spike fails → swap to html-to-image + re-spike + revisit Layer 3 styling. Or polish iteration based on QA. | as findings dictate |
 
-**Effort estimate (LOCKED):** **6 hari** kalau spike pass percobaan pertama (html2canvas oke); **7 hari** kalau perlu swap ke html-to-image. Range "6-7 hari, tergantung hasil spike Day 1" — jangan dipaksa lebih cepat, nilai fitur ini = polish visual.
+**Effort estimate (LOCKED):** **6 days** if the spike passes on the first try (html2canvas OK); **7 days** if a swap to html-to-image is needed. Range "6-7 days, depending on the Day 1 spike outcome" — don't force it shorter; the value of this feature is visual polish.
 
 ---
 
@@ -551,172 +551,166 @@ Copy v2 (3 ide ditumpuk: hasil temen + ajakan + privacy) → dipangkas jadi head
 |------|---------|
 | `components/common/ShareDialog.vue` | Layer 2 — generic share modal (inline overlay, native-share-first + fallback grid) |
 | `components/share/PersonaShareCard.vue` | Layer 3 — persona-specific card visual (vertical-friendly, Amendment 5) |
-| `components/landing/ShareInviteBanner.vue` | **NEW (Amendment 4)** — banner di landing yang muncul kalau `?from=share` |
-| `tests/composables/useShare.test.ts` | Privacy assertion + capture function tests + `shareNative` feature-detect test |
-| `tests/components/PersonaShareCard.test.ts` | Snapshot test — assert no nominal in DOM (blacklist §3.4) + greylist boundary (Amendment 6) |
+| `components/landing/ShareInviteBanner.vue` | **NEW (Amendment 4)** — landing banner that appears when `?from=share` is present |
+| `tests/composables/useShare.test.ts` | Privacy assertions + capture function tests + `shareNative` feature-detect test |
+| `tests/components/PersonaShareCard.test.ts` | Snapshot test — assert no amounts in DOM (blacklist §3.4) + greylist boundary (Amendment 6) |
 
 ### To Modify
 
 | File | Change |
 |------|--------|
-| `composables/useShare.ts` | Refactor jadi generic (Layer 1). Hapus dependensi `PersonaKey`. **Tambah `shareNative({ files, text, title })` (Amendment 2)** dengan feature-detect `navigator.canShare({ files })`. |
-| `components/dashboard/PersonaCard.vue` | Tukar `<ShareCard>` jadi `<ShareDialog>` + `<PersonaShareCard>`. Tombol Share2 sedikit diperjelas (size 9×9 + tooltip "Bagikan kartu"). |
-| `lib/finance/persona.ts` | Tambah `PERSONA_VISUALS: Record<PersonaKey, { gradient, emoji }>` sebagai source-of-truth. Comment di `'sobatIndomie'` key: kenapa display label beda (Amendment 3). |
-| `lib/copy/strings.ts` | (a) Tambah copy CTA share: `share.cta`, `share.toggleStats`, `share.brandLockup`, `share.nativeButton` (`"Bagikan"`). (b) **Amendment 3:** ubah value `persona.sobatIndomie.label`: `"Sobat Indomie"` → `"Sobat Mie"`. (c) **Amendment 4 + 11 (round 2):** tambah copy banner dengan template pangkas:<br>• `landing.shareInvite.headlineTemplate`: `"Temenmu {persona} 👀"` (template, persona dari query)<br>• `landing.shareInvite.headlineFallback`: `"Cek tipe keuangan kamu 👀"` (kalau persona invalid)<br>• `landing.shareInvite.sub`: `"Kamu tipe apa?"`<br>• `landing.shareInvite.cta`: `"Cek gratis →"`<br>• `landing.shareInvite.microcopyPrivacy`: `"🔒 100% di HP kamu — gak ke server"` |
-| `pages/index.vue` (landing) | **Amendment 4:** baca `?from=share` & optional `?persona=<key>` di mount → render `<ShareInviteBanner>` di atas hero. |
-| `tests/finance/persona.test.ts` | Update string assertion `"Sobat Indomie"` → `"Sobat Mie"` (kalau test reference label). |
+| `composables/useShare.ts` | Refactor into generic (Layer 1). Drop the `PersonaKey` dependency. **Add `shareNative({ files, text, title })` (Amendment 2)** with feature-detect `navigator.canShare({ files })`. |
+| `components/dashboard/PersonaCard.vue` | Swap `<ShareCard>` for `<ShareDialog>` + `<PersonaShareCard>`. Make the Share2 button slightly more visible (size 9×9 + tooltip "Bagikan kartu"). |
+| `lib/finance/persona.ts` | Add `PERSONA_VISUALS: Record<PersonaKey, { gradient, emoji }>` as the source-of-truth. Comment on the `'sobatIndomie'` key explaining why the display label differs (Amendment 3). |
+| `lib/copy/strings.ts` | (a) Add share CTA copy: `share.cta`, `share.toggleStats`, `share.brandLockup`, `share.nativeButton` (`"Bagikan"`). (b) **Amendment 3:** change `persona.sobatIndomie.label` value: `"Sobat Indomie"` → `"Sobat Mie"`. (c) **Amendment 4 + 11 (round 2):** add banner copy with the trimmed template:<br>• `landing.shareInvite.headlineTemplate`: `"Temenmu {persona} 👀"` (template, persona from query)<br>• `landing.shareInvite.headlineFallback`: `"Cek tipe keuangan kamu 👀"` (if persona is invalid)<br>• `landing.shareInvite.sub`: `"Kamu tipe apa?"`<br>• `landing.shareInvite.cta`: `"Cek gratis →"`<br>• `landing.shareInvite.microcopyPrivacy`: `"🔒 100% di HP kamu — gak ke server"` |
+| `pages/index.vue` (landing) | **Amendment 4:** read `?from=share` & optional `?persona=<key>` on mount → render `<ShareInviteBanner>` above the hero. |
+| `tests/finance/persona.test.ts` | Update string assertion `"Sobat Indomie"` → `"Sobat Mie"` (if the test references the label). |
 
 ### To Deprecate / Delete
 
 | File | Status |
 |------|--------|
-| `components/common/ShareCard.vue` | DELETE setelah `PersonaCard.vue` migrate ke `ShareDialog + PersonaShareCard` |
+| `components/common/ShareCard.vue` | DELETE after `PersonaCard.vue` migrates to `ShareDialog + PersonaShareCard` |
 
 ---
 
-## 10. Open Questions — RESOLVED (post tetangga round 1)
+## 10. Open Questions — RESOLVED (post neighbor round 1)
 
-8 open questions v1 udah dijawab tetangga round 1. Diringkas di Revision History → "Tetangga verdict 8 Open Questions". Detail per item:
+The 8 v1 open questions have been answered by the neighbor in round 1. Summarized in the Revision History → "Neighbor verdict on the 8 Open Questions". Detail per item:
 
 | # | Q | Verdict | Status |
 |---|---|---|---|
-| 1 | WT entry point | Defer 7.2 ✅. Catat: **tier-share (Bibit→Hutan) = kandidat kuat 7.2** (paling flexy). | Tutup. Tier-share ditambahkan ke Phase 7+ Backlog (README). |
-| 2 | html2canvas cukup? | Test dulu, jangan lock | → Amendment 1 (§4, §8) |
-| 3 | Stats default OFF/ON? | **OFF** — persona+emoji udah jadi wow-nya, stats nambah privacy risk tanpa nambah viral | Tutup (no change) |
-| 4 | 1:1 vs 9:16 | Layout vertical-friendly dari awal, ship 1:1 sekarang | → Amendment 5 (§6.1, §6.2) |
-| 5 | CTA generic vs per-persona | Generic dulu, per-persona = polish 7.2 | Tutup (no change) |
-| 6 | Branding text vs logo | Text-only, setuju (logo = risiko render + hassle dark/light) | Tutup (no change) |
-| 7 | Deep link must vs nice | **Must-have** — nutup loop viral | → Amendment 4 (§7, §8) |
-| 8 | Generic timing | Seam sekarang, satu consumer, tahan spekulatif | Tutup (no change) |
+| 1 | WT entry point | Defer 7.2 ✅. Note: **tier-share (Bibit→Hutan) = strong 7.2 candidate** (most flexible). | Closed. Tier-share added to Phase 7+ Backlog (README). |
+| 2 | Is html2canvas enough? | Test first, don't lock | → Amendment 1 (§4, §8) |
+| 3 | Stats default OFF/ON? | **OFF** — persona+emoji is already the wow, stats add privacy risk without adding virality | Closed (no change) |
+| 4 | 1:1 vs 9:16 | Vertical-friendly layout from the start, ship 1:1 now | → Amendment 5 (§6.1, §6.2) |
+| 5 | CTA generic vs per-persona | Generic first, per-persona = 7.2 polish | Closed (no change) |
+| 6 | Branding text vs logo | Text-only, agreed (logo = render risk + dark/light hassle) | Closed (no change) |
+| 7 | Deep link must vs nice | **Must-have** — closes the viral loop | → Amendment 4 (§7, §8) |
+| 8 | Generic timing | Seam now, one consumer, resist speculation | Closed (no change) |
 
-### Open untuk round 2 (kalau ada)
+### Open for round 2 (if any)
 
-- **Persona rename: cuma display label, atau termasuk internal `PersonaKey`?** Rekomendasi v2: display-only (avoid migration). Override possible.
-- **Native share button label & icon** — "Bagikan" + 📤 cukup atau perlu copy yang lebih persuasif?
-- **Banner deep link copy** — *"Penasaran tipe kamu? Yuk isi data, gratis & 100% di HP kamu — gak ke server"* — terlalu panjang? Bisa lebih punchy?
+- **Persona rename: display label only, or internal `PersonaKey` too?** v2 recommendation: display-only (avoid migration). Override possible.
+- **Native share button label & icon** — "Bagikan" + 📤 enough, or does it need more persuasive copy?
+- **Deep link banner copy** — *"Penasaran tipe kamu? Yuk isi data, gratis & 100% di HP kamu — gak ke server"* — too long? Can it be punchier?
 
 ---
 
 ## 11. Success Criteria
 
-- [ ] **Capture spike Day 1 (Amendment 1):** PNG hasil html2canvas (atau swap engine) di Chrome desktop + Safari iOS pass quality bar — gradient smooth no banding, font Inter/Plus Jakarta render (no fallback), drop-shadow render. Artifact `.review/spike-capture-day1/` ada.
-- [ ] User di budget-kos Ringkasan klik Share di PersonaCard → modal share muncul **tanpa hydration warning (no Teleport)**
-- [ ] Card visual aspect ratio 1:1, layout vertical-friendly (Amendment 5) — `ShareDialog` prop `aspectRatio="9:16"` di test bench tidak break layout
+- [ ] **Day 1 capture spike (Amendment 1):** the resulting PNG from html2canvas (or the swapped engine) on Chrome desktop + Safari iOS passes the quality bar — smooth gradient with no banding, Inter/Plus Jakarta font renders (no fallback), drop-shadow renders. The `.review/spike-capture-day1/` artifact exists.
+- [ ] In budget-kos Summary, the user clicks Share on PersonaCard → the share modal appears **with no hydration warning (no Teleport)**
+- [ ] Card visual aspect ratio is 1:1, vertical-friendly layout (Amendment 5) — `ShareDialog` prop `aspectRatio="9:16"` in the test bench doesn't break the layout
 - [ ] Default state: stats toggle OFF (privacy-first)
-- [ ] Toggle stats ON → muncul Sisa Uang % + Bertahan bln (whitelist greylist only)
-- [ ] **Privacy test (blacklist, §3.4):** PNG hasil + share text tidak mengandung nominal Rp manapun, untuk semua 5 persona (test snapshot saldo Rp 999.999.999 → DOM/text tidak ada "999")
-- [ ] **Privacy test (greylist boundary, Amendment 6):** stats ON → DOM hanya mengandung 2 angka (savingsRate% + runway bln), no derived number lain
-- [ ] **Native share (Amendment 2):** di browser yang support `navigator.canShare({ files })` → tombol "Bagikan 📤" muncul + native sheet kebuka dengan PNG attached. Di browser unsupported → tombol hidden, grid 4 button (Salin/WA/X/Download) muncul sebagai fallback.
-- [ ] 4 fallback action buttons (Salin, WhatsApp, X, Download) jalan
-- [ ] `useShare.ts` signature generic — tidak terikat `PersonaKey` lagi
-- [ ] `ShareDialog.vue` menerima slot content, bukan hard-coded persona
-- [ ] **Persona rename (Amendment 3):** display label `"Sobat Indomie"` → `"Sobat Mie"` di semua surface (PersonaCard in-app + share card). Internal `PersonaKey` = `'sobatIndomie'` unchanged.
-- [ ] **Deep link banner (Amendment 4):** buka `https://cermat.vercel.app/?from=share&persona=sobatMie` → banner muncul di landing dengan persona preview + CTA. Tanpa `?from=share` → banner tidak muncul. Klik X → banner hilang (no localStorage persist).
+- [ ] Stats toggle ON → Sisa Uang % + Bertahan bln appears (whitelist greylist only)
+- [ ] **Privacy test (blacklist, §3.4):** the resulting PNG + share text contains no Rp amount, for all 5 personas (snapshot test with balance Rp 999,999,999 → DOM/text has no "999")
+- [ ] **Privacy test (greylist boundary, Amendment 6):** stats ON → DOM contains only 2 numbers (savingsRate% + runway bln), no other derived number
+- [ ] **Native share (Amendment 2):** in a browser that supports `navigator.canShare({ files })` → the "Bagikan 📤" button appears + the native sheet opens with the PNG attached. In an unsupported browser → the button is hidden, the grid of 4 buttons (Copy/WA/X/Download) appears as fallback.
+- [ ] The 4 fallback action buttons (Copy, WhatsApp, X, Download) work
+- [ ] `useShare.ts` signature is generic — no longer bound to `PersonaKey`
+- [ ] `ShareDialog.vue` accepts slot content, not hard-coded persona
+- [ ] **Persona rename (Amendment 3):** display label `"Sobat Indomie"` → `"Sobat Mie"` everywhere (in-app PersonaCard + share card). Internal `PersonaKey` = `'sobatIndomie'` unchanged.
+- [ ] **Deep link banner (Amendment 4):** opening `https://cermat.vercel.app/?from=share&persona=sobatMie` → the banner appears on the landing with a persona preview + CTA. Without `?from=share` → no banner. Click X → banner disappears (no localStorage persist).
 - [ ] `npm run typecheck` clean (vue-tsc)
-- [ ] Existing tests masih lulus, plus 2-3 file test baru
-- [ ] Dark mode app aktif → card share tetap render light (independen)
-- [ ] `document.fonts.ready` ditunggu sebelum capture (no font fallback)
-- [ ] Filename download = `cermat-<persona-id>.png` (no user data)
+- [ ] Existing tests still pass, plus 2-3 new test files
+- [ ] App dark mode active → the share card still renders light (independent)
+- [ ] `document.fonts.ready` is awaited before capture (no font fallback)
+- [ ] Download filename = `cermat-<persona-id>.png` (no user data)
 
 ---
 
 ## 12. Verification
 
-1. **Capture spike Day 1 (Amendment 1):** hasil PNG dari spike branch di-review manual, simpan di `.review/spike-capture-day1/` dengan 1-paragraf temuan. Pass → lock engine. Fail → swap + re-spike.
-2. `npm run dev` → buka `/app/budget-kos`, load sample persona Mahasiswa Mandiri → klik Share → cek modal (no Teleport jank, no hydration warning di console)
-3. Toggle "Tampilkan stats (terlihat publik)" → verifikasi stats muncul/hilang
-4. Klik Download → cek file PNG: aspect 1:1, no nominal, branding ada
-5. Klik Salin → paste di notepad: verifikasi tidak ada angka
-6. Klik WhatsApp → cek URL `wa.me/?text=...` tidak ada angka
-7. **Native share (Amendment 2):** buka di Chrome Android / Safari iOS → tombol "Bagikan 📤" primary → klik → native sheet kebuka dengan PNG attached. Pilih app (IG / WA / TG) → cek gambar terkirim.
-8. **Native share fallback:** buka di Firefox desktop → tombol "Bagikan 📤" hidden → grid 4 button muncul.
-9. **Deep link (Amendment 4):** buka tab baru `http://localhost:3000/?from=share&persona=sobatMie` → banner muncul di landing dengan emoji 🍜 + label "Sobat Mie" + CTA "Cek tipe saya". Klik CTA → navigate ke `/app/budget-kos?onboard=1`. Tutup tab, buka lagi tanpa `?from=share` → banner tidak muncul.
-10. Toggle dark mode app → reload → klik Share lagi: card tetap light
-11. Network throttle slow 3G → reload page → klik Share langsung: verifikasi font loaded sebelum capture (no fallback render)
+1. **Day 1 capture spike (Amendment 1):** the PNG output from the spike branch is reviewed manually, saved in `.review/spike-capture-day1/` with a 1-paragraph finding. Pass → lock the engine. Fail → swap + re-spike.
+2. `npm run dev` → open `/app/budget-kos`, load sample persona Mahasiswa Mandiri → click Share → check the modal (no Teleport jank, no hydration warning in console)
+3. Toggle "Tampilkan stats (terlihat publik)" → verify stats appear/disappear
+4. Click Download → check PNG file: aspect 1:1, no amount, branding present
+5. Click Copy → paste in notepad: verify no numbers
+6. Click WhatsApp → check the `wa.me/?text=...` URL has no numbers
+7. **Native share (Amendment 2):** open on Chrome Android / Safari iOS → primary "Bagikan 📤" button → click → native sheet opens with PNG attached. Pick an app (IG / WA / TG) → verify the image was delivered.
+8. **Native share fallback:** open on Firefox desktop → "Bagikan 📤" button hidden → grid of 4 buttons appears.
+9. **Deep link (Amendment 4):** open a new tab `http://localhost:3000/?from=share&persona=sobatMie` → banner appears on the landing with emoji 🍜 + label "Sobat Mie" + CTA "Cek tipe saya". Click CTA → navigates to `/app/budget-kos?onboard=1`. Close the tab, reopen without `?from=share` → no banner.
+10. Toggle app dark mode → reload → click Share again: the card stays light
+11. Network throttle slow 3G → reload page → click Share immediately: verify the font has loaded before capture (no fallback render)
 12. `npx vue-tsc --noEmit` → clean
 13. `npm run test` → all pass, plus 2-3 new test files
-14. **Privacy test (blacklist) programmatic:** snapshot dengan saldo Rp 999.999.999 → render `PersonaShareCard` → query DOM textContent → assert tidak ada substring "999"
-15. **Privacy test (greylist boundary, Amendment 6) programmatic:** stats ON → query semua text node, regex `/\d/`, exclude pattern `<savingsRate>%` + `<runway> bln` → assert match count = 0 (no derived number lain)
-16. **Persona rename verification (Amendment 3):** load Sobat Indomie scenario di PersonaCard in-app + share card → label keduanya tampilkan "Sobat Mie", bukan "Sobat Indomie". Test snapshot regen kalau ada.
+14. **Privacy test (blacklist) programmatic:** snapshot with balance Rp 999,999,999 → render `PersonaShareCard` → query DOM textContent → assert no "999" substring
+15. **Privacy test (greylist boundary, Amendment 6) programmatic:** stats ON → query all text nodes, regex `/\d/`, exclude pattern `<savingsRate>%` + `<runway> bln` → assert match count = 0 (no other derived number)
+16. **Persona rename verification (Amendment 3):** load the Sobat Indomie scenario in the in-app PersonaCard + share card → both labels show "Sobat Mie", not "Sobat Indomie". Regen test snapshots if needed.
 
 ---
 
 ## 13. Out of Scope (Phase 7.1)
 
 - Multiple card templates / persona variants
-- 9:16 story aspect ratio **sebagai output yang available di UI** (Amendment 5: layout *vertical-friendly* WAJIB disiapkan, tapi ship output 1:1 only — switch ke 9:16 jadi config flip nanti)
+- 9:16 story aspect ratio **as a UI-available output** (Amendment 5: vertical-friendly layout MUST be prepared, but ship 1:1 output only — switching to 9:16 becomes a later config flip)
 - Server-side image generation / OG image
-- Analytics tracking (share count, viral coefficient) — boleh nyusul setelah 7.1 ship
-- Custom user photo upload to card
+- Analytics tracking (share count, viral coefficient) — can follow after 7.1 ships
+- Custom user photo upload onto the card
 - Cermat Score share card (Phase 7.2)
-- Kalkulator share card (Phase 7.2)
+- Calculator share card (Phase 7.2)
 - Badge unlock share card (Phase 7.2)
-- **Tier-share Bibit→Hutan (Phase 7.2 — flagged tetangga sebagai kandidat kuat)**
-- Quiz persona dedicated landing page (Phase 7.3)
-- Logo image Mamikos (text lock-up only)
-- Confetti / micro-animation pas card di-generate
+- **Tier-share Bibit→Hutan (Phase 7.2 — flagged by the neighbor as a strong candidate)**
+- Dedicated persona quiz landing page (Phase 7.3)
+- Mamikos logo image (text lock-up only)
+- Confetti / micro-animation when the card is generated
 - Wealth-tracker persona share (defer 7.2)
-- A/B test CTA copy
-- Rename internal `PersonaKey` (display-only rename di Amendment 3)
+- A/B test of CTA copy
+- Rename of internal `PersonaKey` (display-only rename in Amendment 3)
 
 ---
 
-## 14. Demo Storyboard (kalau implemented — v2)
+## 14. Demo Storyboard (if implemented — v2)
 
 **Mobile-first flow (target audience):**
 
-1. **Sample persona "Mahasiswa Mandiri"** loaded di budget-kos (HP)
-2. Scroll ke PersonaCard → label "💪 Anak Kos Bijak"
-3. **Klik tombol Share** → modal share muncul inline (no Teleport jank), card 1:1 dengan emoji besar + persona label
-4. **Tombol primary: "Bagikan 📤"** → native share sheet OS kebuka (PNG attached)
-5. User pilih **Instagram Story** → PNG masuk ke Story composer → post → live
-6. Temennya buka Story → klik link bio / sticker `cermat.vercel.app/?from=share&persona=anakKosBijak`
-7. Landing terbuka → **banner muncul:** *"Temanmu adalah Anak Kos Bijak! Penasaran tipe kamu? Gratis & 100% di HP kamu — gak ke server"* + CTA "Cek tipe saya"
-8. Klik CTA → langsung masuk `/app/budget-kos?onboard=1` → loop tertutup ✅
+1. **Sample persona "Mahasiswa Mandiri"** loaded in budget-kos (phone)
+2. Scroll to PersonaCard → label "💪 Anak Kos Bijak"
+3. **Click the Share button** → share modal appears inline (no Teleport jank), 1:1 card with a big emoji + persona label
+4. **Primary button: "Bagikan 📤"** → the OS native share sheet opens (PNG attached)
+5. User picks **Instagram Story** → PNG goes into the Story composer → post → live
+6. Friend opens the Story → clicks the bio link / sticker `cermat.vercel.app/?from=share&persona=anakKosBijak`
+7. Landing opens → **banner appears:** *"Temanmu adalah Anak Kos Bijak! Penasaran tipe kamu? Gratis & 100% di HP kamu — gak ke server"* + CTA "Cek tipe saya"
+8. Click CTA → straight into `/app/budget-kos?onboard=1` → loop closed ✅
 
 **Desktop fallback flow:**
 
-1. Klik Share di card budget-kos
-2. Native share unsupported (Firefox desktop) → grid 4 button: Salin / WhatsApp / X / Download
-3. Klik Download → PNG masuk Downloads
-4. Klik Salin → paste di chat: `"Aku Anak Kos Bijak! ✨ Cek keuanganmu juga di Cermat × Mamikos! https://cermat.vercel.app/?from=share&persona=anakKosBijak"`
+1. Click Share on the budget-kos card
+2. Native share unsupported (Firefox desktop) → grid of 4 buttons: Copy / WhatsApp / X / Download
+3. Click Download → PNG goes into Downloads
+4. Click Copy → paste in chat: `"Aku Anak Kos Bijak! ✨ Cek keuanganmu juga di Cermat × Mamikos! https://cermat.vercel.app/?from=share&persona=anakKosBijak"`
 
 **Privacy flow:**
 
-1. User buka modal → default state: stats OFF, gambar cuma persona + emoji + tagline
-2. User toggle "Tampilkan stats saya (terlihat publik)" → muncul Sisa Uang 35% + Bertahan 6 bln (consent eksplisit)
-3. User download / share → PNG sesuai pilihan terakhir
+1. User opens the modal → default state: stats OFF, the image is just persona + emoji + tagline
+2. User toggles "Tampilkan stats saya (terlihat publik)" → Sisa Uang 35% + Bertahan 6 bln appears (explicit consent)
+3. User downloads / shares → the PNG follows the latest choice
 
 ---
 
-## 15. Catatan Reviewer Tetangga — round 2 RESOLVED (v3 LOCKED)
+## 15. Neighbor Reviewer Notes — round 2 RESOLVED (v3 LOCKED)
 
-**Round 1 verified (✅):** privacy guardrails, generic architecture, Teleport drop, reuse map jujur, persona scope (5 budget-kos).
+**Round 1 verified (✅):** privacy guardrails, generic architecture, Teleport drop, honest reuse map, persona scope (5 budget-kos).
 
-**Round 2 verified (✅):** 6 amendment v2 nyangkut di file, beberapa di-eksekusi lebih bagus dari yang diminta (capture spike protocol, Indomie display-only rename keep internal key).
+**Round 2 verified (✅):** the 6 v2 amendments landed in the file, several were executed better than asked (capture spike protocol, Indomie display-only rename keeping the internal key).
 
-**Round 2 jawaban 7 pertanyaan — semua applied di spec v3:**
+**Round 2 answers to the 7 questions — all applied in spec v3:**
 
-| Q | Question | Tetangga jawaban | Applied di |
+| Q | Question | Neighbor answer | Applied at |
 |---|---|---|---|
-| 1 | Day 1 split realistis? | **Tidak.** Spike = Day 1 PENUH. Refactor `useShare` geser ke Day 2. Effort jadi 6 hari fix (bukan 5-6). | Amendment 9 → §8 |
-| 2 | Native primary + fallback grid pattern? | Bener buat mobile. Tapi **desktop: grid primary, native HIDDEN** (Safari macOS/Edge support `navigator.share` tapi UX aneh). Deteksi touch/pointer, bukan cuma feature-detect. | Amendment 10 → §5.2, §6.3 |
-| 3 | "Sobat Mie" ada nama lebih kena? | "Sobat Mie" **aman & cukup hangat, lock aja.** Alternatif "Anak Kos Sejati" / "Pejuang Mie" — bikeshedding, jangan habisin ronde. | LOCKED, tidak diubah (catatan dicatat) |
-| 4 | Banner copy kepanjangan? | **Iya.** 3 ide ditumpuk. Pangkas headline 1 hook + microcopy privacy di bawah tombol. Headline = 1 hook. | Amendment 11 → §7 |
-| 5 | Anti-pattern §6.2 cukup? | Cukup, tambah 1: **hindari `vh`/`vw` & `%`-height** (html2canvas render di logical fixed size, viewport-unit elements bisa geser). | Amendment 12 → §6.2 |
-| 6 | Open round 2 §10? | Clear, no new open items. | — |
-| 7 | Effort 5-6 hari plausibel? | Naikin ke **6-7 hari** (Day 1 spike penuh + risiko swap lib). Kasih catatan "tergantung hasil spike Day 1". Jangan overpromise. | Amendment 8 → header, §8 |
+| 1 | Is the Day 1 split realistic? | **No.** The spike is the FULL Day 1. The `useShare` refactor shifts to Day 2. Effort becomes a flat 6 days (not 5-6). | Amendment 9 → §8 |
+| 2 | Native primary + fallback grid pattern? | Correct for mobile. But **desktop: grid primary, native HIDDEN** (Safari macOS/Edge support `navigator.share` but the UX is weird). Detect touch/pointer, not just feature-detect. | Amendment 10 → §5.2, §6.3 |
+| 3 | "Sobat Mie" or is there a better name? | "Sobat Mie" **is safe and warm enough, lock it.** Alternatives "Anak Kos Sejati" / "Pejuang Mie" — bikeshedding, don't burn the round. | LOCKED, unchanged (noted) |
+| 4 | Banner copy too long? | **Yes.** 3 ideas stacked. Trim the headline to 1 hook + privacy microcopy below the button. Headline = 1 hook. | Amendment 11 → §7 |
+| 5 | Is the §6.2 anti-pattern list enough? | Enough, add 1: **avoid `vh`/`vw` & `%`-height** (html2canvas renders at a logical fixed size, viewport-unit elements can shift). | Amendment 12 → §6.2 |
+| 6 | Anything open for round 2 in §10? | Clear, no new open items. | — |
+| 7 | Is the 5-6 day effort plausible? | Bump it to **6-7 days** (full Day 1 spike + lib-swap risk). Add the note "depends on Day 1 spike outcome". Don't overpromise. | Amendment 8 → header, §8 |
 
-**Cosmetic leftover (resolved):** §4 intro line basi *"tetap A atau pindah B?"* — sudah dihapus (Amendment 7).
+**Cosmetic leftover (resolved):** the stale §4 intro line *"stick with A or move to B?"* — already removed (Amendment 7).
 
 ---
 
-### ⛔ Implementation gate — JANGAN MULAI NGODING
-
-Per instruksi tetangga + user (mau mabar 🎮):
-
-> *"Update spec final (3 hal di atas), lock, terus STOP di situ. Gua mau review versi locked-nya dulu sebelum ngoding. Tunggu konfirmasi."*
-
-Spec ini sekarang status **🔒 LOCKED v3** — refinements applied, 6+5 amendments verified, cosmetic leftover dihapus. **Tetangga akan review versi locked v3 ini → lampu hijau → baru implementasi.** Sampai konfirmasi datang, jangan gas.
+The spec is now status **🔒 LOCKED v3** — refinements applied, 6+5 amendments verified, cosmetic leftover removed. **The neighbor will review this locked v3 → green light → only then implementation.** Until confirmation arrives, don't push.
 
 🫡🎮
