@@ -12,6 +12,9 @@ export function useInsightJujur() {
   const snap = useSnapshotStore()
 
   const insight = computed<InsightJujur | null>(() => {
+    const cicilanTotal =
+      snap.cicilanAktif.reduce((s, c) => s + (c.cicilanPerBulan || 0), 0)
+      + snap.utangPribadi.reduce((s, u) => s + (u.cicilanPerBulan || 0), 0)
     const resolverInput: ResolverInput = {
       income: derived.penghasilanMonthlyIdr,
       surplus: derived.surplusIdr,
@@ -19,9 +22,7 @@ export function useInsightJujur() {
       biayaKos: snap.pengeluaran.biayaKos ?? 0,
       lifestyle: snap.pengeluaran.lifestyle ?? 0,
       pengeluaranLain: snap.pengeluaranLain.map(r => ({ label: r.label, amount: r.amount })),
-      cicilanTotal:
-        snap.cicilanAktif.reduce((s, c) => s + (c.cicilanPerBulan || 0), 0)
-        + snap.utangPribadi.reduce((s, u) => s + (u.cicilanPerBulan || 0), 0),
+      cicilanTotal,
       runwayDays: derived.runway !== null ? Math.round(derived.runway * 30) : 999,
     }
     return resolveInsight(resolverInput)
