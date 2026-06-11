@@ -239,7 +239,7 @@ const shareText = computed(() => {
   if (!persona.value) return ''
   const label = t(`persona.${persona.value.key}.label` as import('~/lib/copy/strings').CopyKey)
   const deepLink = `${getAppUrl()}?from=share&persona=${persona.value.key}`
-  return `Aku ${label}! ✨ Cek keuanganmu juga di Cermat × Mamikos!\n${deepLink}`
+  return `Aku ${label}! Cek keuanganmu juga di Cermat x Mamikos!\n${deepLink}`
 })
 const downloadName = computed(() => `cermat-${persona.value?.key ?? 'share'}.png`)
 

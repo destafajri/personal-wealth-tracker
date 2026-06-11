@@ -765,7 +765,6 @@ export const copy = {
   // ----- share card (Phase 7.1) -----
   'share.cta': 'tipe keuanganmu apa? Coba di Cermat',
   'share.brandLockup': 'Cermat × Mamikos',
-  'share.url': 'cermat.vercel.app',
   'share.nativeButton': 'Bagikan',
   'share.toggleStats': 'Tampilkan stats saya (terlihat publik)',
   'share.toggleStatsOff': 'Sembunyikan stats',
