@@ -1,4 +1,7 @@
-export const APP_URL = 'https://cermat.vercel.app'
+export function getAppUrl(): string {
+  if (typeof window !== 'undefined') return window.location.origin
+  return 'https://cermat-personal-wealth-tracker.vercel.app'
+}
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -12,41 +15,27 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 
 export function useShare() {
   async function downloadAsPng(el: HTMLElement, filename: string): Promise<void> {
-    const { default: html2canvas } = await import('html2canvas')
-    const canvas = await withTimeout(
-      html2canvas(el, {
-        scale: 2,
-        backgroundColor: null,
-        useCORS: true,
-        logging: false,
-      }),
+    const { toPng } = await import('html-to-image')
+    const dataUrl = await withTimeout(
+      toPng(el, { pixelRatio: 2 }),
       15_000,
     )
     const link = document.createElement('a')
     link.download = filename
-    link.href = canvas.toDataURL('image/png')
+    link.href = dataUrl
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
   }
 
   async function captureAsBlob(el: HTMLElement): Promise<Blob> {
-    const { default: html2canvas } = await import('html2canvas')
-    const canvas = await withTimeout(
-      html2canvas(el, {
-        scale: 2,
-        backgroundColor: null,
-        useCORS: true,
-        logging: false,
-      }),
+    const { toBlob } = await import('html-to-image')
+    const blob = await withTimeout(
+      toBlob(el, { pixelRatio: 2 }),
       15_000,
     )
-    return new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob)
-        else reject(new Error('Canvas toBlob returned null'))
-      }, 'image/png')
-    })
+    if (!blob) throw new Error('toBlob returned null')
+    return blob
   }
 
   async function copyText(text: string): Promise<void> {

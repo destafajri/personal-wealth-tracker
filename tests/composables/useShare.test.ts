@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { APP_URL } from '~/composables/useShare'
+import { getAppUrl } from '~/composables/useShare'
 
-describe('APP_URL', () => {
-  it('points to production', () => {
-    expect(APP_URL).toBe('https://cermat.vercel.app')
+describe('getAppUrl', () => {
+  it('falls back to production URL in node (no window)', () => {
+    expect(getAppUrl()).toBe('https://cermat-personal-wealth-tracker.vercel.app')
   })
 })
 

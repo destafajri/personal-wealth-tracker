@@ -5,7 +5,7 @@ import { useDerivedStore } from '~/stores/derived'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { resolvePersona, hasInvestments, isSnapshotReady, PERSONA_VISUALS } from '~/lib/finance/persona'
 import { t } from '~/lib/copy/strings'
-import { APP_URL } from '~/composables/useShare'
+import { getAppUrl } from '~/composables/useShare'
 import ShareDialog from '~/components/common/ShareDialog.vue'
 import PersonaShareCard from '~/components/share/PersonaShareCard.vue'
 
@@ -44,7 +44,7 @@ const style = computed(() => personaKey.value ? PERSONA_VISUALS[personaKey.value
 const shareText = computed(() => {
   if (!personaKey.value) return ''
   const label = t(`persona.${personaKey.value}.label` as import('~/lib/copy/strings').CopyKey)
-  const deepLink = `${APP_URL}?from=share&persona=${personaKey.value}`
+  const deepLink = `${getAppUrl()}?from=share&persona=${personaKey.value}`
   return `Aku ${label}! ✨ Cek keuanganmu juga di Cermat × Mamikos!\n${deepLink}`
 })
 

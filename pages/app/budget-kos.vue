@@ -34,7 +34,7 @@ import { rowToIdr } from '~/lib/finance/fx'
 import { triggerBudgetKosDemo } from '~/lib/fixtures/demoSnapshot'
 import { PERSONAS, applyPersona, type SamplePersona } from '~/lib/fixtures/personas'
 import { useFxRates } from '~/composables/usePrices'
-import { APP_URL } from '~/composables/useShare'
+import { getAppUrl } from '~/composables/useShare'
 import ShareDialog from '~/components/common/ShareDialog.vue'
 import PersonaShareCard from '~/components/share/PersonaShareCard.vue'
 import { Share2 } from 'lucide-vue-next'
@@ -238,7 +238,7 @@ const showStats = ref(false)
 const shareText = computed(() => {
   if (!persona.value) return ''
   const label = t(`persona.${persona.value.key}.label` as import('~/lib/copy/strings').CopyKey)
-  const deepLink = `${APP_URL}?from=share&persona=${persona.value.key}`
+  const deepLink = `${getAppUrl()}?from=share&persona=${persona.value.key}`
   return `Aku ${label}! ✨ Cek keuanganmu juga di Cermat × Mamikos!\n${deepLink}`
 })
 const downloadName = computed(() => `cermat-${persona.value?.key ?? 'share'}.png`)
