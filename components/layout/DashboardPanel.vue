@@ -104,6 +104,8 @@ const InsightJujur = defineAsyncComponent({
       <AchievementGrid />
     </template>
     <PersonaCard v-if="isBudgetKos" />
+    <!-- Phase 7.2: Insight Jujur — spotlight position (after hero, before metrics) -->
+    <InsightJujur :insight="insightJujur" />
     <CtaMamikos v-if="isBudgetKos" variant="afterPersona" />
     <!-- New quick-glance row: Surplus Gauge + Emergency Fund -->
     <div class="grid gap-4 lg:grid-cols-2">
@@ -129,7 +131,6 @@ const InsightJujur = defineAsyncComponent({
     <!-- Phase 6.2: Sankey + What-If (wealth-tracker only) -->
     <template v-if="!isBudgetKos && hasAnyAsset">
       <CashFlowSankey />
-      <InsightJujur :insight="insightJujur" />
       <WhatIfSimulator />
     </template>
     <GoalSummaryCards />
