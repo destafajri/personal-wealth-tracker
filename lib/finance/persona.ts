@@ -5,7 +5,15 @@ export type PersonaKey =
   | 'investorKos'
   | 'anakKosBijak'
   | 'pejuangAkhirBulan'
-  | 'sobatIndomie'
+  | 'sobatIndomie' // display label renamed to "Sobat Mie" — internal key kept for localStorage/test compat
+
+export const PERSONA_VISUALS: Record<PersonaKey, { gradient: string; gradientCSS: string; emoji: string }> = {
+  sultanKos: { gradient: 'from-amber-400 to-yellow-500', gradientCSS: 'linear-gradient(to bottom, #fbbf24, #eab308)', emoji: '👑' },
+  investorKos: { gradient: 'from-emerald-400 to-teal-500', gradientCSS: 'linear-gradient(to bottom, #34d399, #14b8a6)', emoji: '📈' },
+  anakKosBijak: { gradient: 'from-blue-400 to-indigo-500', gradientCSS: 'linear-gradient(to bottom, #60a5fa, #6366f1)', emoji: '👍' },
+  pejuangAkhirBulan: { gradient: 'from-rose-400 to-pink-500', gradientCSS: 'linear-gradient(to bottom, #fb7185, #ec4899)', emoji: '🔥' },
+  sobatIndomie: { gradient: 'from-orange-400 to-amber-500', gradientCSS: 'linear-gradient(to bottom, #fb923c, #f59e0b)', emoji: '🍜' },
+}
 
 export type PersonaTone = 'celebration' | 'positive' | 'nudge' | 'empathy' | 'humor'
 

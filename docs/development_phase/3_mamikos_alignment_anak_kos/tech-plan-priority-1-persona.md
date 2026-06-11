@@ -163,7 +163,7 @@ Persona labels and taglines in `lib/copy/strings.ts` under a `persona` namespace
 ```typescript
 persona: {
   sultanKos: { label: 'Sultan Kos', tagline: 'Gaji mewah, investasi jalan, top!' },
-  investorKos: { label: 'Investor Kos', tagline: 'Sudah mulai investasi, masa depan cerah!' },
+  investorKos: { label: 'Bibit Investor', tagline: 'Sudah mulai investasi, masa depan cerah!' },
   anakKosBijak: { label: 'Anak Kos Bijak', tagline: 'Disiplin ngatur keuangan, Respect!' },
   pejuangAkhirBulan: { label: 'Pejuang Akhir Bulan', tagline: 'Tahan dulu, ada tips buat kamu!' },
   sobatIndomie: { label: 'Sobat Indomie', tagline: 'Hemat itu pilihan, tapi yang penting happy!' },

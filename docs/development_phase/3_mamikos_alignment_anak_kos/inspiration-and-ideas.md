@@ -60,7 +60,7 @@ After the user fills in their snapshot, the system assigns a "Persona" based on 
 | # | Persona | Criteria | Tone |
 |---|---------|----------|------|
 | 1 | Sultan Kos | `savingsRate >= 40 && hasInvestments` | Flex, but inspiring |
-| 2 | Investor Kos | `hasInvestments && savingsRate >= 0` | Cool, "bright future" |
+| 2 | Bibit Investor | `hasInvestments && savingsRate >= 0` | Cool, "bright future" |
 | 3 | Anak Kos Bijak | `savingsRate >= 15` | Positive, relatable |
 | 4 | Pejuang Akhir Bulan | `runway < 1` (month) | Empathy + actionable tips |
 | 5 | Sobat Indomie | fallback (everything else) | Funny, with a nudge |

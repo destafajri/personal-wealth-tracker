@@ -2,12 +2,14 @@
 import { computed } from 'vue'
 import { useDerivedStore } from '~/stores/derived'
 import { useCountUp } from '~/composables/useCountUp'
+import { useInsightJujur } from '~/composables/useInsightJujur'
 import { t, tm, type CopyKey } from '~/lib/copy/strings'
 import { useSnapshotStore } from '~/stores/snapshot'
 
 const snap = useSnapshotStore()
 
 const derived = useDerivedStore()
+const { fires: insightJujurFires } = useInsightJujur()
 
 const score = computed(() => derived.cermatScore.score)
 const level = computed(() => derived.cermatScore.level)
@@ -113,7 +115,7 @@ const tierRingColor = computed(() => {
           >
             {{ level.label }}
           </span>
-          <span v-if="level.tier > 0 && isDeficit" class="text-xs font-medium text-[var(--color-danger-rose)]">
+          <span v-if="level.tier > 0 && isDeficit && !insightJujurFires" class="text-xs font-medium text-[var(--color-danger-rose)]">
             · Hati-hati Defisit
           </span>
           <span v-else-if="level.tier > 0" class="text-xs text-[var(--color-text-muted)]">

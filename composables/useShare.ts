@@ -1,59 +1,88 @@
-import { computed, ref, type Ref } from 'vue'
-import { t } from '~/lib/copy/strings'
-import type { PersonaKey } from '~/lib/finance/persona'
+export function getAppUrl(): string {
+  if (typeof window !== 'undefined') return window.location.origin
+  return 'https://cermat-personal-wealth-tracker.vercel.app'
+}
 
-const APP_URL = 'https://cermat.vercel.app'
-
-export function useShare(personaKey: Ref<PersonaKey | null>) {
-  const copying = ref(false)
-
-  const shareText = computed(() => {
-    const label = personaKey.value
-      ? t(`persona.${personaKey.value}.label` as import('~/lib/copy/strings').CopyKey)
-      : 'Financially Cermat'
-    return `Aku ${label}! ✨ Cek keuanganmu juga di Cermat × Mamikos!\n${APP_URL}`
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Capture timed out')), ms)
+    promise.then(
+      (val) => { clearTimeout(timer); resolve(val) },
+      (err) => { clearTimeout(timer); reject(err) },
+    )
   })
+}
 
-  async function copyToClipboard() {
-    copying.value = true
+export function useShare() {
+  async function downloadAsPng(el: HTMLElement, filename: string): Promise<void> {
+    const { toPng } = await import('html-to-image')
+    const dataUrl = await withTimeout(
+      toPng(el, { pixelRatio: 2 }),
+      15_000,
+    )
+    const link = document.createElement('a')
+    link.download = filename
+    link.href = dataUrl
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  async function captureAsBlob(el: HTMLElement): Promise<Blob> {
+    const { toBlob } = await import('html-to-image')
+    const blob = await withTimeout(
+      toBlob(el, { pixelRatio: 2 }),
+      15_000,
+    )
+    if (!blob) throw new Error('toBlob returned null')
+    return blob
+  }
+
+  async function copyText(text: string): Promise<void> {
+    await navigator.clipboard.writeText(text)
+  }
+
+  function shareToWa(text: string): void {
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`
+    window.open(url, '_blank')
+  }
+
+  function shareToTwitter(text: string): void {
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`
+    window.open(url, '_blank')
+  }
+
+  async function shareNative(opts: {
+    files: File[]
+    text: string
+    title: string
+  }): Promise<boolean> {
+    if (!navigator.share || !navigator.canShare?.({ files: opts.files })) {
+      return false
+    }
     try {
-      await navigator.clipboard.writeText(shareText.value)
-    } finally {
-      setTimeout(() => { copying.value = false }, 1500)
+      await navigator.share({ files: opts.files, text: opts.text, title: opts.title })
+      return true
+    } catch {
+      return false
     }
   }
 
-  function shareWhatsApp() {
-    const url = `https://wa.me/?text=${encodeURIComponent(shareText.value)}`
-    window.open(url, '_blank')
-  }
-
-  function shareTwitter() {
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText.value)}`
-    window.open(url, '_blank')
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async function downloadImage(el: any) {
-    if (!el) return
-    const { default: html2canvas } = await import('html2canvas')
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      backgroundColor: null,
-      useCORS: true,
-    })
-    const link = document.createElement('a')
-    link.download = `cermat-${personaKey.value ?? 'share'}.png`
-    link.href = canvas.toDataURL('image/png')
-    link.click()
+  function isMobileShareCapable(): boolean {
+    if (typeof window === 'undefined') return false
+    const hasCoarse = window.matchMedia?.('(pointer: coarse)')?.matches ?? false
+    const canShareFiles =
+      !!navigator.share && !!navigator.canShare?.({ files: [new File([], 'test.png', { type: 'image/png' })] })
+    return hasCoarse && canShareFiles
   }
 
   return {
-    shareText,
-    copying,
-    copyToClipboard,
-    shareWhatsApp,
-    shareTwitter,
-    downloadImage,
+    downloadAsPng,
+    captureAsBlob,
+    copyText,
+    shareToWa,
+    shareToTwitter,
+    shareNative,
+    isMobileShareCapable,
   }
 }

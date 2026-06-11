@@ -3,13 +3,16 @@ import { computed, ref } from 'vue'
 import { Share2 } from 'lucide-vue-next'
 import { useDerivedStore } from '~/stores/derived'
 import { useSnapshotStore } from '~/stores/snapshot'
-import { resolvePersona, hasInvestments, isSnapshotReady, type PersonaKey } from '~/lib/finance/persona'
+import { resolvePersona, hasInvestments, isSnapshotReady, PERSONA_VISUALS } from '~/lib/finance/persona'
 import { t } from '~/lib/copy/strings'
-import ShareCard from '~/components/common/ShareCard.vue'
+import { getAppUrl } from '~/composables/useShare'
+import ShareDialog from '~/components/common/ShareDialog.vue'
+import PersonaShareCard from '~/components/share/PersonaShareCard.vue'
 
 const derived = useDerivedStore()
 const snap = useSnapshotStore()
 const shareOpen = ref(false)
+const showStats = ref(false)
 
 const snapshotState = computed(() => ({
   penghasilan: snap.penghasilan,
@@ -35,15 +38,17 @@ const persona = computed(() =>
   }),
 )
 
-const PERSONA_STYLE_MAP: Record<PersonaKey, { gradient: string; emoji: string }> = {
-  sultanKos: { gradient: 'from-amber-400 to-yellow-500', emoji: '\u{1F451}' },
-  investorKos: { gradient: 'from-emerald-400 to-teal-500', emoji: '\u{1F4C8}' },
-  anakKosBijak: { gradient: 'from-blue-400 to-indigo-500', emoji: '\u{1F44D}' },
-  pejuangAkhirBulan: { gradient: 'from-rose-400 to-pink-500', emoji: '\u{1F525}' },
-  sobatIndomie: { gradient: 'from-orange-400 to-amber-500', emoji: '\u{1F35C}' },
-}
+const personaKey = computed(() => persona.value?.key ?? null)
+const style = computed(() => personaKey.value ? PERSONA_VISUALS[personaKey.value] : null)
 
-const style = computed(() => persona.value ? PERSONA_STYLE_MAP[persona.value.key] : null)
+const shareText = computed(() => {
+  if (!personaKey.value) return ''
+  const label = t(`persona.${personaKey.value}.label` as import('~/lib/copy/strings').CopyKey)
+  const deepLink = `${getAppUrl()}?from=share&persona=${personaKey.value}`
+  return `Aku ${label}! Cek keuanganmu juga di Cermat x Mamikos!\n${deepLink}`
+})
+
+const downloadName = computed(() => `cermat-${personaKey.value ?? 'share'}.png`)
 </script>
 
 <template>
@@ -59,11 +64,11 @@ const style = computed(() => persona.value ? PERSONA_STYLE_MAP[persona.value.key
       </h3>
       <button
         type="button"
-        class="ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
-        aria-label="Share persona"
+        class="ml-auto flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
+        aria-label="Bagikan kartu"
         @click="shareOpen = true"
       >
-        <Share2 :size="14" />
+        <Share2 :size="16" />
       </button>
     </div>
     <p class="mt-1 text-sm opacity-90">
@@ -79,6 +84,31 @@ const style = computed(() => persona.value ? PERSONA_STYLE_MAP[persona.value.key
         <div class="font-semibold">{{ derived.runway != null ? `${Math.round(derived.runway)} bulan` : '—' }}</div>
       </div>
     </div>
-    <ShareCard :open="shareOpen" @close="shareOpen = false" />
+
+    <!-- Share dialog (Layer 2 + Layer 3) -->
+    <ShareDialog
+      :open="shareOpen"
+      :share-text="shareText"
+      :download-name="downloadName"
+      @close="shareOpen = false"
+    >
+      <PersonaShareCard
+        :persona-key="persona.key"
+        :savings-rate="derived.savingsRate"
+        :runway="derived.runway"
+        :show-stats="showStats"
+      />
+      <template #controls>
+        <div class="text-center">
+          <button
+            type="button"
+            class="text-[11px] font-medium text-[var(--color-text-muted)] underline decoration-current/40 hover:text-[var(--color-text-secondary)]"
+            @click="showStats = !showStats"
+          >
+            {{ showStats ? t('share.toggleStatsOff') : t('share.toggleStats') }}
+          </button>
+        </div>
+      </template>
+    </ShareDialog>
   </div>
 </template>

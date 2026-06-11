@@ -151,7 +151,7 @@ function dividendMonthly(snap: SnapshotState, prices?: PricesView): number {
   return calcTotalDividendAnnual(snap.saham, prices) / 12
 }
 
-function sumCicilanPerBulan(snap: SnapshotState): number {
+export function sumCicilanPerBulan(snap: SnapshotState): number {
   // Formal amortizing + informal personal debt. Both are recurring monthly outflows that
   // drive DSR + Total Pengeluaran (Runway / Savings Rate).
   const cicilan = snap.cicilanAktif.reduce((s, c) => s + (c.cicilanPerBulan || 0), 0)

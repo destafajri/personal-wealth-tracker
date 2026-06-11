@@ -12,6 +12,7 @@ import {
 } from 'lucide-vue-next'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
+import { useInsightJujur } from '~/composables/useInsightJujur'
 import { idr } from '~/lib/format/idr'
 import { rateToIdr } from '~/lib/finance/fx'
 import {
@@ -62,6 +63,7 @@ const pengeluaran = computed(() =>
   calcTotalPengeluaran(snapState.value, derived.priceView ?? undefined),
 )
 const surplus = computed(() => derived.surplusIdr)
+const { fires: insightJujurFires } = useInsightJujur()
 
 const kas = computed(() => sumRows(snap.asetLikuid.kas))
 const investasi = computed(() => {
@@ -204,7 +206,7 @@ const dsrZoneText = computed(() => {
       >
         {{ surplus > 0 ? '+' : '' }}{{ idr(surplus) }}
       </p>
-      <p class="mt-0.5 text-[10px] text-[var(--color-text-secondary)]">
+      <p v-if="!insightJujurFires" class="mt-0.5 text-[10px] text-[var(--color-text-secondary)]">
         {{ surplusStatus }}
       </p>
     </div>

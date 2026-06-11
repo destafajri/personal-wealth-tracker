@@ -16,6 +16,7 @@ import {
 } from 'lucide-vue-next'
 import { t } from '~/lib/copy/strings'
 import { idr } from '~/lib/format/idr'
+import { useInsightJujur } from '~/composables/useInsightJujur'
 import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
 import ButtonSecondary from '~/components/common/ButtonSecondary.vue'
 import CollapsiblePanel from '~/components/snapshot/CollapsiblePanel.vue'
@@ -34,11 +35,17 @@ import { rowToIdr } from '~/lib/finance/fx'
 import { triggerBudgetKosDemo } from '~/lib/fixtures/demoSnapshot'
 import { PERSONAS, applyPersona, type SamplePersona } from '~/lib/fixtures/personas'
 import { useFxRates } from '~/composables/usePrices'
+import { getAppUrl } from '~/composables/useShare'
+import ShareDialog from '~/components/common/ShareDialog.vue'
+import PersonaShareCard from '~/components/share/PersonaShareCard.vue'
+import InsightJujur from '~/components/dashboard/InsightJujur.vue'
+import { Share2 } from 'lucide-vue-next'
 import type { Currency, FxRatesMap, PricesView } from '~/lib/types/snapshot'
 import {
   resolvePersona,
   hasInvestments,
   isSnapshotReady,
+  PERSONA_VISUALS,
   type PersonaKey,
 } from '~/lib/finance/persona'
 
@@ -227,17 +234,19 @@ const persona = computed(() =>
   }),
 )
 
-const PERSONA_STYLE: Record<PersonaKey, { gradient: string; emoji: string; bg: string }> = {
-  sultanKos: { gradient: 'from-amber-400 via-yellow-400 to-orange-400', emoji: '\u{1F451}', bg: 'bg-amber-50' },
-  investorKos: { gradient: 'from-emerald-400 via-teal-400 to-cyan-400', emoji: '\u{1F4C8}', bg: 'bg-emerald-50' },
-  anakKosBijak: { gradient: 'from-blue-400 via-indigo-400 to-violet-400', emoji: '\u{1F44D}', bg: 'bg-blue-50' },
-  pejuangAkhirBulan: { gradient: 'from-rose-400 via-pink-400 to-fuchsia-400', emoji: '\u{1F525}', bg: 'bg-rose-50' },
-  sobatIndomie: { gradient: 'from-orange-400 via-amber-400 to-yellow-400', emoji: '\u{1F35C}', bg: 'bg-orange-50' },
-}
-
-const personaStyle = computed(() => persona.value ? PERSONA_STYLE[persona.value.key] : null)
+const personaStyle = computed(() => persona.value ? PERSONA_VISUALS[persona.value.key] : null)
+const shareOpen = ref(false)
+const showStats = ref(false)
+const shareText = computed(() => {
+  if (!persona.value) return ''
+  const label = t(`persona.${persona.value.key}.label` as import('~/lib/copy/strings').CopyKey)
+  const deepLink = `${getAppUrl()}?from=share&persona=${persona.value.key}`
+  return `Aku ${label}! Cek keuanganmu juga di Cermat x Mamikos!\n${deepLink}`
+})
+const downloadName = computed(() => `cermat-${persona.value?.key ?? 'share'}.png`)
 
 const surplusAmt = computed(() => derived.surplusIdr)
+const { insight: insightJujur, fires: insightJujurFires } = useInsightJujur()
 const surplusPct = computed(() =>
   penghasilanTotal.value > 0 ? Math.round((surplusAmt.value / penghasilanTotal.value) * 100) : 0,
 )
@@ -484,6 +493,15 @@ const cashflowSegments = computed(() => {
         <!-- Decorative circles -->
         <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10" />
         <div class="pointer-events-none absolute -bottom-4 -left-4 h-16 w-16 rounded-full bg-white/10" />
+        <!-- Share button -->
+        <button
+          type="button"
+          class="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30"
+          aria-label="Bagikan kartu"
+          @click="shareOpen = true"
+        >
+          <Share2 :size="16" />
+        </button>
         <!-- Content -->
         <span class="text-6xl drop-shadow-lg">{{ personaStyle.emoji }}</span>
         <h3 class="mt-3 text-3xl font-black tracking-tight text-white drop-shadow-md">
@@ -517,6 +535,33 @@ const cashflowSegments = computed(() => {
           </div>
         </div>
       </div>
+
+      <!-- Share dialog for budget-kos persona -->
+      <ShareDialog
+        v-if="persona"
+        :open="shareOpen"
+        :share-text="shareText"
+        :download-name="downloadName"
+        @close="shareOpen = false"
+      >
+        <PersonaShareCard
+          :persona-key="persona.key"
+          :savings-rate="derived.savingsRate"
+          :runway="derived.runway"
+          :show-stats="showStats"
+        />
+        <template #controls>
+          <div class="text-center">
+            <button
+              type="button"
+              class="text-[11px] font-medium text-[var(--color-text-muted)] underline decoration-current/40 hover:text-[var(--color-text-secondary)]"
+              @click="showStats = !showStats"
+            >
+              {{ showStats ? t('share.toggleStatsOff') : t('share.toggleStats') }}
+            </button>
+          </div>
+        </template>
+      </ShareDialog>
 
       <!-- No-data state -->
       <div
@@ -582,8 +627,11 @@ const cashflowSegments = computed(() => {
         </div>
       </div>
 
-      <!-- Item B: Mini savings projection -->
-      <div v-if="savingsProjection" class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4">
+      <!-- Phase 7.2: Insight Jujur -->
+      <InsightJujur v-if="insightJujur" :insight="insightJujur" />
+
+      <!-- Item B: Mini savings projection (suppressed when Insight Jujur fires on thin/deficit) -->
+      <div v-if="savingsProjection && !(insightJujurFires && (savingsProjection.type === 'thin' || savingsProjection.type === 'deficit' || savingsProjection.type === 'zero'))" class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4">
         <template v-if="savingsProjection.type === 'onTrack'">
           <p class="text-sm text-[var(--color-text-primary)]">
             💰 Konsisten nabung surplus → <strong class="text-emerald-600">{{ savingsProjection.months }} bulan</strong> lagi kekumpul dana darurat 3 bulan.

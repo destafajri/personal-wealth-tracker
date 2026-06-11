@@ -757,10 +757,26 @@ export const copy = {
   'persona.anakKosBijak.tagline': 'Disiplin ngatur keuangan, Respect!',
   'persona.pejuangAkhirBulan.label': 'Pejuang Akhir Bulan',
   'persona.pejuangAkhirBulan.tagline': 'Akhir bulan keras, tapi kamu gak sendiri!',
-  'persona.sobatIndomie.label': 'Sobat Indomie',
+  'persona.sobatIndomie.label': 'Sobat Mie',
   'persona.sobatIndomie.tagline': 'Hemat itu pilihan, tapi yang penting happy!',
   'persona.stats.savingsRate': 'Sisa Uang/Bulan',
   'persona.stats.runway': 'Bisa Bertahan',
+
+  // ----- share card (Phase 7.1) -----
+  'share.cta': 'tipe keuanganmu apa? Coba di Cermat',
+  'share.brandLockup': 'Cermat × Mamikos',
+  'share.nativeButton': 'Bagikan',
+  'share.toggleStats': 'Tampilkan stats saya (terlihat publik)',
+  'share.toggleStatsOff': 'Sembunyikan stats',
+  'share.captureLoading': 'Sedang membuat kartu…',
+  'share.captureError': 'Gagal membuat kartu. Coba lagi.',
+
+  // ----- landing share invite banner (Phase 7.1) -----
+  'landing.shareInvite.headlineTemplate': 'Temenmu {persona} 👀',
+  'landing.shareInvite.headlineFallback': 'Cek tipe keuangan kamu 👀',
+  'landing.shareInvite.sub': 'Kamu tipe apa?',
+  'landing.shareInvite.cta': 'Cek gratis →',
+  'landing.shareInvite.microcopyPrivacy': '🔒 100% di HP kamu — gak ke server',
 
   // ----- CTA Mamikos (Phase 3 Priority 2) -----
   'cta.mamikos.afterPersona.label': 'Cari Kos Sesuai Budgetmu',
