@@ -28,6 +28,7 @@ export function pickNamedCategory(
   lifestyle: number,
   matchedLainRows: Array<{ label: string; amount: number }>,
 ): { name: string; amount: number } {
+  if (matchedLainRows.length === 0) return { name: 'Lifestyle', amount: lifestyle }
   const totalFromLain = matchedLainRows.reduce((s, r) => s + r.amount, 0)
   if (totalFromLain >= lifestyle) {
     const top = matchedLainRows.reduce((max, r) => (r.amount > max.amount ? r : max))
