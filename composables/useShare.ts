@@ -18,6 +18,23 @@ export function useShare() {
     })
   }
 
+  async function downloadAsPng(el: HTMLElement, filename: string): Promise<void> {
+    await document.fonts.ready
+    const { default: html2canvas } = await import('html2canvas')
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      backgroundColor: null,
+      useCORS: true,
+      logging: false,
+    })
+    const link = document.createElement('a')
+    link.download = filename
+    link.href = canvas.toDataURL('image/png')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   async function copyText(text: string): Promise<void> {
     await navigator.clipboard.writeText(text)
   }
@@ -58,6 +75,7 @@ export function useShare() {
 
   return {
     captureAsPng,
+    downloadAsPng,
     copyText,
     shareToWa,
     shareToTwitter,

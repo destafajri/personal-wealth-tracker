@@ -17,7 +17,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{ close: [] }>()
 
-const { captureAsPng, copyText, shareToWa, shareToTwitter, shareNative, isMobileShareCapable } = useShare()
+const { captureAsPng, downloadAsPng, copyText, shareToWa, shareToTwitter, shareNative, isMobileShareCapable } = useShare()
 const toast = useToast()
 
 const cardRef = ref<HTMLElement | null>(null)
@@ -62,12 +62,7 @@ async function handleDownload() {
   }
   capturing.value = true
   try {
-    const blob = await captureAsPng(cardRef.value as HTMLElement)
-    const link = document.createElement('a')
-    link.download = props.downloadName
-    link.href = URL.createObjectURL(blob)
-    link.click()
-    URL.revokeObjectURL(link.href)
+    await downloadAsPng(cardRef.value as HTMLElement, props.downloadName)
     toast.showToast('Kartu berhasil diunduh!', { type: 'success', durationMs: 2000 })
   } catch {
     toast.showToast(t('share.captureError'), { type: 'error', durationMs: 3000 })
