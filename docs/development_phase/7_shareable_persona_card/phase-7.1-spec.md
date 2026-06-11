@@ -711,6 +711,21 @@ The 8 v1 open questions have been answered by the neighbor in round 1. Summarize
 
 ---
 
+## 16. Post-Implementation Deviations (actual vs spec)
+
+The spec above is LOCKED v3 and preserved as-is. The following deviations were made during implementation based on real-world testing:
+
+| Spec item | What was implemented | Why |
+|---|---|---|
+| §4: `html2canvas` as default capture engine | **`html-to-image`** (Option C) used instead | `html2canvas` hangs on mobile when capturing Vue slotted components inside a fixed overlay. `html-to-image` (SVG foreignObject) works reliably. Spike Day 1 confirmed the swap. |
+| §5.2: native "Bagikan" on mobile, grid on desktop | **Same 4-button grid on both** (Salin, WA, X, Download) | AI-tetangga confirmed: IG has no web share intent, native `navigator.share` breaks when called after async capture (user-gesture context lost). Unified grid is simpler and consistent. |
+| §6.3: URL in footer = static `cermat.vercel.app` | **Dynamic `getAppUrl()`** via `window.location.origin` | App may deploy to different URLs. `getAppUrl()` returns `window.location.origin` in browser, SSR fallback to production URL. `share.url` copy string removed. |
+| §6.2: Tailwind classes for card styling | **Inline `style` attributes** for gradients and colors | `html-to-image` can't capture Tailwind v4 external CSS. Inline styles ensure captured PNG matches live preview. `PERSONA_VISUALS` extended with `gradientCSS` field. |
+| §9: share text with `✨` and `×` characters | **Plain ASCII** (`x` instead of `×`, no emoji) | WhatsApp renders `×` (U+00D7) and `✨` as `?` on many Android devices. |
+| §8: share text in §14 storyboard | Same plain text but without `✨` and `×` | Consistent with the safe Unicode change above. |
+
+---
+
 The spec is now status **🔒 LOCKED v3** — refinements applied, 6+5 amendments verified, cosmetic leftover removed. **The neighbor will review this locked v3 → green light → only then implementation.** Until confirmation arrives, don't push.
 
 🫡🎮
