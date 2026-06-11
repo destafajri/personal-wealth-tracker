@@ -25,7 +25,6 @@ const copying = ref(false)
 const capturing = ref(false)
 const isMobile = ref(false)
 
-// Re-evaluate mobile capability each time the dialog opens
 watch(() => props.open, (val) => {
   if (val && typeof window !== 'undefined') {
     isMobile.value = isMobileShareCapable()
@@ -41,6 +40,8 @@ async function handleCopy() {
   try {
     await copyText(props.shareText)
     toast.showToast('Tersalin!', { type: 'success', durationMs: 1500 })
+  } catch {
+    toast.showToast('Gagal menyalin teks.', { type: 'error', durationMs: 2000 })
   } finally {
     setTimeout(() => { copying.value = false }, 1500)
   }
@@ -55,7 +56,10 @@ function handleTwitter() {
 }
 
 async function handleDownload() {
-  if (!cardRef.value) return
+  if (!cardRef.value) {
+    toast.showToast(t('share.captureError'), { type: 'error', durationMs: 3000 })
+    return
+  }
   capturing.value = true
   try {
     const blob = await captureAsPng(cardRef.value as HTMLElement)
@@ -64,6 +68,7 @@ async function handleDownload() {
     link.href = URL.createObjectURL(blob)
     link.click()
     URL.revokeObjectURL(link.href)
+    toast.showToast('Kartu berhasil diunduh!', { type: 'success', durationMs: 2000 })
   } catch {
     toast.showToast(t('share.captureError'), { type: 'error', durationMs: 3000 })
   } finally {
@@ -72,7 +77,10 @@ async function handleDownload() {
 }
 
 async function handleNativeShare() {
-  if (!cardRef.value) return
+  if (!cardRef.value) {
+    toast.showToast(t('share.captureError'), { type: 'error', durationMs: 3000 })
+    return
+  }
   capturing.value = true
   try {
     const blob = await captureAsPng(cardRef.value as HTMLElement)
@@ -110,19 +118,23 @@ function handleClose() {
       </button>
 
       <!-- Card content slot (captured for PNG) -->
-      <div ref="cardRef" :class="['overflow-hidden', aspectClass]">
+      <div ref="cardRef" :class="['overflow-hidden rounded-2xl', aspectClass]">
         <slot />
+      </div>
+
+      <!-- Controls slot (NOT captured — stats toggle, etc.) -->
+      <div v-if="$slots.controls" class="mt-2">
+        <slot name="controls" />
       </div>
 
       <!-- Loading overlay -->
       <div
         v-if="capturing"
-        class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl"
+        class="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-black/40"
       >
         <p class="text-sm font-medium text-white">{{ t('share.captureLoading') }}</p>
       </div>
 
-      <!-- Action buttons -->
       <!-- Mobile: native share primary -->
       <button
         v-if="isMobile"
@@ -134,7 +146,7 @@ function handleClose() {
         {{ t('share.nativeButton') }}
       </button>
 
-      <!-- Desktop: grid of 4 buttons (hidden on mobile when native share is available) -->
+      <!-- Desktop: grid of 4 buttons -->
       <div v-else class="mt-3 grid grid-cols-4 gap-2">
         <button
           type="button"

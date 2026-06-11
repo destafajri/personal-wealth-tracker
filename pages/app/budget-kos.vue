@@ -547,15 +547,17 @@ const cashflowSegments = computed(() => {
           :runway="derived.runway"
           :show-stats="showStats"
         />
-        <div class="mt-2 text-center">
-          <button
-            type="button"
-            class="text-[11px] font-medium text-[var(--color-text-muted)] underline decoration-current/40 hover:text-[var(--color-text-secondary)]"
-            @click="showStats = !showStats"
-          >
-            {{ showStats ? t('share.toggleStatsOff') : t('share.toggleStats') }}
-          </button>
-        </div>
+        <template #controls>
+          <div class="text-center">
+            <button
+              type="button"
+              class="text-[11px] font-medium text-[var(--color-text-muted)] underline decoration-current/40 hover:text-[var(--color-text-secondary)]"
+              @click="showStats = !showStats"
+            >
+              {{ showStats ? t('share.toggleStatsOff') : t('share.toggleStats') }}
+            </button>
+          </div>
+        </template>
       </ShareDialog>
 
       <!-- No-data state -->

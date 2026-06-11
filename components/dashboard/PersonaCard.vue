@@ -98,16 +98,17 @@ const downloadName = computed(() => `cermat-${personaKey.value ?? 'share'}.png`)
         :runway="derived.runway"
         :show-stats="showStats"
       />
-      <!-- Stats toggle (inside the dialog, below the card) -->
-      <div class="mt-2 text-center">
-        <button
-          type="button"
-          class="text-[11px] font-medium text-[var(--color-text-muted)] underline decoration-current/40 hover:text-[var(--color-text-secondary)]"
-          @click="showStats = !showStats"
-        >
-          {{ showStats ? t('share.toggleStatsOff') : t('share.toggleStats') }}
-        </button>
-      </div>
+      <template #controls>
+        <div class="text-center">
+          <button
+            type="button"
+            class="text-[11px] font-medium text-[var(--color-text-muted)] underline decoration-current/40 hover:text-[var(--color-text-secondary)]"
+            @click="showStats = !showStats"
+          >
+            {{ showStats ? t('share.toggleStatsOff') : t('share.toggleStats') }}
+          </button>
+        </div>
+      </template>
     </ShareDialog>
   </div>
 </template>
