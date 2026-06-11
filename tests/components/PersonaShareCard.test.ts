@@ -81,10 +81,20 @@ describe('Share text privacy', () => {
     const APP_URL = 'https://cermat.vercel.app'
     for (const key of ALL_KEYS) {
       const label = t(`persona.${key}.label` as import('~/lib/copy/strings').CopyKey)
-      const shareText = `Aku ${label}! ✨ Cek keuanganmu juga di Cermat × Mamikos!\n${APP_URL}`
+      const deepLink = `${APP_URL}?from=share&persona=${key}`
+      const shareText = `Aku ${label}! ✨ Cek keuanganmu juga di Cermat × Mamikos!\n${deepLink}`
       // Only digits allowed are from the URL (no financial amounts)
       const withoutUrl = shareText.replace(APP_URL, '')
       expect(withoutUrl, `share text for ${key} should have no digits outside URL`).not.toMatch(/\d/)
+    }
+  })
+
+  it('share text carries deep link context (?from=share&persona=)', () => {
+    const APP_URL = 'https://cermat.vercel.app'
+    for (const key of ALL_KEYS) {
+      const deepLink = `${APP_URL}?from=share&persona=${key}`
+      expect(deepLink).toContain('from=share')
+      expect(deepLink).toContain(`persona=${key}`)
     }
   })
 })

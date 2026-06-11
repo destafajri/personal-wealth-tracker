@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Copy, Download, MessageCircle, Share, X } from 'lucide-vue-next'
 import { useShare } from '~/composables/useShare'
 import { t } from '~/lib/copy/strings'
@@ -25,9 +25,12 @@ const copying = ref(false)
 const capturing = ref(false)
 const isMobile = ref(false)
 
-if (typeof window !== 'undefined') {
-  isMobile.value = isMobileShareCapable()
-}
+// Re-evaluate mobile capability each time the dialog opens
+watch(() => props.open, (val) => {
+  if (val && typeof window !== 'undefined') {
+    isMobile.value = isMobileShareCapable()
+  }
+})
 
 const aspectClass = computed(() =>
   props.aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-square',
@@ -131,8 +134,8 @@ function handleClose() {
         {{ t('share.nativeButton') }}
       </button>
 
-      <!-- Desktop / fallback: grid of 4 buttons -->
-      <div class="mt-3 grid grid-cols-4 gap-2">
+      <!-- Desktop: grid of 4 buttons (hidden on mobile when native share is available) -->
+      <div v-else class="mt-3 grid grid-cols-4 gap-2">
         <button
           type="button"
           class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)]"

@@ -44,7 +44,8 @@ const style = computed(() => personaKey.value ? PERSONA_VISUALS[personaKey.value
 const shareText = computed(() => {
   if (!personaKey.value) return ''
   const label = t(`persona.${personaKey.value}.label` as import('~/lib/copy/strings').CopyKey)
-  return `Aku ${label}! ✨ Cek keuanganmu juga di Cermat × Mamikos!\n${APP_URL}`
+  const deepLink = `${APP_URL}?from=share&persona=${personaKey.value}`
+  return `Aku ${label}! ✨ Cek keuanganmu juga di Cermat × Mamikos!\n${deepLink}`
 })
 
 const downloadName = computed(() => `cermat-${personaKey.value ?? 'share'}.png`)
