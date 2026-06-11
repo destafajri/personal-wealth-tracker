@@ -72,23 +72,6 @@ async function handleDownload() {
   }
 }
 
-async function handleInstagram() {
-  if (!cardRef.value) {
-    toast.showToast(t('share.captureError'), { type: 'error', durationMs: 3000 })
-    return
-  }
-  capturing.value = true
-  toast.showToast(t('share.captureLoading'), { type: 'info', durationMs: 4000 })
-  try {
-    await downloadAsPng(cardRef.value as HTMLElement, props.downloadName)
-    toast.showToast('Kartu tersimpan! Buka Instagram untuk membagikan', { type: 'success', durationMs: 3000 })
-  } catch {
-    toast.showToast(t('share.captureError'), { type: 'error', durationMs: 3000 })
-  } finally {
-    capturing.value = false
-  }
-}
-
 function handleClose() {
   if (capturing.value) return
   emit('close')
@@ -121,8 +104,8 @@ function handleClose() {
         <slot name="controls" />
       </div>
 
-      <!-- Desktop: grid of 4 buttons (Copy, WA, X, Download) -->
-      <div v-if="!isMobile" class="mt-3 grid grid-cols-4 gap-2">
+      <!-- Share buttons (same on mobile & desktop) -->
+      <div class="mt-3 grid grid-cols-4 gap-2">
         <button
           type="button"
           class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)] disabled:opacity-50"
@@ -140,47 +123,6 @@ function handleClose() {
         >
           <MessageCircle :size="18" />
           WhatsApp
-        </button>
-        <button
-          type="button"
-          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)] disabled:opacity-50"
-          :disabled="capturing"
-          @click="handleTwitter"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" :width="18" :height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-          X
-        </button>
-        <button
-          type="button"
-          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)] disabled:opacity-50"
-          :disabled="capturing"
-          @click="handleDownload"
-        >
-          <Loader2 v-if="capturing" :size="18" class="animate-spin text-[var(--color-primary)]" />
-          <Download v-else :size="18" />
-          {{ capturing ? '…' : 'Download' }}
-        </button>
-      </div>
-
-      <!-- Mobile: grid of 4 buttons (WA, IG, X, Download) -->
-      <div v-else class="mt-3 grid grid-cols-4 gap-2">
-        <button
-          type="button"
-          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)] disabled:opacity-50"
-          :disabled="capturing"
-          @click="handleWhatsApp"
-        >
-          <MessageCircle :size="18" />
-          WhatsApp
-        </button>
-        <button
-          type="button"
-          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)] disabled:opacity-50"
-          :disabled="capturing"
-          @click="handleInstagram"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" :width="18" :height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-          Instagram
         </button>
         <button
           type="button"
