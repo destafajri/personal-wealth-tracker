@@ -4,6 +4,7 @@ import { ref, watch } from 'vue'
 import Badge from '~/components/common/Badge.vue'
 import ButtonCTA from '~/components/common/ButtonCTA.vue'
 import ImportModal from '~/components/layout/ImportModal.vue'
+import ShareInviteBanner from '~/components/landing/ShareInviteBanner.vue'
 import { t } from '~/lib/copy/strings'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useImportXlsx } from '~/composables/useImportXlsx'
@@ -15,6 +16,7 @@ useSeoMeta({
 })
 
 const snap = useSnapshotStore()
+const route = useRoute()
 const showModal = ref(false)
 const modalTitle = ref('')
 const pendingMode = ref<'budgetKos' | 'wealthTracker'>('budgetKos')
@@ -23,6 +25,12 @@ const { selectFile, phase: importPhase } = useImportXlsx()
 const importOpen = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 const router = useRouter()
+
+const fromShare = computed(() => route.query.from === 'share')
+const personaQuery = computed(() => {
+  const q = route.query.persona
+  return typeof q === 'string' ? q : undefined
+})
 
 watch(importPhase, (p) => {
   if (p === 'done') {
@@ -83,6 +91,9 @@ async function onFileSelected(e: Event) {
     <p class="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-[var(--color-text-secondary)]">
       {{ t('landing.hero.subtitle') }}
     </p>
+
+    <!-- Share invite banner (Phase 7.1 deep link) -->
+    <ShareInviteBanner v-if="fromShare" :persona-query="personaQuery" />
 
     <!-- Trust pills — moved closer to CTA for better conversion -->
     <div class="mx-auto mt-8 flex max-w-md flex-wrap items-center justify-center gap-3">

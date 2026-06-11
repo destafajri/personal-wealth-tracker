@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { resolvePersona, hasInvestments, isSnapshotReady } from '~/lib/finance/persona'
+import { resolvePersona, hasInvestments, isSnapshotReady, PERSONA_VISUALS } from '~/lib/finance/persona'
+import type { PersonaKey } from '~/lib/finance/persona'
 import type { SnapshotState } from '~/lib/types/snapshot'
 import { emptySnapshot } from '~/lib/types/snapshot'
 
@@ -166,5 +167,23 @@ describe('resolvePersona', () => {
   it('anakKosBijak wins over pejuangAkhirBulan when savingsRate >= 15', () => {
     const result = resolvePersona({ savingsRate: 15, runway: 0.5, hasInvestments: false, isSnapshotReady: true })
     expect(result?.key).toBe('anakKosBijak')
+  })
+})
+
+describe('PERSONA_VISUALS', () => {
+  const allKeys: PersonaKey[] = ['sultanKos', 'investorKos', 'anakKosBijak', 'pejuangAkhirBulan', 'sobatIndomie']
+
+  it('has an entry for every persona key', () => {
+    for (const key of allKeys) {
+      expect(PERSONA_VISUALS[key]).toBeDefined()
+      expect(PERSONA_VISUALS[key].gradient).toBeTruthy()
+      expect(PERSONA_VISUALS[key].emoji).toBeTruthy()
+    }
+  })
+
+  it('gradients use Tailwind from-to format', () => {
+    for (const key of allKeys) {
+      expect(PERSONA_VISUALS[key].gradient).toMatch(/^from-/)
+    }
   })
 })
