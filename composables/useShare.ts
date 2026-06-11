@@ -8,6 +8,7 @@ export function useShare() {
       scale: 2,
       backgroundColor: null,
       useCORS: true,
+      logging: false,
     })
     return new Promise<Blob>((resolve, reject) => {
       canvas.toBlob((blob) => {
