@@ -21,7 +21,7 @@ const tagline = computed(() => t(`persona.${props.personaKey}.tagline` as import
 <template>
   <!-- Card always renders light (independent of app dark mode) -->
   <div
-    class="flex h-full w-full flex-col items-center justify-between bg-gradient-to-b px-8 py-12 text-center"
+    class="flex min-w-[280px] max-w-[360px] flex-col items-center justify-between bg-gradient-to-b px-8 py-12 text-center"
     :class="visuals.gradient"
   >
     <!-- Top: emoji -->

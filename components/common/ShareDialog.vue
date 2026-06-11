@@ -32,7 +32,7 @@ watch(() => props.open, (val) => {
 })
 
 const cardDimensions = computed(() =>
-  props.aspectRatio === '9:16' ? 'w-[360px] h-[640px]' : 'w-[360px] h-[360px]',
+  props.aspectRatio === '9:16' ? 'max-w-[360px]' : 'max-w-[360px]',
 )
 
 async function handleCopy() {
