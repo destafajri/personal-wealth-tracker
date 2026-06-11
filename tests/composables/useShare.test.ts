@@ -16,7 +16,7 @@ describe('useShare', () => {
   it('returns expected API shape', async () => {
     const { useShare } = await import('~/composables/useShare')
     const api = useShare()
-    expect(typeof api.captureAsPng).toBe('function')
+    expect(typeof api.captureAsBlob).toBe('function')
     expect(typeof api.copyText).toBe('function')
     expect(typeof api.shareToWa).toBe('function')
     expect(typeof api.shareToTwitter).toBe('function')

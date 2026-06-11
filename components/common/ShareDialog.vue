@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Copy, Download, MessageCircle, Share, X } from 'lucide-vue-next'
+import { Copy, Download, Loader2, MessageCircle, Share, X } from 'lucide-vue-next'
 import { useShare } from '~/composables/useShare'
 import { t } from '~/lib/copy/strings'
 import { useToast } from '~/composables/useToast'
@@ -17,7 +17,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{ close: [] }>()
 
-const { captureAsPng, downloadAsPng, copyText, shareToWa, shareToTwitter, shareNative, isMobileShareCapable } = useShare()
+const { downloadAsPng, captureAsBlob, copyText, shareToWa, shareToTwitter, shareNative, isMobileShareCapable } = useShare()
 const toast = useToast()
 
 const cardRef = ref<HTMLElement | null>(null)
@@ -61,6 +61,7 @@ async function handleDownload() {
     return
   }
   capturing.value = true
+  toast.showToast(t('share.captureLoading'), { type: 'info', durationMs: 4000 })
   try {
     await downloadAsPng(cardRef.value as HTMLElement, props.downloadName)
     toast.showToast('Kartu berhasil diunduh!', { type: 'success', durationMs: 2000 })
@@ -77,12 +78,13 @@ async function handleNativeShare() {
     return
   }
   capturing.value = true
+  toast.showToast(t('share.captureLoading'), { type: 'info', durationMs: 4000 })
   try {
-    const blob = await captureAsPng(cardRef.value as HTMLElement)
+    const blob = await captureAsBlob(cardRef.value as HTMLElement)
     const file = new File([blob], props.downloadName, { type: 'image/png' })
     const ok = await shareNative({ files: [file], text: props.shareText, title: 'Cermat' })
     if (!ok) {
-      await handleDownload()
+      await downloadAsPng(cardRef.value as HTMLElement, props.downloadName)
     }
   } catch {
     toast.showToast(t('share.captureError'), { type: 'error', durationMs: 3000 })
@@ -92,6 +94,7 @@ async function handleNativeShare() {
 }
 
 function handleClose() {
+  if (capturing.value) return
   emit('close')
 }
 </script>
@@ -107,6 +110,7 @@ function handleClose() {
       <button
         type="button"
         class="absolute -top-2 -right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-600 shadow-lg hover:bg-gray-100"
+        :class="{ 'opacity-50 pointer-events-none': capturing }"
         @click="handleClose"
       >
         <X :size="16" />
@@ -117,35 +121,30 @@ function handleClose() {
         <slot />
       </div>
 
-      <!-- Controls slot (NOT captured — stats toggle, etc.) -->
+      <!-- Controls slot (NOT captured) -->
       <div v-if="$slots.controls" class="mt-2">
         <slot name="controls" />
-      </div>
-
-      <!-- Loading overlay -->
-      <div
-        v-if="capturing"
-        class="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-black/40"
-      >
-        <p class="text-sm font-medium text-white">{{ t('share.captureLoading') }}</p>
       </div>
 
       <!-- Mobile: native share primary -->
       <button
         v-if="isMobile"
         type="button"
-        class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+        class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+        :disabled="capturing"
         @click="handleNativeShare"
       >
-        <Share :size="18" />
-        {{ t('share.nativeButton') }}
+        <Loader2 v-if="capturing" :size="18" class="animate-spin" />
+        <Share v-else :size="18" />
+        {{ capturing ? 'Membuat kartu…' : t('share.nativeButton') }}
       </button>
 
       <!-- Desktop: grid of 4 buttons -->
       <div v-else class="mt-3 grid grid-cols-4 gap-2">
         <button
           type="button"
-          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)]"
+          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)] disabled:opacity-50"
+          :disabled="capturing"
           @click="handleCopy"
         >
           <Copy :size="18" :class="copying ? 'text-[var(--color-primary)]' : ''" />
@@ -153,7 +152,8 @@ function handleClose() {
         </button>
         <button
           type="button"
-          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)]"
+          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)] disabled:opacity-50"
+          :disabled="capturing"
           @click="handleWhatsApp"
         >
           <MessageCircle :size="18" />
@@ -161,7 +161,8 @@ function handleClose() {
         </button>
         <button
           type="button"
-          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)]"
+          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)] disabled:opacity-50"
+          :disabled="capturing"
           @click="handleTwitter"
         >
           <svg xmlns="http://www.w3.org/2000/svg" :width="18" :height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
@@ -169,11 +170,13 @@ function handleClose() {
         </button>
         <button
           type="button"
-          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)]"
+          class="flex flex-col items-center gap-1 rounded-xl bg-[var(--color-surface-card)] px-2 py-3 text-[10px] font-medium text-[var(--color-text-secondary)] shadow-sm transition hover:bg-[var(--color-surface-low)] disabled:opacity-50"
+          :disabled="capturing"
           @click="handleDownload"
         >
-          <Download :size="18" />
-          Download
+          <Loader2 v-if="capturing" :size="18" class="animate-spin text-[var(--color-primary)]" />
+          <Download v-else :size="18" />
+          {{ capturing ? '…' : 'Download' }}
         </button>
       </div>
     </div>

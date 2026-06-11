@@ -1,38 +1,52 @@
 export const APP_URL = 'https://cermat.vercel.app'
 
-export function useShare() {
-  async function captureAsPng(el: HTMLElement): Promise<Blob> {
-    await document.fonts.ready
-    const { default: html2canvas } = await import('html2canvas')
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      backgroundColor: null,
-      useCORS: true,
-      logging: false,
-    })
-    return new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob)
-        else reject(new Error('Canvas toBlob returned null'))
-      }, 'image/png')
-    })
-  }
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Capture timed out')), ms)
+    promise.then(
+      (val) => { clearTimeout(timer); resolve(val) },
+      (err) => { clearTimeout(timer); reject(err) },
+    )
+  })
+}
 
+export function useShare() {
   async function downloadAsPng(el: HTMLElement, filename: string): Promise<void> {
-    await document.fonts.ready
     const { default: html2canvas } = await import('html2canvas')
-    const canvas = await html2canvas(el, {
-      scale: 2,
-      backgroundColor: null,
-      useCORS: true,
-      logging: false,
-    })
+    const canvas = await withTimeout(
+      html2canvas(el, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true,
+        logging: false,
+      }),
+      15_000,
+    )
     const link = document.createElement('a')
     link.download = filename
     link.href = canvas.toDataURL('image/png')
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+  }
+
+  async function captureAsBlob(el: HTMLElement): Promise<Blob> {
+    const { default: html2canvas } = await import('html2canvas')
+    const canvas = await withTimeout(
+      html2canvas(el, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true,
+        logging: false,
+      }),
+      15_000,
+    )
+    return new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) resolve(blob)
+        else reject(new Error('Canvas toBlob returned null'))
+      }, 'image/png')
+    })
   }
 
   async function copyText(text: string): Promise<void> {
@@ -74,8 +88,8 @@ export function useShare() {
   }
 
   return {
-    captureAsPng,
     downloadAsPng,
+    captureAsBlob,
     copyText,
     shareToWa,
     shareToTwitter,
