@@ -16,6 +16,7 @@ import {
 } from 'lucide-vue-next'
 import { t } from '~/lib/copy/strings'
 import { idr } from '~/lib/format/idr'
+import { useInsightJujur } from '~/composables/useInsightJujur'
 import ButtonPrimary from '~/components/common/ButtonPrimary.vue'
 import ButtonSecondary from '~/components/common/ButtonSecondary.vue'
 import CollapsiblePanel from '~/components/snapshot/CollapsiblePanel.vue'
@@ -37,6 +38,7 @@ import { useFxRates } from '~/composables/usePrices'
 import { getAppUrl } from '~/composables/useShare'
 import ShareDialog from '~/components/common/ShareDialog.vue'
 import PersonaShareCard from '~/components/share/PersonaShareCard.vue'
+import InsightJujur from '~/components/dashboard/InsightJujur.vue'
 import { Share2 } from 'lucide-vue-next'
 import type { Currency, FxRatesMap, PricesView } from '~/lib/types/snapshot'
 import {
@@ -244,6 +246,7 @@ const shareText = computed(() => {
 const downloadName = computed(() => `cermat-${persona.value?.key ?? 'share'}.png`)
 
 const surplusAmt = computed(() => derived.surplusIdr)
+const { insight: insightJujur, fires: insightJujurFires } = useInsightJujur()
 const surplusPct = computed(() =>
   penghasilanTotal.value > 0 ? Math.round((surplusAmt.value / penghasilanTotal.value) * 100) : 0,
 )
@@ -624,8 +627,11 @@ const cashflowSegments = computed(() => {
         </div>
       </div>
 
-      <!-- Item B: Mini savings projection -->
-      <div v-if="savingsProjection" class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4">
+      <!-- Phase 7.2: Insight Jujur -->
+      <InsightJujur v-if="insightJujur" :insight="insightJujur" />
+
+      <!-- Item B: Mini savings projection (suppressed when Insight Jujur fires on thin/deficit) -->
+      <div v-if="savingsProjection && !(insightJujurFires && (savingsProjection.type === 'thin' || savingsProjection.type === 'deficit' || savingsProjection.type === 'zero'))" class="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4">
         <template v-if="savingsProjection.type === 'onTrack'">
           <p class="text-sm text-[var(--color-text-primary)]">
             💰 Konsisten nabung surplus → <strong class="text-emerald-600">{{ savingsProjection.months }} bulan</strong> lagi kekumpul dana darurat 3 bulan.

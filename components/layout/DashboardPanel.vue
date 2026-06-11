@@ -16,11 +16,13 @@ import ModalOptionsPanel from '~/components/dashboard/ModalOptionsPanel.vue'
 import CtaMamikos from '~/components/common/CtaMamikos.vue'
 import { useDerivedStore } from '~/stores/derived'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { useInsightJujur } from '~/composables/useInsightJujur'
 import { t } from '~/lib/copy/strings'
 
 const derived = useDerivedStore()
 const snap = useSnapshotStore()
 const isBudgetKos = computed(() => snap.mode === 'budgetKos')
+const { insight: insightJujur, fires: insightJujurFires } = useInsightJujur()
 // D11.6 — gate chart mount on having any asset. Both charts only have meaning
 // once there's portfolio data; skipping them on empty state keeps the ECharts
 // chunk (~80 KB gzip) off the wire until the user enters their first row. The
@@ -83,6 +85,9 @@ const WhatIfSimulator = defineAsyncComponent({
   loader: () => import('~/components/dashboard/WhatIfSimulator.vue'),
   loadingComponent: ChartLoading,
 })
+const InsightJujur = defineAsyncComponent({
+  loader: () => import('~/components/dashboard/InsightJujur.vue'),
+})
 </script>
 
 <template>
@@ -124,6 +129,7 @@ const WhatIfSimulator = defineAsyncComponent({
     <!-- Phase 6.2: Sankey + What-If (wealth-tracker only) -->
     <template v-if="!isBudgetKos && hasAnyAsset">
       <CashFlowSankey />
+      <InsightJujur :insight="insightJujur" />
       <WhatIfSimulator />
     </template>
     <GoalSummaryCards />
