@@ -13,7 +13,7 @@ Phase 7 answers the demo jury's feedback: a feature that drives **lightweight vi
 | Sub-phase | Focus | Key Deliverables |
 |-----------|-------|------------------|
 | **7.1** | Shareable Persona Card | Generic card generator (image-gen), privacy guardrails, persona card as first use-case, share deep link (MUST-HAVE per Amendment 4) |
-| **7.2** | (TBD) | Reuse the card generator for other outputs (e.g. calculator summary, milestone badge) — designed later |
+| **7.2** | Insight Jujur | Single auto-derived headline insight (defisit / bocor / runway) below Sankey + cashflow bar — see [`phase-7.2-spec.md`](./phase-7.2-spec.md) (🔒 **LOCKED v4** — round-3 `{X}` fix applied, ready for implementation) |
 
 ---
 
@@ -101,3 +101,4 @@ Follows the Phase 6.2 pattern:
 |------|---------|
 | [`README.md`](./README.md) | (this file) Phase 7 overview |
 | [`phase-7.1-spec.md`](./phase-7.1-spec.md) | Full Phase 7.1 spec (LOCKED v3) |
+| [`phase-7.2-spec.md`](./phase-7.2-spec.md) | Phase 7.2 — Insight Jujur (🔒 LOCKED v4, post round-3 review with `{X}` semantic fix, ready for implementation) |
