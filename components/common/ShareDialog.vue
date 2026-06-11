@@ -31,8 +31,8 @@ watch(() => props.open, (val) => {
   }
 })
 
-const aspectClass = computed(() =>
-  props.aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-square',
+const cardDimensions = computed(() =>
+  props.aspectRatio === '9:16' ? 'w-[360px] h-[640px]' : 'w-[360px] h-[360px]',
 )
 
 async function handleCopy() {
@@ -118,7 +118,7 @@ function handleClose() {
       </button>
 
       <!-- Card content slot (captured for PNG) -->
-      <div ref="cardRef" :class="['overflow-hidden rounded-2xl', aspectClass]">
+      <div ref="cardRef" :class="['overflow-hidden rounded-2xl', cardDimensions]">
         <slot />
       </div>
 
