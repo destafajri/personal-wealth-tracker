@@ -76,12 +76,6 @@ const zoneClass = computed(() => {
         {{ t('snapshot.section.gadai') }}
       </h3>
     </header>
-    <div class="mb-3 flex justify-end">
-      <ButtonGhost @click="snap.addGadai()">
-        {{ t('gadai.add') }}
-      </ButtonGhost>
-    </div>
-
     <p
       v-if="rows.length === 0"
       class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] px-3 py-3 text-sm text-[var(--color-text-secondary)]"
@@ -100,7 +94,6 @@ const zoneClass = computed(() => {
     </TransitionGroup>
 
     <ButtonGhost
-      v-if="rows.length > 0"
       class="mt-3 w-full"
       @click="snap.addGadai()"
     >

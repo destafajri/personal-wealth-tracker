@@ -31,12 +31,6 @@ const totalCicilan = computed(() =>
         {{ t('utangPribadi.help') }}
       </p>
     </header>
-    <div class="mb-3 flex justify-end">
-      <ButtonGhost @click="snap.addUtangPribadi()">
-        {{ t('utangPribadi.add') }}
-      </ButtonGhost>
-    </div>
-
     <p
       v-if="rows.length === 0"
       class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] px-3 py-3 text-sm text-[var(--color-text-secondary)]"
@@ -137,7 +131,6 @@ const totalCicilan = computed(() =>
     </TransitionGroup>
 
     <ButtonGhost
-      v-if="rows.length > 0"
       class="mt-3 w-full"
       @click="snap.addUtangPribadi()"
     >
