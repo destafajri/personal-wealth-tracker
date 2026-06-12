@@ -89,7 +89,7 @@ const zoneClass = computed(() => {
       {{ t('gadai.empty') }}
     </p>
 
-    <div v-else class="space-y-3">
+    <TransitionGroup v-else name="row-slide" tag="div" class="space-y-3">
       <GadaiRowEditor
         v-for="row in rows"
         :key="row.id"
@@ -97,7 +97,15 @@ const zoneClass = computed(() => {
         @update="(patch) => snap.updateGadai(row.id, patch)"
         @remove="snap.removeGadai(row.id)"
       />
-    </div>
+    </TransitionGroup>
+
+    <ButtonGhost
+      v-if="rows.length > 0"
+      class="mt-3 w-full"
+      @click="snap.addGadai()"
+    >
+      {{ t('gadai.add') }}
+    </ButtonGhost>
 
     <div
       v-if="rows.length > 0"
@@ -158,3 +166,23 @@ const zoneClass = computed(() => {
     </div>
   </section>
 </template>
+
+<style scoped>
+.row-slide-enter-active {
+  transition: all 0.3s ease-out;
+}
+.row-slide-leave-active {
+  transition: all 0.2s ease-in;
+}
+.row-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.row-slide-leave-to {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.row-slide-move {
+  transition: transform 0.25s ease;
+}
+</style>

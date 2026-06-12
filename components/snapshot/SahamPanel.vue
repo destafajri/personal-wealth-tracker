@@ -99,7 +99,12 @@ function refreshLive() {
       </p>
     </header>
 
-    <ul v-if="snap.saham.length > 0" class="space-y-3">
+    <TransitionGroup
+      v-if="snap.saham.length > 0"
+      name="row-slide"
+      tag="ul"
+      class="space-y-3"
+    >
       <PerEmitenCard
         v-for="row in snap.saham"
         :key="row.id"
@@ -112,16 +117,14 @@ function refreshLive() {
         @update="(patch) => snap.updateSaham(row.id, patch)"
         @remove="snap.removeSaham(row.id)"
       />
-    </ul>
+    </TransitionGroup>
     <p v-else class="text-xs text-[var(--color-text-muted)]">
       {{ t('snapshot.saham.empty') }}
     </p>
 
-    <div class="mt-3">
-      <ButtonGhost @click="snap.addSaham()">
-        {{ t('snapshot.saham.add') }}
-      </ButtonGhost>
-    </div>
+    <ButtonGhost class="mt-3 w-full" @click="snap.addSaham()">
+      {{ t('snapshot.saham.add') }}
+    </ButtonGhost>
 
     <div
       v-if="snap.saham.length > 0"
@@ -134,3 +137,23 @@ function refreshLive() {
     </div>
   </section>
 </template>
+
+<style scoped>
+.row-slide-enter-active {
+  transition: all 0.3s ease-out;
+}
+.row-slide-leave-active {
+  transition: all 0.2s ease-in;
+}
+.row-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.row-slide-leave-to {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.row-slide-move {
+  transition: transform 0.25s ease;
+}
+</style>

@@ -44,7 +44,7 @@ const totalCicilan = computed(() =>
       {{ t('utangPribadi.empty') }}
     </p>
 
-    <div v-else class="space-y-3">
+    <TransitionGroup v-else name="row-slide" tag="div" class="space-y-3">
       <article
         v-for="row in rows"
         :key="row.id"
@@ -55,7 +55,7 @@ const totalCicilan = computed(() =>
             type="text"
             :value="row.label"
             :placeholder="t('utangPribadi.field.label')"
-            class="h-10 flex-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm font-medium text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            class="h-10 flex-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm font-medium text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
             @input="
               snap.updateUtangPribadi(row.id, {
                 label: ($event.target as HTMLInputElement).value,
@@ -65,7 +65,7 @@ const totalCicilan = computed(() =>
           <button
             type="button"
             :aria-label="t('utangPribadi.row.remove')"
-            class="rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)]"
+            class="rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
             @click="snap.removeUtangPribadi(row.id)"
           >
             <X :size="16" />
@@ -123,7 +123,7 @@ const totalCicilan = computed(() =>
             <input
               type="date"
               :value="row.tanggalJatuhTempo ?? ''"
-              class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+              class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
               @input="
                 snap.updateUtangPribadi(row.id, {
                   tanggalJatuhTempo:
@@ -134,7 +134,15 @@ const totalCicilan = computed(() =>
           </label>
         </div>
       </article>
-    </div>
+    </TransitionGroup>
+
+    <ButtonGhost
+      v-if="rows.length > 0"
+      class="mt-3 w-full"
+      @click="snap.addUtangPribadi()"
+    >
+      {{ t('utangPribadi.add') }}
+    </ButtonGhost>
 
     <div
       v-if="rows.length > 0"
@@ -159,3 +167,23 @@ const totalCicilan = computed(() =>
     </div>
   </section>
 </template>
+
+<style scoped>
+.row-slide-enter-active {
+  transition: all 0.3s ease-out;
+}
+.row-slide-leave-active {
+  transition: all 0.2s ease-in;
+}
+.row-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.row-slide-leave-to {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.row-slide-move {
+  transition: transform 0.25s ease;
+}
+</style>

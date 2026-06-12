@@ -67,22 +67,22 @@ function idrEquivalent(row: AssetRow): number | null {
 
 <template>
   <div class="space-y-2">
-    <div class="flex items-center justify-between gap-2">
-      <h4 class="min-w-0 truncate text-sm font-medium text-[var(--color-text-primary)]">
-        {{ title }}
-      </h4>
-      <ButtonGhost class="shrink-0" @click="emit('add')">
-        {{ t('snapshot.row.add') }}
-      </ButtonGhost>
-    </div>
-    <ul v-if="rows.length > 0" class="space-y-2">
+    <h4 class="min-w-0 truncate text-sm font-medium text-[var(--color-text-primary)]">
+      {{ title }}
+    </h4>
+    <TransitionGroup
+      v-if="rows.length > 0"
+      name="row-slide"
+      tag="ul"
+      class="space-y-2"
+    >
       <li v-for="row in rows" :key="row.id" class="space-y-1">
         <div class="flex flex-wrap items-center gap-2">
           <input
             type="text"
             :value="row.label"
             :placeholder="t('snapshot.row.labelPlaceholder')"
-            class="h-12 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] sm:basis-auto"
+            class="h-12 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)] sm:basis-auto"
             @input="
               emit('update:label', row.id, ($event.target as HTMLInputElement).value)
             "
@@ -101,7 +101,7 @@ function idrEquivalent(row: AssetRow): number | null {
           <button
             type="button"
             :aria-label="t('snapshot.row.remove')"
-            class="shrink-0 rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-low)] hover:text-[var(--color-danger-rose)]"
+            class="shrink-0 rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-low)] hover:text-[var(--color-danger-rose)] active:scale-95"
             @click="emit('remove', row.id)"
           >
             <X :size="16" />
@@ -131,7 +131,7 @@ function idrEquivalent(row: AssetRow): number | null {
             :id="`rdJenis-${row.id}`"
             :value="row.rdJenis ?? ''"
             :aria-label="t('snapshot.aset.rdJenisAria')"
-            class="h-8 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-xs text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            class="h-8 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-xs text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
             @change="
               emit(
                 'update:rdJenis',
@@ -165,7 +165,7 @@ function idrEquivalent(row: AssetRow): number | null {
             min="0"
             :value="row.sukuBungaPercent ?? ''"
             :aria-label="t('snapshot.aset.sukuBungaAria')"
-            class="tabular h-8 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-right text-xs text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+            class="tabular h-8 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-right text-xs text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
             @input="
               emit(
                 'update:sukuBunga',
@@ -178,6 +178,29 @@ function idrEquivalent(row: AssetRow): number | null {
           >
         </div>
       </li>
-    </ul>
+    </TransitionGroup>
+    <ButtonGhost class="w-full" @click="emit('add')">
+      {{ t('snapshot.row.add') }}
+    </ButtonGhost>
   </div>
 </template>
+
+<style scoped>
+.row-slide-enter-active {
+  transition: all 0.3s ease-out;
+}
+.row-slide-leave-active {
+  transition: all 0.2s ease-in;
+}
+.row-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.row-slide-leave-to {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.row-slide-move {
+  transition: transform 0.25s ease;
+}
+</style>

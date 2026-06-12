@@ -47,7 +47,7 @@ const floatingNoBunga = computed(
       <button
         type="button"
         :aria-label="t('snapshot.row.remove')"
-        class="rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)]"
+        class="rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
         @click="emit('remove')"
       >
         <X :size="16" />
