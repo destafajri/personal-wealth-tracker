@@ -70,7 +70,7 @@ const overPenghasilan = computed(
       {{ t('cicilan.empty') }}
     </p>
 
-    <div v-else class="space-y-3">
+    <TransitionGroup v-else name="row-slide" tag="div" class="space-y-3">
       <CicilanRowEditor
         v-for="row in rows"
         :key="row.id"
@@ -78,9 +78,9 @@ const overPenghasilan = computed(
         @update="(patch) => snap.updateCicilan(row.id, patch)"
         @remove="snap.removeCicilan(row.id)"
       />
-    </div>
+    </TransitionGroup>
 
-    <ButtonGhost class="mt-3" @click="snap.addCicilan()">
+    <ButtonGhost class="mt-3 w-full" @click="snap.addCicilan()">
       {{ t('cicilan.add') }}
     </ButtonGhost>
 
@@ -125,3 +125,23 @@ const overPenghasilan = computed(
     </p>
   </section>
 </template>
+
+<style scoped>
+.row-slide-enter-active {
+  transition: all 0.3s ease-out;
+}
+.row-slide-leave-active {
+  transition: all 0.2s ease-in;
+}
+.row-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.row-slide-leave-to {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.row-slide-move {
+  transition: transform 0.25s ease;
+}
+</style>

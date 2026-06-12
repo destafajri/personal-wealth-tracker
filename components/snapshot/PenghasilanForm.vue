@@ -103,26 +103,23 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
             class="mt-1 shrink-0 text-[var(--color-text-secondary)]"
           />
           <div class="flex-1">
-            <div class="flex items-center justify-between gap-2">
-              <label
-                class="min-w-0 flex-1 truncate text-xs font-medium text-[var(--color-text-secondary)]"
-              >
-                {{ t('snapshot.penghasilan.lainLabel') }}
-              </label>
-              <ButtonGhost
-                class="shrink-0 whitespace-nowrap"
-                @click="snap.addPenghasilanLain()"
-              >
-                + Tambah
-              </ButtonGhost>
-            </div>
+            <label
+              class="block text-xs font-medium text-[var(--color-text-secondary)]"
+            >
+              {{ t('snapshot.penghasilan.lainLabel') }}
+            </label>
             <p
               v-if="snap.penghasilanLain.length === 0"
               class="mt-2 text-[11px] text-[var(--color-text-muted)]"
             >
               {{ t('snapshot.penghasilan.lainEmpty') }}
             </p>
-            <ul v-else class="mt-2 space-y-2">
+            <TransitionGroup
+              v-else
+              name="row-slide"
+              tag="ul"
+              class="mt-2 space-y-2"
+            >
               <li
                 v-for="row in snap.penghasilanLain"
                 :key="row.id"
@@ -133,7 +130,7 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
                     type="text"
                     :value="row.label"
                     :placeholder="t('snapshot.penghasilan.lainLabelPlaceholder')"
-                    class="h-12 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] sm:basis-auto"
+                    class="h-12 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)] sm:basis-auto"
                     @input="
                       snap.updatePenghasilanLain(row.id, {
                         label: ($event.target as HTMLInputElement).value,
@@ -157,7 +154,7 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
                   <button
                     type="button"
                     :aria-label="t('snapshot.penghasilan.lainRemove')"
-                    class="shrink-0 rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)]"
+                    class="shrink-0 rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
                     @click="snap.removePenghasilanLain(row.id)"
                   >
                     <X :size="16" />
@@ -173,7 +170,13 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
                   <template v-else>{{ t('snapshot.row.fxStale') }}</template>
                 </p>
               </li>
-            </ul>
+            </TransitionGroup>
+            <ButtonGhost
+              class="mt-2 w-full"
+              @click="snap.addPenghasilanLain()"
+            >
+              + Tambah
+            </ButtonGhost>
           </div>
         </div>
       </div>
@@ -274,3 +277,23 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
     </div>
   </section>
 </template>
+
+<style scoped>
+.row-slide-enter-active {
+  transition: all 0.3s ease-out;
+}
+.row-slide-leave-active {
+  transition: all 0.2s ease-in;
+}
+.row-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.row-slide-leave-to {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.row-slide-move {
+  transition: transform 0.25s ease;
+}
+</style>

@@ -274,7 +274,12 @@ const total = computed(() =>
       />
     </datalist>
 
-    <ul v-if="snap.crypto.length > 0" class="space-y-3">
+    <TransitionGroup
+      v-if="snap.crypto.length > 0"
+      name="row-slide"
+      tag="ul"
+      class="space-y-3"
+    >
       <li
         v-for="row in snap.crypto"
         :key="row.id"
@@ -304,7 +309,7 @@ const total = computed(() =>
           <button
             type="button"
             :aria-label="t('snapshot.crypto.remove')"
-            class="rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)]"
+            class="rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
             @click="snap.removeCrypto(row.id)"
           >
             <X :size="16" />
@@ -443,16 +448,14 @@ const total = computed(() =>
           }}
         </p>
       </li>
-    </ul>
+    </TransitionGroup>
     <p v-else class="text-xs text-[var(--color-text-muted)]">
       {{ t('snapshot.crypto.empty') }}
     </p>
 
-    <div class="mt-3">
-      <ButtonGhost @click="snap.addCrypto()">
-        {{ t('snapshot.crypto.add') }}
-      </ButtonGhost>
-    </div>
+    <ButtonGhost class="mt-3 w-full" @click="snap.addCrypto()">
+      {{ t('snapshot.crypto.add') }}
+    </ButtonGhost>
 
     <div
       class="mt-4 flex items-baseline justify-between rounded-[var(--radius-input)] bg-[var(--color-primary-container)] px-3 py-2 text-[var(--color-surface-card)]"
@@ -464,3 +467,23 @@ const total = computed(() =>
     </div>
   </section>
 </template>
+
+<style scoped>
+.row-slide-enter-active {
+  transition: all 0.3s ease-out;
+}
+.row-slide-leave-active {
+  transition: all 0.2s ease-in;
+}
+.row-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.row-slide-leave-to {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.row-slide-move {
+  transition: transform 0.25s ease;
+}
+</style>

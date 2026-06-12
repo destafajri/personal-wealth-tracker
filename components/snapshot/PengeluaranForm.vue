@@ -83,26 +83,23 @@ const snap = useSnapshotStore()
             class="mt-1 shrink-0 text-[var(--color-text-secondary)]"
           />
           <div class="flex-1">
-            <div class="flex items-center justify-between gap-2">
-              <label
-                class="min-w-0 flex-1 truncate text-xs font-medium text-[var(--color-text-secondary)]"
-              >
-                Pengeluaran Lain
-              </label>
-              <ButtonGhost
-                class="shrink-0 whitespace-nowrap"
-                @click="snap.addPengeluaranLain()"
-              >
-                + Tambah
-              </ButtonGhost>
-            </div>
+            <label
+              class="block text-xs font-medium text-[var(--color-text-secondary)]"
+            >
+              Pengeluaran Lain
+            </label>
             <p
               v-if="snap.pengeluaranLain.length === 0"
               class="mt-2 text-[11px] text-[var(--color-text-muted)]"
             >
               Sewa, asuransi, biaya anak, dan lain-lain yang ga masuk pokok/lifestyle.
             </p>
-            <ul v-else class="mt-2 space-y-2">
+            <TransitionGroup
+              v-else
+              name="row-slide"
+              tag="ul"
+              class="mt-2 space-y-2"
+            >
               <li
                 v-for="row in snap.pengeluaranLain"
                 :key="row.id"
@@ -113,7 +110,7 @@ const snap = useSnapshotStore()
                     type="text"
                     :value="row.label"
                     placeholder="Contoh: Asuransi BPJS"
-                    class="h-12 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] sm:basis-auto"
+                    class="h-12 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)] sm:basis-auto"
                     @input="
                       snap.updatePengeluaranLain(row.id, {
                         label: ($event.target as HTMLInputElement).value,
@@ -137,14 +134,20 @@ const snap = useSnapshotStore()
                   <button
                     type="button"
                     aria-label="Hapus baris"
-                    class="shrink-0 rounded p-2 text-[var(--color-text-muted)] hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)]"
+                    class="shrink-0 rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
                     @click="snap.removePengeluaranLain(row.id)"
                   >
                     <X :size="16" />
                   </button>
                 </div>
               </li>
-            </ul>
+            </TransitionGroup>
+            <ButtonGhost
+              class="mt-2 w-full"
+              @click="snap.addPengeluaranLain()"
+            >
+              + Tambah
+            </ButtonGhost>
           </div>
         </div>
       </div>
@@ -154,3 +157,23 @@ const snap = useSnapshotStore()
     </p>
   </section>
 </template>
+
+<style scoped>
+.row-slide-enter-active {
+  transition: all 0.3s ease-out;
+}
+.row-slide-leave-active {
+  transition: all 0.2s ease-in;
+}
+.row-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.row-slide-leave-to {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.row-slide-move {
+  transition: transform 0.25s ease;
+}
+</style>
