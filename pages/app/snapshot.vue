@@ -335,6 +335,45 @@ const gadaiTotal = computed(() =>
   snap.gadai.reduce((s, r) => s + (r.piutangIdr || 0), 0),
 )
 
+// Phase 8.3 — Per-tab row counts for SnapshotTabBar badges. Each tab badge
+// shows total row count across all panels rendered in that tab. Ringkasan
+// always 0 (it's the dashboard view, no data entry).
+const hasEmas = computed(() => {
+  const e = snap.emas
+  return (
+    e.digitalGram > 0 ||
+    e.fisikAntamGram > 0 ||
+    e.perhiasan18KGram > 0 ||
+    e.perhiasan14KGram > 0 ||
+    e.perhiasan10KGram > 0
+  )
+})
+
+const tabCounts = computed<Record<string, number>>(() => ({
+  'cash-flow':
+    (snap.penghasilan.amount > 0 ? 1 : 0) +
+    snap.penghasilanLain.length +
+    (snap.pengeluaran.pokok > 0 || snap.pengeluaran.lifestyle > 0 ? 1 : 0) +
+    snap.pengeluaranLain.length,
+  'kas-tabungan': snap.asetLikuid.kas.length,
+  investasi:
+    snap.asetLikuid.deposito.length +
+    snap.asetLikuid.reksaDana.length +
+    snap.asetLikuid.sbn.length +
+    (hasEmas.value ? 1 : 0) +
+    snap.saham.length +
+    snap.crypto.length,
+  'aset-non-likuid':
+    snap.asetNonLikuid.properti.length +
+    snap.asetNonLikuid.kendaraan.length +
+    snap.asetNonLikuid.pensiun.length,
+  utang:
+    snap.cicilanAktif.length +
+    snap.utangPribadi.length +
+    snap.gadai.length,
+  ringkasan: 0,
+}))
+
 const tickers = computed(() => snap.saham.map((s) => s.ticker).filter(Boolean))
 const gold = useGoldPrice()
 const fx = useFxRates()
@@ -429,6 +468,7 @@ watchEffect(() => {
     <SnapshotTabBar
       :tabs="TABS"
       :active-id="activeTabId"
+      :counts="tabCounts"
       @update:active-id="(id) => goToTab(id as SnapshotTabId)"
     />
 
