@@ -124,7 +124,7 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
               v-if="snap.penghasilanLain.length === 0"
               class="mt-2 text-[11px] text-[var(--color-text-muted)]"
             >
-              {{ t('snapshot.penghasilan.lainEmpty') }}
+              Belum ada penghasilan lain. Freelance, THR, komisi, dividen — semua sampingan masuk sini.
             </p>
             <TransitionGroup
               v-else

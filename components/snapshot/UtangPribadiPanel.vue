@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Banknote } from 'lucide-vue-next'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import UtangPribadiRow from '~/components/snapshot/UtangPribadiRow.vue'
+import EmptyStateCard from '~/components/snapshot/EmptyStateCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useUndoDelete } from '~/composables/useUndoDelete'
 import { idr } from '~/lib/format/idr'
@@ -43,12 +45,13 @@ function handleRemove(rowId: string) {
         {{ t('utangPribadi.help') }}
       </p>
     </header>
-    <p
+    <EmptyStateCard
       v-if="rows.length === 0"
-      class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] px-3 py-3 text-sm text-[var(--color-text-secondary)]"
-    >
-      {{ t('utangPribadi.empty') }}
-    </p>
+      :icon="Banknote"
+      icon-variant="rose"
+      :title="t('utangPribadi.empty')"
+      body="Pinjam ke keluarga / teman tanpa skema formal? Catat di sini biar masuk Net Worth."
+    />
 
     <TransitionGroup v-else name="row-slide" tag="div" class="space-y-3">
       <UtangPribadiRow

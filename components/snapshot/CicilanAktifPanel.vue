@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { CreditCard } from 'lucide-vue-next'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import CicilanRowEditor from '~/components/snapshot/CicilanRow.vue'
+import EmptyStateCard from '~/components/snapshot/EmptyStateCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useUndoDelete } from '~/composables/useUndoDelete'
@@ -96,12 +98,13 @@ const overPenghasilan = computed(
       </ButtonGhost>
     </div>
 
-    <p
+    <EmptyStateCard
       v-if="rows.length === 0"
-      class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] px-3 py-3 text-sm text-[var(--color-text-secondary)]"
-    >
-      {{ t('cicilan.empty') }}
-    </p>
+      :icon="CreditCard"
+      icon-variant="rose"
+      :title="t('cicilan.empty')"
+      body="KPR umumnya Rp3-5jt/bln dengan tenor 15-20thn. Klik preset di atas atau tambah custom."
+    />
 
     <TransitionGroup v-else name="row-slide" tag="div" class="space-y-3">
       <CicilanRowEditor

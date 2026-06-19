@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Info } from 'lucide-vue-next'
+import { Info, Lock } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import GadaiRowEditor from '~/components/snapshot/GadaiRow.vue'
+import EmptyStateCard from '~/components/snapshot/EmptyStateCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useMetricExplainer } from '~/composables/useMetricExplainer'
 import { useUndoDelete } from '~/composables/useUndoDelete'
@@ -125,12 +126,13 @@ const zoneClass = computed(() => {
       </ButtonGhost>
     </div>
 
-    <p
+    <EmptyStateCard
       v-if="rows.length === 0"
-      class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] px-3 py-3 text-sm text-[var(--color-text-secondary)]"
-    >
-      {{ t('gadai.empty') }}
-    </p>
+      :icon="Lock"
+      icon-variant="rose"
+      :title="t('gadai.empty')"
+      body="Pegadaian emas standar 1%/bln tenor 4bln. Klik preset di atas atau tambah custom."
+    />
 
     <TransitionGroup v-else name="row-slide" tag="div" class="space-y-3">
       <GadaiRowEditor

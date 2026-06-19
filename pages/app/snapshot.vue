@@ -41,6 +41,7 @@ import CicilanAktifPanel from '~/components/snapshot/CicilanAktifPanel.vue'
 import UtangPribadiPanel from '~/components/snapshot/UtangPribadiPanel.vue'
 import GadaiPanel from '~/components/snapshot/GadaiPanel.vue'
 import UndoToast from '~/components/snapshot/UndoToast.vue'
+import PersonaPickerBanner from '~/components/snapshot/PersonaPickerBanner.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useGoalsStore } from '~/stores/goals'
@@ -121,8 +122,13 @@ function resetDemo() {
   snap.reset()
 }
 
-// Only show personas matching current page mode
-const personas = computed(() => PERSONAS.filter((p) => p.mode === 'wealthTracker'))
+// Demo banner personas — diagnostic only (kind !== 'template'). Template personas
+// are reserved for the PersonaPickerBanner first-run flow (Phase 8.2). Without
+// this discriminator, adding template personas to the same registry would leak
+// them into the demo picker.
+const personas = computed(() =>
+  PERSONAS.filter((p) => p.mode === 'wealthTracker' && p.kind !== 'template'),
+)
 const activePersonaId = ref<string | null>(null)
 
 function switchPersona(p: SamplePersona) {
@@ -425,6 +431,8 @@ watchEffect(() => {
       :active-id="activeTabId"
       @update:active-id="(id) => goToTab(id as SnapshotTabId)"
     />
+
+    <PersonaPickerBanner :has-data="hasData" />
 
     <div
       v-show="activeTabId === 'cash-flow'"

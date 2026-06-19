@@ -104,7 +104,7 @@ function handleRemoveLain(rowId: string) {
               v-if="snap.pengeluaranLain.length === 0"
               class="mt-2 text-[11px] text-[var(--color-text-muted)]"
             >
-              Sewa, asuransi, biaya anak, dan lain-lain yang ga masuk pokok/lifestyle.
+              Belum ada pengeluaran lain. Sewa, asuransi, biaya anak, langganan — yang ga masuk pokok/lifestyle.
             </p>
             <TransitionGroup
               v-else
