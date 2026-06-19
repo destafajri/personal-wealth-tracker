@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { X } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import InputCurrency from '~/components/common/InputCurrency.vue'
 import InputQuantity from '~/components/common/InputQuantity.vue'
 import ProgressiveRowCard from '~/components/snapshot/ProgressiveRowCard.vue'
+import SmartDefaultPill from '~/components/snapshot/SmartDefaultPill.vue'
 import { t } from '~/lib/copy/strings'
 import {
   emasCategoryOfJaminan,
@@ -13,7 +14,10 @@ import {
 import { useSnapshotStore } from '~/stores/snapshot'
 import type { GadaiJaminanKind, GadaiRow } from '~/lib/types/snapshot'
 
-const props = defineProps<{ row: GadaiRow }>()
+const props = defineProps<{
+  row: GadaiRow
+  initialDefaultFields?: string[]
+}>()
 const emit = defineEmits<{
   update: [patch: Partial<Omit<GadaiRow, 'id'>>]
   remove: []
@@ -105,19 +109,37 @@ const warningCount = computed(() => {
   if (nonEmasEmptyMsgKey.value !== null) n += 1
   return n
 })
+
+// Per-field "smart default applied" pill state. Seeded from initialDefaultFields
+// prop on mount; cleared on first edit of that specific field.
+const defaultFields = ref<Set<string>>(new Set(props.initialDefaultFields ?? []))
+function clearDefault(field: string) {
+  if (!defaultFields.value.has(field)) return
+  defaultFields.value.delete(field)
+  defaultFields.value = new Set(defaultFields.value)
+}
 </script>
 
 <template>
   <ProgressiveRowCard :warning-count="warningCount">
     <template #basic>
       <div class="flex flex-wrap items-center gap-2">
-        <input
-          type="text"
-          :value="row.label"
-          :placeholder="t('gadai.field.label')"
-          class="h-10 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm font-medium text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)] sm:basis-auto"
-          @input="emit('update', { label: ($event.target as HTMLInputElement).value })"
-        >
+        <div class="min-w-0 flex-1 basis-full sm:basis-auto">
+          <label class="flex items-center gap-1.5">
+            <span class="sr-only">{{ t('gadai.field.label') }}</span>
+            <input
+              type="text"
+              :value="row.label"
+              :placeholder="t('gadai.field.label')"
+              class="h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm font-medium text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
+              @input="
+                emit('update', { label: ($event.target as HTMLInputElement).value });
+                clearDefault('label')
+              "
+            >
+            <SmartDefaultPill v-if="defaultFields.has('label')" />
+          </label>
+        </div>
         <select
           :value="row.jaminan"
           class="h-10 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
@@ -219,28 +241,36 @@ const warningCount = computed(() => {
         </template>
 
         <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">
+          <span class="flex items-center gap-1.5 font-medium text-[var(--color-text-secondary)]">
             {{ t('gadai.field.bunga') }}
+            <SmartDefaultPill v-if="defaultFields.has('bungaPerBulanPercent')" />
           </span>
           <div class="mt-1">
             <InputQuantity
               unit="%/bln"
               :step="0.1"
               :model-value="row.bungaPerBulanPercent || null"
-              @update:model-value="emit('update', { bungaPerBulanPercent: $event ?? 0 })"
+              @update:model-value="
+                emit('update', { bungaPerBulanPercent: $event ?? 0 });
+                clearDefault('bungaPerBulanPercent')
+              "
             />
           </div>
         </label>
         <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">
+          <span class="flex items-center gap-1.5 font-medium text-[var(--color-text-secondary)]">
             {{ t('gadai.field.tempo') }}
+            <SmartDefaultPill v-if="defaultFields.has('tempoBulan')" />
           </span>
           <div class="mt-1">
             <InputQuantity
               unit="bln"
               :step="1"
               :model-value="row.tempoBulan || null"
-              @update:model-value="emit('update', { tempoBulan: $event ?? 0 })"
+              @update:model-value="
+                emit('update', { tempoBulan: $event ?? 0 });
+                clearDefault('tempoBulan')
+              "
             />
           </div>
         </label>
