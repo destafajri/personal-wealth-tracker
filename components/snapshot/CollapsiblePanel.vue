@@ -3,7 +3,8 @@ import { ref } from 'vue'
 import type { Component } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 import IconChip from '~/components/common/IconChip.vue'
-import { idr } from '~/lib/format/idr'
+import AnimatedTotal from '~/components/snapshot/AnimatedTotal.vue'
+import SectionCompleteIndicator from '~/components/snapshot/SectionCompleteIndicator.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -15,6 +16,7 @@ const props = withDefaults(
     value?: number | null
     disabled?: boolean
     badge?: string
+    sectionComplete?: boolean
   }>(),
   {
     subtitle: undefined,
@@ -24,6 +26,7 @@ const props = withDefaults(
     value: undefined,
     disabled: false,
     badge: undefined,
+    sectionComplete: false,
   },
 )
 
@@ -58,6 +61,7 @@ const open = ref<boolean>(props.defaultOpen)
           >
             {{ badge }}
           </span>
+          <SectionCompleteIndicator v-if="sectionComplete" :complete="true" />
         </div>
         <p
           v-if="subtitle"
@@ -67,9 +71,9 @@ const open = ref<boolean>(props.defaultOpen)
         </p>
         <p
           v-if="props.value !== undefined && props.value !== null"
-          class="mt-1 break-all text-sm font-semibold tabular-nums text-[var(--color-text-secondary)]"
+          class="mt-1 text-base font-bold text-[var(--color-text-primary)]"
         >
-          {{ idr(props.value) }}
+          <AnimatedTotal :value="props.value" />
         </p>
       </div>
       <ChevronDown

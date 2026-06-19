@@ -444,6 +444,7 @@ watchEffect(() => {
           :icon="TrendingUp"
           variant="emerald"
           :value="penghasilanTotal"
+          :section-complete="penghasilanTotal > 0"
         >
           <PenghasilanForm hide-header />
         </CollapsiblePanel>
@@ -453,19 +454,21 @@ watchEffect(() => {
           :icon="ShoppingCart"
           variant="rose"
           :value="pengeluaranTotal"
+          :section-complete="pengeluaranTotal > 0"
         >
           <PengeluaranForm hide-header />
         </CollapsiblePanel>
       </div>
     </div>
 
-    <div v-show="activeTabId === 'kas-tabungan'" class="space-y-3">
+    <div v-show="activeTabId === 'kas-tabungan'" class="space-y-5">
       <CollapsiblePanel
         title="Kas"
         subtitle="Saldo bank, dana darurat, dan tabungan tujuan"
         :icon="Wallet"
         variant="emerald"
         :value="kasTotal"
+        :section-complete="kasTotal > 0"
       >
         <AsetLikuidPanel :categories="['kas']" hide-header />
       </CollapsiblePanel>
@@ -484,7 +487,7 @@ watchEffect(() => {
         </p>
       </header>
 
-      <div class="space-y-3">
+      <div class="space-y-4">
         <div>
           <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
             Investasi Pasif
@@ -499,6 +502,7 @@ watchEffect(() => {
           :icon="Landmark"
           variant="emerald"
           :value="depoRdSbnTotal"
+          :section-complete="depoRdSbnTotal > 0"
         >
           <AsetLikuidPanel
             :categories="['deposito', 'reksaDana', 'sbn']"
@@ -511,6 +515,7 @@ watchEffect(() => {
           :icon="Coins"
           variant="amber"
           :value="emasTotal"
+          :section-complete="emasTotal > 0"
         >
           <EmasPanel
             hide-header
@@ -523,7 +528,7 @@ watchEffect(() => {
         </CollapsiblePanel>
       </div>
 
-      <div class="space-y-3">
+      <div class="space-y-4">
         <div>
           <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
             Investasi Pasar
@@ -538,6 +543,7 @@ watchEffect(() => {
           :icon="LineChart"
           variant="amber"
           :value="sahamTotal"
+          :section-complete="sahamTotal > 0"
         >
           <SahamPanel
             hide-header
@@ -554,6 +560,7 @@ watchEffect(() => {
           :icon="Bitcoin"
           variant="amber"
           :value="cryptoTotal"
+          :section-complete="cryptoTotal > 0"
         >
           <CryptoPanel
             hide-header
@@ -566,13 +573,14 @@ watchEffect(() => {
       </div>
     </div>
 
-    <div v-show="activeTabId === 'aset-non-likuid'" class="space-y-3">
+    <div v-show="activeTabId === 'aset-non-likuid'" class="space-y-5">
       <CollapsiblePanel
         title="Properti, Kendaraan, Lainnya"
         subtitle="Aset fisik dan barang berharga"
         :icon="Home"
         variant="sky"
         :value="asetTetapTotal"
+        :section-complete="asetTetapTotal > 0"
       >
         <AsetNonLikuidPanel hide-header />
       </CollapsiblePanel>
@@ -590,13 +598,14 @@ watchEffect(() => {
           Cicilan aktif, utang pribadi, dan jaminan gadai — sumber kewajiban yang mempengaruhi DSR dan likuiditas darurat.
         </p>
       </header>
-      <div class="space-y-3">
+      <div class="space-y-4">
         <CollapsiblePanel
           title="Cicilan Aktif"
           subtitle="KPR, KPM, kartu kredit, pinjol, paylater, KTA"
           :icon="CreditCard"
           variant="rose"
           :value="cicilanAktifTotal"
+          :section-complete="cicilanAktifTotal > 0"
         >
           <CicilanAktifPanel hide-header />
         </CollapsiblePanel>
@@ -606,6 +615,7 @@ watchEffect(() => {
           :icon="Banknote"
           variant="rose"
           :value="utangPribadiTotal"
+          :section-complete="utangPribadiTotal > 0"
         >
           <UtangPribadiPanel hide-header />
         </CollapsiblePanel>
@@ -615,6 +625,7 @@ watchEffect(() => {
           :icon="Lock"
           variant="rose"
           :value="gadaiTotal"
+          :section-complete="gadaiTotal > 0"
         >
           <GadaiPanel hide-header />
         </CollapsiblePanel>

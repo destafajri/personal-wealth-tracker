@@ -27,8 +27,12 @@ withDefaults(
     // Saham / Indeks / Lain). Drives Safe Haven inclusion — only defensif jenis
     // (RDPU + RDPT) count. Untagged rows treated as safe for back-compat.
     showRdJenis?: boolean
+    // 'card' (default) = current space-y-2 separation. 'inline' = tighter rows
+    // separated by bottom-border dividers (Notion-table feel) — used by snapshot
+    // form panels where multiple categories stack visually heavy.
+    variant?: 'card' | 'inline'
   }>(),
-  { showCurrency: false, showInterestRate: false, showRdJenis: false },
+  { showCurrency: false, showInterestRate: false, showRdJenis: false, variant: 'card' },
 )
 
 const emit = defineEmits<{
@@ -74,9 +78,16 @@ function idrEquivalent(row: AssetRow): number | null {
       v-if="rows.length > 0"
       name="row-slide"
       tag="ul"
-      class="space-y-2"
+      :class="variant === 'inline' ? 'divide-y divide-[var(--color-border)]' : 'space-y-2'"
     >
-      <li v-for="row in rows" :key="row.id" class="space-y-1">
+      <li
+        v-for="row in rows"
+        :key="row.id"
+        :class="[
+          'space-y-1',
+          variant === 'inline' && 'py-2 first:pt-0 last:pb-0',
+        ]"
+      >
         <div class="flex flex-wrap items-center gap-2">
           <input
             type="text"

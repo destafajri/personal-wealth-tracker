@@ -34,6 +34,7 @@ function label(key: string): string {
         :key="cat.key"
         :title="label(cat.titleKey)"
         :rows="snap.asetNonLikuid[cat.key]"
+        variant="inline"
         @add="snap.addNonLikuid(cat.key)"
         @update:label="(id, value) => snap.updateNonLikuid(cat.key, id, { label: value })"
         @update:amount="

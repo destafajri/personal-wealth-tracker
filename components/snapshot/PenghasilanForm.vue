@@ -118,12 +118,12 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
               v-else
               name="row-slide"
               tag="ul"
-              class="mt-2 space-y-2"
+              class="mt-2 divide-y divide-[var(--color-border)]"
             >
               <li
                 v-for="row in snap.penghasilanLain"
                 :key="row.id"
-                class="space-y-1"
+                class="space-y-1 py-2 first:pt-0 last:pb-0"
               >
                 <div class="flex flex-wrap items-center gap-2">
                   <input

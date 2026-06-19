@@ -66,6 +66,7 @@ function label(key: string): string {
         show-currency
         :show-interest-rate="cat.withInterest"
         :show-rd-jenis="cat.withRdJenis"
+        variant="inline"
         @add="snap.addLikuid(cat.key)"
         @update:label="(id, value) => snap.updateLikuid(cat.key, id, { label: value })"
         @update:amount="

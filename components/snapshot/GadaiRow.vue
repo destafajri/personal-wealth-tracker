@@ -3,6 +3,7 @@ import { X } from 'lucide-vue-next'
 import { computed } from 'vue'
 import InputCurrency from '~/components/common/InputCurrency.vue'
 import InputQuantity from '~/components/common/InputQuantity.vue'
+import ProgressiveRowCard from '~/components/snapshot/ProgressiveRowCard.vue'
 import { t } from '~/lib/copy/strings'
 import {
   emasCategoryOfJaminan,
@@ -71,8 +72,6 @@ const emasJenisLabel = computed(() => {
   return ''
 })
 
-// Parallel to the properti/kendaraan "belum ada aset" hint: warn if the chosen emas
-// category has zero grams owned in snapshot.
 const emasNotEntered = computed(() => isEmas.value && ownedGram.value === 0)
 
 const overOwned = computed(
@@ -95,38 +94,33 @@ const nonEmasEmptyMsgKey = computed<Parameters<typeof t>[0] | null>(() => {
   if (props.row.jaminan === 'kendaraan') return 'gadai.asetRef.empty.kendaraan'
   return null
 })
+
+// Count of active warnings currently surfacing inside the advanced slot. Drives
+// ProgressiveRowCard's amber-dot indicator when the slot is collapsed — preserves
+// visibility of validation issues without forcing the user to expand.
+const warningCount = computed(() => {
+  let n = 0
+  if (emasNotEntered.value) n += 1
+  if (overOwned.value) n += 1
+  if (nonEmasEmptyMsgKey.value !== null) n += 1
+  return n
+})
 </script>
 
 <template>
-  <article
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-low)] p-4"
-  >
-    <header class="mb-3 flex items-start justify-between gap-2">
-      <input
-        type="text"
-        :value="row.label"
-        :placeholder="t('gadai.field.label')"
-        class="h-10 flex-1 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm font-medium text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-        @input="emit('update', { label: ($event.target as HTMLInputElement).value })"
-      >
-      <button
-        type="button"
-        :aria-label="t('gadai.row.remove')"
-        class="rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
-        @click="emit('remove')"
-      >
-        <X :size="16" />
-      </button>
-    </header>
-
-    <div class="space-y-3">
-      <label class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">
-          {{ t('gadai.field.jaminan') }}
-        </span>
+  <ProgressiveRowCard :warning-count="warningCount">
+    <template #basic>
+      <div class="flex flex-wrap items-center gap-2">
+        <input
+          type="text"
+          :value="row.label"
+          :placeholder="t('gadai.field.label')"
+          class="h-10 min-w-0 flex-1 basis-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm font-medium text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)] sm:basis-auto"
+          @input="emit('update', { label: ($event.target as HTMLInputElement).value })"
+        >
         <select
           :value="row.jaminan"
-          class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
+          class="h-10 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
           @change="
             emit('update', {
               jaminan: ($event.target as HTMLSelectElement).value as GadaiJaminanKind,
@@ -137,129 +131,136 @@ const nonEmasEmptyMsgKey = computed<Parameters<typeof t>[0] | null>(() => {
             {{ t(opt.labelKey) }}
           </option>
         </select>
-      </label>
-
-      <!-- Emas-based jaminan: pawn grams -->
-      <template v-if="isEmas">
-        <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">
-            {{ t('gadai.field.tertahan') }}
-            <span v-if="ownedGram > 0" class="text-[var(--color-text-muted)]">
-              (dari total {{ ownedGram }}g)
-            </span>
-          </span>
-          <div class="mt-1">
-            <InputQuantity
-              unit="gram"
-              :step="0.1"
-              :model-value="row.gramTertahan ?? null"
-              @update:model-value="emit('update', { gramTertahan: $event ?? 0 })"
-            />
-          </div>
-        </label>
-        <p
-          v-if="emasNotEntered"
-          class="rounded-[var(--radius-input)] bg-[var(--color-warning-amber-soft)] px-3 py-2 text-[11px] text-[var(--color-warning-amber)]"
-        >
-          {{ t('gadai.emasRef.empty', { jenis: emasJenisLabel }) }}
-        </p>
-        <p
-          v-else-if="overOwned"
-          class="rounded-[var(--radius-input)] bg-[var(--color-danger-rose-soft)] px-3 py-2 text-[11px] text-[var(--color-danger-rose)]"
-        >
-          {{
-            t('gadai.warning.overOwned', {
-              pawned: totalPawnedInCategory,
-              owned: ownedGram,
-            })
-          }}
-        </p>
-      </template>
-
-      <!-- Properti / kendaraan: reference an existing aset row -->
-      <template v-else>
-        <label class="block text-xs">
-          <span class="font-medium text-[var(--color-text-secondary)]">
-            {{ t('gadai.field.asetRef') }}
-          </span>
-          <select
-            v-if="refOptions.length > 0"
-            :value="row.asetRefId ?? ''"
-            class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-            @change="
-              emit('update', {
-                asetRefId:
-                  ($event.target as HTMLSelectElement).value || undefined,
-              })
-            "
-          >
-            <option value="">{{ t('gadai.field.asetRef.pick') }}</option>
-            <option v-for="aset in refOptions" :key="aset.id" :value="aset.id">
-              {{ aset.label || '(tanpa nama)' }}
-            </option>
-          </select>
-          <p
-            v-else-if="nonEmasEmptyMsgKey"
-            class="mt-1 rounded-[var(--radius-input)] bg-[var(--color-warning-amber-soft)] px-3 py-2 text-[11px] text-[var(--color-warning-amber)]"
-          >
-            {{ t(nonEmasEmptyMsgKey) }}
-          </p>
-        </label>
-      </template>
-
-      <label class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">
-          {{ t('gadai.field.piutang') }}
-        </span>
-        <div class="mt-1">
+        <div class="min-w-0 flex-1 sm:w-48 sm:flex-initial">
           <InputCurrency
             :model-value="row.piutangIdr || null"
             @update:model-value="emit('update', { piutangIdr: $event ?? 0 })"
           />
         </div>
-      </label>
-      <label class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">
-          {{ t('gadai.field.bunga') }}
-        </span>
-        <div class="mt-1">
-          <InputQuantity
-            unit="%/bln"
-            :step="0.1"
-            :model-value="row.bungaPerBulanPercent || null"
-            @update:model-value="emit('update', { bungaPerBulanPercent: $event ?? 0 })"
-          />
-        </div>
-      </label>
-      <label class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">
-          {{ t('gadai.field.tempo') }}
-        </span>
-        <div class="mt-1">
-          <InputQuantity
-            unit="bln"
-            :step="1"
-            :model-value="row.tempoBulan || null"
-            @update:model-value="emit('update', { tempoBulan: $event ?? 0 })"
-          />
-        </div>
-      </label>
-      <label class="block text-xs">
-        <span class="font-medium text-[var(--color-text-secondary)]">
-          {{ t('gadai.field.tanggal') }}
-        </span>
-        <input
-          type="date"
-          :value="row.tanggalJatuhTempo ?? ''"
-          class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)]"
-          @input="
-            emit('update', {
-              tanggalJatuhTempo:
-                ($event.target as HTMLInputElement).value || undefined,
-            })
-          "
+        <button
+          type="button"
+          :aria-label="t('gadai.row.remove')"
+          class="shrink-0 rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
+          @click="emit('remove')"
         >
-      </label>
-    </div>
-  </article>
+          <X :size="16" />
+        </button>
+      </div>
+    </template>
+
+    <template #advanced>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <!-- Emas-based jaminan: pawn grams -->
+        <template v-if="isEmas">
+          <label class="block text-xs">
+            <span class="font-medium text-[var(--color-text-secondary)]">
+              {{ t('gadai.field.tertahan') }}
+              <span v-if="ownedGram > 0" class="text-[var(--color-text-muted)]">
+                (dari total {{ ownedGram }}g)
+              </span>
+            </span>
+            <div class="mt-1">
+              <InputQuantity
+                unit="gram"
+                :step="0.1"
+                :model-value="row.gramTertahan ?? null"
+                @update:model-value="emit('update', { gramTertahan: $event ?? 0 })"
+              />
+            </div>
+          </label>
+          <p
+            v-if="emasNotEntered"
+            class="rounded-[var(--radius-input)] bg-[var(--color-warning-amber-soft)] px-3 py-2 text-[11px] text-[var(--color-warning-amber)]"
+          >
+            {{ t('gadai.emasRef.empty', { jenis: emasJenisLabel }) }}
+          </p>
+          <p
+            v-else-if="overOwned"
+            class="rounded-[var(--radius-input)] bg-[var(--color-danger-rose-soft)] px-3 py-2 text-[11px] text-[var(--color-danger-rose)]"
+          >
+            {{
+              t('gadai.warning.overOwned', {
+                pawned: totalPawnedInCategory,
+                owned: ownedGram,
+              })
+            }}
+          </p>
+        </template>
+
+        <!-- Properti / kendaraan: reference an existing aset row -->
+        <template v-else>
+          <label class="block text-xs">
+            <span class="font-medium text-[var(--color-text-secondary)]">
+              {{ t('gadai.field.asetRef') }}
+            </span>
+            <select
+              v-if="refOptions.length > 0"
+              :value="row.asetRefId ?? ''"
+              class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
+              @change="
+                emit('update', {
+                  asetRefId:
+                    ($event.target as HTMLSelectElement).value || undefined,
+                })
+              "
+            >
+              <option value="">{{ t('gadai.field.asetRef.pick') }}</option>
+              <option v-for="aset in refOptions" :key="aset.id" :value="aset.id">
+                {{ aset.label || '(tanpa nama)' }}
+              </option>
+            </select>
+            <p
+              v-else-if="nonEmasEmptyMsgKey"
+              class="mt-1 rounded-[var(--radius-input)] bg-[var(--color-warning-amber-soft)] px-3 py-2 text-[11px] text-[var(--color-warning-amber)]"
+            >
+              {{ t(nonEmasEmptyMsgKey) }}
+            </p>
+          </label>
+        </template>
+
+        <label class="block text-xs">
+          <span class="font-medium text-[var(--color-text-secondary)]">
+            {{ t('gadai.field.bunga') }}
+          </span>
+          <div class="mt-1">
+            <InputQuantity
+              unit="%/bln"
+              :step="0.1"
+              :model-value="row.bungaPerBulanPercent || null"
+              @update:model-value="emit('update', { bungaPerBulanPercent: $event ?? 0 })"
+            />
+          </div>
+        </label>
+        <label class="block text-xs">
+          <span class="font-medium text-[var(--color-text-secondary)]">
+            {{ t('gadai.field.tempo') }}
+          </span>
+          <div class="mt-1">
+            <InputQuantity
+              unit="bln"
+              :step="1"
+              :model-value="row.tempoBulan || null"
+              @update:model-value="emit('update', { tempoBulan: $event ?? 0 })"
+            />
+          </div>
+        </label>
+        <label class="block text-xs">
+          <span class="font-medium text-[var(--color-text-secondary)]">
+            {{ t('gadai.field.tanggal') }}
+          </span>
+          <input
+            type="date"
+            :value="row.tanggalJatuhTempo ?? ''"
+            class="mt-1 h-10 w-full rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-3 text-sm text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
+            @input="
+              emit('update', {
+                tanggalJatuhTempo:
+                  ($event.target as HTMLInputElement).value || undefined,
+              })
+            "
+          >
+        </label>
+      </div>
+    </template>
+  </ProgressiveRowCard>
 </template>
