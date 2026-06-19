@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { Check, ChevronDown, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
 import TickerChip from '~/components/snapshot/TickerChip.vue'
-import TradingViewTickerTag from '~/components/snapshot/TradingViewTickerTag.vue'
 import TradingViewSymbolInfo from '~/components/snapshot/TradingViewSymbolInfo.vue'
 import InputQuantity from '~/components/common/InputQuantity.vue'
 import { calcPotentialDividendIdr, effectiveStockPrice } from '~/lib/finance/metrics'
@@ -73,8 +72,8 @@ const isComplete = computed(
     effectivePrice.value > 0,
 )
 
-// TV symbol for embed widgets. IDX:{TICKER} format for Indonesia stocks. Empty
-// when ticker is unset so Ticker Tag's fallback slot renders the colored chip.
+// TV symbol for embed widgets (Symbol Info in expanded view). IDX:{TICKER} format
+// for Indonesia stocks. Empty when ticker is unset so the widget doesn't render.
 const tvSymbol = computed(() => {
   const t = props.row.ticker.trim().toUpperCase()
   return t ? `IDX:${t}` : ''
@@ -209,21 +208,9 @@ const potentialDividendAnnual = computed(() =>
   <li
     class="space-y-2 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-3"
   >
-    <!-- Collapsed row: TV ticker tag (fallback colored chip) + ticker input | lot | price+pill | ✓ | expand | delete -->
+    <!-- Collapsed row: colored chip + ticker input | lot | price+pill | ✓ | expand | delete -->
     <div class="flex flex-wrap items-center gap-2">
-      <TradingViewTickerTag
-        v-if="tvSymbol"
-        :symbol="tvSymbol"
-      >
-        <template #fallback>
-          <TickerChip :ticker="row.ticker" size="md" />
-        </template>
-      </TradingViewTickerTag>
-      <TickerChip
-        v-else
-        :ticker="row.ticker"
-        size="md"
-      />
+      <TickerChip :ticker="row.ticker" size="md" />
       <input
         type="text"
         :value="row.ticker"
