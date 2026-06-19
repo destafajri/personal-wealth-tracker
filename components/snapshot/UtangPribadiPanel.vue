@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Banknote } from 'lucide-vue-next'
-import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import UtangPribadiRow from '~/components/snapshot/UtangPribadiRow.vue'
 import EmptyStateCard from '~/components/snapshot/EmptyStateCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
@@ -63,12 +63,12 @@ function handleRemove(rowId: string) {
       />
     </TransitionGroup>
 
-    <ButtonGhost
-      class="mt-3 w-full"
-      @click="snap.addUtangPribadi()"
-    >
-      {{ t('utangPribadi.add') }}
-    </ButtonGhost>
+    <AddRowCta
+      noun="utang pribadi"
+      :has-row="rows.length > 0"
+      class="mt-3"
+      @add="snap.addUtangPribadi()"
+    />
 
     <div
       v-if="rows.length > 0"

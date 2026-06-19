@@ -2,6 +2,7 @@
 import { Info, Lock } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import GadaiRowEditor from '~/components/snapshot/GadaiRow.vue'
 import EmptyStateCard from '~/components/snapshot/EmptyStateCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
@@ -145,12 +146,12 @@ const zoneClass = computed(() => {
       />
     </TransitionGroup>
 
-    <ButtonGhost
-      class="mt-3 w-full"
-      @click="snap.addGadai()"
-    >
-      {{ t('gadai.add') }}
-    </ButtonGhost>
+    <AddRowCta
+      noun="kontrak gadai"
+      :has-row="rows.length > 0"
+      class="mt-3"
+      @add="snap.addGadai()"
+    />
 
     <div
       v-if="rows.length > 0"

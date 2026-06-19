@@ -17,6 +17,11 @@ const props = withDefaults(
     disabled?: boolean
     badge?: string
     sectionComplete?: boolean
+    // When true, removes the outer panel border + header/body separator border.
+    // Used in Investasi where inner sub-cards (AssetRowList bordered variant) provide
+    // the structural framing — adding an outer panel border on top creates the
+    // "Russian nesting doll" over-bordering look. Default false preserves other tabs.
+    frameless?: boolean
   }>(),
   {
     subtitle: undefined,
@@ -27,6 +32,7 @@ const props = withDefaults(
     disabled: false,
     badge: undefined,
     sectionComplete: false,
+    frameless: false,
   },
 )
 
@@ -38,12 +44,22 @@ const open = ref<boolean>(props.defaultOpen)
 
 <template>
   <section
-    class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+    :class="
+      frameless
+        ? 'overflow-hidden rounded-[var(--radius-card)] bg-transparent'
+        : 'overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]'
+    "
   >
     <button
       type="button"
       class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors sm:px-5"
-      :class="disabled ? 'cursor-not-allowed opacity-60' : 'hover:bg-[var(--color-surface-low)]/50'"
+      :class="
+        disabled
+          ? 'cursor-not-allowed opacity-60'
+          : frameless
+            ? 'hover:bg-[var(--color-surface-low)]/50'
+            : 'hover:bg-[var(--color-surface-low)]/50'
+      "
       :aria-expanded="open"
       @click="!disabled && (open = !open)"
     >
@@ -85,7 +101,14 @@ const open = ref<boolean>(props.defaultOpen)
         ]"
       />
     </button>
-    <div v-show="open" class="border-t border-[var(--color-border)] p-4 sm:p-5">
+    <div
+      v-show="open"
+      :class="
+        frameless
+          ? 'p-4 sm:p-5'
+          : 'border-t border-[var(--color-border)] p-4 sm:p-5'
+      "
+    >
       <slot />
     </div>
   </section>

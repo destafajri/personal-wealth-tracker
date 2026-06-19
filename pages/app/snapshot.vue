@@ -65,6 +65,7 @@ import {
   sumSbnIdr,
   sumStockIdr,
 } from '~/lib/finance/metrics'
+import { idr } from '~/lib/format/idr'
 import type {
   AssetRow,
   CryptoRateView,
@@ -319,6 +320,23 @@ const sahamTotal = computed(() =>
 const cryptoTotal = computed(() =>
   sumCryptoIdr(snap.crypto, derived.priceView ?? undefined),
 )
+
+// Investasi section-header totals. Each is a pure sum of the underlying per-panel
+// totals — descriptive only, no per-section status metric (per Fix C: DSR is
+// portfolio-level, not decomposable per asset section).
+const emasGramTotal = computed(() => {
+  const e = snap.emas
+  return (
+    e.digitalGram +
+    e.fisikAntamGram +
+    e.perhiasan18KGram +
+    e.perhiasan14KGram +
+    e.perhiasan10KGram
+  )
+})
+const investasiPasarTotal = computed(
+  () => sahamTotal.value + cryptoTotal.value,
+)
 const asetTetapTotal = computed(
   () =>
     sumRows(snap.asetNonLikuid.properti) +
@@ -525,47 +543,67 @@ watchEffect(() => {
 
     <div
       v-show="activeTabId === 'investasi'"
-      class="space-y-5 rounded-[var(--radius-card)] bg-gradient-to-br from-[var(--color-primary)]/5 via-[var(--color-surface-card)] to-[var(--color-surface-card)] p-4 sm:p-6"
+      class="space-y-5"
     >
-      <header>
-        <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">
-          Pilih Jenis Investasi
-        </h2>
-        <p class="mt-1 text-sm text-[var(--color-text-secondary)]">
-          Kategorikan portofolio kamu berdasarkan jenis aset untuk manajemen risiko yang lebih baik.
-        </p>
-      </header>
-
-      <div class="space-y-4">
-        <div>
-          <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
-            Investasi Pasif
-          </h3>
-          <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
-            Deposito, reksa dana, SBN, dan emas — yielding atau store-of-value
-          </p>
-        </div>
-        <CollapsiblePanel
-          title="Deposito, Reksa Dana, SBN"
-          subtitle="Fixed-income dengan bunga / yield"
-          :icon="Landmark"
-          variant="emerald"
-          :value="depoRdSbnTotal"
-          :section-complete="depoRdSbnTotal > 0"
-        >
+      <!-- Section 1: Investasi Pasif — pure form: title prominent, total as value -->
+      <section
+        class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <header class="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
+          <div class="flex min-w-0 items-center gap-2.5">
+            <IconChip variant="emerald" size="md">
+              <Landmark :size="18" :stroke-width="1.75" />
+            </IconChip>
+            <div class="min-w-0">
+              <h3 class="text-base font-semibold leading-tight text-[var(--color-text-primary)]">
+                Investasi Pasif
+              </h3>
+              <p class="truncate text-xs text-[var(--color-text-muted)]">
+                Deposito, reksa dana, SBN
+              </p>
+            </div>
+          </div>
+          <span class="num whitespace-nowrap text-sm font-medium text-[var(--color-text-secondary)]">
+            {{ idr(depoRdSbnTotal) }}
+          </span>
+        </header>
+        <hr class="border-[var(--color-border)]">
+        <div class="p-4 sm:p-5">
           <AsetLikuidPanel
             :categories="['deposito', 'reksaDana', 'sbn']"
+            variant="bordered"
             hide-header
           />
-        </CollapsiblePanel>
-        <CollapsiblePanel
-          title="Emas"
-          subtitle="Antam, perhiasan, dan emas digital"
-          :icon="Coins"
-          variant="amber"
-          :value="emasTotal"
-          :section-complete="emasTotal > 0"
-        >
+        </div>
+      </section>
+
+      <!-- Section 2: Emas & Logam Mulia -->
+      <section
+        class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <header class="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
+          <div class="flex min-w-0 items-center gap-2.5">
+            <IconChip variant="amber" size="md">
+              <Coins :size="18" :stroke-width="1.75" />
+            </IconChip>
+            <div class="min-w-0">
+              <h3 class="text-base font-semibold leading-tight text-[var(--color-text-primary)]">
+                Emas & Logam Mulia
+              </h3>
+              <p class="truncate text-xs text-[var(--color-text-muted)]">
+                Antam, perhiasan, emas digital
+              </p>
+            </div>
+          </div>
+          <span class="num whitespace-nowrap text-sm font-medium text-[var(--color-text-secondary)]">
+            {{ idr(emasTotal) }}<span
+              v-if="emasGramTotal > 0"
+              class="ml-1 font-normal text-[var(--color-text-muted)]"
+            >· {{ emasGramTotal }}g</span>
+          </span>
+        </header>
+        <hr class="border-[var(--color-border)]">
+        <div class="p-4 sm:p-5">
           <EmasPanel
             hide-header
             :live-error="goldLiveError"
@@ -574,26 +612,33 @@ watchEffect(() => {
             :on-refresh="gold.forceRefresh"
             :gold-source="gold.data.value?.source ?? null"
           />
-        </CollapsiblePanel>
-      </div>
-
-      <div class="space-y-4">
-        <div>
-          <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
-            Investasi Pasar
-          </h3>
-          <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
-            Saham dan kripto dengan harga live
-          </p>
         </div>
-        <CollapsiblePanel
-          title="Saham"
-          subtitle="Per-emiten dengan harga IDX live"
-          :icon="LineChart"
-          variant="amber"
-          :value="sahamTotal"
-          :section-complete="sahamTotal > 0"
-        >
+      </section>
+
+      <!-- Section 3: Investasi Pasar -->
+      <section
+        class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <header class="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
+          <div class="flex min-w-0 items-center gap-2.5">
+            <IconChip variant="sky" size="md">
+              <LineChart :size="18" :stroke-width="1.75" />
+            </IconChip>
+            <div class="min-w-0">
+              <h3 class="text-base font-semibold leading-tight text-[var(--color-text-primary)]">
+                Investasi Pasar
+              </h3>
+              <p class="truncate text-xs text-[var(--color-text-muted)]">
+                Saham & kripto live
+              </p>
+            </div>
+          </div>
+          <span class="num whitespace-nowrap text-sm font-medium text-[var(--color-text-secondary)]">
+            {{ idr(investasiPasarTotal) }}
+          </span>
+        </header>
+        <hr class="border-[var(--color-border)]">
+        <div class="space-y-5 p-4 sm:p-5">
           <SahamPanel
             hide-header
             :idx-rows="idx.data.value?.prices"
@@ -602,15 +647,6 @@ watchEffect(() => {
             :cooldown-remaining="idx.cooldownRemaining.value"
             :on-refresh="idx.forceRefresh"
           />
-        </CollapsiblePanel>
-        <CollapsiblePanel
-          title="Kripto"
-          subtitle="Per-coin dengan CoinGecko live + 4 mode input"
-          :icon="Bitcoin"
-          variant="amber"
-          :value="cryptoTotal"
-          :section-complete="cryptoTotal > 0"
-        >
           <CryptoPanel
             hide-header
             :live-error="cryptoLiveError"
@@ -618,8 +654,8 @@ watchEffect(() => {
             :cooldown-remaining="crypto.cooldownRemaining.value"
             :on-refresh="crypto.forceRefresh"
           />
-        </CollapsiblePanel>
-      </div>
+        </div>
+      </section>
     </div>
 
     <div v-show="activeTabId === 'aset-non-likuid'" class="space-y-5">

@@ -82,9 +82,7 @@ function field(key: keyof EmasState, value: number | null) {
 </script>
 
 <template>
-  <section
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
-  >
+  <section>
     <!-- Maintenance banner -->
     <div
       v-if="disabled"
@@ -212,7 +210,7 @@ function field(key: keyof EmasState, value: number | null) {
       </div>
 
       <!-- Perhiasan group -->
-      <div class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3">
+      <div class="rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-3">
         <div class="mb-2">
           <span class="text-sm font-medium text-[var(--color-text-primary)]">
             {{ t('snapshot.emas.perhiasan.label') }}

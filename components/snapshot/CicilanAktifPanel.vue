@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { CreditCard } from 'lucide-vue-next'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import CicilanRowEditor from '~/components/snapshot/CicilanRow.vue'
 import EmptyStateCard from '~/components/snapshot/EmptyStateCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
@@ -117,9 +118,12 @@ const overPenghasilan = computed(
       />
     </TransitionGroup>
 
-    <ButtonGhost class="mt-3 w-full" @click="snap.addCicilan()">
-      {{ t('cicilan.add') }}
-    </ButtonGhost>
+    <AddRowCta
+      noun="cicilan"
+      :has-row="rows.length > 0"
+      class="mt-3"
+      @add="snap.addCicilan()"
+    />
 
     <div
       v-if="rows.length > 0"

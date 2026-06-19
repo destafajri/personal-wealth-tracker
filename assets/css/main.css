@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
 
 @theme {
   /* Phase-2 revamp tokens (Day 1, 2026-06-04)
@@ -53,6 +56,7 @@
   --color-text-muted: #94a3b8;
 
   --font-sans: 'Geist Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --radius-input: 0.5rem;
   --radius-card: 1rem;
@@ -97,6 +101,39 @@
 
 @utility tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Numeric display utility — JetBrains Mono with tabular figures. Used for all Rp
+   amounts in financial forms so numbers align column-wise and feel "accounting
+   precise" against the casual Geist Sans body copy. */
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+}
+
+/* Price-flash animation — brief 150ms background highlight when a live price
+   ticks up (emerald) or down (rose). Transient feedback only, not a state —
+   complies with color-not-only rule since the underlying price text + arrow
+   indicator already convey direction independently. */
+@keyframes price-flash-up {
+  0% { background-color: rgba(5, 150, 105, 0); }
+  20% { background-color: rgba(5, 150, 105, 0.18); }
+  100% { background-color: rgba(5, 150, 105, 0); }
+}
+@keyframes price-flash-down {
+  0% { background-color: rgba(190, 18, 60, 0); }
+  20% { background-color: rgba(190, 18, 60, 0.18); }
+  100% { background-color: rgba(190, 18, 60, 0); }
+}
+@utility flash-up {
+  animation: price-flash-up 0.6s ease-out;
+}
+@utility flash-down {
+  animation: price-flash-down 0.6s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .flash-up, .flash-down { animation: none; }
 }
 
 /* ── Phase 6.2: entrance + hover animations ── */

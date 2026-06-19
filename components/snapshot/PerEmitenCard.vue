@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { ChevronDown, X } from 'lucide-vue-next'
+import { Check, ChevronDown, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
+import TickerChip from '~/components/snapshot/TickerChip.vue'
 import InputQuantity from '~/components/common/InputQuantity.vue'
 import { calcPotentialDividendIdr, effectiveStockPrice } from '~/lib/finance/metrics'
 import { idr } from '~/lib/format/idr'
@@ -57,6 +58,18 @@ function setDividendMode(mode: DividendMode) {
 
 const effectivePrice = computed(() => effectiveStockPrice(props.row, props.livePrice))
 const valueIdr = computed(() => props.row.lot * 100 * effectivePrice.value)
+
+// Row-complete signal for the green ✓ indicator. Saham row is "complete" when it has
+// a valid 4-char IDX ticker, lot > 0, and an effective price (live, override, or avg
+// fallback). Without all three the row contributes Rp 0 to the section total and the
+// ✓ stays hidden — matches the "filled value input" semantic from the Stitch Aset
+// Tetap mockup without adding a status metric.
+const isComplete = computed(
+  () =>
+    props.row.ticker.trim().length > 0 &&
+    props.row.lot > 0 &&
+    effectivePrice.value > 0,
+)
 
 const liveBobot = computed(() => {
   if (props.totalValueIdr <= 0) return null
@@ -185,10 +198,11 @@ const potentialDividendAnnual = computed(() =>
 
 <template>
   <li
-    class="space-y-2 rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3"
+    class="space-y-2 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-3"
   >
-    <!-- Collapsed row: ticker | lot | price+pill | expand chevron + delete -->
+    <!-- Collapsed row: chip + ticker input | lot | price+pill | ✓ | expand | delete -->
     <div class="flex flex-wrap items-center gap-2">
+      <TickerChip :ticker="row.ticker" size="md" />
       <input
         type="text"
         :value="row.ticker"
@@ -218,10 +232,18 @@ const potentialDividendAnnual = computed(() =>
         >
           {{ pillLabel }}
         </span>
-        <span class="tabular text-sm font-medium text-[var(--color-text-primary)]">
+        <span class="num text-sm font-medium text-[var(--color-text-primary)]">
           {{ idr(effectivePrice) }}
         </span>
       </div>
+
+      <Check
+        v-if="isComplete"
+        :size="14"
+        :stroke-width="2.5"
+        class="shrink-0 text-[var(--color-accent-emerald)]"
+        aria-label="Baris sudah lengkap"
+      />
 
       <button
         type="button"
@@ -252,17 +274,17 @@ const potentialDividendAnnual = computed(() =>
     </p>
 
     <div class="flex items-baseline justify-between text-[11px] text-[var(--color-text-secondary)]">
-      <span class="tabular">{{ idr(valueIdr) }}</span>
+      <span class="num">{{ idr(valueIdr) }}</span>
       <span class="flex items-baseline gap-2">
         <span
           v-if="capitalGainPercent !== null"
-          class="tabular font-medium"
+          class="num font-medium"
           :class="capitalGainClass"
           :title="t('snapshot.saham.capitalGainHint')"
         >
           {{ capitalGainPercent > 0 ? '+' : '' }}{{ percent(capitalGainPercent, 2) }}
         </span>
-        <span v-if="liveBobot !== null" class="tabular">
+        <span v-if="liveBobot !== null" class="num">
           {{ percent(liveBobot, 1) }}
         </span>
       </span>

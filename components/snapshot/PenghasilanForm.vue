@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { Banknote, CirclePlus, Coins, Landmark, PiggyBank, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
-import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useUndoDelete } from '~/composables/useUndoDelete'
@@ -183,12 +183,12 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
                 </p>
               </li>
             </TransitionGroup>
-            <ButtonGhost
-              class="mt-2 w-full"
-              @click="snap.addPenghasilanLain()"
-            >
-              + Tambah
-            </ButtonGhost>
+            <AddRowCta
+              noun="penghasilan lain"
+              :has-row="snap.penghasilanLain.length > 0"
+              class="mt-2"
+              @add="snap.addPenghasilanLain()"
+            />
           </div>
         </div>
       </div>

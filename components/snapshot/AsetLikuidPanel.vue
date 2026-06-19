@@ -13,10 +13,15 @@ const props = withDefaults(
   defineProps<{
     categories?: LiquidAssetCategory[]
     hideHeader?: boolean
+    // Pass-through to AssetRowList variant. Default 'inline' preserves existing
+    // Cash Flow / Kas look. Investasi usage passes 'bordered' for fintech-card
+    // consistency with PerEmitenCard / CryptoPanel rows.
+    variant?: 'card' | 'inline' | 'bordered'
   }>(),
   {
     categories: () => ['kas', 'deposito', 'reksaDana', 'sbn'],
     hideHeader: false,
+    variant: 'inline',
   },
 )
 
@@ -63,9 +68,7 @@ function label(key: string): string {
 </script>
 
 <template>
-  <section
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
-  >
+  <section>
     <header v-if="!hideHeader" class="mb-4">
       <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
         {{ t('snapshot.section.asetLikuid') }}
@@ -80,7 +83,7 @@ function label(key: string): string {
         show-currency
         :show-interest-rate="cat.withInterest"
         :show-rd-jenis="cat.withRdJenis"
-        variant="inline"
+        :variant="variant"
         @add="snap.addLikuid(cat.key)"
         @update:label="(id, value) => snap.updateLikuid(cat.key, id, { label: value })"
         @update:amount="

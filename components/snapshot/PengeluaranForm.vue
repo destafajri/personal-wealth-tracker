@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CirclePlus, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
-import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useUndoDelete } from '~/composables/useUndoDelete'
 import { t } from '~/lib/copy/strings'
@@ -154,12 +154,12 @@ function handleRemoveLain(rowId: string) {
                 </div>
               </li>
             </TransitionGroup>
-            <ButtonGhost
-              class="mt-2 w-full"
-              @click="snap.addPengeluaranLain()"
-            >
-              + Tambah
-            </ButtonGhost>
+            <AddRowCta
+              noun="pengeluaran lain"
+              :has-row="snap.pengeluaranLain.length > 0"
+              class="mt-2"
+              @add="snap.addPengeluaranLain()"
+            />
           </div>
         </div>
       </div>
