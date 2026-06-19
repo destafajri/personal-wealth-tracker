@@ -5,6 +5,7 @@ import InputQuantity from '~/components/common/InputQuantity.vue'
 import InputCurrency from '~/components/common/InputCurrency.vue'
 import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import TickerChip from '~/components/snapshot/TickerChip.vue'
+import TradingViewTickerTag from '~/components/snapshot/TradingViewTickerTag.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { calcCryptoCapitalGainPercent } from '~/lib/finance/metrics'
@@ -140,6 +141,15 @@ function isRowComplete(row: CryptoHolding): boolean {
   if (!row.coinId) return false
   if (row.mode === 'unit') return (row.units ?? 0) > 0
   return (row.amount ?? 0) > 0
+}
+
+// TV symbol for Ticker Tag. Crypto uses BINANCE:{SYMBOL}USDT perpetual pair
+// convention. Empty when coinId not yet picked.
+function tvSymbolForCrypto(row: CryptoHolding): string {
+  if (!row.coinId) return ''
+  const sym = findCoinById(row.coinId)?.symbol
+  if (!sym) return ''
+  return `BINANCE:${sym.toUpperCase()}USDT`
 }
 
 // Datalist gives back the raw symbol (e.g. "BTC"); we resolve it through the catalog
@@ -294,10 +304,22 @@ const total = computed(() =>
         :key="row.id"
         class="space-y-2 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-3"
       >
-        <!-- Header: chip + coin picker + ✓ + remove. Mode toggle is on its own row
-             to keep the coin picker wide enough to read the suggested coin name. -->
+        <!-- Header: TV ticker tag (fallback colored chip) + coin picker + ✓ + remove.
+             Mode toggle is on its own row to keep the coin picker wide enough. -->
         <div class="flex items-center gap-2">
+          <TradingViewTickerTag
+            v-if="tvSymbolForCrypto(row)"
+            :symbol="tvSymbolForCrypto(row)"
+          >
+            <template #fallback>
+              <TickerChip
+                :ticker="findCoinById(row.coinId)?.symbol ?? ''"
+                size="md"
+              />
+            </template>
+          </TradingViewTickerTag>
           <TickerChip
+            v-else
             :ticker="findCoinById(row.coinId)?.symbol ?? ''"
             size="md"
           />

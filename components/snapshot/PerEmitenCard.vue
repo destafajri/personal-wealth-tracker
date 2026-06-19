@@ -3,6 +3,8 @@ import { computed, ref } from 'vue'
 import { Check, ChevronDown, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
 import TickerChip from '~/components/snapshot/TickerChip.vue'
+import TradingViewTickerTag from '~/components/snapshot/TradingViewTickerTag.vue'
+import TradingViewSymbolInfo from '~/components/snapshot/TradingViewSymbolInfo.vue'
 import InputQuantity from '~/components/common/InputQuantity.vue'
 import { calcPotentialDividendIdr, effectiveStockPrice } from '~/lib/finance/metrics'
 import { idr } from '~/lib/format/idr'
@@ -70,6 +72,13 @@ const isComplete = computed(
     props.row.lot > 0 &&
     effectivePrice.value > 0,
 )
+
+// TV symbol for embed widgets. IDX:{TICKER} format for Indonesia stocks. Empty
+// when ticker is unset so Ticker Tag's fallback slot renders the colored chip.
+const tvSymbol = computed(() => {
+  const t = props.row.ticker.trim().toUpperCase()
+  return t ? `IDX:${t}` : ''
+})
 
 const liveBobot = computed(() => {
   if (props.totalValueIdr <= 0) return null
@@ -200,9 +209,21 @@ const potentialDividendAnnual = computed(() =>
   <li
     class="space-y-2 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-3"
   >
-    <!-- Collapsed row: chip + ticker input | lot | price+pill | ✓ | expand | delete -->
+    <!-- Collapsed row: TV ticker tag (fallback colored chip) + ticker input | lot | price+pill | ✓ | expand | delete -->
     <div class="flex flex-wrap items-center gap-2">
-      <TickerChip :ticker="row.ticker" size="md" />
+      <TradingViewTickerTag
+        v-if="tvSymbol"
+        :symbol="tvSymbol"
+      >
+        <template #fallback>
+          <TickerChip :ticker="row.ticker" size="md" />
+        </template>
+      </TradingViewTickerTag>
+      <TickerChip
+        v-else
+        :ticker="row.ticker"
+        size="md"
+      />
       <input
         type="text"
         :value="row.ticker"
@@ -305,11 +326,17 @@ const potentialDividendAnnual = computed(() =>
       </div>
     </div>
 
-    <!-- Expanded section: lots target + dividend (mode toggle) + override + last-updated.
-         aria-label mirrors visible label text because InputCurrency/InputQuantity wrap
-         their own `<input>` in `<label :for="useId()">`; outer `<label class="block">` is
-         a sibling, not linked. -->
+    <!-- Expanded section: TV Symbol Info (market data) + lots target + dividend +
+         override + last-updated. Symbol Info gives real-time price + market cap +
+         P/E + div yield — useful context while user edits cost basis + lots target.
+         Only renders when ticker is set. -->
     <div v-if="expanded" class="space-y-3 border-t border-[var(--color-border)] pt-3">
+      <ClientOnly v-if="tvSymbol">
+        <TradingViewSymbolInfo :symbol="tvSymbol" :height="250" />
+        <template #fallback>
+          <div class="h-[250px] animate-pulse rounded-[var(--radius-input)] bg-[var(--color-surface-low)]" />
+        </template>
+      </ClientOnly>
       <div>
         <label class="mb-1 block text-[11px] font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
           {{ t('snapshot.saham.lotsTargetLabel') }}

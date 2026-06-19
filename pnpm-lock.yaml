@@ -11,6 +11,9 @@ importers:
       '@fontsource/geist-sans':
         specifier: ^5.2.5
         version: 5.2.5
+      '@fontsource/jetbrains-mono':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@pinia/nuxt':
         specifier: ^0.7.0
         version: 0.7.0(magicast@0.5.3)(typescript@5.9.3)(vue@3.5.35(typescript@5.9.3))
@@ -783,6 +786,9 @@ packages:
 
   '@fontsource/geist-sans@5.2.5':
     resolution: {integrity: sha512-anllOHyJbElRs9fV15TeDRqAeb1IKm4bSknPl6ZMoyPTx1BBy7logudcUwpNjmQLkzn4Q0JGQLRCUKJYoyST6A==}
+
+  '@fontsource/jetbrains-mono@5.2.8':
+    resolution: {integrity: sha512-6w8/SG4kqvIMu7xd7wt6x3idn1Qux3p9N62s6G3rfldOUYHpWcc2FKrqf+Vo44jRvqWj2oAtTHrZXEP23oSKwQ==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -5748,6 +5754,8 @@ snapshots:
       levn: 0.4.1
 
   '@fontsource/geist-sans@5.2.5': {}
+
+  '@fontsource/jetbrains-mono@5.2.8': {}
 
   '@humanfs/core@0.19.2':
     dependencies:
