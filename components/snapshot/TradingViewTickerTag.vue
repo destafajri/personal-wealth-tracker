@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useTheme } from '~/composables/useTheme'
 
 // TradingView Ticker Tag wrapper — compact inline chip with branded logo +
 // live ticker price. Replaces our colored TickerChip with TV's official
@@ -10,9 +11,15 @@ import { onMounted } from 'vue'
 // the same script tag. The web component (<tv-ticker-tag>) renders once the
 // script finishes loading — Vue handles it as a native custom element (see
 // nuxt.config.ts vue.compilerOptions.isCustomElement).
+//
+// Theme reactive via useTheme() — :key on resolved theme forces remount when
+// user toggles light/dark. TV web components don't observe post-init theme
+// attribute mutations.
 const props = defineProps<{
   symbol: string // e.g., 'IDX:BBRI', 'BINANCE:BTCUSDT'
 }>()
+
+const { resolved } = useTheme()
 
 const SCRIPT_ID = 'tv-ticker-tag-script'
 const SCRIPT_SRC = 'https://widgets.tradingview-widget.com/w/en/tv-ticker-tag.js'
@@ -30,7 +37,11 @@ onMounted(() => {
 
 <template>
   <ClientOnly>
-    <tv-ticker-tag :symbol="symbol" />
+    <tv-ticker-tag
+      :key="`${symbol}-${resolved}`"
+      :symbol="symbol"
+      :theme="resolved"
+    />
     <template #fallback>
       <slot name="fallback" />
     </template>

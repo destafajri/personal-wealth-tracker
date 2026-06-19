@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useTheme } from '~/composables/useTheme'
 
 // TradingView Symbol Info wrapper — comprehensive read-only market data
 // (price, % change, market cap, P/E, div yield, fundamentals) embedded as a
@@ -9,8 +10,10 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 //   - IDX saham: `IDX:BBRI`
 //   - Crypto: `BINANCE:BTCUSDT`
 //
-// Theme=dark + isTransparent=true to blend with Cermat's dark mode + the parent
-// card's surface color. Width 100% so it fills the expanded row responsively.
+// Theme reactive via useTheme() — when user toggles theme, watch() re-embeds
+// the widget with the new colorTheme config. isTransparent=true to blend with
+// the parent card's surface color. Width 100% so it fills the expanded row
+// responsively.
 const props = withDefaults(
   defineProps<{
     symbol: string
@@ -23,6 +26,7 @@ const props = withDefaults(
   },
 )
 
+const { resolved } = useTheme()
 const container = ref<HTMLElement | null>(null)
 
 function embed() {
@@ -36,7 +40,7 @@ function embed() {
   script.type = 'text/javascript'
   script.innerHTML = JSON.stringify({
     symbol: props.symbol,
-    colorTheme: 'dark',
+    colorTheme: resolved.value,
     isTransparent: true,
     locale: props.locale,
     width: '100%',
@@ -48,6 +52,7 @@ function embed() {
 onMounted(embed)
 
 watch(() => props.symbol, () => embed())
+watch(resolved, () => embed())
 
 onBeforeUnmount(() => {
   if (container.value) container.value.innerHTML = ''

@@ -36,6 +36,7 @@ import AsetLikuidPanel from '~/components/snapshot/AsetLikuidPanel.vue'
 import AsetNonLikuidPanel from '~/components/snapshot/AsetNonLikuidPanel.vue'
 import CryptoPanel from '~/components/snapshot/CryptoPanel.vue'
 import SahamPanel from '~/components/snapshot/SahamPanel.vue'
+import TradingViewTickerTape from '~/components/snapshot/TradingViewTickerTape.vue'
 import EmasPanel from '~/components/snapshot/EmasPanel.vue'
 import CicilanAktifPanel from '~/components/snapshot/CicilanAktifPanel.vue'
 import UtangPribadiPanel from '~/components/snapshot/UtangPribadiPanel.vue'
@@ -545,6 +546,10 @@ watchEffect(() => {
       v-show="activeTabId === 'investasi'"
       class="space-y-5"
     >
+      <!-- TradingView Ticker Tape — market overview strip (IHSG + gold + BTC + USD/IDR).
+           Contextual to Investasi tab; not shown on other tabs. -->
+      <TradingViewTickerTape />
+
       <!-- Section 1: Investasi Pasif — pure form: title prominent, total as value -->
       <section
         class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"

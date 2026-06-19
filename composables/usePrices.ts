@@ -10,6 +10,32 @@ import type { CryptoPayload } from '~/lib/prices/coingecko'
 import type { GoldPayload } from '~/lib/prices/pegadaian'
 import type { FxPayload, IdxPayload, UsdIdrPayload } from '~/lib/prices/yahoo'
 
+// Retry helper — wraps a fetch call with N retries on any error. Yahoo (our
+// primary data source) frequently rate-limits or has transient network blips;
+// a single $fetch gives up immediately and surfaces a STALE state to the user.
+// With 2 retries + 1s delay each, transient errors recover silently without
+// the user ever seeing STALE. Persistent failures still surface after ~2s.
+//
+// Only used for read-only GET endpoints (prices) — never for state mutations.
+async function retryFetch<T>(
+  fn: () => Promise<T>,
+  retries = 2,
+  delayMs = 1000,
+): Promise<T> {
+  let lastErr: unknown
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn()
+    } catch (err) {
+      lastErr = err
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, delayMs))
+      }
+    }
+  }
+  throw lastErr
+}
+
 const idxCache = new Map<string, IdxPayload>()
 // Crypto cache is a single payload (no per-key map) — the endpoint always returns the
 // full top-52 catalog, so there's only ever one payload to remember.
@@ -86,7 +112,9 @@ export function useIdxPrices(tickers: Ref<string[]> | ComputedRef<string[]>) {
     try {
       const query: Record<string, string> = { tickers: list.join(',') }
       if (force) query.force = '1'
-      const fresh = await $fetch<IdxPayload>('/api/prices/idx', { query })
+      const fresh = await retryFetch(() =>
+        $fetch<IdxPayload>('/api/prices/idx', { query }),
+      )
       idxCache.set(key, fresh)
       if (mySeq === seq) {
         data.value = fresh
@@ -137,9 +165,11 @@ export function useCryptoPrices() {
   async function refresh(force = false) {
     pending.value = true
     try {
-      const fresh = await $fetch<CryptoPayload>('/api/prices/crypto', {
-        query: force ? { force: '1' } : undefined,
-      })
+      const fresh = await retryFetch(() =>
+        $fetch<CryptoPayload>('/api/prices/crypto', {
+          query: force ? { force: '1' } : undefined,
+        }),
+      )
       cryptoCache = fresh
       data.value = fresh
       error.value = null
@@ -183,9 +213,11 @@ export function useGoldPrice() {
   async function refresh(force = false) {
     pending.value = true
     try {
-      const fresh = await $fetch<GoldPayload>('/api/prices/gold', {
-        query: force ? { force: '1' } : undefined,
-      })
+      const fresh = await retryFetch(() =>
+        $fetch<GoldPayload>('/api/prices/gold', {
+          query: force ? { force: '1' } : undefined,
+        }),
+      )
       data.value = fresh
       error.value = null
     } catch (e) {
@@ -229,9 +261,11 @@ export function useFxRates() {
   async function refresh(force = false) {
     pending.value = true
     try {
-      const fresh = await $fetch<FxPayload>('/api/prices/fx', {
-        query: force ? { force: '1' } : undefined,
-      })
+      const fresh = await retryFetch(() =>
+        $fetch<FxPayload>('/api/prices/fx', {
+          query: force ? { force: '1' } : undefined,
+        }),
+      )
       data.value = fresh
       error.value = null
     } catch (e) {
@@ -272,9 +306,11 @@ export function useUsdIdr() {
   async function refresh(force = false) {
     pending.value = true
     try {
-      const fresh = await $fetch<UsdIdrPayload>('/api/prices/usdidr', {
-        query: force ? { force: '1' } : undefined,
-      })
+      const fresh = await retryFetch(() =>
+        $fetch<UsdIdrPayload>('/api/prices/usdidr', {
+          query: force ? { force: '1' } : undefined,
+        }),
+      )
       usdIdrCache = fresh
       data.value = fresh
       error.value = null
