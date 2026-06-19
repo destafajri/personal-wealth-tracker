@@ -3,18 +3,32 @@ import { computed } from 'vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import UtangPribadiRow from '~/components/snapshot/UtangPribadiRow.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { useUndoDelete } from '~/composables/useUndoDelete'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
 
 defineProps<{ hideHeader?: boolean }>()
 
 const snap = useSnapshotStore()
+const undo = useUndoDelete()
 
 const rows = computed(() => snap.utangPribadi)
 const totalPokok = computed(() => rows.value.reduce((s, r) => s + (r.sisaPokok || 0), 0))
 const totalCicilan = computed(() =>
   rows.value.reduce((s, r) => s + (r.cicilanPerBulan || 0), 0),
 )
+
+// Capture row data + original index BEFORE remove, so useUndoDelete can restore
+// at the right position via snap.restoreUtangPribadi.
+function handleRemove(rowId: string) {
+  const idx = snap.utangPribadi.findIndex((r) => r.id === rowId)
+  if (idx === -1) return
+  const row = snap.utangPribadi[idx]!
+  const { id, ...rowData } = row
+  void id
+  undo.capture('utangPribadi', rowData, idx)
+  snap.removeUtangPribadi(rowId)
+}
 </script>
 
 <template>
@@ -42,7 +56,7 @@ const totalCicilan = computed(() =>
         :key="row.id"
         :row="row"
         @update="(patch) => snap.updateUtangPribadi(row.id, patch)"
-        @remove="snap.removeUtangPribadi(row.id)"
+        @remove="handleRemove(row.id)"
       />
     </TransitionGroup>
 

@@ -3,12 +3,24 @@ import { CirclePlus, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { useUndoDelete } from '~/composables/useUndoDelete'
 import { t } from '~/lib/copy/strings'
 import { CURRENCIES } from '~/lib/types/snapshot'
 
 defineProps<{ hideHeader?: boolean; showBiayaKos?: boolean }>()
 
 const snap = useSnapshotStore()
+const undo = useUndoDelete()
+
+function handleRemoveLain(rowId: string) {
+  const idx = snap.pengeluaranLain.findIndex((r) => r.id === rowId)
+  if (idx === -1) return
+  const row = snap.pengeluaranLain[idx]!
+  const { id, ...rowData } = row
+  void id
+  undo.capture('pengeluaranLain', rowData, idx)
+  snap.removePengeluaranLain(rowId)
+}
 </script>
 
 <template>
@@ -135,7 +147,7 @@ const snap = useSnapshotStore()
                     type="button"
                     aria-label="Hapus baris"
                     class="shrink-0 rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
-                    @click="snap.removePengeluaranLain(row.id)"
+                    @click="handleRemoveLain(row.id)"
                   >
                     <X :size="16" />
                   </button>

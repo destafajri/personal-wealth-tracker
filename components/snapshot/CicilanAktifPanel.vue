@@ -1,24 +1,57 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import CicilanRowEditor from '~/components/snapshot/CicilanRow.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
+import { useUndoDelete } from '~/composables/useUndoDelete'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
+import { cicilanDefaultFields, cicilanDefaultsFor } from '~/lib/smart-defaults/cicilanDefaults'
 import type { CicilanTipe } from '~/lib/types/snapshot'
 
 defineProps<{ hideHeader?: boolean }>()
 
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
+const undo = useUndoDelete()
 
-const quickAdds: { labelKey: 'cicilan.quickadd.kpr' | 'cicilan.quickadd.kpm' | 'cicilan.quickadd.kk' | 'cicilan.quickadd.pinjol'; tipe: CicilanTipe; jenis: 'Anuitas' | 'Revolving' }[] = [
-  { labelKey: 'cicilan.quickadd.kpr', tipe: 'KPR', jenis: 'Anuitas' },
-  { labelKey: 'cicilan.quickadd.kpm', tipe: 'KPM', jenis: 'Anuitas' },
-  { labelKey: 'cicilan.quickadd.kk', tipe: 'KK', jenis: 'Revolving' },
-  { labelKey: 'cicilan.quickadd.pinjol', tipe: 'PINJOL', jenis: 'Anuitas' },
+const quickAdds: { labelKey: 'cicilan.quickadd.kpr' | 'cicilan.quickadd.kpm' | 'cicilan.quickadd.kk' | 'cicilan.quickadd.pinjol'; tipe: CicilanTipe }[] = [
+  { labelKey: 'cicilan.quickadd.kpr', tipe: 'KPR' },
+  { labelKey: 'cicilan.quickadd.kpm', tipe: 'KPM' },
+  { labelKey: 'cicilan.quickadd.kk', tipe: 'KK' },
+  { labelKey: 'cicilan.quickadd.pinjol', tipe: 'PINJOL' },
 ]
+
+// Per-row "fields that received smart defaults" map. Keyed by row id. Rows added
+// via quick-add chip get an entry; plain "+ Tambah" rows do not. Used by
+// CicilanRow to seed its local defaultFields set for SARAN pill rendering.
+const recentDefaults = ref<Map<string, string[]>>(new Map())
+
+// Quick-add chips apply smart defaults (label, jenisBunga, tenor, sukuBunga) per
+// tipe. Plain "+ Tambah Cicilan" button intentionally stays empty (user decision
+// 2026-06-19, spec §15.3).
+function addWithDefaults(tipe: CicilanTipe) {
+  const defaults = cicilanDefaultsFor(tipe)
+  const newRow = snap.addCicilan({ tipe, ...defaults })
+  recentDefaults.value.set(newRow.id, cicilanDefaultFields(tipe))
+  // Trigger Map reactivity
+  recentDefaults.value = new Map(recentDefaults.value)
+}
+
+function defaultsFor(rowId: string): string[] {
+  return recentDefaults.value.get(rowId) ?? []
+}
+
+function handleRemove(rowId: string) {
+  const idx = snap.cicilanAktif.findIndex((r) => r.id === rowId)
+  if (idx === -1) return
+  const row = snap.cicilanAktif[idx]!
+  const { id, ...rowData } = row
+  void id
+  undo.capture('cicilan', rowData, idx)
+  snap.removeCicilan(rowId)
+}
 
 const rows = computed(() => snap.cicilanAktif)
 const totalCicilan = computed(() =>
@@ -57,7 +90,7 @@ const overPenghasilan = computed(
       <ButtonGhost
         v-for="qa in quickAdds"
         :key="qa.tipe"
-        @click="snap.addCicilan({ tipe: qa.tipe, jenisBunga: qa.jenis })"
+        @click="addWithDefaults(qa.tipe)"
       >
         {{ t(qa.labelKey) }}
       </ButtonGhost>
@@ -75,8 +108,9 @@ const overPenghasilan = computed(
         v-for="row in rows"
         :key="row.id"
         :row="row"
+        :initial-default-fields="defaultsFor(row.id)"
         @update="(patch) => snap.updateCicilan(row.id, patch)"
-        @remove="snap.removeCicilan(row.id)"
+        @remove="handleRemove(row.id)"
       />
     </TransitionGroup>
 

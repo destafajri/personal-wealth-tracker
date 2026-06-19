@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import AssetRowList from '~/components/snapshot/AssetRowList.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { useUndoDelete, type UndoPanelKind } from '~/composables/useUndoDelete'
 import { t } from '~/lib/copy/strings'
 import type { LiquidAssetCategory } from '~/lib/types/snapshot'
 
@@ -20,6 +21,19 @@ const props = withDefaults(
 )
 
 const snap = useSnapshotStore()
+const undo = useUndoDelete()
+
+function handleRemove(cat: LiquidAssetCategory, rowId: string) {
+  const arr = snap.asetLikuid[cat]
+  const idx = arr.findIndex((r) => r.id === rowId)
+  if (idx === -1) return
+  const row = arr[idx]!
+  const { id, ...rowData } = row
+  void id
+  // cat doubles as UndoPanelKind (kas/deposito/reksaDana/sbn are valid values).
+  undo.capture(cat as UndoPanelKind, rowData, idx)
+  snap.removeLikuid(cat, rowId)
+}
 
 // `withInterest` marks categories that surface a per-row suku bunga input. Sbn +
 // deposito are the only fixed-income-like bucket; bunga flows into PenghasilanForm as
@@ -85,7 +99,7 @@ function label(key: string): string {
               rdJenis: value === null ? undefined : value,
             })
         "
-        @remove="(id) => snap.removeLikuid(cat.key, id)"
+        @remove="(id) => handleRemove(cat.key, id)"
       />
     </div>
   </section>

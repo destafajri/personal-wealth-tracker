@@ -5,6 +5,7 @@ import InputCurrency from '~/components/common/InputCurrency.vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
+import { useUndoDelete } from '~/composables/useUndoDelete'
 import { rateToIdr } from '~/lib/finance/fx'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
@@ -14,6 +15,17 @@ defineProps<{ hideHeader?: boolean }>()
 
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
+const undo = useUndoDelete()
+
+function handleRemoveLain(rowId: string) {
+  const idx = snap.penghasilanLain.findIndex((r) => r.id === rowId)
+  if (idx === -1) return
+  const row = snap.penghasilanLain[idx]!
+  const { id, ...rowData } = row
+  void id
+  undo.capture('penghasilanLain', rowData, idx)
+  snap.removePenghasilanLain(rowId)
+}
 
 // Auto-derived monthly estimasi rows surfaced inline: saham dividen + bunga sbn +
 // bunga deposito. Same numbers that flow into DSR/SavingsRate via metrics layer.
@@ -155,7 +167,7 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
                     type="button"
                     :aria-label="t('snapshot.penghasilan.lainRemove')"
                     class="shrink-0 rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
-                    @click="snap.removePenghasilanLain(row.id)"
+                    @click="handleRemoveLain(row.id)"
                   >
                     <X :size="16" />
                   </button>

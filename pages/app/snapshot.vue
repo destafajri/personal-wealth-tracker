@@ -40,6 +40,7 @@ import EmasPanel from '~/components/snapshot/EmasPanel.vue'
 import CicilanAktifPanel from '~/components/snapshot/CicilanAktifPanel.vue'
 import UtangPribadiPanel from '~/components/snapshot/UtangPribadiPanel.vue'
 import GadaiPanel from '~/components/snapshot/GadaiPanel.vue'
+import UndoToast from '~/components/snapshot/UndoToast.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useGoalsStore } from '~/stores/goals'
@@ -707,5 +708,7 @@ watchEffect(() => {
         <span>Data disimpan lokal di browser kamu, tidak dikirim ke server. Unduh XLSX untuk simpan data & lanjutkan kapan saja.</span>
       </p>
     </div>
+
+    <UndoToast />
   </div>
 </template>
