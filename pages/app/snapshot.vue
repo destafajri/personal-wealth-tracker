@@ -556,7 +556,6 @@ watchEffect(() => {
         variant="emerald"
         :value="depoRdSbnTotal"
         :section-complete="depoRdSbnTotal > 0"
-        default-open
       >
         <AsetLikuidPanel
           :categories="['deposito', 'reksaDana', 'sbn']"
