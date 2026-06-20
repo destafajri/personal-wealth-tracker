@@ -331,6 +331,126 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     pengeluaranLain.value = pengeluaranLain.value.filter((r) => r.id !== id)
   }
 
+  // ----- restore methods (undo-toast support, Phase 8.6) -----
+  // Each restoreXxx mirrors its addXxx counterpart but splice-inserts at the given
+  // index instead of pushing to end. Used by useUndoDelete to put a deleted row
+  // back at its original position. Pure list-position helpers; zero calculation
+  // impact (identical fields in, identical derived values out).
+  function clampIndex(index: number, length: number): number {
+    return Math.max(0, Math.min(index, length))
+  }
+
+  function restoreLikuid(
+    category: LiquidAssetCategory,
+    index: number,
+    partial: Partial<AssetRow>,
+  ): AssetRow {
+    const row: AssetRow = {
+      id: rid(),
+      label: partial.label ?? '',
+      amount: partial.amount ?? 0,
+      currency: partial.currency,
+      sukuBungaPercent: partial.sukuBungaPercent,
+      rdJenis: partial.rdJenis,
+    }
+    const arr = asetLikuid[category]
+    arr.splice(clampIndex(index, arr.length), 0, row)
+    return row
+  }
+
+  function restoreNonLikuid(
+    category: NonLiquidAssetCategory,
+    index: number,
+    partial: Partial<AssetRow>,
+  ): AssetRow {
+    const row: AssetRow = {
+      id: rid(),
+      label: partial.label ?? '',
+      amount: partial.amount ?? 0,
+    }
+    const arr = asetNonLikuid[category]
+    arr.splice(clampIndex(index, arr.length), 0, row)
+    return row
+  }
+
+  function restoreCicilan(index: number, partial: Partial<CicilanRow>): CicilanRow {
+    const row: CicilanRow = {
+      id: rid(),
+      tipe: partial.tipe ?? 'LAIN',
+      label: partial.label ?? '',
+      sisaPokok: partial.sisaPokok ?? 0,
+      cicilanPerBulan: partial.cicilanPerBulan ?? 0,
+      sukuBunga: partial.sukuBunga,
+      tenorSisaBulan: partial.tenorSisaBulan,
+      jenisBunga: partial.jenisBunga ?? 'Anuitas',
+      tanggalJatuhTempo: partial.tanggalJatuhTempo,
+    }
+    cicilanAktif.value.splice(clampIndex(index, cicilanAktif.value.length), 0, row)
+    return row
+  }
+
+  function restoreUtangPribadi(
+    index: number,
+    partial: Partial<UtangPribadiRow>,
+  ): UtangPribadiRow {
+    const row: UtangPribadiRow = {
+      id: rid(),
+      label: partial.label ?? '',
+      sisaPokok: partial.sisaPokok ?? 0,
+      cicilanPerBulan: partial.cicilanPerBulan,
+      tempoBulan: partial.tempoBulan,
+      tanggalJatuhTempo: partial.tanggalJatuhTempo,
+    }
+    utangPribadi.value.splice(clampIndex(index, utangPribadi.value.length), 0, row)
+    return row
+  }
+
+  function restoreGadai(index: number, partial: Partial<GadaiRow>): GadaiRow {
+    const row: GadaiRow = {
+      id: rid(),
+      label: partial.label ?? '',
+      jaminan: partial.jaminan ?? 'emas:fisikAntam',
+      gramTertahan: partial.gramTertahan,
+      asetRefId: partial.asetRefId,
+      piutangIdr: partial.piutangIdr ?? 0,
+      bungaPerBulanPercent: partial.bungaPerBulanPercent ?? 0,
+      tempoBulan: partial.tempoBulan ?? 0,
+      tanggalJatuhTempo: partial.tanggalJatuhTempo,
+    }
+    gadai.value.splice(clampIndex(index, gadai.value.length), 0, row)
+    return row
+  }
+
+  function restorePenghasilanLain(index: number, partial: Partial<AssetRow>): AssetRow {
+    const row: AssetRow = {
+      id: rid(),
+      label: partial.label ?? '',
+      amount: partial.amount ?? 0,
+      currency: partial.currency,
+    }
+    penghasilanLain.value.splice(
+      clampIndex(index, penghasilanLain.value.length),
+      0,
+      row,
+    )
+    return row
+  }
+
+  function restorePengeluaranLain(index: number, partial: Partial<AssetRow>): AssetRow {
+    const row: AssetRow = {
+      id: rid(),
+      label: partial.label ?? '',
+      amount: partial.amount ?? 0,
+      currency: partial.currency,
+    }
+    pengeluaranLain.value.splice(
+      clampIndex(index, pengeluaranLain.value.length),
+      0,
+      row,
+    )
+    return row
+  }
+
   function reset() {
     const fresh = emptySnapshot()
     Object.assign(penghasilan, fresh.penghasilan)
@@ -423,6 +543,13 @@ export const useSnapshotStore = defineStore('snapshot', () => {
     addPengeluaranLain,
     updatePengeluaranLain,
     removePengeluaranLain,
+    restoreLikuid,
+    restoreNonLikuid,
+    restoreCicilan,
+    restoreUtangPribadi,
+    restoreGadai,
+    restorePenghasilanLain,
+    restorePengeluaranLain,
     reset,
     applyImportedState,
   }

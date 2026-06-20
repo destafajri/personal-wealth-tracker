@@ -1,14 +1,26 @@
 <script setup lang="ts">
 import { CirclePlus, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
-import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { useUndoDelete } from '~/composables/useUndoDelete'
 import { t } from '~/lib/copy/strings'
 import { CURRENCIES } from '~/lib/types/snapshot'
 
 defineProps<{ hideHeader?: boolean; showBiayaKos?: boolean }>()
 
 const snap = useSnapshotStore()
+const undo = useUndoDelete()
+
+function handleRemoveLain(rowId: string) {
+  const idx = snap.pengeluaranLain.findIndex((r) => r.id === rowId)
+  if (idx === -1) return
+  const row = snap.pengeluaranLain[idx]!
+  const { id, ...rowData } = row
+  void id
+  undo.capture('pengeluaranLain', rowData, idx)
+  snap.removePengeluaranLain(rowId)
+}
 </script>
 
 <template>
@@ -92,18 +104,18 @@ const snap = useSnapshotStore()
               v-if="snap.pengeluaranLain.length === 0"
               class="mt-2 text-[11px] text-[var(--color-text-muted)]"
             >
-              Sewa, asuransi, biaya anak, dan lain-lain yang ga masuk pokok/lifestyle.
+              Belum ada pengeluaran lain. Sewa, asuransi, biaya anak, langganan — yang ga masuk pokok/lifestyle.
             </p>
             <TransitionGroup
               v-else
               name="row-slide"
               tag="ul"
-              class="mt-2 space-y-2"
+              class="mt-2 divide-y divide-[var(--color-border)]"
             >
               <li
                 v-for="row in snap.pengeluaranLain"
                 :key="row.id"
-                class="space-y-1"
+                class="space-y-1 py-2 first:pt-0 last:pb-0"
               >
                 <div class="flex flex-wrap items-center gap-2">
                   <input
@@ -135,19 +147,19 @@ const snap = useSnapshotStore()
                     type="button"
                     aria-label="Hapus baris"
                     class="shrink-0 rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
-                    @click="snap.removePengeluaranLain(row.id)"
+                    @click="handleRemoveLain(row.id)"
                   >
                     <X :size="16" />
                   </button>
                 </div>
               </li>
             </TransitionGroup>
-            <ButtonGhost
-              class="mt-2 w-full"
-              @click="snap.addPengeluaranLain()"
-            >
-              + Tambah
-            </ButtonGhost>
+            <AddRowCta
+              noun="pengeluaran lain"
+              :has-row="snap.pengeluaranLain.length > 0"
+              class="mt-2"
+              @add="snap.addPengeluaranLain()"
+            />
           </div>
         </div>
       </div>

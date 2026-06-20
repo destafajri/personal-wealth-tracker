@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
-import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import { idr } from '~/lib/format/idr'
 import { rateToIdr } from '~/lib/finance/fx'
 import { useDerivedStore } from '~/stores/derived'
@@ -14,7 +15,7 @@ import {
   type RdJenis,
 } from '~/lib/types/snapshot'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     rows: AssetRow[]
     title: string
@@ -27,8 +28,13 @@ withDefaults(
     // Saham / Indeks / Lain). Drives Safe Haven inclusion — only defensif jenis
     // (RDPU + RDPT) count. Untagged rows treated as safe for back-compat.
     showRdJenis?: boolean
+    // 'card' (default) = space-y-2 separation, no per-row border.
+    // 'inline' = tighter rows separated by bottom-border dividers (Notion-table feel).
+    // 'bordered' = Stitch-style: outer section card has the border; rows use SPACING
+    // only (no per-row borders). Used by Investasi panels.
+    variant?: 'card' | 'inline' | 'bordered'
   }>(),
-  { showCurrency: false, showInterestRate: false, showRdJenis: false },
+  { showCurrency: false, showInterestRate: false, showRdJenis: false, variant: 'card' },
 )
 
 const emit = defineEmits<{
@@ -63,20 +69,53 @@ function idrEquivalent(row: AssetRow): number | null {
   if (rate === null) return null
   return (row.amount || 0) * rate
 }
+
+// Per-category running total in IDR. Used in `bordered` variant sub-card header
+// so the user sees the category's contribution to the section total without
+// having to scroll through every row. Sums all rows including FX conversion for
+// non-IDR entries (uses idrEquivalent helper, falls back to 0 when rate stale).
+const totalIdr = computed(() =>
+  props.rows.reduce((sum, row) => {
+    const cur = currencyOf(row)
+    if (cur === 'IDR') return sum + (row.amount || 0)
+    return sum + (idrEquivalent(row) ?? 0)
+  }, 0),
+)
 </script>
 
 <template>
+  <!-- Stitch image.png border pattern: outer section card has the border; rows
+       inside use SPACING only (no per-row borders, no dividers, no sub-cards).
+       Variants differ only in row separation + add-button style. -->
   <div class="space-y-2">
-    <h4 class="min-w-0 truncate text-sm font-medium text-[var(--color-text-primary)]">
+    <h4
+      :class="
+        variant === 'bordered'
+          ? 'min-w-0 truncate text-sm font-semibold text-[var(--color-text-primary)]'
+          : 'min-w-0 truncate text-sm font-medium text-[var(--color-text-primary)]'
+      "
+    >
       {{ title }}
     </h4>
+
     <TransitionGroup
       v-if="rows.length > 0"
       name="row-slide"
       tag="ul"
-      class="space-y-2"
+      :class="
+        variant === 'inline'
+          ? 'divide-y divide-[var(--color-border)]'
+          : 'space-y-3'
+      "
     >
-      <li v-for="row in rows" :key="row.id" class="space-y-1">
+      <li
+        v-for="row in rows"
+        :key="row.id"
+        :class="[
+          'space-y-1',
+          variant === 'inline' && 'py-2 first:pt-0 last:pb-0',
+        ]"
+      >
         <div class="flex flex-wrap items-center gap-2">
           <input
             type="text"
@@ -109,7 +148,7 @@ function idrEquivalent(row: AssetRow): number | null {
         </div>
         <p
           v-if="showCurrency && currencyOf(row) !== 'IDR'"
-          class="tabular pl-2 text-[11px] text-[var(--color-text-muted)]"
+          class="num pl-2 text-[11px] text-[var(--color-text-muted)]"
         >
           <template v-if="idrEquivalent(row) !== null">
             ≈ {{ idr(idrEquivalent(row)) }}
@@ -165,7 +204,7 @@ function idrEquivalent(row: AssetRow): number | null {
             min="0"
             :value="row.sukuBungaPercent ?? ''"
             :aria-label="t('snapshot.aset.sukuBungaAria')"
-            class="tabular h-8 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-right text-xs text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
+            class="num h-8 w-20 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] px-2 text-right text-xs text-[var(--color-text-primary)] outline-none transition-colors duration-200 focus:border-[var(--color-primary)]"
             @input="
               emit(
                 'update:sukuBunga',
@@ -179,9 +218,13 @@ function idrEquivalent(row: AssetRow): number | null {
         </div>
       </li>
     </TransitionGroup>
-    <ButtonGhost class="w-full" @click="emit('add')">
-      {{ t('snapshot.row.add') }}
-    </ButtonGhost>
+
+    <!-- Unified AddRowCta — hybrid pattern across all sections -->
+    <AddRowCta
+      :noun="title.toLowerCase()"
+      :has-row="rows.length > 0"
+      @add="emit('add')"
+    />
   </div>
 </template>
 

@@ -1,21 +1,62 @@
 <script setup lang="ts">
-import { Info } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { Info, Lock } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import GadaiRowEditor from '~/components/snapshot/GadaiRow.vue'
+import EmptyStateCard from '~/components/snapshot/EmptyStateCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useMetricExplainer } from '~/composables/useMetricExplainer'
+import { useUndoDelete } from '~/composables/useUndoDelete'
 import { idr } from '~/lib/format/idr'
 import { percent } from '~/lib/format/percent'
 import { t } from '~/lib/copy/strings'
 import { zoneOf } from '~/lib/finance/thresholds'
+import { gadaiDefaultFields, gadaiDefaultsFor } from '~/lib/smart-defaults/gadaiDefaults'
+import type { GadaiJaminanKind } from '~/lib/types/snapshot'
 
 defineProps<{ hideHeader?: boolean }>()
 
 const snap = useSnapshotStore()
 const explainer = useMetricExplainer()
+const undo = useUndoDelete()
 
 const rows = computed(() => snap.gadai)
+
+// Quick-add chips for the 4 most common gadai jaminan types. Each applies smart
+// defaults (label, bungaPerBulanPercent, tempoBulan) per Pegadaian-standard rates.
+// Plain "+ Tambah Gadai" button below intentionally stays empty (user decision
+// 2026-06-19, spec §15.3).
+const quickAdds: { jaminan: GadaiJaminanKind; labelKey: Parameters<typeof t>[0] }[] = [
+  { jaminan: 'emas:digital', labelKey: 'gadai.jaminan.emas.digital' },
+  { jaminan: 'emas:fisikAntam', labelKey: 'gadai.jaminan.emas.fisikAntam' },
+  { jaminan: 'properti', labelKey: 'gadai.jaminan.properti' },
+  { jaminan: 'kendaraan', labelKey: 'gadai.jaminan.kendaraan' },
+]
+
+// Per-row "fields that received smart defaults" map. Keyed by row id.
+const recentDefaults = ref<Map<string, string[]>>(new Map())
+
+function addWithDefaults(jaminan: GadaiJaminanKind) {
+  const defaults = gadaiDefaultsFor(jaminan)
+  const newRow = snap.addGadai({ jaminan, ...defaults })
+  recentDefaults.value.set(newRow.id, gadaiDefaultFields(jaminan))
+  recentDefaults.value = new Map(recentDefaults.value)
+}
+
+function defaultsFor(rowId: string): string[] {
+  return recentDefaults.value.get(rowId) ?? []
+}
+
+function handleRemove(rowId: string) {
+  const idx = snap.gadai.findIndex((r) => r.id === rowId)
+  if (idx === -1) return
+  const row = snap.gadai[idx]!
+  const { id, ...rowData } = row
+  void id
+  undo.capture('gadai', rowData, idx)
+  snap.removeGadai(rowId)
+}
 
 // Aggregates only over emas-backed gadai. Properti/kendaraan still count for piutang totals
 // but not for gram/Rasio Tertahan.
@@ -76,29 +117,41 @@ const zoneClass = computed(() => {
         {{ t('snapshot.section.gadai') }}
       </h3>
     </header>
-    <p
+    <div class="mb-3 flex flex-wrap gap-1">
+      <ButtonGhost
+        v-for="qa in quickAdds"
+        :key="qa.jaminan"
+        @click="addWithDefaults(qa.jaminan)"
+      >
+        {{ t(qa.labelKey) }}
+      </ButtonGhost>
+    </div>
+
+    <EmptyStateCard
       v-if="rows.length === 0"
-      class="rounded-[var(--radius-input)] bg-[var(--color-surface-low)] px-3 py-3 text-sm text-[var(--color-text-secondary)]"
-    >
-      {{ t('gadai.empty') }}
-    </p>
+      :icon="Lock"
+      icon-variant="rose"
+      :title="t('gadai.empty')"
+      body="Pegadaian emas standar 1%/bln tenor 4bln. Klik preset di atas atau tambah custom."
+    />
 
     <TransitionGroup v-else name="row-slide" tag="div" class="space-y-3">
       <GadaiRowEditor
         v-for="row in rows"
         :key="row.id"
         :row="row"
+        :initial-default-fields="defaultsFor(row.id)"
         @update="(patch) => snap.updateGadai(row.id, patch)"
-        @remove="snap.removeGadai(row.id)"
+        @remove="handleRemove(row.id)"
       />
     </TransitionGroup>
 
-    <ButtonGhost
-      class="mt-3 w-full"
-      @click="snap.addGadai()"
-    >
-      {{ t('gadai.add') }}
-    </ButtonGhost>
+    <AddRowCta
+      noun="kontrak gadai"
+      :has-row="rows.length > 0"
+      class="mt-3"
+      @add="snap.addGadai()"
+    />
 
     <div
       v-if="rows.length > 0"

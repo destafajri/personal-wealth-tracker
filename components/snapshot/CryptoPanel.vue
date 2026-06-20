@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue'
-import { RotateCw, X } from 'lucide-vue-next'
+import { Check, RotateCw, X } from 'lucide-vue-next'
 import InputQuantity from '~/components/common/InputQuantity.vue'
 import InputCurrency from '~/components/common/InputCurrency.vue'
-import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
+import TickerChip from '~/components/snapshot/TickerChip.vue'
+import TradingViewTickerTag from '~/components/snapshot/TradingViewTickerTag.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { calcCryptoCapitalGainPercent } from '~/lib/finance/metrics'
@@ -131,6 +133,25 @@ function rowIdrEquivalent(row: CryptoHolding): number | null {
   return row.mode === 'unit' ? liveIdrEquivalent(row) : nonUnitIdrEquivalent(row)
 }
 
+// Row-complete signal for the green ✓ indicator. Crypto row is "complete" when a
+// coin is picked AND the value for the active mode is filled (units > 0 for unit
+// mode, amount > 0 for IDR/USD/KRW modes). Matches the saham PerEmitenCard
+// isComplete semantic — pure input-filled check, no status metric.
+function isRowComplete(row: CryptoHolding): boolean {
+  if (!row.coinId) return false
+  if (row.mode === 'unit') return (row.units ?? 0) > 0
+  return (row.amount ?? 0) > 0
+}
+
+// TV symbol for Ticker Tag. Crypto uses BINANCE:{SYMBOL}USDT perpetual pair
+// convention. Empty when coinId not yet picked.
+function tvSymbolForCrypto(row: CryptoHolding): string {
+  if (!row.coinId) return ''
+  const sym = findCoinById(row.coinId)?.symbol
+  if (!sym) return ''
+  return `BINANCE:${sym.toUpperCase()}USDT`
+}
+
 // Datalist gives back the raw symbol (e.g. "BTC"); we resolve it through the catalog
 // to its canonical CoinGecko id ("bitcoin"). Unrecognized typing clears the row's coin
 // — better than persisting an unresolvable id that would silently fail to price.
@@ -224,9 +245,7 @@ const total = computed(() =>
 </script>
 
 <template>
-  <section
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
-  >
+  <section>
     <header v-if="!hideHeader || onRefresh" class="mb-3">
       <div class="flex items-start gap-3">
         <h3 v-if="!hideHeader" class="text-base font-semibold text-[var(--color-text-primary)]">
@@ -283,11 +302,27 @@ const total = computed(() =>
       <li
         v-for="row in snap.crypto"
         :key="row.id"
-        class="space-y-2 rounded-[var(--radius-input)] bg-[var(--color-surface-low)] p-3"
+        class="space-y-2 rounded-[var(--radius-input)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-3"
       >
-        <!-- Header: coin picker + remove. Mode toggle is on its own row to keep the
-             coin picker wide enough to read the suggested coin name. -->
+        <!-- Header: TV ticker tag (fallback colored chip) + coin picker + ✓ + remove.
+             Mode toggle is on its own row to keep the coin picker wide enough. -->
         <div class="flex items-center gap-2">
+          <TradingViewTickerTag
+            v-if="tvSymbolForCrypto(row)"
+            :symbol="tvSymbolForCrypto(row)"
+          >
+            <template #fallback>
+              <TickerChip
+                :ticker="findCoinById(row.coinId)?.symbol ?? ''"
+                size="md"
+              />
+            </template>
+          </TradingViewTickerTag>
+          <TickerChip
+            v-else
+            :ticker="findCoinById(row.coinId)?.symbol ?? ''"
+            size="md"
+          />
           <div class="flex-1">
             <!-- :value derives from the stored coinId so the field always shows the
                  canonical ticker after commit. @change (not @input) means we only
@@ -306,10 +341,17 @@ const total = computed(() =>
               @change="onCoinPick(row.id, $event)"
             >
           </div>
+          <Check
+            v-if="isRowComplete(row)"
+            :size="14"
+            :stroke-width="2.5"
+            class="shrink-0 text-[var(--color-accent-emerald)]"
+            aria-label="Baris sudah lengkap"
+          />
           <button
             type="button"
             :aria-label="t('snapshot.crypto.remove')"
-            class="rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
+            class="rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-low)] hover:text-[var(--color-danger-rose)] active:scale-95"
             @click="snap.removeCrypto(row.id)"
           >
             <X :size="16" />
@@ -350,7 +392,7 @@ const total = computed(() =>
 
         <!-- Multi-currency rate line (always shown for context, including non-unit
              modes — a 'wajar gak harganya' reference). -->
-        <p class="tabular text-[11px] text-[var(--color-text-muted)]">
+        <p class="num text-[11px] text-[var(--color-text-muted)]">
           <template v-if="rateLine(row.coinId)">{{ rateLine(row.coinId) }}</template>
           <template v-else>{{ rateHint(row.coinId) }}</template>
         </p>
@@ -364,7 +406,7 @@ const total = computed(() =>
             @update:model-value="(v) => onUnits(row.id, v)"
           />
           <div class="mt-1 flex items-baseline justify-between gap-2">
-            <p class="tabular text-[11px] text-[var(--color-text-muted)]">
+            <p class="num text-[11px] text-[var(--color-text-muted)]">
               <template v-if="liveIdrEquivalent(row) !== null">
                 ≈ {{ idr(liveIdrEquivalent(row)) }}
               </template>
@@ -372,7 +414,7 @@ const total = computed(() =>
             </p>
             <p
               v-if="capitalGainOf(row) !== null"
-              class="tabular text-[11px] font-medium"
+              class="num text-[11px] font-medium"
               :class="capitalGainClass(capitalGainOf(row)!)"
               :title="t('snapshot.crypto.capitalGainHint')"
             >
@@ -428,7 +470,7 @@ const total = computed(() =>
           />
           <p
             v-if="row.mode !== 'idr'"
-            class="tabular mt-1 text-[11px] text-[var(--color-text-muted)]"
+            class="num mt-1 text-[11px] text-[var(--color-text-muted)]"
           >
             <template v-if="nonUnitIdrEquivalent(row) !== null">
               ≈ {{ idr(nonUnitIdrEquivalent(row)) }}
@@ -453,9 +495,12 @@ const total = computed(() =>
       {{ t('snapshot.crypto.empty') }}
     </p>
 
-    <ButtonGhost class="mt-3 w-full" @click="snap.addCrypto()">
-      {{ t('snapshot.crypto.add') }}
-    </ButtonGhost>
+    <AddRowCta
+      noun="kripto"
+      :has-row="snap.crypto.length > 0"
+      class="mt-3"
+      @add="snap.addCrypto()"
+    />
 
     <div
       class="mt-4 flex items-baseline justify-between rounded-[var(--radius-input)] bg-[var(--color-primary-container)] px-3 py-2 text-[var(--color-surface-card)]"
@@ -463,7 +508,7 @@ const total = computed(() =>
       <span class="text-xs font-medium uppercase tracking-wide">
         {{ t('snapshot.crypto.totalLabel') }}
       </span>
-      <span class="tabular text-base font-semibold">{{ idr(total) }}</span>
+      <span class="num text-base font-semibold">{{ idr(total) }}</span>
     </div>
   </section>
 </template>

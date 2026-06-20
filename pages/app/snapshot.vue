@@ -36,10 +36,13 @@ import AsetLikuidPanel from '~/components/snapshot/AsetLikuidPanel.vue'
 import AsetNonLikuidPanel from '~/components/snapshot/AsetNonLikuidPanel.vue'
 import CryptoPanel from '~/components/snapshot/CryptoPanel.vue'
 import SahamPanel from '~/components/snapshot/SahamPanel.vue'
+import TradingViewTickerTape from '~/components/snapshot/TradingViewTickerTape.vue'
 import EmasPanel from '~/components/snapshot/EmasPanel.vue'
 import CicilanAktifPanel from '~/components/snapshot/CicilanAktifPanel.vue'
 import UtangPribadiPanel from '~/components/snapshot/UtangPribadiPanel.vue'
 import GadaiPanel from '~/components/snapshot/GadaiPanel.vue'
+import UndoToast from '~/components/snapshot/UndoToast.vue'
+import PersonaPickerBanner from '~/components/snapshot/PersonaPickerBanner.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
 import { useGoalsStore } from '~/stores/goals'
@@ -63,6 +66,7 @@ import {
   sumSbnIdr,
   sumStockIdr,
 } from '~/lib/finance/metrics'
+import { idr } from '~/lib/format/idr'
 import type {
   AssetRow,
   CryptoRateView,
@@ -120,8 +124,13 @@ function resetDemo() {
   snap.reset()
 }
 
-// Only show personas matching current page mode
-const personas = computed(() => PERSONAS.filter((p) => p.mode === 'wealthTracker'))
+// Demo banner personas — diagnostic only (kind !== 'template'). Template personas
+// are reserved for the PersonaPickerBanner first-run flow (Phase 8.2). Without
+// this discriminator, adding template personas to the same registry would leak
+// them into the demo picker.
+const personas = computed(() =>
+  PERSONAS.filter((p) => p.mode === 'wealthTracker' && p.kind !== 'template'),
+)
 const activePersonaId = ref<string | null>(null)
 
 function switchPersona(p: SamplePersona) {
@@ -312,6 +321,23 @@ const sahamTotal = computed(() =>
 const cryptoTotal = computed(() =>
   sumCryptoIdr(snap.crypto, derived.priceView ?? undefined),
 )
+
+// Investasi section-header totals. Each is a pure sum of the underlying per-panel
+// totals — descriptive only, no per-section status metric (per Fix C: DSR is
+// portfolio-level, not decomposable per asset section).
+const emasGramTotal = computed(() => {
+  const e = snap.emas
+  return (
+    e.digitalGram +
+    e.fisikAntamGram +
+    e.perhiasan18KGram +
+    e.perhiasan14KGram +
+    e.perhiasan10KGram
+  )
+})
+const investasiPasarTotal = computed(
+  () => sahamTotal.value + cryptoTotal.value,
+)
 const asetTetapTotal = computed(
   () =>
     sumRows(snap.asetNonLikuid.properti) +
@@ -327,6 +353,45 @@ const utangPribadiTotal = computed(() =>
 const gadaiTotal = computed(() =>
   snap.gadai.reduce((s, r) => s + (r.piutangIdr || 0), 0),
 )
+
+// Phase 8.3 — Per-tab row counts for SnapshotTabBar badges. Each tab badge
+// shows total row count across all panels rendered in that tab. Ringkasan
+// always 0 (it's the dashboard view, no data entry).
+const hasEmas = computed(() => {
+  const e = snap.emas
+  return (
+    e.digitalGram > 0 ||
+    e.fisikAntamGram > 0 ||
+    e.perhiasan18KGram > 0 ||
+    e.perhiasan14KGram > 0 ||
+    e.perhiasan10KGram > 0
+  )
+})
+
+const tabCounts = computed<Record<string, number>>(() => ({
+  'cash-flow':
+    (snap.penghasilan.amount > 0 ? 1 : 0) +
+    snap.penghasilanLain.length +
+    (snap.pengeluaran.pokok > 0 || snap.pengeluaran.lifestyle > 0 ? 1 : 0) +
+    snap.pengeluaranLain.length,
+  'kas-tabungan': snap.asetLikuid.kas.length,
+  investasi:
+    snap.asetLikuid.deposito.length +
+    snap.asetLikuid.reksaDana.length +
+    snap.asetLikuid.sbn.length +
+    (hasEmas.value ? 1 : 0) +
+    snap.saham.length +
+    snap.crypto.length,
+  'aset-non-likuid':
+    snap.asetNonLikuid.properti.length +
+    snap.asetNonLikuid.kendaraan.length +
+    snap.asetNonLikuid.pensiun.length,
+  utang:
+    snap.cicilanAktif.length +
+    snap.utangPribadi.length +
+    snap.gadai.length,
+  ringkasan: 0,
+}))
 
 const tickers = computed(() => snap.saham.map((s) => s.ticker).filter(Boolean))
 const gold = useGoldPrice()
@@ -422,8 +487,11 @@ watchEffect(() => {
     <SnapshotTabBar
       :tabs="TABS"
       :active-id="activeTabId"
+      :counts="tabCounts"
       @update:active-id="(id) => goToTab(id as SnapshotTabId)"
     />
+
+    <PersonaPickerBanner :has-data="hasData" />
 
     <div
       v-show="activeTabId === 'cash-flow'"
@@ -444,6 +512,7 @@ watchEffect(() => {
           :icon="TrendingUp"
           variant="emerald"
           :value="penghasilanTotal"
+          :section-complete="penghasilanTotal > 0"
         >
           <PenghasilanForm hide-header />
         </CollapsiblePanel>
@@ -453,19 +522,21 @@ watchEffect(() => {
           :icon="ShoppingCart"
           variant="rose"
           :value="pengeluaranTotal"
+          :section-complete="pengeluaranTotal > 0"
         >
           <PengeluaranForm hide-header />
         </CollapsiblePanel>
       </div>
     </div>
 
-    <div v-show="activeTabId === 'kas-tabungan'" class="space-y-3">
+    <div v-show="activeTabId === 'kas-tabungan'" class="space-y-5">
       <CollapsiblePanel
         title="Kas"
         subtitle="Saldo bank, dana darurat, dan tabungan tujuan"
         :icon="Wallet"
         variant="emerald"
         :value="kasTotal"
+        :section-complete="kasTotal > 0"
       >
         <AsetLikuidPanel :categories="['kas']" hide-header />
       </CollapsiblePanel>
@@ -473,45 +544,71 @@ watchEffect(() => {
 
     <div
       v-show="activeTabId === 'investasi'"
-      class="space-y-5 rounded-[var(--radius-card)] bg-gradient-to-br from-[var(--color-primary)]/5 via-[var(--color-surface-card)] to-[var(--color-surface-card)] p-4 sm:p-6"
+      class="space-y-5"
     >
-      <header>
-        <h2 class="text-lg font-semibold text-[var(--color-text-primary)]">
-          Pilih Jenis Investasi
-        </h2>
-        <p class="mt-1 text-sm text-[var(--color-text-secondary)]">
-          Kategorikan portofolio kamu berdasarkan jenis aset untuk manajemen risiko yang lebih baik.
-        </p>
-      </header>
+      <!-- TradingView Ticker Tape — market overview strip (IHSG + gold + BTC + USD/IDR).
+           Contextual to Investasi tab; not shown on other tabs. -->
+      <TradingViewTickerTape />
 
-      <div class="space-y-3">
-        <div>
-          <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
-            Investasi Pasif
-          </h3>
-          <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
-            Deposito, reksa dana, SBN, dan emas — yielding atau store-of-value
-          </p>
-        </div>
-        <CollapsiblePanel
-          title="Deposito, Reksa Dana, SBN"
-          subtitle="Fixed-income dengan bunga / yield"
-          :icon="Landmark"
-          variant="emerald"
-          :value="depoRdSbnTotal"
-        >
+      <!-- Section 1: Investasi Pasif — pure form: title prominent, total as value -->
+      <section
+        class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <header class="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
+          <div class="flex min-w-0 items-center gap-2.5">
+            <IconChip variant="emerald" size="md">
+              <Landmark :size="18" :stroke-width="1.75" />
+            </IconChip>
+            <div class="min-w-0">
+              <h3 class="text-base font-semibold leading-tight text-[var(--color-text-primary)]">
+                Investasi Pasif
+              </h3>
+              <p class="truncate text-xs text-[var(--color-text-muted)]">
+                Deposito, reksa dana, SBN
+              </p>
+            </div>
+          </div>
+          <span class="num whitespace-nowrap text-sm font-medium text-[var(--color-text-secondary)]">
+            {{ idr(depoRdSbnTotal) }}
+          </span>
+        </header>
+        <hr class="border-[var(--color-border)]">
+        <div class="p-4 sm:p-5">
           <AsetLikuidPanel
             :categories="['deposito', 'reksaDana', 'sbn']"
+            variant="bordered"
             hide-header
           />
-        </CollapsiblePanel>
-        <CollapsiblePanel
-          title="Emas"
-          subtitle="Antam, perhiasan, dan emas digital"
-          :icon="Coins"
-          variant="amber"
-          :value="emasTotal"
-        >
+        </div>
+      </section>
+
+      <!-- Section 2: Emas & Logam Mulia -->
+      <section
+        class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <header class="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
+          <div class="flex min-w-0 items-center gap-2.5">
+            <IconChip variant="amber" size="md">
+              <Coins :size="18" :stroke-width="1.75" />
+            </IconChip>
+            <div class="min-w-0">
+              <h3 class="text-base font-semibold leading-tight text-[var(--color-text-primary)]">
+                Emas & Logam Mulia
+              </h3>
+              <p class="truncate text-xs text-[var(--color-text-muted)]">
+                Antam, perhiasan, emas digital
+              </p>
+            </div>
+          </div>
+          <span class="num whitespace-nowrap text-sm font-medium text-[var(--color-text-secondary)]">
+            {{ idr(emasTotal) }}<span
+              v-if="emasGramTotal > 0"
+              class="ml-1 font-normal text-[var(--color-text-muted)]"
+            >· {{ emasGramTotal }}g</span>
+          </span>
+        </header>
+        <hr class="border-[var(--color-border)]">
+        <div class="p-4 sm:p-5">
           <EmasPanel
             hide-header
             :live-error="goldLiveError"
@@ -520,25 +617,33 @@ watchEffect(() => {
             :on-refresh="gold.forceRefresh"
             :gold-source="gold.data.value?.source ?? null"
           />
-        </CollapsiblePanel>
-      </div>
-
-      <div class="space-y-3">
-        <div>
-          <h3 class="text-sm font-semibold text-[var(--color-text-primary)]">
-            Investasi Pasar
-          </h3>
-          <p class="mt-0.5 text-xs text-[var(--color-text-secondary)]">
-            Saham dan kripto dengan harga live
-          </p>
         </div>
-        <CollapsiblePanel
-          title="Saham"
-          subtitle="Per-emiten dengan harga IDX live"
-          :icon="LineChart"
-          variant="amber"
-          :value="sahamTotal"
-        >
+      </section>
+
+      <!-- Section 3: Investasi Pasar -->
+      <section
+        class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      >
+        <header class="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
+          <div class="flex min-w-0 items-center gap-2.5">
+            <IconChip variant="sky" size="md">
+              <LineChart :size="18" :stroke-width="1.75" />
+            </IconChip>
+            <div class="min-w-0">
+              <h3 class="text-base font-semibold leading-tight text-[var(--color-text-primary)]">
+                Investasi Pasar
+              </h3>
+              <p class="truncate text-xs text-[var(--color-text-muted)]">
+                Saham & kripto live
+              </p>
+            </div>
+          </div>
+          <span class="num whitespace-nowrap text-sm font-medium text-[var(--color-text-secondary)]">
+            {{ idr(investasiPasarTotal) }}
+          </span>
+        </header>
+        <hr class="border-[var(--color-border)]">
+        <div class="space-y-5 p-4 sm:p-5">
           <SahamPanel
             hide-header
             :idx-rows="idx.data.value?.prices"
@@ -547,14 +652,6 @@ watchEffect(() => {
             :cooldown-remaining="idx.cooldownRemaining.value"
             :on-refresh="idx.forceRefresh"
           />
-        </CollapsiblePanel>
-        <CollapsiblePanel
-          title="Kripto"
-          subtitle="Per-coin dengan CoinGecko live + 4 mode input"
-          :icon="Bitcoin"
-          variant="amber"
-          :value="cryptoTotal"
-        >
           <CryptoPanel
             hide-header
             :live-error="cryptoLiveError"
@@ -562,17 +659,18 @@ watchEffect(() => {
             :cooldown-remaining="crypto.cooldownRemaining.value"
             :on-refresh="crypto.forceRefresh"
           />
-        </CollapsiblePanel>
-      </div>
+        </div>
+      </section>
     </div>
 
-    <div v-show="activeTabId === 'aset-non-likuid'" class="space-y-3">
+    <div v-show="activeTabId === 'aset-non-likuid'" class="space-y-5">
       <CollapsiblePanel
         title="Properti, Kendaraan, Lainnya"
         subtitle="Aset fisik dan barang berharga"
         :icon="Home"
         variant="sky"
         :value="asetTetapTotal"
+        :section-complete="asetTetapTotal > 0"
       >
         <AsetNonLikuidPanel hide-header />
       </CollapsiblePanel>
@@ -590,13 +688,14 @@ watchEffect(() => {
           Cicilan aktif, utang pribadi, dan jaminan gadai — sumber kewajiban yang mempengaruhi DSR dan likuiditas darurat.
         </p>
       </header>
-      <div class="space-y-3">
+      <div class="space-y-4">
         <CollapsiblePanel
           title="Cicilan Aktif"
           subtitle="KPR, KPM, kartu kredit, pinjol, paylater, KTA"
           :icon="CreditCard"
           variant="rose"
           :value="cicilanAktifTotal"
+          :section-complete="cicilanAktifTotal > 0"
         >
           <CicilanAktifPanel hide-header />
         </CollapsiblePanel>
@@ -606,6 +705,7 @@ watchEffect(() => {
           :icon="Banknote"
           variant="rose"
           :value="utangPribadiTotal"
+          :section-complete="utangPribadiTotal > 0"
         >
           <UtangPribadiPanel hide-header />
         </CollapsiblePanel>
@@ -615,6 +715,7 @@ watchEffect(() => {
           :icon="Lock"
           variant="rose"
           :value="gadaiTotal"
+          :section-complete="gadaiTotal > 0"
         >
           <GadaiPanel hide-header />
         </CollapsiblePanel>
@@ -696,5 +797,7 @@ watchEffect(() => {
         <span>Data disimpan lokal di browser kamu, tidak dikirim ke server. Unduh XLSX untuk simpan data & lanjutkan kapan saja.</span>
       </p>
     </div>
+
+    <UndoToast />
   </div>
 </template>

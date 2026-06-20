@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RotateCw } from 'lucide-vue-next'
-import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import PerEmitenCard from '~/components/snapshot/PerEmitenCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { effectiveStockPrice } from '~/lib/finance/metrics'
@@ -63,9 +63,7 @@ function refreshLive() {
 </script>
 
 <template>
-  <section
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
-  >
+  <section>
     <header v-if="!hideHeader || onRefresh" class="mb-3">
       <div class="flex items-start gap-3">
         <h3 v-if="!hideHeader" class="text-base font-semibold text-[var(--color-text-primary)]">
@@ -103,7 +101,7 @@ function refreshLive() {
       v-if="snap.saham.length > 0"
       name="row-slide"
       tag="ul"
-      class="space-y-3"
+      class="grid gap-3 lg:grid-cols-2"
     >
       <PerEmitenCard
         v-for="row in snap.saham"
@@ -122,9 +120,12 @@ function refreshLive() {
       {{ t('snapshot.saham.empty') }}
     </p>
 
-    <ButtonGhost class="mt-3 w-full" @click="snap.addSaham()">
-      {{ t('snapshot.saham.add') }}
-    </ButtonGhost>
+    <AddRowCta
+      noun="saham"
+      :has-row="snap.saham.length > 0"
+      class="mt-3"
+      @add="snap.addSaham()"
+    />
 
     <div
       v-if="snap.saham.length > 0"
@@ -133,7 +134,7 @@ function refreshLive() {
       <span class="text-xs font-medium uppercase tracking-wide">
         {{ t('snapshot.saham.totalLabel') }}
       </span>
-      <span class="tabular text-base font-semibold">{{ idr(totalValueIdr) }}</span>
+      <span class="num text-base font-semibold">{{ idr(totalValueIdr) }}</span>
     </div>
   </section>
 </template>

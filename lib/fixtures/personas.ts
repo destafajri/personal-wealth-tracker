@@ -11,6 +11,11 @@ export interface SamplePersona {
   emoji: string
   mode: 'wealthTracker' | 'budgetKos'
   blurb: string
+  // 'diagnostic' = demo-only persona showcasing a problem state (existing 10 personas).
+  // 'template' = first-run template persona for PersonaPickerBanner (Phase 8.2).
+  // undefined ≡ 'diagnostic' for back-compat with existing personas (which don't
+  // set this field). New personas should set it explicitly.
+  kind?: 'diagnostic' | 'template'
   apply: (snap: SnapshotStore) => void
 }
 
@@ -355,6 +360,144 @@ const sultanProperti: SamplePersona = {
   },
 }
 
+// ---------- Phase 8.2: Template Personas (first-run picker) ----------
+// Minimal-but-realistic starting snapshots. NOT demo personas — these are
+// intended as editable starting points for brand-new users via the
+// PersonaPickerBanner. Each apply() leaves setDemo(false) so the demo banner
+// doesn't surface.
+//
+// Numbers are typical Indonesian market values as of 2026-Q2; user is expected
+// to edit. Copy on the picker makes this explicit.
+
+// ---------- #11 Template: Pegawai KPR ----------
+const templatePegawaiKpr: SamplePersona = {
+  id: 'template-pegawai-kpr',
+  nama: 'Pegawai KPR',
+  emoji: '👔',
+  mode: 'wealthTracker',
+  kind: 'template',
+  blurb: 'Gaji menengah, KPR rumah, starting tabungan darurat',
+  apply(snap) {
+    snap.reset()
+    snap.setPenghasilanAmount(12_000_000)
+    snap.setPenghasilanCurrency('IDR')
+    snap.setPengeluaran({ pokok: 5_000_000, lifestyle: 2_000_000 })
+    snap.addLikuid('kas', { label: 'BCA', amount: 50_000_000 })
+    snap.addLikuid('reksaDana', { label: 'Reksa Dana Pasar Uang', amount: 20_000_000, rdJenis: 'pasarUang' })
+    snap.addNonLikuid('properti', { label: 'Rumah (KPR)', amount: 700_000_000 })
+    snap.addNonLikuid('kendaraan', { label: 'Motor', amount: 25_000_000 })
+    snap.addCicilan({
+      tipe: 'KPR',
+      label: 'KPR Rumah',
+      sisaPokok: 600_000_000,
+      cicilanPerBulan: 4_000_000,
+      sukuBunga: 7.5,
+      tenorSisaBulan: 240,
+      jenisBunga: 'Anuitas',
+    })
+  },
+}
+
+// ---------- #12 Template: Freelancer ----------
+const templateFreelancer: SamplePersona = {
+  id: 'template-freelancer',
+  nama: 'Freelancer',
+  emoji: '💻',
+  mode: 'wealthTracker',
+  kind: 'template',
+  blurb: 'Penghasilan variabel, fokus dana darurat',
+  apply(snap) {
+    snap.reset()
+    snap.setPenghasilanAmount(8_000_000)
+    snap.setPenghasilanCurrency('IDR')
+    snap.addPenghasilanLain({ label: 'Proyek klien A', amount: 4_000_000, currency: 'IDR' })
+    snap.addPenghasilanLain({ label: 'Proyek klien B', amount: 2_000_000, currency: 'IDR' })
+    snap.setPengeluaran({ pokok: 4_000_000, lifestyle: 2_000_000 })
+    snap.addLikuid('kas', { label: 'BCA', amount: 30_000_000 })
+    snap.addLikuid('reksaDana', { label: 'Reksa Dana Saham', amount: 10_000_000, rdJenis: 'saham' })
+  },
+}
+
+// ---------- #13 Template: Mahasiswa ----------
+const templateMahasiswa: SamplePersona = {
+  id: 'template-mahasiswa',
+  nama: 'Mahasiswa',
+  emoji: '🎓',
+  mode: 'wealthTracker',
+  kind: 'template',
+  blurb: 'Uang saku, masih fokus kuliah',
+  apply(snap) {
+    snap.reset()
+    snap.setPenghasilanAmount(3_000_000)
+    snap.setPenghasilanCurrency('IDR')
+    snap.setPengeluaran({ pokok: 2_500_000, lifestyle: 500_000 })
+    snap.addLikuid('kas', { label: 'Dompet digital', amount: 5_000_000 })
+  },
+}
+
+// ---------- #14 Template: Pasangan Muda ----------
+const templatePasanganMuda: SamplePersona = {
+  id: 'template-pasangan-muda',
+  nama: 'Pasangan Muda',
+  emoji: '💑',
+  mode: 'wealthTracker',
+  kind: 'template',
+  blurb: 'Dua penghasilan, KPR + cicilan mobil/motor',
+  apply(snap) {
+    snap.reset()
+    snap.setPenghasilanAmount(15_000_000)
+    snap.setPenghasilanCurrency('IDR')
+    snap.addPenghasilanLain({ label: 'Gaji pasangan', amount: 10_000_000, currency: 'IDR' })
+    snap.setPengeluaran({ pokok: 8_000_000, lifestyle: 4_000_000 })
+    snap.addLikuid('kas', { label: 'BCA joint', amount: 75_000_000 })
+    snap.addLikuid('reksaDana', { label: 'RD Pasar Uang', amount: 30_000_000, rdJenis: 'pasarUang' })
+    snap.addLikuid('sbn', { label: 'ORI', amount: 20_000_000, sukuBungaPercent: 6.0 })
+    snap.addNonLikuid('properti', { label: 'Rumah (KPR)', amount: 800_000_000 })
+    snap.addNonLikuid('kendaraan', { label: 'Mobil', amount: 150_000_000 })
+    snap.addNonLikuid('kendaraan', { label: 'Motor', amount: 30_000_000 })
+    snap.addCicilan({
+      tipe: 'KPR',
+      label: 'KPR Rumah',
+      sisaPokok: 600_000_000,
+      cicilanPerBulan: 5_500_000,
+      sukuBunga: 7.5,
+      tenorSisaBulan: 240,
+      jenisBunga: 'Anuitas',
+    })
+    snap.addCicilan({
+      tipe: 'KPM',
+      label: 'KPM Mobil',
+      sisaPokok: 100_000_000,
+      cicilanPerBulan: 2_500_000,
+      sukuBunga: 6.5,
+      tenorSisaBulan: 48,
+      jenisBunga: 'Anuitas',
+    })
+  },
+}
+
+// ---------- #15 Template: Pensiunan ----------
+const templatePensiunan: SamplePersona = {
+  id: 'template-pensiunan',
+  nama: 'Pensiunan',
+  emoji: '🌿',
+  mode: 'wealthTracker',
+  kind: 'template',
+  blurb: 'Pensiun stabil, aset besar, fokus capital preservation',
+  apply(snap) {
+    snap.reset()
+    snap.setPenghasilanAmount(6_000_000)
+    snap.setPenghasilanCurrency('IDR')
+    snap.setPengeluaran({ pokok: 4_000_000, lifestyle: 1_500_000 })
+    snap.addLikuid('kas', { label: 'BCA', amount: 100_000_000 })
+    snap.addLikuid('deposito', { label: 'Deposito BCA 12bln', amount: 100_000_000, sukuBungaPercent: 4.25 })
+    snap.addLikuid('sbn', { label: 'SBR', amount: 50_000_000, sukuBungaPercent: 6.5 })
+    snap.addNonLikuid('properti', { label: 'Rumah (lunas)', amount: 500_000_000 })
+    snap.addNonLikuid('kendaraan', { label: 'Mobil', amount: 100_000_000 })
+    snap.addNonLikuid('pensiun', { label: 'BPJS Ketenagakerjaan', amount: 50_000_000 })
+  },
+}
+
 // ---------- Registry ----------
 export const PERSONAS: SamplePersona[] = [
   mahasiswaPasPasan,
@@ -367,6 +510,12 @@ export const PERSONAS: SamplePersona[] = [
   juraganKos,
   pensiunanMapan,
   sultanProperti,
+  // ----- Phase 8.2 template personas (first-run picker, NOT demo) -----
+  templatePegawaiKpr,
+  templateFreelancer,
+  templateMahasiswa,
+  templatePasanganMuda,
+  templatePensiunan,
 ]
 
 export function getPersona(id: string): SamplePersona | undefined {

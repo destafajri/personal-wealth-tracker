@@ -2,9 +2,10 @@
 import { computed } from 'vue'
 import { Banknote, CirclePlus, Coins, Landmark, PiggyBank, X } from 'lucide-vue-next'
 import InputCurrency from '~/components/common/InputCurrency.vue'
-import ButtonGhost from '~/components/common/ButtonGhost.vue'
+import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
 import { useDerivedStore } from '~/stores/derived'
+import { useUndoDelete } from '~/composables/useUndoDelete'
 import { rateToIdr } from '~/lib/finance/fx'
 import { idr } from '~/lib/format/idr'
 import { t } from '~/lib/copy/strings'
@@ -14,6 +15,17 @@ defineProps<{ hideHeader?: boolean }>()
 
 const snap = useSnapshotStore()
 const derived = useDerivedStore()
+const undo = useUndoDelete()
+
+function handleRemoveLain(rowId: string) {
+  const idx = snap.penghasilanLain.findIndex((r) => r.id === rowId)
+  if (idx === -1) return
+  const row = snap.penghasilanLain[idx]!
+  const { id, ...rowData } = row
+  void id
+  undo.capture('penghasilanLain', rowData, idx)
+  snap.removePenghasilanLain(rowId)
+}
 
 // Auto-derived monthly estimasi rows surfaced inline: saham dividen + bunga sbn +
 // bunga deposito. Same numbers that flow into DSR/SavingsRate via metrics layer.
@@ -112,18 +124,18 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
               v-if="snap.penghasilanLain.length === 0"
               class="mt-2 text-[11px] text-[var(--color-text-muted)]"
             >
-              {{ t('snapshot.penghasilan.lainEmpty') }}
+              Belum ada penghasilan lain. Freelance, THR, komisi, dividen — semua sampingan masuk sini.
             </p>
             <TransitionGroup
               v-else
               name="row-slide"
               tag="ul"
-              class="mt-2 space-y-2"
+              class="mt-2 divide-y divide-[var(--color-border)]"
             >
               <li
                 v-for="row in snap.penghasilanLain"
                 :key="row.id"
-                class="space-y-1"
+                class="space-y-1 py-2 first:pt-0 last:pb-0"
               >
                 <div class="flex flex-wrap items-center gap-2">
                   <input
@@ -155,7 +167,7 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
                     type="button"
                     :aria-label="t('snapshot.penghasilan.lainRemove')"
                     class="shrink-0 rounded p-2 text-[var(--color-text-muted)] transition-all duration-200 hover:scale-110 hover:bg-[var(--color-surface-card)] hover:text-[var(--color-danger-rose)] active:scale-95"
-                    @click="snap.removePenghasilanLain(row.id)"
+                    @click="handleRemoveLain(row.id)"
                   >
                     <X :size="16" />
                   </button>
@@ -171,12 +183,12 @@ function lainIdrEquivalent(row: { amount: number; currency?: Currency }): number
                 </p>
               </li>
             </TransitionGroup>
-            <ButtonGhost
-              class="mt-2 w-full"
-              @click="snap.addPenghasilanLain()"
-            >
-              + Tambah
-            </ButtonGhost>
+            <AddRowCta
+              noun="penghasilan lain"
+              :has-row="snap.penghasilanLain.length > 0"
+              class="mt-2"
+              @add="snap.addPenghasilanLain()"
+            />
           </div>
         </div>
       </div>

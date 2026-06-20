@@ -6,6 +6,15 @@ export default defineNuxtConfig({
 
   modules: ['@pinia/nuxt', '@nuxt/eslint'],
 
+  // Treat TradingView embed widgets (tv-ticker-tag, tv-symbol-info, etc) as
+  // native custom elements instead of unknown Vue components. Without this,
+  // Vue would warn "failed to resolve component" and render nothing.
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => tag.startsWith('tv-'),
+    },
+  },
+
   css: [
     '~/assets/css/main.css',
     '@fontsource/geist-sans/400.css',

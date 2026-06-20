@@ -10,6 +10,7 @@ import { useTheme } from '~/composables/useTheme'
 import { useToast } from '~/composables/useToast'
 import { useImportXlsx } from '~/composables/useImportXlsx'
 import ImportModal from '~/components/layout/ImportModal.vue'
+import HeaderResetButton from '~/components/layout/HeaderResetButton.vue'
 
 const derived = useDerivedStore()
 const snap = useSnapshotStore()
@@ -155,6 +156,7 @@ async function onFileSelected(e: Event) {
           class="hidden"
           @change="onFileSelected"
         />
+        <HeaderResetButton />
         <button
           type="button"
           class="inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[var(--color-border)] px-4 py-1.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-surface-low)]"

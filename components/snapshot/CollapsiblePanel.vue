@@ -3,7 +3,8 @@ import { ref } from 'vue'
 import type { Component } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 import IconChip from '~/components/common/IconChip.vue'
-import { idr } from '~/lib/format/idr'
+import AnimatedTotal from '~/components/snapshot/AnimatedTotal.vue'
+import SectionCompleteIndicator from '~/components/snapshot/SectionCompleteIndicator.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -15,6 +16,12 @@ const props = withDefaults(
     value?: number | null
     disabled?: boolean
     badge?: string
+    sectionComplete?: boolean
+    // When true, removes the outer panel border + header/body separator border.
+    // Used in Investasi where inner sub-cards (AssetRowList bordered variant) provide
+    // the structural framing — adding an outer panel border on top creates the
+    // "Russian nesting doll" over-bordering look. Default false preserves other tabs.
+    frameless?: boolean
   }>(),
   {
     subtitle: undefined,
@@ -24,6 +31,8 @@ const props = withDefaults(
     value: undefined,
     disabled: false,
     badge: undefined,
+    sectionComplete: false,
+    frameless: false,
   },
 )
 
@@ -35,12 +44,22 @@ const open = ref<boolean>(props.defaultOpen)
 
 <template>
   <section
-    class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+    :class="
+      frameless
+        ? 'overflow-hidden rounded-[var(--radius-card)] bg-transparent'
+        : 'overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]'
+    "
   >
     <button
       type="button"
       class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors sm:px-5"
-      :class="disabled ? 'cursor-not-allowed opacity-60' : 'hover:bg-[var(--color-surface-low)]/50'"
+      :class="
+        disabled
+          ? 'cursor-not-allowed opacity-60'
+          : frameless
+            ? 'hover:bg-[var(--color-surface-low)]/50'
+            : 'hover:bg-[var(--color-surface-low)]/50'
+      "
       :aria-expanded="open"
       @click="!disabled && (open = !open)"
     >
@@ -58,6 +77,7 @@ const open = ref<boolean>(props.defaultOpen)
           >
             {{ badge }}
           </span>
+          <SectionCompleteIndicator v-if="sectionComplete" :complete="true" />
         </div>
         <p
           v-if="subtitle"
@@ -67,9 +87,9 @@ const open = ref<boolean>(props.defaultOpen)
         </p>
         <p
           v-if="props.value !== undefined && props.value !== null"
-          class="mt-1 break-all text-sm font-semibold tabular-nums text-[var(--color-text-secondary)]"
+          class="mt-1 text-base font-bold text-[var(--color-text-primary)]"
         >
-          {{ idr(props.value) }}
+          <AnimatedTotal :value="props.value" />
         </p>
       </div>
       <ChevronDown
@@ -81,7 +101,14 @@ const open = ref<boolean>(props.defaultOpen)
         ]"
       />
     </button>
-    <div v-show="open" class="border-t border-[var(--color-border)] p-4 sm:p-5">
+    <div
+      v-show="open"
+      :class="
+        frameless
+          ? 'p-4 sm:p-5'
+          : 'border-t border-[var(--color-border)] p-4 sm:p-5'
+      "
+    >
       <slot />
     </div>
   </section>

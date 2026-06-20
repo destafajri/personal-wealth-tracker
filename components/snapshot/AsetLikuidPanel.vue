@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import AssetRowList from '~/components/snapshot/AssetRowList.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
+import { useUndoDelete, type UndoPanelKind } from '~/composables/useUndoDelete'
 import { t } from '~/lib/copy/strings'
 import type { LiquidAssetCategory } from '~/lib/types/snapshot'
 
@@ -12,14 +13,32 @@ const props = withDefaults(
   defineProps<{
     categories?: LiquidAssetCategory[]
     hideHeader?: boolean
+    // Pass-through to AssetRowList variant. Default 'inline' preserves existing
+    // Cash Flow / Kas look. Investasi usage passes 'bordered' for fintech-card
+    // consistency with PerEmitenCard / CryptoPanel rows.
+    variant?: 'card' | 'inline' | 'bordered'
   }>(),
   {
     categories: () => ['kas', 'deposito', 'reksaDana', 'sbn'],
     hideHeader: false,
+    variant: 'inline',
   },
 )
 
 const snap = useSnapshotStore()
+const undo = useUndoDelete()
+
+function handleRemove(cat: LiquidAssetCategory, rowId: string) {
+  const arr = snap.asetLikuid[cat]
+  const idx = arr.findIndex((r) => r.id === rowId)
+  if (idx === -1) return
+  const row = arr[idx]!
+  const { id, ...rowData } = row
+  void id
+  // cat doubles as UndoPanelKind (kas/deposito/reksaDana/sbn are valid values).
+  undo.capture(cat as UndoPanelKind, rowData, idx)
+  snap.removeLikuid(cat, rowId)
+}
 
 // `withInterest` marks categories that surface a per-row suku bunga input. Sbn +
 // deposito are the only fixed-income-like bucket; bunga flows into PenghasilanForm as
@@ -49,9 +68,7 @@ function label(key: string): string {
 </script>
 
 <template>
-  <section
-    class="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)] p-4 sm:p-6"
-  >
+  <section>
     <header v-if="!hideHeader" class="mb-4">
       <h3 class="text-base font-semibold text-[var(--color-text-primary)]">
         {{ t('snapshot.section.asetLikuid') }}
@@ -66,6 +83,7 @@ function label(key: string): string {
         show-currency
         :show-interest-rate="cat.withInterest"
         :show-rd-jenis="cat.withRdJenis"
+        :variant="variant"
         @add="snap.addLikuid(cat.key)"
         @update:label="(id, value) => snap.updateLikuid(cat.key, id, { label: value })"
         @update:amount="
@@ -84,7 +102,7 @@ function label(key: string): string {
               rdJenis: value === null ? undefined : value,
             })
         "
-        @remove="(id) => snap.removeLikuid(cat.key, id)"
+        @remove="(id) => handleRemove(cat.key, id)"
       />
     </div>
   </section>
