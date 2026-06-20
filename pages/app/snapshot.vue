@@ -6,7 +6,6 @@ import {
   ArrowLeftRight,
   BarChart3,
   Banknote,
-  Bitcoin,
   Coins,
   CreditCard,
   Download,
@@ -66,7 +65,6 @@ import {
   sumSbnIdr,
   sumStockIdr,
 } from '~/lib/finance/metrics'
-import { idr } from '~/lib/format/idr'
 import type {
   AssetRow,
   CryptoRateView,
@@ -550,100 +548,53 @@ watchEffect(() => {
            Contextual to Investasi tab; not shown on other tabs. -->
       <TradingViewTickerTape />
 
-      <!-- Section 1: Investasi Pasif — pure form: title prominent, total as value -->
-      <section
-        class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      <!-- Section 1: Investasi Pasif -->
+      <CollapsiblePanel
+        title="Investasi Pasif"
+        subtitle="Deposito, reksa dana, SBN"
+        :icon="Landmark"
+        variant="emerald"
+        :value="depoRdSbnTotal"
+        :section-complete="depoRdSbnTotal > 0"
+        default-open
       >
-        <header class="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
-          <div class="flex min-w-0 items-center gap-2.5">
-            <IconChip variant="emerald" size="md">
-              <Landmark :size="18" :stroke-width="1.75" />
-            </IconChip>
-            <div class="min-w-0">
-              <h3 class="text-base font-semibold leading-tight text-[var(--color-text-primary)]">
-                Investasi Pasif
-              </h3>
-              <p class="truncate text-xs text-[var(--color-text-muted)]">
-                Deposito, reksa dana, SBN
-              </p>
-            </div>
-          </div>
-          <span class="num whitespace-nowrap text-sm font-medium text-[var(--color-text-secondary)]">
-            {{ idr(depoRdSbnTotal) }}
-          </span>
-        </header>
-        <hr class="border-[var(--color-border)]">
-        <div class="p-4 sm:p-5">
-          <AsetLikuidPanel
-            :categories="['deposito', 'reksaDana', 'sbn']"
-            variant="bordered"
-            hide-header
-          />
-        </div>
-      </section>
+        <AsetLikuidPanel
+          :categories="['deposito', 'reksaDana', 'sbn']"
+          variant="bordered"
+          hide-header
+        />
+      </CollapsiblePanel>
 
       <!-- Section 2: Emas & Logam Mulia -->
-      <section
-        class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      <CollapsiblePanel
+        title="Emas & Logam Mulia"
+        subtitle="Antam, perhiasan, emas digital"
+        :icon="Coins"
+        variant="amber"
+        :value="emasTotal"
+        :badge="emasGramTotal > 0 ? `${emasGramTotal}g` : undefined"
+        :section-complete="emasTotal > 0"
       >
-        <header class="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
-          <div class="flex min-w-0 items-center gap-2.5">
-            <IconChip variant="amber" size="md">
-              <Coins :size="18" :stroke-width="1.75" />
-            </IconChip>
-            <div class="min-w-0">
-              <h3 class="text-base font-semibold leading-tight text-[var(--color-text-primary)]">
-                Emas & Logam Mulia
-              </h3>
-              <p class="truncate text-xs text-[var(--color-text-muted)]">
-                Antam, perhiasan, emas digital
-              </p>
-            </div>
-          </div>
-          <span class="num whitespace-nowrap text-sm font-medium text-[var(--color-text-secondary)]">
-            {{ idr(emasTotal) }}<span
-              v-if="emasGramTotal > 0"
-              class="ml-1 font-normal text-[var(--color-text-muted)]"
-            >· {{ emasGramTotal }}g</span>
-          </span>
-        </header>
-        <hr class="border-[var(--color-border)]">
-        <div class="p-4 sm:p-5">
-          <EmasPanel
-            hide-header
-            :live-error="goldLiveError"
-            :live-pending="gold.pending.value"
-            :cooldown-remaining="gold.cooldownRemaining.value"
-            :on-refresh="gold.forceRefresh"
-            :gold-source="gold.data.value?.source ?? null"
-          />
-        </div>
-      </section>
+        <EmasPanel
+          hide-header
+          :live-error="goldLiveError"
+          :live-pending="gold.pending.value"
+          :cooldown-remaining="gold.cooldownRemaining.value"
+          :on-refresh="gold.forceRefresh"
+          :gold-source="gold.data.value?.source ?? null"
+        />
+      </CollapsiblePanel>
 
       <!-- Section 3: Investasi Pasar -->
-      <section
-        class="overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-card)]"
+      <CollapsiblePanel
+        title="Investasi Pasar"
+        subtitle="Saham & kripto live"
+        :icon="LineChart"
+        variant="sky"
+        :value="investasiPasarTotal"
+        :section-complete="investasiPasarTotal > 0"
       >
-        <header class="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
-          <div class="flex min-w-0 items-center gap-2.5">
-            <IconChip variant="sky" size="md">
-              <LineChart :size="18" :stroke-width="1.75" />
-            </IconChip>
-            <div class="min-w-0">
-              <h3 class="text-base font-semibold leading-tight text-[var(--color-text-primary)]">
-                Investasi Pasar
-              </h3>
-              <p class="truncate text-xs text-[var(--color-text-muted)]">
-                Saham & kripto live
-              </p>
-            </div>
-          </div>
-          <span class="num whitespace-nowrap text-sm font-medium text-[var(--color-text-secondary)]">
-            {{ idr(investasiPasarTotal) }}
-          </span>
-        </header>
-        <hr class="border-[var(--color-border)]">
-        <div class="space-y-5 p-4 sm:p-5">
+        <div class="space-y-5">
           <SahamPanel
             hide-header
             :idx-rows="idx.data.value?.prices"
@@ -660,7 +611,7 @@ watchEffect(() => {
             :on-refresh="crypto.forceRefresh"
           />
         </div>
-      </section>
+      </CollapsiblePanel>
     </div>
 
     <div v-show="activeTabId === 'aset-non-likuid'" class="space-y-5">

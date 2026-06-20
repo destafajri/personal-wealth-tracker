@@ -25,7 +25,8 @@ export const copy = {
   'landing.cta.snapshot.action': 'Mulai',
 
   'landing.cta.demo.label': 'Rekap Duit Kamu',
-  'landing.cta.demo.body': 'Catat aset, utang & investasi sampe detail. Males input? Coba dulu pakai data contoh.',
+  'landing.cta.demo.body':
+    'Catat aset, utang & investasi sampe detail. Males input? Coba dulu pakai data contoh.',
   'landing.cta.demo.action': 'Coba',
 
   'landing.modal.title': 'Cek Tipe Anak Kos Kamu',
@@ -36,7 +37,8 @@ export const copy = {
   'landing.modal.demo.body': 'Skip isi data, langsung lihat hasilnya.',
   'landing.modal.demo.action': 'Coba',
   'landing.modal.import.label': 'Lanjutin Data Cermat',
-  'landing.modal.import.body': 'Udah punya file export Cermat? Masukin ke sini biar nggak usah mulai dari nol.',
+  'landing.modal.import.body':
+    'Udah punya file export Cermat? Masukin ke sini biar nggak usah mulai dari nol.',
   'landing.modal.import.action': 'Lanjutin',
 
   // Phase-2a Day 3: default layout navbar right-side tagline (with Clock icon).
@@ -272,6 +274,8 @@ export const copy = {
   'snapshot.section.saham': 'Saham',
   'snapshot.saham.help':
     'Per-emiten dengan harga live IDX. Set target bobot kalau mau ngeliat drift dari alokasi.',
+  'snapshot.saham.disclaimer':
+    'Harga acuan saham berasal dari Yahoo Finance dan dapat tertunda beberapa menit. Valuasi memakai harga terakhir yang tersedia, kecuali jika kamu mengisi harga manual maka sistem akan memakai harga override.',
   'snapshot.saham.empty': 'Belum ada saham. Tambah emiten pertama di bawah.',
   'snapshot.saham.add': '+ Tambah Saham',
   'snapshot.saham.tickerPlaceholder': 'BBCA',
@@ -799,8 +803,7 @@ export const copy = {
     'Biaya kos {pct}% dari penghasilan — mendekati batas aman (30%). Pertimbangkan kos yang lebih murah atau tambah sampingan.',
   'budgetKos.biayaKos.ratio.danger':
     'Biaya kos {pct}% dari penghasilan — melewati batas aman (30%). Tabungan dan pos lain bisa terganggu. Cari kos lebih murah atau tambah penghasilan sampingan.',
-  'budgetKos.biayaKos.ratio.recommend':
-    'Coba cari kos di range {min}–{max}/bulan biar rasio aman.',
+  'budgetKos.biayaKos.ratio.recommend': 'Coba cari kos di range {min}–{max}/bulan biar rasio aman.',
 
   // ----- wealth tracker overrides (professional tone) -----
   'wt.metric.netWorth.label': 'Net Worth',
@@ -829,8 +832,7 @@ export const copy = {
   'toast.import.error.noSnapshot': 'Sheet Snapshot tidak ditemukan',
   'toast.import.error.snapshotFormat': 'Format sheet Snapshot tidak sesuai',
   'toast.import.error.empty': 'File kosong, tidak ada data untuk diimpor',
-  'toast.download.downloading':
-    'PDF & XLSX sedang diunduh. Tidak terlihat?',
+  'toast.download.downloading': 'PDF & XLSX sedang diunduh. Tidak terlihat?',
   'toast.download.retryPdf': 'Unduh Ulang PDF',
   'toast.download.retryXlsx': 'Unduh Ulang XLSX',
   'toast.download.pdfFailed': 'PDF gagal dibuat. Silakan coba lagi.',
