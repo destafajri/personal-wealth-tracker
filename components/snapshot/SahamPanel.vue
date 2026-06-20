@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RotateCw } from 'lucide-vue-next'
+import { CircleAlert, RotateCw } from 'lucide-vue-next'
 import AddRowCta from '~/components/snapshot/AddRowCta.vue'
 import PerEmitenCard from '~/components/snapshot/PerEmitenCard.vue'
 import { useSnapshotStore } from '~/stores/snapshot'
@@ -64,6 +64,13 @@ function refreshLive() {
 
 <template>
   <section>
+    <div
+      class="mb-3 flex items-start gap-2 rounded-[var(--radius-input)] border border-[var(--color-warning-amber)]/30 bg-[var(--color-warning-amber-soft)] px-3 py-2 text-xs text-[var(--color-warning-amber)]"
+    >
+      <CircleAlert class="mt-0.5 h-3.5 w-3.5 shrink-0" />
+      <span>{{ t('snapshot.saham.disclaimer') }}</span>
+    </div>
+
     <header v-if="!hideHeader || onRefresh" class="mb-3">
       <div class="flex items-start gap-3">
         <h3 v-if="!hideHeader" class="text-base font-semibold text-[var(--color-text-primary)]">
